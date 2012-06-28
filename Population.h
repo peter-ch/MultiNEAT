@@ -159,17 +159,6 @@ public:
 
     Genome& AccessGenomeByIndex(unsigned int const a_idx);
 
-    std::vector<Genome*> GetGenomeList()
-	{
-    	std::vector<Genome*> g;
-
-    	for(int i=0; i<m_Species.size(); i++)
-    		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
-    			g.push_back(&m_Species[i].m_Individuals[j]);
-    	return g;
-
-	}
-
     InnovationDatabase& AccessInnovationDatabase() { return m_InnovationDatabase; }
 
     // Sorts each species's genomes by fitness

@@ -182,7 +182,6 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("Epoch", &Population::Epoch)
 			.def("Save", &Population::Save)
 			.def("GetBestFitnessEver", &Population::GetBestFitnessEver)
-			.def("GetGenomeList", &Population::GetGenomeList)
 			.def_readwrite("Species", &Population::m_Species)
 			;
 

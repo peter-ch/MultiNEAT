@@ -50,16 +50,23 @@ g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEA
 pop = NEAT.Population(g, True, 1.0)
 
 for generation in range(100):
+    genome_list = []
     for s in pop.Species:
         for i in s.Individuals:
-            fitness = evaluate(i)
-            i.SetFitness(fitness)
-           # print i.GetFitness()
+            genome_list.append(i)
+#            fitness = evaluate(i)
+#            i.SetFitness(fitness)
+#           # print i.GetFitness()
+#        print 'Best fitness of species:', s.ID(), " : ", s.GetLeader().GetFitness()
+
+    #genome_list = pop.GetGenomeList()
+    for g in genome_list:
+        f = evaluate(g)
+        g.SetFitness(f)
+
+    for s in pop.Species:
         print 'Best fitness of species:', s.ID(), " : ", s.GetLeader().GetFitness()
-        
-    #for i in range(len(genome_list)):
-    #    f = evaluate(genome_list[i])
-    #    genome_list[i].SetFitness(5)
+
     pop.Epoch()
     print "Generation:", generation, 
         
