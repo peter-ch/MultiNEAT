@@ -67,12 +67,19 @@ BOOST_PYTHON_MODULE(libNEAT)
 		.value("UNSIGNED_SQUARE", UNSIGNED_SQUARE)
 		.value("LINEAR", LINEAR)
 		;
+
+	enum_<SearchMode>("SearchMode")
+		.value("COMPLEXIFYING", COMPLEXIFYING)
+		.value("SIMPLIFYING", SIMPLIFYING)
+		.value("BLENDED", BLENDED)
+		;
 ///////////////////////////////////////////////////////////////////
 // Neural Network class
 ///////////////////////////////////////////////////////////////////
 
 	void (NeuralNetwork::*NN_Save)(char*) = &NeuralNetwork::Save;
 	bool (NeuralNetwork::*NN_Load)(char*) = &NeuralNetwork::Load;
+	void (NeuralNetwork::*Genome_Save)(char*) = &Genome::Save;
 	void (NeuralNetwork::*NN_Input)(list&) = &NeuralNetwork::Input;
 
 	class_<NeuralNetwork>("NeuralNetwork", init<>())
@@ -155,6 +162,8 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("IsEvaluated", &Genome::IsEvaluated)
 			.def("SetEvaluated", &Genome::SetEvaluated)
 			.def("ResetEvaluated", &Genome::ResetEvaluated)
+
+			.def("Save", Genome_Save)
 			;
 
 ///////////////////////////////////////////////////////////////////
@@ -162,7 +171,6 @@ BOOST_PYTHON_MODULE(libNEAT)
 ///////////////////////////////////////////////////////////////////
 
 	class_<Species>("Species", init<Genome, int>())
-			.def("GetBestFitness", &Species::GetBestFitness)
 			.def("GetLeader", &Species::GetLeader)
 			.def("NumIndividuals", &Species::NumIndividuals)
 			.def("GensNoImprovement", &Species::GensNoImprovement)
@@ -170,6 +178,9 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("Age", &Species::Age)
 			.def("IsBestSpecies", &Species::IsBestSpecies)
 			.def_readwrite("Individuals", &Species::m_Individuals)
+			.def_readonly("Red", &Species::m_R)
+			.def_readonly("Green", &Species::m_G)
+			.def_readonly("Blue", &Species::m_B)
 			;
 
 
@@ -182,6 +193,11 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("Epoch", &Population::Epoch)
 			.def("Save", &Population::Save)
 			.def("GetBestFitnessEver", &Population::GetBestFitnessEver)
+			.def("GetSearchMode", &Population::GetSearchMode)
+			.def("GetCurrentMPC", &Population::GetCurrentMPC)
+			.def("GetBaseMPC", &Population::GetBaseMPC)
+			.def("GetStagnation", &Population::GetStagnation)
+			.def("GetMPCStagnation", &Population::GetMPCStagnation)
 			.def_readwrite("Species", &Population::m_Species)
 			;
 
@@ -310,7 +326,6 @@ BOOST_PYTHON_MODULE(libNEAT)
    	        //.def("__iter__", iterator<std::vector<Species> >())
 		    .def(vector_indexing_suite< std::vector<Species> >() )
 			;
-
 };
 
 

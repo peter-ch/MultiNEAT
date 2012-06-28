@@ -2425,7 +2425,7 @@ Genome::Genome(std::ifstream& a_DataFile)
 
 
 // Saves this genome to a file
-void Genome::Save(char* a_FileName) const
+void Genome::Save(char* a_FileName)
 {
     FILE* t_file;
     t_file = fopen(a_FileName, "w");
@@ -2434,7 +2434,7 @@ void Genome::Save(char* a_FileName) const
 }
 
 // Saves this genome to an already opened file for writing
-void Genome::Save(FILE* a_file) const
+void Genome::Save(FILE* a_file)
 {
     fprintf(a_file, "GenomeStart %d\n", GetID());
 

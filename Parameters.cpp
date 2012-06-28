@@ -193,7 +193,7 @@ void Parameters::Reset()
     MutateAddLinkFromBiasProb = 0.0;
 
     // Probability for a baby to be mutated with the Remove-Link mutation
-    MutateRemLinkProb = 0.0015;
+    MutateRemLinkProb = 0.001;
 
     // Probability for a baby that a simple neuron will be replaced with a link
     MutateRemSimpleNeuronProb = 0.0;
@@ -283,8 +283,8 @@ void Parameters::Reset()
 
     // Probabilities for a particular activation function appearance
     ActivationFunction_SignedSigmoid_Prob = 0.0;
-    ActivationFunction_UnsignedSigmoid_Prob = 0.1;
-    ActivationFunction_Tanh_Prob = 0.0;
+    ActivationFunction_UnsignedSigmoid_Prob = 0.0;
+    ActivationFunction_Tanh_Prob = 1.0;
     ActivationFunction_TanhCubic_Prob = 0.0;
     ActivationFunction_SignedStep_Prob = 0.0;
     ActivationFunction_UnsignedStep_Prob = 0.0;

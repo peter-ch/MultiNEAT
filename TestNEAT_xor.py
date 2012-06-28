@@ -3,13 +3,14 @@ import os
 import sys
 sys.path.append("/home/peter")
 sys.path.append("/home/peter/Desktop")
+sys.path.append("/home/peter/Desktop/projects")
 import time
 import random as rnd
 import commands as comm
 import cv2
 import numpy as np
 import cPickle as pickle
-import libNEAT as NEAT
+import NEAT
 
 # code 
 
@@ -20,24 +21,28 @@ def evaluate(genome):
     error = 0
     
     # do shit and return the fitness
+    net.Flush()
     net.Input([1, 0, 1])
     net.Activate()
     net.Activate()
     o = net.Output()
     error += (o[0] - 1)**2
     
+    net.Flush()
     net.Input([0, 1, 1])
     net.Activate()
     net.Activate()
     o = net.Output()
     error += (o[0] - 1)**2
 
+    net.Flush()
     net.Input([1, 1, 1])
     net.Activate()
     net.Activate()
     o = net.Output()
     error += (o[0] - 0)**2
 
+    net.Flush()
     net.Input([0, 0, 1])
     net.Activate()
     net.Activate()
@@ -64,11 +69,10 @@ for generation in range(100):
         f = evaluate(g)
         g.SetFitness(f)
 
-    for s in pop.Species:
-        print 'Best fitness of species:', s.ID(), " : ", s.GetLeader().GetFitness()
+    print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
 
     pop.Epoch()
-    print "Generation:", generation, 
+    print "Generation:", generation
         
 #if __name__ == '__main__':
 #    print 'Hello, world!'

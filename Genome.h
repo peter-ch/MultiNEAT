@@ -247,10 +247,10 @@ public:
     void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate* subst,double a_LinkTreshold, double a_MaxWeight, double a_MinTimeConst, double a_MaxTimeConst);
 
     // Saves this genome to a file
-    void Save(char* a_filename) const;
+    void Save(char* a_filename);
 
     // Saves this genome to an already opened file for writing
-    void Save(FILE* a_fstream) const;
+    void Save(FILE* a_fstream);
 
     // returns the max neuron ID
     unsigned int GetLastNeuronID() const;
