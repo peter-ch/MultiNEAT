@@ -152,19 +152,23 @@ public:
     unsigned int GetStagnation() const { return m_GensSinceBestFitnessLastChanged; }
     unsigned int GetMPCStagnation() const { return m_GensSinceMPCLastChanged; }
 
-    // Todo: get this fucking code outta here
-    void GetMaxMinGenomeFitness(double& a_Max, double& a_Min) const;
-
     int GetNextGenomeID() const { return m_NextGenomeID; }
     int GetNextSpeciesID() const { return m_NextSpeciesID; }
     void IncrementNextGenomeID() { m_NextGenomeID++; }
     void IncrementNextSpeciesID() { m_NextSpeciesID++; }
 
-    // todo: delete these two methods, they are never used
-    Genome GetGenomeByIndex(const unsigned int a_idx) const;
-    void SetGenomeFitnessByIndex(const unsigned int a_idx, const double a_fitness);
-
     Genome& AccessGenomeByIndex(unsigned int const a_idx);
+
+    std::vector<Genome*> GetGenomeList()
+	{
+    	std::vector<Genome*> g;
+
+    	for(int i=0; i<m_Species.size(); i++)
+    		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+    			g.push_back(&m_Species[i].m_Individuals[j]);
+    	return g;
+
+	}
 
     InnovationDatabase& AccessInnovationDatabase() { return m_InnovationDatabase; }
 

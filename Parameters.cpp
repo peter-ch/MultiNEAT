@@ -102,7 +102,7 @@ void Parameters::Reset()
     InterspeciesCrossoverRate = 0.0001;
 
     // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
-    // The default if the Average mating.
+    // The default is the Average mating.
     MultipointCrossoverRate = 0.75;
 
     // Performing roulette wheel selection or not?
@@ -202,7 +202,7 @@ void Parameters::Reset()
     LinkTries = 128;
 
     // Probability that a link mutation will be made recurrent
-    RecurrentProb = 0.5;
+    RecurrentProb = 0.0;
 
     // Probability that a recurrent link mutation will be looped
     RecurrentLoopProb = 0.25;
@@ -216,10 +216,10 @@ void Parameters::Reset()
     ///////////////////////////////////
 
     // Probability for a baby's weights to be mutated
-    MutateWeightsProb = 1.0;
+    MutateWeightsProb = 0.3;
 
     // Probability for a severe (shaking) weight mutation
-    MutateWeightsSevereProb = 0.333;
+    MutateWeightsSevereProb = 0.1;
 
     // Probability for a particular gene's weight to be mutated. 1.0 = 100%
     WeightMutationRate = 1.0;
@@ -283,8 +283,8 @@ void Parameters::Reset()
 
     // Probabilities for a particular activation function appearance
     ActivationFunction_SignedSigmoid_Prob = 0.0;
-    ActivationFunction_UnsignedSigmoid_Prob = 0.0;
-    ActivationFunction_Tanh_Prob = 0.1;
+    ActivationFunction_UnsignedSigmoid_Prob = 0.1;
+    ActivationFunction_Tanh_Prob = 0.0;
     ActivationFunction_TanhCubic_Prob = 0.0;
     ActivationFunction_SignedStep_Prob = 0.0;
     ActivationFunction_UnsignedStep_Prob = 0.0;

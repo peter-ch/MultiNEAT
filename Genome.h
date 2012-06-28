@@ -123,6 +123,10 @@ public:
     // assignment operator
     Genome& operator=(const Genome& a_g);
 
+    // comparison operator (nessesary for boost::python)
+    // todo: implement a better comparison technique
+    bool operator==(Genome const& other) const { return m_ID == other.m_ID; }
+
     // Builds this genome from a file
     Genome(char* a_filename);
 

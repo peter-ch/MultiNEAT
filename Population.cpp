@@ -432,6 +432,14 @@ void Population::UpdateSpecies()
 // the epoch method - the heart of the GA
 void Population::Epoch()
 {
+/*	for(int i=0; i<m_Species.size(); i++)
+		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+			m_Species[i].m_Individuals[j].SetFitness(124);*/
+
+/*	for(int i=0; i<m_Species.size(); i++)
+		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+			std::cerr << m_Species[i].m_Individuals[j].GetFitness() << std::endl; */
+
     // Sort each species's members by fitness and the species by fitness
     Sort();
 
@@ -711,78 +719,6 @@ void Population::Epoch()
 }
 
 
-
-
-
-
-
-void Population::GetMaxMinGenomeFitness(double& a_Max, double& a_Min) const
-{
-    a_Max = DBL_MIN;
-    a_Min = DBL_MAX;
-    for(unsigned int i=0; i < m_Species.size(); i++)
-    {
-        for(unsigned int j=0; j < m_Species[i].m_Individuals.size(); j++)
-        {
-            const double t_Fitness = m_Species[i].m_Individuals[j].GetFitness();
-            if ( a_Max < t_Fitness)
-                a_Max = t_Fitness;
-
-            if( a_Min > t_Fitness)
-                a_Min = t_Fitness;
-        }
-    }
-
-}
-
-Genome Population::GetGenomeByIndex(unsigned int a_idx) const
-{
-    ASSERT(a_idx < GlobalParameters.PopulationSize);
-
-    int t_counter = 0;
-    Genome t_genome;
-
-    for (unsigned int i = 0; i < m_Species.size(); i++)
-    {
-        for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
-        {
-            if (t_counter == a_idx)// reached the index?
-            {
-                t_genome = m_Species[i].m_Individuals[j];
-                break;
-            }
-
-            t_counter++;
-        }
-    }
-
-    // return the first one if failed to find it
-    return t_genome;
-}
-
-
-
-
-void Population::SetGenomeFitnessByIndex(const unsigned int a_idx, const double a_fitness)
-{
-    ASSERT(a_idx < m_Genomes.size());
-    int t_counter = 0;
-
-    for (unsigned int i = 0; i < m_Species.size(); i++)
-    {
-        for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
-        {
-            if (t_counter == a_idx)// reached the index?
-            {
-                // set fitness and bye
-                m_Species[i].m_Individuals[j].SetFitness(a_fitness);
-                return;
-            }
-
-            t_counter++;
-        }
-    }
-}
 
 
 
