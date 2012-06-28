@@ -2,11 +2,11 @@
 #define _INNOVATION_H
 
 /////////////////////////////////////////////////////////////////
-// NSNEAT
+// NEAT
 // --------------------------------------------------------------
 // NeuroEvolution of Augmenting Topologies C++ implementation
 //
-// (c) Copyright 2008, NEAT Sciences Ltd.
+//  
 //
 // Peter Chervenski
 ////////////////////////////////////////////////////////////////

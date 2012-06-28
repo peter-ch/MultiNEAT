@@ -4,7 +4,7 @@
 #define _VISUALWIN32_H
 
 /////////////////////////////////////////////////////////////////
-// NSNEAT
+// NEAT
 // --------------------------------------------------------------
 // NeuroEvolution of Augmenting Topologies C++ implementation
 //

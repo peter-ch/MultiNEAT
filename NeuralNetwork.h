@@ -2,11 +2,11 @@
 #define _PHENOTYPE_H
 
 /////////////////////////////////////////////////////////////////
-// NSNEAT
+// NEAT
 // --------------------------------------------------------------
 // NeuroEvolution of Augmenting Topologies C++ implementation
 //
-// (c) Copyright 2008, NEAT Sciences Ltd.
+//  
 //
 // Peter Chervenski
 ////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <boost/python.hpp>
+
+namespace py = boost::python;
 
 #include <vector>
 #include "Genes.h"
@@ -54,7 +56,6 @@ struct Neuron
     double m_sx, m_sy, m_sz;
     double m_split_y;
     NeuronType m_type;
-
 
     // the sensitivity matrix of this neuron (for RTRL learning)
     std::vector< std::vector< double > > m_sensitivity_matrix;
@@ -101,6 +102,7 @@ public:
     void FlushCube(); // clears the sensitivity cube
 
     void Input(std::vector<double>& a_Inputs);
+    void Input(py::list& a_Inputs);
     std::vector<double> Output();
 
     // accessor methods

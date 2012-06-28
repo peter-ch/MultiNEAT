@@ -9,6 +9,7 @@
 #define PYTHONBINDINGS_H_
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "NeuralNetwork.h"
 #include "Genes.h"
@@ -16,19 +17,62 @@
 #include "Population.h"
 #include "Species.h"
 
-namespace bp = boost::python;
+namespace py = boost::python;
 using namespace NEAT;
-using namespace bp;
+using namespace py;
 
 
-BOOST_PYTHON_MODULE(NEAT)
+template<class T>
+struct StdVectorToPythonList
 {
+    static PyObject* convert(const std::vector<T>& vec)
+    {
+        py::list* l = new py::list();
+        for(size_t i = 0; i < vec.size(); i++)
+            (*l).append(vec[i]);
+
+        return l->ptr();
+    }
+};
+
+BOOST_PYTHON_MODULE(libNEAT)
+{
+
+///////////////////////////////////////////////////////////////////
+// Enums
+///////////////////////////////////////////////////////////////////
+
+	enum_<NeuronType>("NeuronType")
+		.value("NONE", NONE)
+		.value("INPUT", INPUT)
+		.value("BIAS", BIAS)
+		.value("HIDDEN", HIDDEN)
+		.value("OUTPUT", OUTPUT)
+		;
+
+	enum_<ActivationFunction>("ActivationFunction")
+		.value("SIGNED_SIGMOID", SIGNED_SIGMOID)
+		.value("UNSIGNED_SIGMOID", UNSIGNED_SIGMOID)
+		.value("TANH", TANH)
+		.value("TANH_CUBIC", TANH_CUBIC)
+		.value("SIGNED_STEP", SIGNED_STEP)
+		.value("UNSIGNED_STEP", UNSIGNED_STEP)
+		.value("SIGNED_GAUSS", SIGNED_GAUSS)
+		.value("UNSIGNED_GAUSS", UNSIGNED_GAUSS)
+		.value("ABS", ABS)
+		.value("SIGNED_SINE", SIGNED_SINE)
+		.value("UNSIGNED_SINE", UNSIGNED_SINE)
+		.value("SIGNED_SQUARE", SIGNED_SQUARE)
+		.value("UNSIGNED_SQUARE", UNSIGNED_SQUARE)
+		.value("LINEAR", LINEAR)
+		;
 ///////////////////////////////////////////////////////////////////
 // Neural Network class
 ///////////////////////////////////////////////////////////////////
 
 	void (NeuralNetwork::*NN_Save)(char*) = &NeuralNetwork::Save;
 	bool (NeuralNetwork::*NN_Load)(char*) = &NeuralNetwork::Load;
+	void (NeuralNetwork::*NN_Input)(list&) = &NeuralNetwork::Input;
 
 	class_<NeuralNetwork>("NeuralNetwork", init<>())
 
@@ -71,8 +115,12 @@ BOOST_PYTHON_MODULE(NEAT)
 			NN_Save)
 			.def("Load",
 			NN_Load)
+
+			.def("Input",
+			NN_Input)
+			.def("Output",
+			&NeuralNetwork::Output)
 			;
-	// TODO: NeuralNetwork: add the Input/Output bindings with a converter from python list to std::vector<double>
 	// also for future implement NumPy 1D array to std::vector<double>
 
 
@@ -117,9 +165,9 @@ BOOST_PYTHON_MODULE(NEAT)
 			.def("NumIndividuals", &Species::NumIndividuals)
 			.def("GensNoImprovement", &Species::GensNoImprovement)
 			.def("ID", &Species::ID)
-			.def("GetBestFitness", &Species::GetBestFitness)
 			.def("Age", &Species::Age)
 			.def("IsBestSpecies", &Species::IsBestSpecies)
+			.def_readonly("Individuals", &Species::m_Individuals)
 			;
 
 
@@ -131,9 +179,27 @@ BOOST_PYTHON_MODULE(NEAT)
 			.def(init<char*>())
 			.def("Epoch", &Population::Epoch)
 			.def("Save", &Population::Save)
+			.def_readonly("Species", &Population::m_Species)
 			;
 
 
+/////////////////////////////////////////////////////////
+// General stuff applicable across the entire module
+/////////////////////////////////////////////////////////
+
+	// Functions returning std::vector will return py::list with this.
+	to_python_converter<std::vector<double, std::allocator<double> >, StdVectorToPythonList<double> >();
+
+	// These are necessary to let us iterate through the vectors of species and genomes
+	class_< std::vector<Genome> >("GenomeList")
+	        .def("__iter__", iterator<std::vector<Genome> >())
+//			.def(vector_indexing_suite< std::vector<Genome> >() )
+			;
+
+	class_< std::vector<Species> >("SpeciesList")
+   	        .def("__iter__", iterator<std::vector<Species> >())
+//			.def(vector_indexing_suite< std::vector<Species> >() )
+			;
 
 };
 
