@@ -36,7 +36,7 @@ void Parameters::Reset()
     ////////////////////
 
     // Size of population
-    PopulationSize = 300;
+    PopulationSize = 150;
 
     // If true, this enables dynamic compatibility thresholding
     // It will keep the number of species between MinSpecies and MaxSpecies

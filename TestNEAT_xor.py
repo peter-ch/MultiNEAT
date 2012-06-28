@@ -22,6 +22,7 @@ def evaluate(genome):
     
     # do shit and return the fitness
     net.Flush()
+    
     net.Input([1, 0, 1])
     net.Activate()
     net.Activate()
@@ -50,11 +51,12 @@ def evaluate(genome):
     error += (o[0] - 0)**2
     
     return (4 - error)**2
+    
 
 g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0)
 pop = NEAT.Population(g, True, 1.0)
 
-for generation in range(100):
+for generation in range(1000):
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:

@@ -22,7 +22,7 @@ namespace py = boost::python;
 using namespace NEAT;
 using namespace py;
 
-
+/*
 template<class T>
 struct StdVectorToPythonList
 {
@@ -35,6 +35,7 @@ struct StdVectorToPythonList
         return l->ptr();
     }
 };
+*/
 
 BOOST_PYTHON_MODULE(libNEAT)
 {
@@ -312,18 +313,16 @@ BOOST_PYTHON_MODULE(libNEAT)
 // General stuff applicable across the entire module
 /////////////////////////////////////////////////////////
 
-	// Functions returning std::vector<double> will return py::list with this.
-	to_python_converter<std::vector<double, std::allocator<double> >, StdVectorToPythonList<double> >();
-	to_python_converter<std::vector<Genome*, std::allocator<Genome*> >, StdVectorToPythonList<Genome*> >();
+	class_< std::vector<double> >("DoublesList")
+		    .def(vector_indexing_suite< std::vector<double> >() )
+			;
 
 	// These are necessary to let us iterate through the vectors of species, genomes and genes
 	class_< std::vector<Genome> >("GenomeList")
-	        //.def("__iter__", iterator<std::vector<Genome> >())
 		    .def(vector_indexing_suite< std::vector<Genome> >() )
 			;
 
 	class_< std::vector<Species> >("SpeciesList")
-   	        //.def("__iter__", iterator<std::vector<Species> >())
 		    .def(vector_indexing_suite< std::vector<Species> >() )
 			;
 };
