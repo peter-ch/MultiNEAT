@@ -53,9 +53,6 @@ Genome::Genome()
 
 // Copy constructor
 Genome::Genome(const Genome& a_G)
-#ifdef USE_MESSAGE_QUEUE
-    : m_MessageQueue(a_G.m_MessageQueue)
-#endif
 {
     m_ID          = a_G.m_ID;
     m_Depth       = a_G.m_Depth;
@@ -101,9 +98,6 @@ Genome::Genome(unsigned int a_ID,
                unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
                unsigned int a_NumOutputs,
                bool a_FS_NEAT, ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, unsigned int a_SeedType)
-#ifdef USE_MESSAGE_QUEUE
-    : m_MessageQueue(MessageQueue::instance())
-#endif
 {
     ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
 

@@ -16,6 +16,14 @@
 // Description: Definitions for the Neuron and Link gene classes.
 /////////////////////////////////////////////////////////////////
 
+#include <boost/python.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+
+namespace py = boost::python;
+
+
 #include <iostream>
 #include <vector>
 #include "Parameters.h"
@@ -92,6 +100,19 @@ private:
 
 public:
 
+    // Serialization
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & m_FromNeuronID;
+		ar & m_ToNeuronID;
+		ar & m_InnovationID;
+		ar & m_IsRecurrent;
+		ar & m_Weight;
+	}
+
+
     double GetWeight() const
     {
         return m_Weight;
@@ -107,6 +128,9 @@ public:
     ////////////////
     LinkGene(int a_InID, int a_OutID, int a_InnovID, double a_Wgt, bool a_Recurrent = false):
         m_FromNeuronID(a_InID), m_ToNeuronID(a_OutID), m_InnovationID(a_InnovID), m_Weight(a_Wgt), m_IsRecurrent(a_Recurrent)
+    {}
+
+    LinkGene()
     {}
 
     // assigment operator
@@ -243,6 +267,22 @@ public:
     // The type of activation function the neuron has
     ActivationFunction m_ActFunction;
 
+    // Serialization
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & m_ID;
+		ar & m_Type;
+		ar & m_A;
+		ar & m_B;
+		ar & m_TimeConstant;
+		ar & m_Bias;
+		ar & x;
+		ar & y;
+		ar & m_ActFunction;
+		ar & m_SplitY;
+	}
 
 
     ////////////////
@@ -254,6 +294,15 @@ public:
         :m_ID(a_id), m_Type(a_type), m_SplitY(a_splity)
     {
         // Initialize the node specific parameters
+        m_A = 0.0f;
+        m_B = 0.0f;
+        m_TimeConstant = 0.0f;
+        m_Bias = 0.0f;
+        m_ActFunction = UNSIGNED_SIGMOID;
+    }
+
+    NeuronGene()
+    {
         m_A = 0.0f;
         m_B = 0.0f;
         m_TimeConstant = 0.0f;

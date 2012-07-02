@@ -165,6 +165,8 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("ResetEvaluated", &Genome::ResetEvaluated)
 
 			.def("Save", Genome_Save)
+
+			.def_pickle(Genome_pickle_suite())
 			;
 
 ///////////////////////////////////////////////////////////////////
