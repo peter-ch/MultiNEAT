@@ -80,7 +80,7 @@ BOOST_PYTHON_MODULE(libNEAT)
 
 	void (NeuralNetwork::*NN_Save)(char*) = &NeuralNetwork::Save;
 	bool (NeuralNetwork::*NN_Load)(char*) = &NeuralNetwork::Load;
-	void (NeuralNetwork::*Genome_Save)(char*) = &Genome::Save;
+	void (Genome::*Genome_Save)(char*) = &Genome::Save;
 	void (NeuralNetwork::*NN_Input)(list&) = &NeuralNetwork::Input;
 
 	class_<NeuralNetwork>("NeuralNetwork", init<>())
