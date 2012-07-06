@@ -216,10 +216,10 @@ void Parameters::Reset()
     ///////////////////////////////////
 
     // Probability for a baby's weights to be mutated
-    MutateWeightsProb = 0.3;
+    MutateWeightsProb = 0.5;
 
     // Probability for a severe (shaking) weight mutation
-    MutateWeightsSevereProb = 0.1;
+    MutateWeightsSevereProb = 0.25;
 
     // Probability for a particular gene's weight to be mutated. 1.0 = 100%
     WeightMutationRate = 1.0;

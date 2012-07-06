@@ -22,20 +22,6 @@ namespace py = boost::python;
 using namespace NEAT;
 using namespace py;
 
-/*
-template<class T>
-struct StdVectorToPythonList
-{
-    static PyObject* convert(const std::vector<T>& vec)
-    {
-        py::list* l = new py::list();
-        for(size_t i = 0; i < vec.size(); i++)
-            (*l).append(vec[i]);
-
-        return l->ptr();
-    }
-};
-*/
 
 BOOST_PYTHON_MODULE(libNEAT)
 {
@@ -137,8 +123,6 @@ BOOST_PYTHON_MODULE(libNEAT)
 ///////////////////////////////////////////////////////////////////
 // Genome class
 ///////////////////////////////////////////////////////////////////
-
-//	enum_<ActivationFunction>("ActivationFunction")
 
 	class_<Genome>("Genome", init<>())
 
@@ -317,6 +301,14 @@ BOOST_PYTHON_MODULE(libNEAT)
 
 	class_< std::vector<double> >("DoublesList")
 		    .def(vector_indexing_suite< std::vector<double> >() )
+			;
+
+	class_< std::vector<float> >("FloatsList")
+		    .def(vector_indexing_suite< std::vector<float> >() )
+			;
+
+	class_< std::vector<int> >("IntsList")
+		    .def(vector_indexing_suite< std::vector<int> >() )
 			;
 
 	// These are necessary to let us iterate through the vectors of species, genomes and genes
