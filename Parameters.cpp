@@ -92,7 +92,7 @@ void Parameters::Reset()
 
     // Probability for a baby to result from sexual reproduction (crossover/mating). 1.0 = 100%
     // If asexual reprodiction is chosen, the baby will be mutated 100%
-    CrossoverRate = 0.5;
+    CrossoverRate = 0.75;
 
     // If a baby results from sexual reproduction, this probability determines if mutation will
     // be performed after crossover. 1.0 = 100% (always mutate after crossover)
@@ -186,14 +186,14 @@ void Parameters::Reset()
     SplitLoopedRecurrent = true;
 
     // Probability for a baby to be mutated with the Add-Link mutation
-    MutateAddLinkProb = 0.05;
+    MutateAddLinkProb = 0.07;
 
     // Probability for a new incoming link to be from the bias neuron;
     // This enforces it. A value of 0.0 doesn't mean there will not be such links
     MutateAddLinkFromBiasProb = 0.0;
 
     // Probability for a baby to be mutated with the Remove-Link mutation
-    MutateRemLinkProb = 0.001;
+    MutateRemLinkProb = 0.01;
 
     // Probability for a baby that a simple neuron will be replaced with a link
     MutateRemSimpleNeuronProb = 0.0;
@@ -202,7 +202,7 @@ void Parameters::Reset()
     LinkTries = 128;
 
     // Probability that a link mutation will be made recurrent
-    RecurrentProb = 0.0;
+    RecurrentProb = 0.25;
 
     // Probability that a recurrent link mutation will be looped
     RecurrentLoopProb = 0.25;
@@ -216,7 +216,7 @@ void Parameters::Reset()
     ///////////////////////////////////
 
     // Probability for a baby's weights to be mutated
-    MutateWeightsProb = 0.5;
+    MutateWeightsProb = 0.75;
 
     // Probability for a severe (shaking) weight mutation
     MutateWeightsSevereProb = 0.25;
@@ -231,7 +231,7 @@ void Parameters::Reset()
     WeightReplacementMaxPower = 1.0;
 
     // Maximum absolute magnitude of a weight
-    MaxWeight = 6.0;
+    MaxWeight = 8.0;
 
     // Probability for a baby's A activation function parameters to be perturbed
     MutateActivationAProb = 0.0;
@@ -329,7 +329,7 @@ void Parameters::Reset()
     ActivationFunctionDiffCoeff = 0.0;
 
     // Compatibility treshold
-    CompatTreshold = 2.0;
+    CompatTreshold = 5.0;
 
     // Minumal value of the compatibility treshold
     MinCompatTreshold = 0.2;
