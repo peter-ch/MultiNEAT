@@ -94,7 +94,7 @@ void Species::AddIndividual(Genome& a_Genome)
 
 
 // returns an individual randomly selected from the best N%
-Genome Species::GetIndividual() const
+Genome Species::GetIndividual(Parameters& a_Parameters) const
 {
     ASSERT(m_Individuals.size() > 0);
 
@@ -128,9 +128,9 @@ Genome Species::GetIndividual() const
     int t_chosen_one=0;
 
     // Here might be introduced better selection scheme, but this works OK for now
-    if (!GlobalParameters.RouletteWheelSelection)
+    if (!a_Parameters.RouletteWheelSelection)
     {
-        int t_num_parents = static_cast<int>( floor((GlobalParameters.SurvivalRate * (static_cast<double>(t_Evaluated.size())))+1.0));
+        int t_num_parents = static_cast<int>( floor((a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size())))+1.0));
         ASSERT(t_num_parents>0);
         t_chosen_one = RandInt(0, t_num_parents);
     }
@@ -212,7 +212,7 @@ void Species::CountOffspring()
 
 // this method performs fitness sharing
 // it also boosts the fitness of the young and penalizes old species
-void Species::AdjustFitness()
+void Species::AdjustFitness(Parameters& a_Parameters)
 {
     ASSERT(m_Individuals.size() > 0);
 
@@ -235,20 +235,20 @@ void Species::AdjustFitness()
         }
 
         // boost the fitness up to some young age
-        if (m_Age < GlobalParameters.YoungAgeTreshold)
+        if (m_Age < a_Parameters.YoungAgeTreshold)
         {
-            t_fitness *= GlobalParameters.YoungAgeFitnessBoost;
+            t_fitness *= a_Parameters.YoungAgeFitnessBoost;
         }
 
         // penalty for old species
-        if (m_Age > GlobalParameters.OldAgeTreshold)
+        if (m_Age > a_Parameters.OldAgeTreshold)
         {
-            t_fitness *= GlobalParameters.OldAgePenalty;
+            t_fitness *= a_Parameters.OldAgePenalty;
         }
 
         // extreme penalty if this species is stagnating for too long time
         // one exception if this is the best species found so far
-        if (m_GensNoImprovement > GlobalParameters.SpeciesDropoffAge)
+        if (m_GensNoImprovement > a_Parameters.SpeciesDropoffAge)
         {
             // the best species is always allowed to live
             if (!m_BestSpecies)
@@ -323,7 +323,7 @@ SUMMARY OF THE EPOCH MECHANISM
 // because some babies may turn out to belong in another species
 // that have to be created.
 // Also calls Birth() for every new baby
-void Species::Reproduce(Population &a_Pop)
+void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters)
 {
     Genome t_baby; // temp genome for reproduction
 
@@ -363,7 +363,7 @@ void Species::Reproduce(Population &a_Pop)
 
                 // for a species of size 1 we can only mutate
                 // NOTE: but does it make sense since we know this is the champ?
-                if (NumMembers() == 1)
+                if (NumIndividuals() == 1)
                 {
                     t_baby = GetRandomIndividual();
                     t_mated = false;
@@ -375,14 +375,14 @@ void Species::Reproduce(Population &a_Pop)
 
                     // choose whether to mate at all
                     // Do not allow crossover when in simplifying phase
-                    if ((RandFloat() < GlobalParameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+                    if ((RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
                     {
                         // get the father
                         Genome t_dad;
                         bool t_interspecies = false;
 
                         // There is a probability that the father may come from another species
-                        if ((RandFloat() < GlobalParameters.InterspeciesCrossoverRate) && (a_Pop.m_Species.size()>1))
+                        if ((RandFloat() < a_Parameters.InterspeciesCrossoverRate) && (a_Pop.m_Species.size()>1))
                         {
                             // Find different species (random one) // !!!!!!!!!!!!!!!!!
                             int t_diffspec = RandInt(0, static_cast<int>(a_Pop.m_Species.size()-1));
@@ -397,7 +397,7 @@ void Species::Reproduce(Population &a_Pop)
                             // The other parent should be a different one
                             // number of tries to find different parent
                             int t_tries = 16;
-                            while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad) == 0)) && (t_tries--))
+                            while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) == 0)) && (t_tries--))
                             {
                                 t_dad = GetRandomIndividual();
                             }
@@ -406,7 +406,7 @@ void Species::Reproduce(Population &a_Pop)
 
                         // OK we have both mom and dad so mate them
                         // Choose randomly one of two types of crossover
-                        if (RandFloat() < GlobalParameters.MultipointCrossoverRate)
+                        if (RandFloat() < a_Parameters.MultipointCrossoverRate)
                         {
                             t_baby = t_mom.Mate( t_dad, false, t_interspecies);
                         }
@@ -433,8 +433,8 @@ void Species::Reproduce(Population &a_Pop)
                 }
 
                 // Mutate the baby
-                if ((!t_mated) || (RandFloat() < GlobalParameters.OverallMutationRate))
-                    MutateGenome(t_baby_is_clone, a_Pop, t_baby);
+                if ((!t_mated) || (RandFloat() < a_Parameters.OverallMutationRate))
+                    MutateGenome(t_baby_is_clone, a_Pop, t_baby, a_Parameters);
 
                 // Check if this baby is already present somewhere in the offspring
                 // we don't want that
@@ -446,7 +446,7 @@ void Species::Reproduce(Population &a_Pop)
                         if (
                             //(!a_Pop.m_TempSpecies[i].m_Individuals[j].IsAdult()) // don't compare with adults (optional)
                             //&&
-                            (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j]) < 0.000001) // identical genome?
+                            (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j], a_Parameters) < 0.000001) // identical genome?
                         )
 
                         {
@@ -517,7 +517,7 @@ void Species::Reproduce(Population &a_Pop)
             t_found = false;
             while((t_cur_species != a_Pop.m_TempSpecies.end()) && (!t_found))
             {
-                if (t_baby.IsCompatibleWith( t_to_compare ))
+                if (t_baby.IsCompatibleWith( t_to_compare, a_Parameters))
                 {
                     // found a compatible species
                     t_cur_species->AddIndividual(t_baby);
@@ -549,7 +549,7 @@ void Species::Reproduce(Population &a_Pop)
 // KillWorst eliminates the worst individuals from the species. It actually
 // deletes them so the species size may shrink.
 // Also calls Adult() for the remaining individuals (they are ready for mating)
-void Species::KillWorst()
+void Species::KillWorst(Parameters& a_Parameters)
 {
     ASSERT(m_Individuals.size() > 0);
 
@@ -563,7 +563,7 @@ void Species::KillWorst()
     SortIndividuals();
 
     // for now just keep the first N% as adults
-    int t_num_parents = static_cast<int>( floor((GlobalParameters.SurvivalRate * (static_cast<double>(m_Individuals.size())))+1.0));
+    int t_num_parents = static_cast<int>( floor((a_Parameters.SurvivalRate * (static_cast<double>(m_Individuals.size())))+1.0));
     ASSERT(t_num_parents>0);
 
     std::vector<Genome>::iterator t_iter = m_Individuals.begin();
@@ -621,7 +621,7 @@ void Species::CalculateAverageFitness()
 
 
 
-Genome Species::ReproduceOne(Population& a_Pop)
+Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters)
 {
     Genome t_baby; // for storing the result
 
@@ -639,26 +639,26 @@ Genome Species::ReproduceOne(Population& a_Pop)
 
     // for a species of size 1 we can only mutate
     // NOTE: but does it make sense since we know this is the champ?
-    if (NumMembers() == 1)
+    if (NumIndividuals() == 1)
     {
-        t_baby = GetIndividual();
+        t_baby = GetIndividual(a_Parameters);
         t_mated = false;
     }
     // else we can mate
     else
     {
-        Genome t_mom = GetIndividual();
+        Genome t_mom = GetIndividual(a_Parameters);
 
         // choose whether to mate at all
         // Do not allow crossover when in simplifying phase
-        if ((RandFloat() < GlobalParameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+        if ((RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
         {
             // get the father
             Genome t_dad;
             bool t_interspecies = false;
 
             // There is a probability that the father may come from another species
-            if ((RandFloat() < GlobalParameters.InterspeciesCrossoverRate) && (a_Pop.m_Species.size()>1))
+            if ((RandFloat() < a_Parameters.InterspeciesCrossoverRate) && (a_Pop.m_Species.size()>1))
             {
                 // Find different species (random one) // !!!!!!!!!!!!!!!!!
                 // But the different species must have at least one evaluated individual
@@ -671,23 +671,23 @@ Genome Species::ReproduceOne(Population& a_Pop)
                 while ((a_Pop.m_Species[t_diffspec].m_AverageFitness == 0) && (t_giveup--));
 
                 if (a_Pop.m_Species[t_diffspec].m_AverageFitness == 0)
-                    t_dad = GetIndividual();
+                    t_dad = GetIndividual(a_Parameters);
                 else
-                    t_dad = a_Pop.m_Species[t_diffspec].GetIndividual();
+                    t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters);
 
                 t_interspecies = true;
             }
             else
             {
                 // Mate within species
-                t_dad = GetIndividual();
+                t_dad = GetIndividual(a_Parameters);
 
                 // The other parent should be a different one
                 // number of tries to find different parent
                 int t_tries = 16;
-                while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad) == 0)) && (t_tries--))
+                while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) == 0)) && (t_tries--))
                 {
-                    t_dad = GetIndividual();
+                    t_dad = GetIndividual(a_Parameters);
                 }
                 t_interspecies = false;
             }
@@ -721,8 +721,8 @@ Genome Species::ReproduceOne(Population& a_Pop)
     // OK we have the baby, so let's mutate it.
     bool t_baby_is_clone = false;
 
-    if ((!t_mated) || (RandFloat() < GlobalParameters.OverallMutationRate))
-        MutateGenome(t_baby_is_clone, a_Pop, t_baby);
+    if ((!t_mated) || (RandFloat() < a_Parameters.OverallMutationRate))
+        MutateGenome(t_baby_is_clone, a_Pop, t_baby, a_Parameters);
 
     // We have a new offspring now
     // give the offspring a new ID
@@ -773,7 +773,7 @@ bool MutationBigger(Mutation ls, Mutation rs)
 }
 
 // Mutates a genome
-void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby )
+void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters& a_Parameters )
 {
     // NEW version:
     // All mutations are mutually exclusive - can't have 2 mutations at once
@@ -790,43 +790,43 @@ void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_b
     Mutation tm;
 
     tm.MutationType = ADD_NODE;
-    tm.Probability  = GlobalParameters.MutateAddNeuronProb;
+    tm.Probability  = a_Parameters.MutateAddNeuronProb;
     Mutations.push_back(tm);
 
     tm.MutationType = ADD_LINK;
-    tm.Probability  = GlobalParameters.MutateAddLinkProb;
+    tm.Probability  = a_Parameters.MutateAddLinkProb;
     Mutations.push_back(tm);
 
     tm.MutationType = REMOVE_NODE;
-    tm.Probability  = GlobalParameters.MutateRemSimpleNeuronProb;
+    tm.Probability  = a_Parameters.MutateRemSimpleNeuronProb;
     Mutations.push_back(tm);
 
     tm.MutationType = REMOVE_LINK;
-    tm.Probability  = GlobalParameters.MutateRemLinkProb;
+    tm.Probability  = a_Parameters.MutateRemLinkProb;
     Mutations.push_back(tm);
 
     tm.MutationType = CHANGE_ACTIVATION_FUNCTION;
-    tm.Probability  = GlobalParameters.MutateNeuronActivationTypeProb;
+    tm.Probability  = a_Parameters.MutateNeuronActivationTypeProb;
     Mutations.push_back(tm);
 
     tm.MutationType = MUTATE_WEIGHTS;
-    tm.Probability  = GlobalParameters.MutateWeightsProb;
+    tm.Probability  = a_Parameters.MutateWeightsProb;
     Mutations.push_back(tm);
 
     tm.MutationType = MUTATE_ACTIVATION_A;
-    tm.Probability  = GlobalParameters.MutateActivationAProb;
+    tm.Probability  = a_Parameters.MutateActivationAProb;
     Mutations.push_back(tm);
 
     tm.MutationType = MUTATE_ACTIVATION_B;
-    tm.Probability  = GlobalParameters.MutateActivationBProb;
+    tm.Probability  = a_Parameters.MutateActivationBProb;
     Mutations.push_back(tm);
 
     tm.MutationType = MUTATE_TIMECONSTS;
-    tm.Probability  = GlobalParameters.MutateNeuronTimeConstantsProb;
+    tm.Probability  = a_Parameters.MutateNeuronTimeConstantsProb;
     Mutations.push_back(tm);
 
     tm.MutationType = MUTATE_BIASES;
-    tm.Probability  = GlobalParameters.MutateNeuronBiasesProb;
+    tm.Probability  = a_Parameters.MutateNeuronBiasesProb;
     Mutations.push_back(tm);
 
     // Special consideration for phased searching - do not allow certain mutations depending on the search mode
@@ -868,11 +868,11 @@ void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_b
     switch(ChosenMutation)
     {
     case ADD_NODE:
-        t_mutation_success = t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase());
+        t_mutation_success = t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters);
         break;
 
     case ADD_LINK:
-        t_mutation_success = t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase());
+        t_mutation_success = t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters);
         break;
 
     case REMOVE_NODE:
@@ -928,32 +928,32 @@ void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_b
     break;
 
     case CHANGE_ACTIVATION_FUNCTION:
-        t_baby.Mutate_NeuronActivation_Type();
+        t_baby.Mutate_NeuronActivation_Type(a_Parameters);
         t_mutation_success = true;
         break;
 
     case MUTATE_WEIGHTS:
-        t_baby.Mutate_LinkWeights();
+        t_baby.Mutate_LinkWeights(a_Parameters);
         t_mutation_success = true;
         break;
 
     case MUTATE_ACTIVATION_A:
-        t_baby.Mutate_NeuronActivations_A();
+        t_baby.Mutate_NeuronActivations_A(a_Parameters);
         t_mutation_success = true;
         break;
 
     case MUTATE_ACTIVATION_B:
-        t_baby.Mutate_NeuronActivations_B();
+        t_baby.Mutate_NeuronActivations_B(a_Parameters);
         t_mutation_success = true;
         break;
 
     case MUTATE_TIMECONSTS:
-        t_baby.Mutate_NeuronTimeConstants();
+        t_baby.Mutate_NeuronTimeConstants(a_Parameters);
         t_mutation_success = true;
         break;
 
     case MUTATE_BIASES:
-        t_baby.Mutate_NeuronBiases();
+        t_baby.Mutate_NeuronBiases(a_Parameters);
         t_mutation_success = true;
         break;
 

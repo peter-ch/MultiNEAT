@@ -124,11 +124,13 @@ BOOST_PYTHON_MODULE(libNEAT)
 // Genome class
 ///////////////////////////////////////////////////////////////////
 
+	def("GetRandomActivation", &GetRandomActivation);
+
 	class_<Genome>("Genome", init<>())
 
 			.def(init<char*>())
 			.def(init<unsigned int, unsigned int, unsigned int, unsigned int,
-					bool, ActivationFunction, ActivationFunction, int>())
+					bool, ActivationFunction, ActivationFunction, int, Parameters>())
 
 			.def("NumNeurons", &Genome::NumNeurons)
 			.def("NumLinks", &Genome::NumLinks)
@@ -175,7 +177,7 @@ BOOST_PYTHON_MODULE(libNEAT)
 // Population class
 ///////////////////////////////////////////////////////////////////
 
-	class_<Population>("Population", init<Genome, bool, double>())
+	class_<Population>("Population", init<Genome, Parameters, bool, double>())
 			.def(init<char*>())
 			.def("Epoch", &Population::Epoch)
 			.def("Save", &Population::Save)
@@ -292,8 +294,6 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def_readwrite("CompatTreshChangeInterval_Evaluations", &Parameters::CompatTreshChangeInterval_Evaluations)
 			;
 
-	// And the global parameters object
-	py::scope().attr("GlobalParameters") = GlobalParameters;
 
 /////////////////////////////////////////////////////////
 // General stuff applicable across the entire module

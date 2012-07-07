@@ -43,6 +43,8 @@ class Innovation;
 class InnovationDatabase;
 class PhenotypeBehavior;
 
+extern ActivationFunction GetRandomActivation(Parameters& a_Parameters);
+
 class Genome
 {
     /////////////////////
@@ -143,7 +145,10 @@ public:
            unsigned int a_NumInputs,
            unsigned int a_NumHidden, // ignored for type == 1, specifies number of hidden units if type == 0
            unsigned int a_NumOutputs,
-           bool a_FS_NEAT, ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, unsigned int a_SeedType);
+           bool a_FS_NEAT, ActivationFunction a_OutputActType,
+           ActivationFunction a_HiddenActType,
+           unsigned int a_SeedType,
+           const Parameters& a_Parameters);
 
     /////////////
     // Other possible constructors for different types of networks go here
@@ -274,10 +279,10 @@ public:
     }
 
     // Returns true if this genome and a_G are compatible (belong in the same species)
-    bool IsCompatibleWith(Genome& a_G);
+    bool IsCompatibleWith(Genome& a_G, Parameters& a_Parameters);
 
     // returns the absolute compatibility distance between this genome and a_G
-    double CompatibilityDistance(Genome &a_G);
+    double CompatibilityDistance(Genome &a_G, Parameters& a_Parameters);
 
 
 
@@ -291,11 +296,11 @@ public:
 
     // Adds a new neuron to the genome
     // returns true if succesful
-    bool Mutate_AddNeuron(InnovationDatabase &a_Innovs);
+    bool Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parameters);
 
     // Adds a new link to the genome
     // returns true if succesful
-    bool Mutate_AddLink(InnovationDatabase &a_Innovs);
+    bool Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters& a_Parameters);
 
     // Remove a random link from the genome
     // A cleanup procedure is invoked so any dead-ends or stranded neurons are also deleted
@@ -307,25 +312,25 @@ public:
     bool Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs);
 
     // Perturbs the weights
-    void Mutate_LinkWeights();
+    void Mutate_LinkWeights(Parameters& a_Parameters);
 
     // Set all link weights to random values between [-R .. R]
     void Randomize_LinkWeights(double a_Range);
 
     // Perturbs the A parameters of the neuron activation functions
-    void Mutate_NeuronActivations_A();
+    void Mutate_NeuronActivations_A(Parameters& a_Parameters);
 
     // Perturbs the B parameters of the neuron activation functions
-    void Mutate_NeuronActivations_B();
+    void Mutate_NeuronActivations_B(Parameters& a_Parameters);
 
     // Changes the activation function type for a random neuron
-    void Mutate_NeuronActivation_Type();
+    void Mutate_NeuronActivation_Type(Parameters& a_Parameters);
 
     // Perturbs the neuron time constants
-    void Mutate_NeuronTimeConstants();
+    void Mutate_NeuronTimeConstants(Parameters& a_Parameters);
 
     // Perturbs the neuron biases
-    void Mutate_NeuronBiases();
+    void Mutate_NeuronBiases(Parameters& a_Parameters);
 
 
     ///////////

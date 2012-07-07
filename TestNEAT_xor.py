@@ -54,16 +54,17 @@ def evaluate(genome):
     
     return (4 - error)**2
     
-
-g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0)
-pop = NEAT.Population(g, True, 1.0)
+params = NEAT.Parameters()
+params.PopulationSize = 160
+g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+pop = NEAT.Population(g, params, True, 1.0)
 
 print pickle.dumps(g)
 xx = pickle.dumps(g)
 
 pool = mpc.Pool(processes = 4)
 
-for generation in range(1500):
+for generation in range(100):
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:

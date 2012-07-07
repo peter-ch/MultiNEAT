@@ -21,6 +21,7 @@
 #include "PhenotypeBehavior.h"
 #include "Genes.h"
 #include "Species.h"
+#include "Parameters.h"
 
 namespace NEAT
 {
@@ -106,6 +107,9 @@ private:
 
 public:
 
+    // Evolution parameters
+    Parameters m_Parameters;
+
     // Current generation
     unsigned int m_Generation;
 
@@ -120,7 +124,7 @@ public:
     // Initializes a population from a seed genome G. Then it initializes all weights
     // To small numbers between -R and R.
     // The population size is determined by GlobalParameters.PopulationSize
-    Population(const Genome& a_G, bool a_RandomizeWeights, double a_RandomRange);
+    Population(const Genome& a_G, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomRange);
 
 
     // Loads a population from a file.

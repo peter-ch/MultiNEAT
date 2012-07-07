@@ -605,7 +605,7 @@ std::vector<double> NeuralNetwork::Output()
 	return t_output;
 }
 
-void NeuralNetwork::Adapt()
+void NeuralNetwork::Adapt(Parameters& a_Parameters)
 {
 	// find max absolute magnitude of the weight
 	double t_max_weight = DBL_MIN;
@@ -651,8 +651,8 @@ void NeuralNetwork::Adapt()
 			m_connections[i].m_weight = -(m_connections[i].m_weight + t_delta);
 		}
 
-		Clamp(m_connections[i].m_weight, -GlobalParameters.MaxWeight,
-				GlobalParameters.MaxWeight);
+		Clamp(m_connections[i].m_weight, -a_Parameters.MaxWeight,
+				a_Parameters.MaxWeight);
 	}
 
 }

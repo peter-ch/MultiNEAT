@@ -32,19 +32,20 @@ namespace NEAT
 {
 
 // The constructor
-Population::Population(const Genome& a_Seed, bool a_RandomizeWeights, double a_RandomizationRange)
+Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomizationRange)
 {
     m_BestFitnessEver = 0.0;
+    m_Parameters = a_Parameters;
 
     m_Generation = 0;
     m_NumEvaluations = 0;
-    m_NextGenomeID = GlobalParameters.PopulationSize;
+    m_NextGenomeID = m_Parameters.PopulationSize;
     m_NextSpeciesID = 1;
     m_GensSinceBestFitnessLastChanged = 0;
     m_GensSinceMPCLastChanged = 0;
 
     // Spawn the population
-    for(unsigned int i=0; i<GlobalParameters.PopulationSize; i++)
+    for(unsigned int i=0; i<m_Parameters.PopulationSize; i++)
     {
         Genome t_clone = a_Seed;
         t_clone.SetID(i);
@@ -74,7 +75,7 @@ Population::Population(const Genome& a_Seed, bool a_RandomizeWeights, double a_R
     CalculateMPC();
     m_BaseMPC = m_CurrentMPC;
     m_OldMPC = m_BaseMPC;
-    if (GlobalParameters.PhasedSearching)
+    if (m_Parameters.PhasedSearching)
     {
         m_SearchMode = COMPLEXIFYING;
     }
@@ -86,11 +87,10 @@ Population::Population(const Genome& a_Seed, bool a_RandomizeWeights, double a_R
 
 
 Population::Population(char *a_FileName)
-#ifdef USE_MESSAGE_QUEUE
-    : m_MessageQueue(MessageQueue::instance())
-#endif
 {
     m_BestFitnessEver = 0.0;
+    // also reset the global parameters
+    m_Parameters.Reset();
 
     m_Generation = 0;
     m_NumEvaluations = 0;
@@ -103,17 +103,17 @@ Population::Population(char *a_FileName)
 
     // Load the number of genomes (pop size)
     t_DataFile >> t_str;
-    t_DataFile >> GlobalParameters.PopulationSize;
+    t_DataFile >> m_Parameters.PopulationSize;
 
     // Load the compatibility treshold
     t_DataFile >> t_str;
-    t_DataFile >> GlobalParameters.CompatTreshold;
+    t_DataFile >> m_Parameters.CompatTreshold;
 
     // Load the innovation database
     m_InnovationDatabase.Init(t_DataFile);
 
     // Load all genomes
-    for(unsigned int i=0; i<GlobalParameters.PopulationSize; i++)
+    for(unsigned int i=0; i<m_Parameters.PopulationSize; i++)
     {
         Genome t_genome(t_DataFile);
         m_Genomes.push_back( t_genome );
@@ -140,7 +140,7 @@ Population::Population(char *a_FileName)
     CalculateMPC();
     m_BaseMPC = m_CurrentMPC;
     m_OldMPC = m_BaseMPC;
-    if (GlobalParameters.PhasedSearching)
+    if (m_Parameters.PhasedSearching)
     {
         m_SearchMode = COMPLEXIFYING;
     }
@@ -148,9 +148,6 @@ Population::Population(char *a_FileName)
     {
         m_SearchMode = BLENDED;
     }
-
-    // also reset the global parameters
-    GlobalParameters.Reset();
 }
 
 
@@ -163,7 +160,7 @@ void Population::Save(char* a_FileName)
     fprintf(t_file, "Genomes: %d\n", m_Genomes.size());
 
     // Save the compatibility treshold
-    fprintf(t_file, "Compatibility: %3.5f\n\n", GlobalParameters.CompatTreshold);
+    fprintf(t_file, "Compatibility: %3.5f\n\n", m_Parameters.CompatTreshold);
 
     // Save the innovation database
     m_InnovationDatabase.Save(t_file);
@@ -217,7 +214,7 @@ void Population::Speciate()
         for(unsigned int j=0; j<m_Species.size(); j++)
         {
             Genome tmp = m_Species[j].GetRepresentative();
-            if (m_Genomes[i].IsCompatibleWith( tmp ))
+            if (m_Genomes[i].IsCompatibleWith( tmp, m_Parameters ))
             {
                 // Compatible, add to species
                 m_Species[j].AddIndividual( m_Genomes[i] );
@@ -239,7 +236,7 @@ void Population::Speciate()
     std::vector<Species>::iterator t_cs = m_Species.begin();
     while(t_cs != m_Species.end())
     {
-        if (t_cs->NumMembers() == 0)
+        if (t_cs->NumIndividuals() == 0)
         {
             // remove the dead species
             t_cs = m_Species.erase( t_cs );
@@ -298,7 +295,7 @@ void Population::AdjustFitness()
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].AdjustFitness();
+        m_Species[i].AdjustFitness(m_Parameters);
     }
 }
 
@@ -326,7 +323,7 @@ void Population::CountOffspring()
     // must be above 0
     ASSERT(t_total_adjusted_fitness > 0);
 
-    t_average_adjusted_fitness = t_total_adjusted_fitness / static_cast<double>(GlobalParameters.PopulationSize);
+    t_average_adjusted_fitness = t_total_adjusted_fitness / static_cast<double>(m_Parameters.PopulationSize);
 
     // Calculate how much offspring each individual should have
     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -432,14 +429,6 @@ void Population::UpdateSpecies()
 // the epoch method - the heart of the GA
 void Population::Epoch()
 {
-/*	for(int i=0; i<m_Species.size(); i++)
-		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
-			m_Species[i].m_Individuals[j].SetFitness(124);*/
-
-/*	for(int i=0; i<m_Species.size(); i++)
-		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
-			std::cerr << m_Species[i].m_Individuals[j].GetFitness() << std::endl; */
-
     // Sort each species's members by fitness and the species by fitness
     Sort();
 
@@ -474,7 +463,7 @@ void Population::Epoch()
             if (m_BestFitnessEver < t_Fitness)
             {
                 // Reset the stagnation counter only if the fitness jump is greater or equal to the delta.
-                if (fabs(t_Fitness - m_BestFitnessEver) >= GlobalParameters.StagnationDelta)
+                if (fabs(t_Fitness - m_BestFitnessEver) >= m_Parameters.StagnationDelta)
                 {
                     m_GensSinceBestFitnessLastChanged = 0;
                 }
@@ -501,21 +490,21 @@ void Population::Epoch()
 
 
     // adjust the compatibility treshold
-    if (GlobalParameters.DynamicCompatibility == true)
+    if (m_Parameters.DynamicCompatibility == true)
     {
-        if ((m_Generation % GlobalParameters.CompatTreshChangeInterval_Generations) == 0)
+        if ((m_Generation % m_Parameters.CompatTreshChangeInterval_Generations) == 0)
         {
-            if (m_Species.size() > GlobalParameters.MaxSpecies)
+            if (m_Species.size() > m_Parameters.MaxSpecies)
             {
-                GlobalParameters.CompatTreshold += GlobalParameters.CompatTresholdModifier;
+            	m_Parameters.CompatTreshold += m_Parameters.CompatTresholdModifier;
             }
-            else if (m_Species.size() < GlobalParameters.MinSpecies)
+            else if (m_Species.size() < m_Parameters.MinSpecies)
             {
-                GlobalParameters.CompatTreshold -= GlobalParameters.CompatTresholdModifier;
+            	m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
             }
         }
 
-        if (GlobalParameters.CompatTreshold < GlobalParameters.MinCompatTreshold) GlobalParameters.CompatTreshold = GlobalParameters.MinCompatTreshold;
+        if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = GlobalParameters.MinCompatTreshold;
     }
 
 
@@ -532,17 +521,17 @@ void Population::Epoch()
     // Delta coding - if there is a global stagnation
     // for dropoff age + 10 generations, focus the search on the top 2 species,
     // in case there are more than 2, of course
-    if (GlobalParameters.DeltaCoding)
+    if (m_Parameters.DeltaCoding)
     {
-        if (m_GensSinceBestFitnessLastChanged > (GlobalParameters.SpeciesDropoffAge + 10))
+        if (m_GensSinceBestFitnessLastChanged > (m_Parameters.SpeciesDropoffAge + 10))
         {
             // make the top 2 reproduce by 50% individuals
             // and the rest - no offspring
             if (m_Species.size() > 2)
             {
                 // The first two will reproduce
-                m_Species[0].SetOffspringRqd( GlobalParameters.PopulationSize/2 );
-                m_Species[1].SetOffspringRqd( GlobalParameters.PopulationSize/2 );
+                m_Species[0].SetOffspringRqd( m_Parameters.PopulationSize/2 );
+                m_Species[1].SetOffspringRqd( m_Parameters.PopulationSize/2 );
 
                 // The rest will not
                 for (unsigned int i=2; i<m_Species.size(); i++)
@@ -570,7 +559,7 @@ void Population::Epoch()
     //////////////////////////////////
     // Update the current MPC
     CalculateMPC();
-    if (GlobalParameters.PhasedSearching)
+    if (m_Parameters.PhasedSearching)
     {
         // Keep track of complexity when in simplifying phase
         if (m_SearchMode == SIMPLIFYING)
@@ -593,10 +582,10 @@ void Population::Epoch()
         if (m_SearchMode == COMPLEXIFYING)
         {
             // Need to begin simplification?
-            if (m_CurrentMPC > (m_BaseMPC + GlobalParameters.SimplifyingPhaseMPCTreshold))
+            if (m_CurrentMPC > (m_BaseMPC + m_Parameters.SimplifyingPhaseMPCTreshold))
             {
                 // Do this only if the whole population is stagnating
-                if (m_GensSinceBestFitnessLastChanged > GlobalParameters.SimplifyingPhaseStagnationTreshold)
+                if (m_GensSinceBestFitnessLastChanged > m_Parameters.SimplifyingPhaseStagnationTreshold)
                 {
                     // Change the current search mode
                     m_SearchMode = SIMPLIFYING;
@@ -617,7 +606,7 @@ void Population::Epoch()
             // At simplifying phase?
         {
             // The MPC reached its floor level?
-            if (m_GensSinceMPCLastChanged > GlobalParameters.ComplexityFloorGenerations)
+            if (m_GensSinceMPCLastChanged > m_Parameters.ComplexityFloorGenerations)
             {
                 // Re-enter complexifying phase
                 m_SearchMode = COMPLEXIFYING;
@@ -647,7 +636,7 @@ void Population::Epoch()
 
 
     // Kill all bad performing individuals
-    for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillWorst();
+    for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillWorst(m_Parameters);
 
     // Perform reproduction for each species
     m_TempSpecies.clear();
@@ -655,7 +644,7 @@ void Population::Epoch()
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].Reproduce(*this);
+        m_Species[i].Reproduce(*this, m_Parameters);
     }
 
     m_Species = m_TempSpecies;
@@ -694,9 +683,9 @@ void Population::Epoch()
     for(unsigned int i=0; i<m_Species.size(); i++)
         t_total_genomes += static_cast<unsigned int>(m_Species[i].m_Individuals.size());
 
-    if (t_total_genomes < GlobalParameters.PopulationSize)
+    if (t_total_genomes < m_Parameters.PopulationSize)
     {
-        int t_nts = GlobalParameters.PopulationSize - t_total_genomes;
+        int t_nts = m_Parameters.PopulationSize - t_total_genomes;
 
         while(t_nts--)
         {
@@ -714,7 +703,7 @@ void Population::Epoch()
     // At this point we may also empty our innovation database
     // This is the place where we control whether we want to
     // keep innovation numbers forever or not.
-    if (!GlobalParameters.InnovationsForever)
+    if (!m_Parameters.InnovationsForever)
         m_InnovationDatabase.Flush();
 }
 
@@ -857,7 +846,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
         {
-            if (t_genome.IsCompatibleWith( t_to_compare ))
+            if (t_genome.IsCompatibleWith( t_to_compare, m_Parameters ))
             {
                 // found a compatible species
                 t_cur_species->AddIndividual(t_genome);
@@ -913,7 +902,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
             if (t_Fitness > m_BestFitnessEver)
             {
                 // Reset the stagnation counter only if the fitness jump is greater or equal to the delta.
-                if (fabs(t_Fitness - m_BestFitnessEver) >= GlobalParameters.StagnationDelta)
+                if (fabs(t_Fitness - m_BestFitnessEver) >= m_Parameters.StagnationDelta)
                 {
                     m_GensSinceBestFitnessLastChanged = 0;
                 }
@@ -946,22 +935,22 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
     // adjust the compatibility treshold
     bool t_changed = false;
-    if (GlobalParameters.DynamicCompatibility == true)
+    if (m_Parameters.DynamicCompatibility == true)
     {
-        if ((m_NumEvaluations % GlobalParameters.CompatTreshChangeInterval_Evaluations) == 0)
+        if ((m_NumEvaluations % m_Parameters.CompatTreshChangeInterval_Evaluations) == 0)
         {
-            if (m_Species.size() > GlobalParameters.MaxSpecies)
+            if (m_Species.size() > m_Parameters.MaxSpecies)
             {
-                GlobalParameters.CompatTreshold += GlobalParameters.CompatTresholdModifier;
+            	m_Parameters.CompatTreshold += m_Parameters.CompatTresholdModifier;
                 t_changed = true;
             }
-            else if (m_Species.size() < GlobalParameters.MinSpecies)
+            else if (m_Species.size() < m_Parameters.MinSpecies)
             {
-                GlobalParameters.CompatTreshold -= GlobalParameters.CompatTresholdModifier;
+            	m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
                 t_changed = true;
             }
 
-            if (GlobalParameters.CompatTreshold < GlobalParameters.MinCompatTreshold) GlobalParameters.CompatTreshold = GlobalParameters.MinCompatTreshold;
+            if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
         }
     }
 
@@ -988,7 +977,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
     // Now spawn the new offspring
     unsigned int t_parent_species_index = ChooseParentSpecies();
-    Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this);
+    Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this, m_Parameters);
     ASSERT(t_baby.NumInputs() > 0);
     ASSERT(t_baby.NumOutputs() > 0);
     Genome* t_to_return = NULL;
@@ -1015,7 +1004,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
         {
-            if (t_baby.IsCompatibleWith( t_to_compare ))
+            if (t_baby.IsCompatibleWith( t_to_compare, m_Parameters))
             {
                 // found a compatible species
                 t_cur_species->AddIndividual(t_baby);
@@ -1157,11 +1146,11 @@ double Population::ComputeSparseness(Genome& genome)
 
     // now compute the sparseness
     double t_sparseness = 0;
-    for(unsigned int i=1; i< (GlobalParameters.NoveltySearch_K+1); i++)
+    for(unsigned int i=1; i< (m_Parameters.NoveltySearch_K+1); i++)
     {
         t_sparseness += t_distances_list[i];
     }
-    t_sparseness /= GlobalParameters.NoveltySearch_K;
+    t_sparseness /= m_Parameters.NoveltySearch_K;
 
     return t_sparseness;
 }
@@ -1177,7 +1166,7 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
 {
     // Recompute the sparseness/fitness for all individuals in the population
     // This will introduce the constant pressure to do something new
-    if ((m_NumEvaluations % GlobalParameters.NoveltySearch_Recompute_Sparseness_Each)==0)
+    if ((m_NumEvaluations % m_Parameters.NoveltySearch_Recompute_Sparseness_Each)==0)
     {
         for(unsigned int i=0; i<m_Species.size(); i++)
             for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
@@ -1211,7 +1200,7 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
     // OK now we have the sparseness for this behavior
     // if the sparseness is above Pmin, add this behavior to the archive
     m_GensSinceLastArchiving++;
-    if (t_sparseness > GlobalParameters.NoveltySearch_P_min )
+    if (t_sparseness > m_Parameters.NoveltySearch_P_min )
     {
         // check to see if this behavior is already present in the archive
         // if it is already present, abort addition
@@ -1243,22 +1232,22 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
 
 
     // dynamic Pmin
-    if (GlobalParameters.NoveltySearch_Dynamic_Pmin)
+    if (m_Parameters.NoveltySearch_Dynamic_Pmin)
     {
         // too many generations without adding to the archive?
-        if (m_GensSinceLastArchiving > GlobalParameters.NoveltySearch_No_Archiving_Stagnation_Treshold)
+        if (m_GensSinceLastArchiving > m_Parameters.NoveltySearch_No_Archiving_Stagnation_Treshold)
         {
-            GlobalParameters.NoveltySearch_P_min *= GlobalParameters.NoveltySearch_Pmin_lowering_multiplier;
-            if (GlobalParameters.NoveltySearch_P_min < GlobalParameters.NoveltySearch_Pmin_min)
+        	m_Parameters.NoveltySearch_P_min *= m_Parameters.NoveltySearch_Pmin_lowering_multiplier;
+            if (m_Parameters.NoveltySearch_P_min < m_Parameters.NoveltySearch_Pmin_min)
             {
-                GlobalParameters.NoveltySearch_P_min = GlobalParameters.NoveltySearch_Pmin_min;
+            	m_Parameters.NoveltySearch_P_min = m_Parameters.NoveltySearch_Pmin_min;
             }
         }
 
         // too much additions to the archive (one after another)?
-        if (m_QuickAddCounter > GlobalParameters.NoveltySearch_Quick_Archiving_Min_Evaluations)
+        if (m_QuickAddCounter > m_Parameters.NoveltySearch_Quick_Archiving_Min_Evaluations)
         {
-            GlobalParameters.NoveltySearch_P_min *= GlobalParameters.NoveltySearch_Pmin_raising_multiplier;
+        	m_Parameters.NoveltySearch_P_min *= m_Parameters.NoveltySearch_Pmin_raising_multiplier;
         }
     }
 

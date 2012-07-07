@@ -106,53 +106,15 @@ public:
     void IncreaseGensNoImprovement() { m_GensNoImprovement++; }
     void SetOffspringRqd(double a_ofs) { m_OffspringRqd = a_ofs; }
     double GetOffspringRqd() const { return m_OffspringRqd; }
-    unsigned int NumMembers() const { return static_cast<unsigned int>(m_Individuals.size()); }
-    unsigned int NumIndividuals() const
-    {
-        return static_cast<unsigned int>(m_Individuals.size());
-    }
-    void ClearMembers()
-    {
-        m_Individuals.clear();
-    }
-    void ClearIndividuals()
-    {
-        m_Individuals.clear();
-    }
-    int ID() const
-    {
-        return m_ID;
-    }
-    int GensNoImprovement() const
-    {
-        return m_GensNoImprovement;
-    }
-    int Age() const
-    {
-        return m_Age;
-    }
-    Genome GetMemberByIdx(int a_idx) const
-    {
-        return (m_Individuals[a_idx]);
-    }
-    Genome GetIndividualByIdx(int a_idx) const
-    {
-        return (m_Individuals[a_idx]);
-    }
-    bool IsBestSpecies() const
-    {
-        return m_BestSpecies;
-    }
-    bool IsWorstSpecies() const
-    {
-        return m_WorstSpecies;
-    }
-    void SetRepresentative(Genome& a_G)
-    {
-        m_Representative = a_G;
-    }
-
-    // Returns a pointer to the
+    unsigned int NumIndividuals() { return m_Individuals.size(); }
+    void ClearIndividuals() { m_Individuals.clear(); }
+    int ID() { return m_ID; }
+    int GensNoImprovement() { return m_GensNoImprovement; }
+    int Age() { return m_Age; }
+    Genome GetIndividualByIdx(int a_idx) const { return (m_Individuals[a_idx]); }
+    bool IsBestSpecies() const { return m_BestSpecies; }
+    bool IsWorstSpecies() const { return m_WorstSpecies; }
+    void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
 
     // returns the leader (the member having the best fitness, representing the species)
     Genome GetLeader() const;
@@ -163,7 +125,7 @@ public:
     void AddIndividual(Genome& a_New);
 
     // returns an individual randomly selected from the best N%
-    Genome GetIndividual() const;
+    Genome GetIndividual(Parameters& a_Parameters) const;
 
     // returns a completely random individual
     Genome GetRandomIndividual() const;
@@ -174,7 +136,7 @@ public:
     // this method performs fitness sharing
     // it also boosts the fitness if young and penalizes if old
     // applies extreme penalty for stagnating species over SpeciesDropoffAge generations.
-    void AdjustFitness();
+    void AdjustFitness(Parameters& a_Parameters);
 
     // Sorts the individuals
     void SortIndividuals();
@@ -189,12 +151,12 @@ public:
     std::vector<Genome> m_Individuals;
 
     // Reproduction.
-    void Reproduce(Population& a_Pop);
+    void Reproduce(Population& a_Pop, Parameters& a_Parameters);
 
-    void MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby );
+    void MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters& a_Parameters);
 
     // Kill all worst individuals form the species.
-    void KillWorst();
+    void KillWorst(Parameters& a_Parameters);
 
     // Kill all adults.
     void KillOldParents();
@@ -210,7 +172,7 @@ public:
     void CalculateAverageFitness();
 
     // A second version that returns the baby only
-    Genome ReproduceOne(Population& a_Pop);
+    Genome ReproduceOne(Population& a_Pop, Parameters& a_Parameters);
 
     void RemoveIndividual(unsigned int a_idx);
 };

@@ -30,7 +30,7 @@ namespace NEAT
 {
 
 // forward
-ActivationFunction GetRandomActivation();
+ActivationFunction GetRandomActivation(Parameters& a_Parameters);
 
 
 // Create an empty genome
@@ -97,7 +97,10 @@ Genome::Genome(unsigned int a_ID,
                unsigned int a_NumInputs,
                unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
                unsigned int a_NumOutputs,
-               bool a_FS_NEAT, ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, unsigned int a_SeedType)
+               bool a_FS_NEAT, ActivationFunction a_OutputActType,
+               ActivationFunction a_HiddenActType,
+               unsigned int a_SeedType,
+               const Parameters& a_Parameters)
 {
     ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
 
@@ -121,10 +124,10 @@ Genome::Genome(unsigned int a_ID,
     {
         NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
         // Initialize the neuron gene's properties
-        t_ngene.Init( (GlobalParameters.MinActivationA + GlobalParameters.MaxActivationA)/2.0f,
-                      (GlobalParameters.MinActivationB + GlobalParameters.MaxActivationB)/2.0f,
-                      (GlobalParameters.MinNeuronTimeConstant + GlobalParameters.MaxNeuronTimeConstant)/2.0f,
-                      (GlobalParameters.MinNeuronBias + GlobalParameters.MaxNeuronBias)/2.0f,
+        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
                       a_OutputActType );
 
         m_NeuronGenes.push_back( t_ngene );
@@ -138,10 +141,10 @@ Genome::Genome(unsigned int a_ID,
         {
             NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
             // Initialize the neuron gene's properties
-            t_ngene.Init( (GlobalParameters.MinActivationA + GlobalParameters.MaxActivationA)/2.0f,
-                          (GlobalParameters.MinActivationB + GlobalParameters.MaxActivationB)/2.0f,
-                          (GlobalParameters.MinNeuronTimeConstant + GlobalParameters.MaxNeuronTimeConstant)/2.0f,
-                          (GlobalParameters.MinNeuronBias + GlobalParameters.MaxNeuronBias)/2.0f,
+            t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
                           a_HiddenActType );
 
             t_ngene.m_SplitY = 0.5;
@@ -602,7 +605,7 @@ void Genome::DerivePhenotypicChanges(NeuralNetwork& a_Net)
 
 
 // Returns the absolute distance between this genome and a_G
-double Genome::CompatibilityDistance(Genome &a_G)
+double Genome::CompatibilityDistance(Genome &a_G, Parameters& a_Parameters)
 {
     // iterators for moving through the genomes' genes
     std::vector<LinkGene>::iterator t_g1;
@@ -737,20 +740,20 @@ double Genome::CompatibilityDistance(Genome &a_G)
         t_normalizer = 1;
 
     t_total_distance =
-        (GlobalParameters.ExcessCoeff                 * (t_num_excess   / t_normalizer)) +
-        (GlobalParameters.DisjointCoeff               * (t_num_disjoint / t_normalizer)) +
-        (GlobalParameters.WeightDiffCoeff             * (t_total_weight_difference / t_num_matching_links)) +
-        (GlobalParameters.ActivationADiffCoeff        * (t_total_A_difference / t_num_matching_neurons)) +
-        (GlobalParameters.ActivationBDiffCoeff        * (t_total_B_difference / t_num_matching_neurons)) +
-        (GlobalParameters.TimeConstantDiffCoeff       * (t_total_timeconstant_difference / t_num_matching_neurons)) +
-        (GlobalParameters.BiasDiffCoeff               * (t_total_bias_difference / t_num_matching_neurons)) +
-        (GlobalParameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference / t_num_matching_neurons));
+        (a_Parameters.ExcessCoeff                 * (t_num_excess   / t_normalizer)) +
+        (a_Parameters.DisjointCoeff               * (t_num_disjoint / t_normalizer)) +
+        (a_Parameters.WeightDiffCoeff             * (t_total_weight_difference / t_num_matching_links)) +
+        (a_Parameters.ActivationADiffCoeff        * (t_total_A_difference / t_num_matching_neurons)) +
+        (a_Parameters.ActivationBDiffCoeff        * (t_total_B_difference / t_num_matching_neurons)) +
+        (a_Parameters.TimeConstantDiffCoeff       * (t_total_timeconstant_difference / t_num_matching_neurons)) +
+        (a_Parameters.BiasDiffCoeff               * (t_total_bias_difference / t_num_matching_neurons)) +
+        (a_Parameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference / t_num_matching_neurons));
 
     return t_total_distance;
 }
 
 // Returns true if this genome and a_G are compatible (belong in the same species)
-bool Genome::IsCompatibleWith(Genome& a_G)
+bool Genome::IsCompatibleWith(Genome& a_G, Parameters& a_Parameters)
 {
     // full compatibility cases
     if (this == &a_G)
@@ -762,9 +765,9 @@ bool Genome::IsCompatibleWith(Genome& a_G)
     if ((NumLinks() == 0) && (a_G.NumLinks() == 0))
         return true;
 
-    double t_total_distance = CompatibilityDistance(a_G);
+    double t_total_distance = CompatibilityDistance(a_G, a_Parameters);
 
-    if (t_total_distance <= GlobalParameters.CompatTreshold)
+    if (t_total_distance <= a_Parameters.CompatTreshold)
         return true;  // compatible
     else
         return false; // incompatible
@@ -774,64 +777,64 @@ bool Genome::IsCompatibleWith(Genome& a_G)
 
 
 // Returns a random activation function from the canonical set based ot probabilities
-ActivationFunction GetRandomActivation()
+ActivationFunction GetRandomActivation(Parameters& a_Parameters)
 {
     int t_numtries = 128;
     for(int i=0; i < t_numtries; i++)
     {
-        if (RandFloat() < GlobalParameters.ActivationFunction_SignedSigmoid_Prob)
+        if (RandFloat() < a_Parameters.ActivationFunction_SignedSigmoid_Prob)
         {
             return SIGNED_SIGMOID;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_UnsignedSigmoid_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_UnsignedSigmoid_Prob)
         {
             return UNSIGNED_SIGMOID;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_Tanh_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_Tanh_Prob)
         {
             return TANH;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_TanhCubic_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_TanhCubic_Prob)
         {
             return TANH_CUBIC;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_SignedStep_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_SignedStep_Prob)
         {
             return SIGNED_STEP;
         }
-        if (RandFloat() < GlobalParameters.ActivationFunction_UnsignedStep_Prob)
+        if (RandFloat() < a_Parameters.ActivationFunction_UnsignedStep_Prob)
         {
             return UNSIGNED_STEP;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_SignedGauss_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_SignedGauss_Prob)
         {
             return SIGNED_GAUSS;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_UnsignedGauss_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_UnsignedGauss_Prob)
         {
             return UNSIGNED_GAUSS;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_Abs_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_Abs_Prob)
         {
             return ABS;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_SignedSine_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_SignedSine_Prob)
         {
             return SIGNED_SINE;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_UnsignedSine_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_UnsignedSine_Prob)
         {
             return UNSIGNED_SINE;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_SignedSquare_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_SignedSquare_Prob)
         {
             return SIGNED_SQUARE;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_UnsignedSquare_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_UnsignedSquare_Prob)
         {
             return UNSIGNED_SQUARE;
         }
-        else if (RandFloat() < GlobalParameters.ActivationFunction_Linear_Prob)
+        else if (RandFloat() < a_Parameters.ActivationFunction_Linear_Prob)
         {
             return LINEAR;
         }
@@ -845,7 +848,7 @@ ActivationFunction GetRandomActivation()
 
 // Adds a new neuron to the genome
 // returns true if succesful
-bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
+bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parameters)
 {
     // No links to split - go away..
     if (NumLinks() == 0)
@@ -906,11 +909,11 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
             t_link_found = false;
 
         // Do not allow splitting of recurrent links
-        if (!GlobalParameters.SplitRecurrent)
+        if (!a_Parameters.SplitRecurrent)
         {
             if (m_LinkGenes[t_link_num].IsRecurrent())
             {
-                if ((!GlobalParameters.SplitLoopedRecurrent) && (t_in == t_out))
+                if ((!a_Parameters.SplitLoopedRecurrent) && (t_in == t_out))
                 {
                     t_link_found = false;
                 }
@@ -967,10 +970,10 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
         // Create the neuron gene
         NeuronGene t_ngene(HIDDEN, t_nid, t_sy);
 
-        double t_A = RandFloat(), t_B=RandFloat(), t_TC=RandFloat(), t_Bs=RandFloatClamped() * GlobalParameters.WeightReplacementMaxPower;
-        Scale(t_A,  0, 1, GlobalParameters.MinActivationA, GlobalParameters.MaxActivationA);
-        Scale(t_B,  0, 1, GlobalParameters.MinActivationB, GlobalParameters.MaxActivationB);
-        Scale(t_TC, 0, 1, GlobalParameters.MinNeuronTimeConstant, GlobalParameters.MaxNeuronTimeConstant);
+        double t_A = RandFloat(), t_B=RandFloat(), t_TC=RandFloat(), t_Bs=RandFloatClamped() * a_Parameters.WeightReplacementMaxPower;
+        Scale(t_A,  0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
+        Scale(t_B,  0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
+        Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
         //Scale(t_Bs, 0, 1, GlobalParameters.MinNeuronBias, GlobalParameters.MaxNeuronBias);
 
         // Initialize the neuron gene's properties
@@ -978,7 +981,7 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
                       t_B,
                       t_TC,
                       t_Bs,
-                      GetRandomActivation() );
+                      GetRandomActivation(a_Parameters) );
 
         // Add the NeuronGene
         m_NeuronGenes.push_back( t_ngene );
@@ -1054,10 +1057,10 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
         // Create the neuron gene
         NeuronGene t_ngene(HIDDEN, t_nid, t_sy);
 
-        double t_A = RandFloat(), t_B=RandFloat(), t_TC=RandFloat(), t_Bs=RandFloatClamped() * GlobalParameters.WeightReplacementMaxPower;
-        Scale(t_A,  0, 1, GlobalParameters.MinActivationA, GlobalParameters.MaxActivationA);
-        Scale(t_B,  0, 1, GlobalParameters.MinActivationB, GlobalParameters.MaxActivationB);
-        Scale(t_TC, 0, 1, GlobalParameters.MinNeuronTimeConstant, GlobalParameters.MaxNeuronTimeConstant);
+        double t_A = RandFloat(), t_B=RandFloat(), t_TC=RandFloat(), t_Bs=RandFloatClamped() * a_Parameters.WeightReplacementMaxPower;
+        Scale(t_A,  0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
+        Scale(t_B,  0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
+        Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
         //Scale(t_Bs, 0, 1, GlobalParameters.MinNeuronBias, GlobalParameters.MaxNeuronBias);
 
         // Initialize the neuron gene's properties
@@ -1065,7 +1068,7 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
                       t_B,
                       t_TC,
                       t_Bs,
-                      GetRandomActivation() );
+                      GetRandomActivation(a_Parameters) );
 
         // Make sure the recurrent flag is kept
         bool t_recurrentflag = t_chosenlink.IsRecurrent();
@@ -1088,7 +1091,7 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs)
 
 // Adds a new link to the genome
 // returns true if succesful
-bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
+bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters& a_Parameters)
 {
     // this variable tells where is the first noninput node
     int t_first_noninput=0;
@@ -1112,11 +1115,11 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
 
 
     // Decide whether the connection will be recurrent or not..
-    if (RandFloat() < GlobalParameters.RecurrentProb)
+    if (RandFloat() < a_Parameters.RecurrentProb)
     {
         t_MakeRecurrent = true;
 
-        if (RandFloat() < GlobalParameters.RecurrentLoopProb)
+        if (RandFloat() < a_Parameters.RecurrentLoopProb)
         {
             t_LoopedRecurrent = true;
         }
@@ -1126,7 +1129,7 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
     // in case such link exists, search for a standard feed-forward connection place
     else
     {
-        if (RandFloat() < GlobalParameters.MutateAddLinkFromBiasProb )
+        if (RandFloat() < a_Parameters.MutateAddLinkFromBiasProb )
         {
             t_MakeBias = true;
         }
@@ -1164,7 +1167,7 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
             t_n2idx = RandInt(t_first_noninput, static_cast<int>(NumNeurons()-1));
             t_NumTries++;
 
-            if (t_NumTries >= GlobalParameters.LinkTries)
+            if (t_NumTries >= a_Parameters.LinkTries)
             {
                 // couldn't find anything
                 t_found_bias = false;
@@ -1189,7 +1192,7 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
                 t_n2idx = RandInt(t_first_noninput, static_cast<int>(NumNeurons()-1));
                 t_NumTries++;
 
-                if (t_NumTries >= GlobalParameters.LinkTries)
+                if (t_NumTries >= a_Parameters.LinkTries)
                 {
                     // couldn't find anything
                     // say goodbye
@@ -1220,7 +1223,7 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
             t_n2idx = RandInt(t_first_noninput, static_cast<int>(NumNeurons()-1));
             t_NumTries++;
 
-            if (t_NumTries >= GlobalParameters.LinkTries)
+            if (t_NumTries >= a_Parameters.LinkTries)
             {
                 // couldn't find anything
                 // say goodbye
@@ -1248,7 +1251,7 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs)
             t_n1idx = t_n2idx = RandInt(t_first_noninput, static_cast<int>(NumNeurons()-1));
             t_NumTries++;
 
-            if (t_NumTries >= GlobalParameters.LinkTries)
+            if (t_NumTries >= a_Parameters.LinkTries)
             {
                 // couldn't find anything
                 // say goodbye
@@ -1668,7 +1671,7 @@ bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs)
 
 
 // Perturbs the weights
-void Genome::Mutate_LinkWeights()
+void Genome::Mutate_LinkWeights(Parameters& a_Parameters)
 {
     // The end part of the genome
     unsigned int t_genometail = static_cast<unsigned int>(NumLinks() * 0.8);
@@ -1679,7 +1682,7 @@ void Genome::Mutate_LinkWeights()
     double t_soft_mutation_point;
     double t_hard_mutation_point;
 
-    if (RandFloat() < GlobalParameters.MutateWeightsSevereProb)
+    if (RandFloat() < a_Parameters.MutateWeightsSevereProb)
     {
         t_severe_mutation = true;
     }
@@ -1720,13 +1723,13 @@ void Genome::Mutate_LinkWeights()
             // Half the time don't replace any weights
             if (RandFloat() < 0.5)
             {
-                t_soft_mutation_point = 1.0 - GlobalParameters.WeightMutationRate;
-                t_hard_mutation_point = 1.0 - GlobalParameters.WeightMutationRate - 0.1;
+                t_soft_mutation_point = 1.0 - a_Parameters.WeightMutationRate;
+                t_hard_mutation_point = 1.0 - a_Parameters.WeightMutationRate - 0.1;
             }
             else
             {
-                t_soft_mutation_point = 1.0 - GlobalParameters.WeightMutationRate;
-                t_hard_mutation_point = 1.0 - GlobalParameters.WeightMutationRate;
+                t_soft_mutation_point = 1.0 - a_Parameters.WeightMutationRate;
+                t_hard_mutation_point = 1.0 - a_Parameters.WeightMutationRate;
             }
         }
 
@@ -1734,15 +1737,15 @@ void Genome::Mutate_LinkWeights()
         double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
         if (t_random_choice > t_soft_mutation_point)
         {
-            t_LinkGenesWeight += RandFloatClamped() * GlobalParameters.WeightMutationMaxPower;
+            t_LinkGenesWeight += RandFloatClamped() * a_Parameters.WeightMutationMaxPower;
 
         }
         else if (t_random_choice > t_hard_mutation_point)
         {
-            t_LinkGenesWeight  = RandFloatClamped() * GlobalParameters.WeightReplacementMaxPower;
+            t_LinkGenesWeight  = RandFloatClamped() * a_Parameters.WeightReplacementMaxPower;
         }
 
-        Clamp(t_LinkGenesWeight, -GlobalParameters.MaxWeight, GlobalParameters.MaxWeight);
+        Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
         m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
     }
 }
@@ -1764,7 +1767,7 @@ void Genome::Randomize_LinkWeights(double a_Range)
 
 
 // Perturbs the A parameters of the neuron activation functions
-void Genome::Mutate_NeuronActivations_A()
+void Genome::Mutate_NeuronActivations_A(Parameters& a_Parameters)
 {
     // for all neurons..
     for(unsigned int i=0; i<NumNeurons(); i++)
@@ -1772,18 +1775,18 @@ void Genome::Mutate_NeuronActivations_A()
         // skip inputs and bias
         if ((m_NeuronGenes[i].Type() != INPUT) && (m_NeuronGenes[i].Type() != BIAS))
         {
-            double t_randnum = RandFloatClamped() * GlobalParameters.ActivationAMutationMaxPower;
+            double t_randnum = RandFloatClamped() * a_Parameters.ActivationAMutationMaxPower;
 
             m_NeuronGenes[i].m_A += t_randnum;
 
-            Clamp(m_NeuronGenes[i].m_A, GlobalParameters.MinActivationA, GlobalParameters.MaxActivationA);
+            Clamp(m_NeuronGenes[i].m_A, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
         }
     }
 }
 
 
 // Perturbs the B parameters of the neuron activation functions
-void Genome::Mutate_NeuronActivations_B()
+void Genome::Mutate_NeuronActivations_B(Parameters& a_Parameters)
 {
     // for all neurons..
     for(unsigned int i=0; i<NumNeurons(); i++)
@@ -1791,28 +1794,28 @@ void Genome::Mutate_NeuronActivations_B()
         // skip inputs and bias
         if ((m_NeuronGenes[i].Type() != INPUT) && (m_NeuronGenes[i].Type() != BIAS))
         {
-            double t_randnum = RandFloatClamped() * GlobalParameters.ActivationBMutationMaxPower;
+            double t_randnum = RandFloatClamped() * a_Parameters.ActivationBMutationMaxPower;
 
             m_NeuronGenes[i].m_B += t_randnum;
 
-            Clamp(m_NeuronGenes[i].m_B, GlobalParameters.MinActivationB, GlobalParameters.MaxActivationB);
+            Clamp(m_NeuronGenes[i].m_B, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
         }
     }
 }
 
 
 // Changes the activation function type for a random neuron
-void Genome::Mutate_NeuronActivation_Type()
+void Genome::Mutate_NeuronActivation_Type(Parameters& a_Parameters)
 {
     // the first non-input neuron
     int t_first_idx = NumInputs();
     int t_choice = RandInt(t_first_idx, m_NeuronGenes.size()-1);
 
-    m_NeuronGenes[t_choice].m_ActFunction = GetRandomActivation();
+    m_NeuronGenes[t_choice].m_ActFunction = GetRandomActivation(a_Parameters);
 }
 
 // Perturbs the neuron time constants
-void Genome::Mutate_NeuronTimeConstants()
+void Genome::Mutate_NeuronTimeConstants(Parameters& a_Parameters)
 {
     // for all neurons..
     for(unsigned int i=0; i<NumNeurons(); i++)
@@ -1820,17 +1823,17 @@ void Genome::Mutate_NeuronTimeConstants()
         // skip inputs and bias
         if ((m_NeuronGenes[i].Type() != INPUT) && (m_NeuronGenes[i].Type() != BIAS))
         {
-            double t_randnum = RandFloatClamped() * GlobalParameters.TimeConstantMutationMaxPower;
+            double t_randnum = RandFloatClamped() * a_Parameters.TimeConstantMutationMaxPower;
 
             m_NeuronGenes[i].m_TimeConstant += t_randnum;
 
-            Clamp(m_NeuronGenes[i].m_TimeConstant, GlobalParameters.MinNeuronTimeConstant, GlobalParameters.MaxNeuronTimeConstant);
+            Clamp(m_NeuronGenes[i].m_TimeConstant, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
         }
     }
 }
 
 // Perturbs the neuron biases
-void Genome::Mutate_NeuronBiases()
+void Genome::Mutate_NeuronBiases(Parameters& a_Parameters)
 {
     // for all neurons..
     for(unsigned int i=0; i<NumNeurons(); i++)
@@ -1838,11 +1841,11 @@ void Genome::Mutate_NeuronBiases()
         // skip inputs and bias
         if ((m_NeuronGenes[i].Type() != INPUT) && (m_NeuronGenes[i].Type() != BIAS))
         {
-            double t_randnum = RandFloatClamped() * GlobalParameters.BiasMutationMaxPower;
+            double t_randnum = RandFloatClamped() * a_Parameters.BiasMutationMaxPower;
 
             m_NeuronGenes[i].m_Bias += t_randnum;
 
-            Clamp(m_NeuronGenes[i].m_TimeConstant, GlobalParameters.MinNeuronBias, GlobalParameters.MaxNeuronBias);
+            Clamp(m_NeuronGenes[i].m_TimeConstant, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
         }
     }
 }
@@ -2054,8 +2057,6 @@ Genome Genome::Mate(Genome& a_Dad, bool a_MateAverage, bool a_InterSpecies)
         // for interspecies mating, allow all genes through
         if (a_InterSpecies)
             t_skip = false;
-
-        // there is a probability that
 
 
         // If the selected gene's innovation number is negative,
@@ -2317,9 +2318,6 @@ void Genome::CalculateDepth()
 
 // Builds this genome from a file
 Genome::Genome(char* a_FileName)
-#ifdef USE_MESSAGE_QUEUE
-    : m_MessageQueue(MessageQueue::instance())
-#endif
 {
     std::ifstream t_DataFile(a_FileName);
     *this = Genome(t_DataFile);
@@ -2328,9 +2326,6 @@ Genome::Genome(char* a_FileName)
 
 // Builds the genome from an *opened* file
 Genome::Genome(std::ifstream& a_DataFile)
-#ifdef USE_MESSAGE_QUEUE
-    : m_MessageQueue(MessageQueue::instance())
-#endif
 {
     std::string t_Str;
 

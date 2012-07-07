@@ -96,7 +96,7 @@ public:
     void RTRL_update_weights();   // performs the backprop step
 
     // Hebbian learning
-    void Adapt();
+    void Adapt(Parameters& a_Parameters);
 
     void Flush();     // clears all activations
     void FlushCube(); // clears the sensitivity cube
