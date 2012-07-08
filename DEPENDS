@@ -1,0 +1,8 @@
+* Boost 1.49 and above with Boost.Python and Boost.Serialization 
+* Python 2.7 (with headers and libs)
+* ProgressBar (Python package)
+* NumPy (Python package)
+* Matplotlib (Python package)
+* OpenCV 2.3 and above (with Python bindings)
+
+
