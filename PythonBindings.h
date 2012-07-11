@@ -17,6 +17,7 @@
 #include "Population.h"
 #include "Species.h"
 #include "Parameters.h"
+#include "Random.h"
 
 namespace py = boost::python;
 using namespace NEAT;
@@ -60,6 +61,20 @@ BOOST_PYTHON_MODULE(libNEAT)
 		.value("SIMPLIFYING", SIMPLIFYING)
 		.value("BLENDED", BLENDED)
 		;
+
+
+///////////////////////////////////////////////////////////////////
+// RNG class
+///////////////////////////////////////////////////////////////////
+	class_<RNG>("RNG", init<>())
+			.def("Seed", &RNG::Seed)
+			.def("TimeSeed", &RNG::TimeSeed)
+			.def("RandPosNeg", &RNG::RandPosNeg)
+			.def("RandInt", &RNG::RandInt)
+			.def("RandFloat", &RNG::RandFloat)
+			.def("RandFloatClamped", &RNG::RandFloatClamped)
+			.def("RandGaussClamped", &RNG::RandGaussClamped)
+			;
 ///////////////////////////////////////////////////////////////////
 // Neural Network class
 ///////////////////////////////////////////////////////////////////

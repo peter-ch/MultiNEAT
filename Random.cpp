@@ -17,31 +17,37 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #include "MTwistRand.h"
 #include "Utils.h"
-
+#include "Random.h"
 
 namespace NEAT
 {
 
-MTRand_closed GlobalRandomNumberGenerator;
 
 // Seeds the random number generator with this value
-void Seed(int a_Seed)
+void RNG::Seed(int a_Seed)
 {
 //	srand(a_Seed);
-    GlobalRandomNumberGenerator.seed(a_Seed);
+    rng.seed(a_Seed);
+}
+
+void RNG::TimeSeed()
+{
+//	srand(a_Seed);
+    rng.seed(time(0));
 }
 
 // Returns randomly either 1 or -1
-int RandPosNeg()
+int RNG::RandPosNeg()
 {
     /*	if (rand() % 2)
     		return 1;
     	else
     		return -1;
     */
-    if (GlobalRandomNumberGenerator() > 0.5)
+    if (rng() > 0.5)
         return 1;
     else
         return -1;
@@ -49,7 +55,7 @@ int RandPosNeg()
 
 // Returns a random integer between X and Y
 // in case of ( 0 .. 1 ) returns 0
-int RandInt(int aX, int aY)
+int RNG::RandInt(int aX, int aY)
 {
     if (aY<1)
     {
@@ -57,7 +63,7 @@ int RandInt(int aX, int aY)
     }
     else
     {
-        return static_cast<int>(GlobalRandomNumberGenerator() * 32768.0) % (aY-aX+1)+aX;
+        return static_cast<int>(rng() * 32768.0) % (aY-aX+1)+aX;
     }
 }
 
@@ -65,21 +71,21 @@ int RandInt(int aX, int aY)
 
 
 // Returns a random number from a uniform distribution in the range of [0 .. 1]
-double RandFloat()
+double RNG::RandFloat()
 {
 //	return static_cast<double>(rand() / (static_cast<double>(RAND_MAX)));
-    return GlobalRandomNumberGenerator();
+    return rng();
 }
 
 // Returns a random number from a uniform distribution in the range of [-1 .. 1]
-double RandFloatClamped()
+double RNG::RandFloatClamped()
 {
     return (RandFloat() - RandFloat());
 }
 
 // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
 // Copy/Pasted from "Numerical Recipes in C"
-double RandGaussClamped()
+double RNG::RandGaussClamped()
 {
     static int t_iset=0;
     static double t_gset;

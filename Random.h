@@ -17,30 +17,41 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
+#include "MTwistRand.h"
 
 
 namespace NEAT
 {
 
+class RNG
+{
+	MTRand_closed rng;
 
-// Seeds the random number generator with this value
-void Seed(int seed);
+public:
+	// Seeds the random number generator with this value
+	void Seed(int seed);
 
-// Returns randomly either 1 or -1
-int RandPosNeg();
+	// Seeds the random number generator with time
+	void TimeSeed();
 
-// Returns a random integer between X and Y
-// in case of ( 0 .. 1 ) returns 0
-int RandInt(int x, int y);
+	// Returns randomly either 1 or -1
+	int RandPosNeg();
 
-// Returns a random number from a uniform distribution in the range of [0 .. 1]
-double RandFloat();
+	// Returns a random integer between X and Y
+	// in case of ( 0 .. 1 ) returns 0
+	int RandInt(int x, int y);
 
-// Returns a random number from a uniform distribution in the range of [-1 .. 1]
-double RandFloatClamped();
+	// Returns a random number from a uniform distribution in the range of [0 .. 1]
+	double RandFloat();
 
-// Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
-double RandGaussClamped();
+	// Returns a random number from a uniform distribution in the range of [-1 .. 1]
+	double RandFloatClamped();
+
+	// Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
+	double RandGaussClamped();
+
+};
+
 
 
 } // namespace NEAT

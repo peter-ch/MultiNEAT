@@ -22,6 +22,7 @@
 #include "Genes.h"
 #include "Species.h"
 #include "Parameters.h"
+#include "Random.h"
 
 namespace NEAT
 {
@@ -46,6 +47,7 @@ class Population
     /////////////////////
 
 private:
+
     // The innovation database
     InnovationDatabase m_InnovationDatabase;
 
@@ -106,6 +108,9 @@ private:
     std::vector<Genome> m_Genomes;
 
 public:
+
+    // Random number generator
+    RNG m_RNG;
 
     // Evolution parameters
     Parameters m_Parameters;

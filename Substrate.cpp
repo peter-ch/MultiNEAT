@@ -41,13 +41,15 @@ Substrate::Substrate(substrate_config config, int inp, int hid, int outp)
     {
         // Random positions for all nodes
         // The substrate limits are [-1 .. 1] on both axises
+    	RNG t_RNG;
+    	t_RNG.TimeSeed();
 
         // create inputs positions
         for(i=0; i<inp; i++)
         {
-            tmp.x = (RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
-            tmp.y = (RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
-            tmp.z = (RandFloat() * 2.0) - 1.0;
+            tmp.x = (t_RNG.RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
+            tmp.y = (t_RNG.RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
+            tmp.z = (t_RNG.RandFloat() * 2.0) - 1.0;
 
             inputs.push_back( tmp );
         }
@@ -55,9 +57,9 @@ Substrate::Substrate(substrate_config config, int inp, int hid, int outp)
         // create hidden positions
         for(i=0; i<hid; i++)
         {
-            tmp.x = (RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
-            tmp.y = (RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
-            tmp.z = (RandFloat() * 2.0) - 1.0;
+            tmp.x = (t_RNG.RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
+            tmp.y = (t_RNG.RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
+            tmp.z = (t_RNG.RandFloat() * 2.0) - 1.0;
 
             hidden.push_back( tmp );
         }
@@ -65,9 +67,9 @@ Substrate::Substrate(substrate_config config, int inp, int hid, int outp)
         // create output positions
         for(i=0; i<outp; i++)
         {
-            tmp.x = (RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
-            tmp.y = (RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
-            tmp.z = (RandFloat() * 2.0) - 1.0;
+            tmp.x = (t_RNG.RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
+            tmp.y = (t_RNG.RandFloat() * 2.0) - 1.0; // scale to -1 .. 1
+            tmp.z = (t_RNG.RandFloat() * 2.0) - 1.0;
 
             outputs.push_back( tmp );
         }

@@ -34,6 +34,8 @@ namespace NEAT
 // The constructor
 Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomizationRange)
 {
+	m_RNG.TimeSeed();
+	//m_RNG.Seed(0);
     m_BestFitnessEver = 0.0;
     m_Parameters = a_Parameters;
 
@@ -56,7 +58,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
     for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
         if (a_RandomizeWeights)
-            m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange);
+            m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
 
         //m_Genomes[i].CalculateDepth();
     }
@@ -644,7 +646,7 @@ void Population::Epoch()
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].Reproduce(*this, m_Parameters);
+        m_Species[i].Reproduce(*this, m_Parameters, m_RNG);
     }
 
     m_Species = m_TempSpecies;
@@ -759,7 +761,7 @@ unsigned int Population::ChooseParentSpecies()
 
     do
     {
-        t_marble = RandFloat() * t_total_fitness;
+        t_marble = m_RNG.RandFloat() * t_total_fitness;
         t_spin = m_Species[t_curspecies].m_AverageFitness;
         t_curspecies = 0;
         while(t_spin < t_marble)
@@ -977,7 +979,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
     // Now spawn the new offspring
     unsigned int t_parent_species_index = ChooseParentSpecies();
-    Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this, m_Parameters);
+    Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this, m_Parameters, m_RNG);
     ASSERT(t_baby.NumInputs() > 0);
     ASSERT(t_baby.NumOutputs() > 0);
     Genome* t_to_return = NULL;

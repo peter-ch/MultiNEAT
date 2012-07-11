@@ -29,6 +29,7 @@
 #include "Genes.h"
 #include "Assert.h"
 #include "PhenotypeBehavior.h"
+#include "Random.h"
 
 namespace NEAT
 {
@@ -43,7 +44,7 @@ class Innovation;
 class InnovationDatabase;
 class PhenotypeBehavior;
 
-extern ActivationFunction GetRandomActivation(Parameters& a_Parameters);
+extern ActivationFunction GetRandomActivation(Parameters& a_Parameters, RNG& a_RNG);
 
 class Genome
 {
@@ -296,41 +297,41 @@ public:
 
     // Adds a new neuron to the genome
     // returns true if succesful
-    bool Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parameters);
+    bool Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parameters, RNG& a_RNG);
 
     // Adds a new link to the genome
     // returns true if succesful
-    bool Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters& a_Parameters);
+    bool Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters& a_Parameters, RNG& a_RNG);
 
     // Remove a random link from the genome
     // A cleanup procedure is invoked so any dead-ends or stranded neurons are also deleted
     // returns true if succesful
-    bool Mutate_RemoveLink();
+    bool Mutate_RemoveLink(RNG& a_RNG);
 
     // Removes a hidden neuron having only one input and only one output with
     // a direct link between them.
-    bool Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs);
+    bool Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs, RNG& a_RNG);
 
     // Perturbs the weights
-    void Mutate_LinkWeights(Parameters& a_Parameters);
+    void Mutate_LinkWeights(Parameters& a_Parameters, RNG& a_RNG);
 
     // Set all link weights to random values between [-R .. R]
-    void Randomize_LinkWeights(double a_Range);
+    void Randomize_LinkWeights(double a_Range, RNG& a_RNG);
 
     // Perturbs the A parameters of the neuron activation functions
-    void Mutate_NeuronActivations_A(Parameters& a_Parameters);
+    void Mutate_NeuronActivations_A(Parameters& a_Parameters, RNG& a_RNG);
 
     // Perturbs the B parameters of the neuron activation functions
-    void Mutate_NeuronActivations_B(Parameters& a_Parameters);
+    void Mutate_NeuronActivations_B(Parameters& a_Parameters, RNG& a_RNG);
 
     // Changes the activation function type for a random neuron
-    void Mutate_NeuronActivation_Type(Parameters& a_Parameters);
+    void Mutate_NeuronActivation_Type(Parameters& a_Parameters, RNG& a_RNG);
 
     // Perturbs the neuron time constants
-    void Mutate_NeuronTimeConstants(Parameters& a_Parameters);
+    void Mutate_NeuronTimeConstants(Parameters& a_Parameters, RNG& a_RNG);
 
     // Perturbs the neuron biases
-    void Mutate_NeuronBiases(Parameters& a_Parameters);
+    void Mutate_NeuronBiases(Parameters& a_Parameters, RNG& a_RNG);
 
 
     ///////////
@@ -343,7 +344,7 @@ public:
     // If the bool is true, then the genes are averaged
     // Disjoint and excess genes are inherited from the fittest parent
     // If fitness is equal, the smaller genome is assumed to be the better one
-    Genome Mate(Genome& a_dad, bool a_averagemating, bool a_interspecies);
+    Genome Mate(Genome& a_dad, bool a_averagemating, bool a_interspecies, RNG& a_RNG);
 
 
     //////////

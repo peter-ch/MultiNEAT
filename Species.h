@@ -125,10 +125,10 @@ public:
     void AddIndividual(Genome& a_New);
 
     // returns an individual randomly selected from the best N%
-    Genome GetIndividual(Parameters& a_Parameters) const;
+    Genome GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const;
 
     // returns a completely random individual
-    Genome GetRandomIndividual() const;
+    Genome GetRandomIndividual(RNG& a_RNG) const;
 
     // calculates how many babies this species will spawn in total
     void CountOffspring();
@@ -151,9 +151,9 @@ public:
     std::vector<Genome> m_Individuals;
 
     // Reproduction.
-    void Reproduce(Population& a_Pop, Parameters& a_Parameters);
+    void Reproduce(Population& a_Pop, Parameters& a_Parameters, RNG& a_RNG);
 
-    void MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters& a_Parameters);
+    void MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters& a_Parameters, RNG& a_RNG);
 
     // Kill all worst individuals form the species.
     void KillWorst(Parameters& a_Parameters);
@@ -172,7 +172,7 @@ public:
     void CalculateAverageFitness();
 
     // A second version that returns the baby only
-    Genome ReproduceOne(Population& a_Pop, Parameters& a_Parameters);
+    Genome ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a_RNG);
 
     void RemoveIndividual(unsigned int a_idx);
 };

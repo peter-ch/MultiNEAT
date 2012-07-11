@@ -56,6 +56,11 @@ def evaluate(genome):
     
 params = NEAT.Parameters()
 params.PopulationSize = 160
+params.MutateRemLinkProb = 0
+params.RecurrentProb = 0
+rng = NEAT.RNG()
+#rng.TimeSeed()
+rng.Seed(0)
 g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
 pop = NEAT.Population(g, params, True, 1.0)
 
