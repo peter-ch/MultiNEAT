@@ -15,10 +15,12 @@ import multiprocessing as mpc
 
 
 # code 
+cv2.namedWindow('nn_win', 0)
 
 def evaluate(genome):
     net = NEAT.NeuralNetwork()
     genome.BuildPhenotype(net)
+    
     
     error = 0
     
@@ -58,6 +60,10 @@ params = NEAT.Parameters()
 params.PopulationSize = 160
 params.MutateRemLinkProb = 0
 params.RecurrentProb = 0
+params.OverallMutationRate = 0.25
+params.MutateAddLinkProb = 0.03
+params.MutateAddNeuronProb = 0.001
+params.MutateWeightsProb = 0.96
 rng = NEAT.RNG()
 #rng.TimeSeed()
 rng.Seed(0)
@@ -69,24 +75,37 @@ xx = pickle.dumps(g)
 
 pool = mpc.Pool(processes = 4)
 
-for generation in range(100):
+for generation in range(200):
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:
             genome_list.append(i)
 
-    #for g in genome_list:
-    #    f = evaluate(g)
-    #    g.SetFitness(f)
-    fits = pool.map(evaluate, genome_list)
-    for f,g in zip(fits, genome_list):
+    for g in genome_list:
+        f = evaluate(g)
         g.SetFitness(f)
 
+## Parallel processing
+#    fits = pool.map(evaluate, genome_list)
+#    for f,g in zip(fits, genome_list):
+#        g.SetFitness(f)
+
     print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
+    
+    # test
+    net = NEAT.NeuralNetwork()
+    pop.Species[0].GetLeader().BuildPhenotype(net)
+    img = np.zeros((250, 250, 3), dtype=np.uint8)
+    img += 10
+    NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+    cv2.imshow("nn_win", img)
+    cv2.waitKey(1)
 
     pop.Epoch()
     print "Generation:", generation
-        
+
+cv2.waitKey(0)
+
 #if __name__ == '__main__':
 #    print 'Hello, world!'
 

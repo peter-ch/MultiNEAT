@@ -75,9 +75,31 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("RandFloatClamped", &RNG::RandFloatClamped)
 			.def("RandGaussClamped", &RNG::RandGaussClamped)
 			;
+
+
 ///////////////////////////////////////////////////////////////////
 // Neural Network class
 ///////////////////////////////////////////////////////////////////
+
+	class_<Connection>("Connection", init<>())
+			.def_readonly("source_neuron_idx", &Connection::m_source_neuron_idx)
+			.def_readonly("target_neuron_idx", &Connection::m_target_neuron_idx)
+			.def_readonly("weight", &Connection::m_weight)
+			.def_readonly("recur_flag", &Connection::m_recur_flag)
+			;
+
+	class_<Neuron>("Neuron", init<>())
+			.def_readonly("activation", &Neuron::m_activation)
+			.def_readonly("activation_function_type", &Neuron::m_activation_function_type)
+			.def_readonly("split_y", &Neuron::m_split_y)
+			.def_readonly("type", &Neuron::m_type)
+			.def_readwrite("x", &Neuron::m_x)
+			.def_readwrite("y", &Neuron::m_y)
+			.def_readwrite("z", &Neuron::m_z)
+			.def_readwrite("sx", &Neuron::m_sx)
+			.def_readwrite("sy", &Neuron::m_sy)
+			.def_readwrite("sz", &Neuron::m_sz)
+			;
 
 	void (NeuralNetwork::*NN_Save)(char*) = &NeuralNetwork::Save;
 	bool (NeuralNetwork::*NN_Load)(char*) = &NeuralNetwork::Load;
@@ -130,6 +152,9 @@ BOOST_PYTHON_MODULE(libNEAT)
 			NN_Input)
 			.def("Output",
 			&NeuralNetwork::Output)
+
+			.def_readwrite("neurons", &NeuralNetwork::m_neurons)
+			.def_readonly("connections", &NeuralNetwork::m_connections)
 			;
 	// also for future implement NumPy 1D array to std::vector<double>
 
@@ -333,6 +358,15 @@ BOOST_PYTHON_MODULE(libNEAT)
 
 	class_< std::vector<Species> >("SpeciesList")
 		    .def(vector_indexing_suite< std::vector<Species> >() )
+			;
+
+	// These are necessary to iterate through lists of Neurons and Connections
+	class_< std::vector<Neuron> >("NeuronList")
+		    .def(vector_indexing_suite< std::vector<Neuron> >() )
+			;
+
+	class_< std::vector<Connection> >("ConnectionList")
+		    .def(vector_indexing_suite< std::vector<Connection> >() )
 			;
 };
 

@@ -26,8 +26,9 @@ namespace py = boost::python;
 namespace NEAT
 {
 
-struct Connection
+class Connection
 {
+public:
     unsigned short int m_source_neuron_idx;       // index of source neuron
     unsigned short int m_target_neuron_idx;       // index of target neuron
     double m_weight;                               // weight of the connection
@@ -40,15 +41,29 @@ struct Connection
     // Ignored in case there is no lifetime learning
     double m_hebb_rate;
     double m_hebb_pre_rate;
+
+    // comparison operator (nessesary for boost::python)
+    bool operator==(Connection const& other) const
+    {
+    	if ((m_source_neuron_idx == other.m_source_neuron_idx) &&
+    		(m_target_neuron_idx == other.m_target_neuron_idx) &&
+    		(m_weight == other.m_weight) &&
+    		(m_recur_flag == other.m_recur_flag))
+    		return true;
+    	else
+    		return false;
+    }
+
 };
 
-struct Neuron
+class Neuron
 {
+public:
     double m_activesum;  // the synaptic input
     double m_activation; // the synaptic input passed through the activation function
 
     double m_a, m_b, m_timeconst, m_bias; // misc parameters
-    double m_membrane_potential; // used in nealy integrator mode
+    double m_membrane_potential; // used in leaky integrator mode
     ActivationFunction m_activation_function_type;
 
     // displaying and stuff
@@ -59,6 +74,19 @@ struct Neuron
 
     // the sensitivity matrix of this neuron (for RTRL learning)
     std::vector< std::vector< double > > m_sensitivity_matrix;
+
+    // comparison operator (nessesary for boost::python)
+    bool operator==(Neuron const& other) const
+    {
+    	if ((m_type == other.m_type) &&
+    		(m_split_y == other.m_split_y) &&
+    		(m_activation_function_type == other.m_activation_function_type)// &&
+    		//(this == other.this))
+    		)
+    		return true;
+    	else
+    		return false;
+    }
 };
 
 class NeuralNetwork
