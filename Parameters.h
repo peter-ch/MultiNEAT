@@ -334,13 +334,17 @@ public:
     // Load the parameters from a file
     // returns 0 on success
     int Load(char* filename);
+    // Load the parameters from an already opened file for reading
+    int Load(std::ifstream& a_DataFile);
+
+    void Save(char* filename);
+    // Saves the parameters to an already opened file for writing
+    void Save(FILE* a_fstream);
+
 
     // resets the parameters to built-in defaults
     void Reset();
 };
-
-// There are one global parameters
-extern Parameters GlobalParameters;
 
 } // namespace NEAT
 

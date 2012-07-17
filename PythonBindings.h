@@ -105,6 +105,8 @@ BOOST_PYTHON_MODULE(libNEAT)
 	bool (NeuralNetwork::*NN_Load)(char*) = &NeuralNetwork::Load;
 	void (Genome::*Genome_Save)(char*) = &Genome::Save;
 	void (NeuralNetwork::*NN_Input)(list&) = &NeuralNetwork::Input;
+	void (Parameters::*Parameters_Save)(char*) = &Parameters::Save;
+	int (Parameters::*Parameters_Load)(char*) = &Parameters::Load;
 
 	class_<NeuralNetwork>("NeuralNetwork", init<>())
 
@@ -236,7 +238,8 @@ BOOST_PYTHON_MODULE(libNEAT)
 
 	class_<Parameters>("Parameters", init<>())
 			.def("Reset", &Parameters::Reset)
-			.def("Load", &Parameters::Load)
+			.def("Load", Parameters_Load)
+			.def("Save", Parameters_Save)
 			// Now there are hell lot of variables
 			.def_readwrite("PopulationSize", &Parameters::PopulationSize)
 			.def_readwrite("DynamicCompatibility", &Parameters::DynamicCompatibility)

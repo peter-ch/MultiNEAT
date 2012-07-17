@@ -696,7 +696,7 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 
             // OK we have both mom and dad so mate them
             // Choose randomly one of two types of crossover
-            if (a_RNG.RandFloat() < GlobalParameters.MultipointCrossoverRate)
+            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
             {
                 t_baby = t_mom.Mate( t_dad, false, t_interspecies, a_RNG);
             }

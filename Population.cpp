@@ -91,8 +91,6 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
 Population::Population(char *a_FileName)
 {
     m_BestFitnessEver = 0.0;
-    // also reset the global parameters
-    m_Parameters.Reset();
 
     m_Generation = 0;
     m_NumEvaluations = 0;
@@ -101,15 +99,12 @@ Population::Population(char *a_FileName)
     m_GensSinceMPCLastChanged = 0;
 
     std::ifstream t_DataFile(a_FileName);
+    if (!t_DataFile.is_open())
+    	throw std::exception();
     std::string t_str;
 
-    // Load the number of genomes (pop size)
-    t_DataFile >> t_str;
-    t_DataFile >> m_Parameters.PopulationSize;
-
-    // Load the compatibility treshold
-    t_DataFile >> t_str;
-    t_DataFile >> m_Parameters.CompatTreshold;
+    // Load the parameters
+    m_Parameters.Load(t_DataFile);
 
     // Load the innovation database
     m_InnovationDatabase.Init(t_DataFile);
@@ -158,11 +153,8 @@ void Population::Save(char* a_FileName)
 {
     FILE* t_file = fopen(a_FileName, "w");
 
-    // Save the number of genomes
-    fprintf(t_file, "Genomes: %d\n", m_Genomes.size());
-
-    // Save the compatibility treshold
-    fprintf(t_file, "Compatibility: %3.5f\n\n", m_Parameters.CompatTreshold);
+    // Save the parameters
+    m_Parameters.Save(t_file);
 
     // Save the innovation database
     m_InnovationDatabase.Save(t_file);
@@ -506,7 +498,7 @@ void Population::Epoch()
             }
         }
 
-        if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = GlobalParameters.MinCompatTreshold;
+        if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
     }
 
 
