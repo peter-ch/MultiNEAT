@@ -280,8 +280,8 @@ void Parameters::Reset()
 
     // Probabilities for a particular activation function appearance
     ActivationFunction_SignedSigmoid_Prob = 0.0;
-    ActivationFunction_UnsignedSigmoid_Prob = 0.0;
-    ActivationFunction_Tanh_Prob = 1.0;
+    ActivationFunction_UnsignedSigmoid_Prob = 1.0;
+    ActivationFunction_Tanh_Prob = 0.0;
     ActivationFunction_TanhCubic_Prob = 0.0;
     ActivationFunction_SignedStep_Prob = 0.0;
     ActivationFunction_UnsignedStep_Prob = 0.0;

@@ -7,8 +7,6 @@ CPP_SRCS += \
 ../Genome.cpp \
 ../Innovation.cpp \
 ../MTwistRand.cpp \
-../Math_Matrix.cpp \
-../Math_Vectors.cpp \
 ../NeuralNetwork.cpp \
 ../Parameters.cpp \
 ../PhenotypeBehavior.cpp \
@@ -17,15 +15,12 @@ CPP_SRCS += \
 ../Random.cpp \
 ../Species.cpp \
 ../Substrate.cpp \
-../Utils.cpp \
-../Visual_Win32.cpp 
+../Utils.cpp 
 
 OBJS += \
 ./Genome.o \
 ./Innovation.o \
 ./MTwistRand.o \
-./Math_Matrix.o \
-./Math_Vectors.o \
 ./NeuralNetwork.o \
 ./Parameters.o \
 ./PhenotypeBehavior.o \
@@ -34,15 +29,12 @@ OBJS += \
 ./Random.o \
 ./Species.o \
 ./Substrate.o \
-./Utils.o \
-./Visual_Win32.o 
+./Utils.o 
 
 CPP_DEPS += \
 ./Genome.d \
 ./Innovation.d \
 ./MTwistRand.d \
-./Math_Matrix.d \
-./Math_Vectors.d \
 ./NeuralNetwork.d \
 ./Parameters.d \
 ./PhenotypeBehavior.d \
@@ -51,8 +43,7 @@ CPP_DEPS += \
 ./Random.d \
 ./Species.d \
 ./Substrate.d \
-./Utils.d \
-./Visual_Win32.d 
+./Utils.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

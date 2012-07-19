@@ -405,7 +405,8 @@ void Genome::BuildPhenotype(NeuralNetwork& a_Net) const
 // output: weight, node-timeconst, node-bias
 void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate* subst, double a_LinkTreshold, double a_MaxWeight, double a_MinTimeConst, double a_MaxTimeConst)
 {
-    // this genome must be a CPPN with 6 inputs and 3 outputs!!!
+#if 0
+	// this genome must be a CPPN with 6 inputs and 3 outputs!!!
     ASSERT(NumInputs()  == 6);
     ASSERT(NumOutputs() == 3);
     ASSERT(a_LinkTreshold > 0);
@@ -567,6 +568,7 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate* subst, doubl
             }
         }
     }
+#endif
 }
 
 

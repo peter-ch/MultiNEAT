@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "NeuralNetwork.h"
-#include "Math_Vectors.h"
+//#include "Math_Vectors.h"
 
 namespace NEAT
 {
@@ -28,9 +28,9 @@ public:
 
     // The positions of the nodes are lists of 3D vectors
     // An empty vector means there are no nodes
-    std::vector<vector3D> inputs;
+/*    std::vector<vector3D> inputs;
     std::vector<vector3D> hidden;
-    std::vector<vector3D> outputs;
+    std::vector<vector3D> outputs;*/
 
     // Default constructor - initializes a substrate
     // Given the substrate configuration and counts of the neurons

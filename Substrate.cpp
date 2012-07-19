@@ -7,7 +7,7 @@
 
 #include <vector>
 #include "NeuralNetwork.h"
-#include "Math_Vectors.h"
+//#include "Math_Vectors.h"
 #include "Utils.h"
 #include "Substrate.h"
 
@@ -26,6 +26,7 @@ namespace NEAT
 Substrate::Substrate(substrate_config config, int inp, int hid, int outp)
 {
     const double PI = 3.14152;
+#if 0
     int i;
     vector3D tmp;
 
@@ -272,7 +273,7 @@ Substrate::Substrate(substrate_config config, int inp, int hid, int outp)
             outputs.push_back( tmp );
         }
     }
-
+#endif
 }
 
 /*
