@@ -1,6 +1,30 @@
 #ifndef _SUBSTRATE_H
 #define _SUBSTRATE_H
 
+///////////////////////////////////////////////////////////////////////////////////////////
+//    MultiNEAT - Python/C++ NeuroEvolution of Augmenting Topologies Library
+//
+//    Copyright (C) 2012 Peter Chervenski
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU Lesser General Public License
+//    along with this program.  If not, see < http://www.gnu.org/licenses/ >.
+//
+//    Contact info:
+//
+//    Peter Chervenski < spookey@abv.bg >
+//    Shane Ryan < shane.mcdonald.ryan@gmail.com >
+///////////////////////////////////////////////////////////////////////////////////////////
+
 #include <vector>
 #include "NeuralNetwork.h"
 //#include "Math_Vectors.h"
@@ -25,6 +49,10 @@ public:
     int num_inputs;
     int num_hidden;
     int num_outputs;
+
+    std::vector< std::vector<double> > m_input_coords;
+    std::vector< std::vector<double> > m_hidden_coords;
+    std::vector< std::vector<double> > m_output_coords;
 
     // The positions of the nodes are lists of 3D vectors
     // An empty vector means there are no nodes
