@@ -40,7 +40,7 @@
 
 #ifdef _DEBUG
 
-#ifdef WIN32
+#if 1
 //--------------
 //  debug macros
 //--------------
