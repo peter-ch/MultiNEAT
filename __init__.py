@@ -1,10 +1,24 @@
 import sys
 import multiprocessing as mpc
 import time
-from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
 from Release.libNEAT import *
-import cv2
-import numpy as np
+
+try:
+    from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
+    prbar_installed = True
+except:
+    print 'Tip: install the progressbar Python package through pip or easy_install'
+    print '     to get good looking evolution progress bar with ETA'
+    prbar_installed = False
+
+try:
+    import cv2
+    import numpy as np
+    cvnumpy_installed = True
+except:
+    print 'Tip: install the OpenCV computer vision library (2.0+) with Python bindings'
+    print '     to get convenient neural network visualization to NumPy arrays'
+    cvnumpy_installed = False
 
 # Get all genomes from the population
 def GetGenomeList(pop):
@@ -22,15 +36,26 @@ FetchGenomeList = GetGenomeList
 def EvaluateGenomeList_Serial(genome_list, evaluator):
     fitnesses = []
     curtime = time.time()
-    widg = ['Individuals: ', Counter(), ' of ' + str(len(genome_list)), ' ', ETA(), ' ', AnimatedMarker()]
-    progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
+    
+    if prbar_installed:
+        widg = ['Individuals: ', Counter(), ' of ' + str(len(genome_list)), ' ', ETA(), ' ', AnimatedMarker()]
+        progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
+        
     count = 0
     for g in genome_list:
         f = evaluator(g)
         fitnesses.append(f)
-        progress.update(count)
+        
+        if prbar_installed:
+            progress.update(count)
+        else:
+            print 'Individuals: (',count,'/',len(genome_list),')'
+            
         count += 1
-    progress.finish()
+        
+    if prbar_installed:
+        progress.finish()
+        
     elapsed = time.time() - curtime
     print 'seconds elapsed:', elapsed
     return (fitnesses, elapsed)
@@ -41,12 +66,18 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores):
     fitnesses = []
     pool = mpc.Pool(processes=cores)
     curtime = time.time()
-    widg = ['Individuals: ', Counter(), ' of ' + str(len(genome_list)), ' ', ETA(), ' ', AnimatedMarker()]
-    progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
+    if prbar_installed:
+        widg = ['Individuals: ', Counter(), ' of ' + str(len(genome_list)), ' ', ETA(), ' ', AnimatedMarker()]
+        progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
     for i, fitness in enumerate(pool.imap(evaluator, genome_list)):
-        progress.update(i)
+        if prbar_installed:
+            progress.update(i)
+        else:
+            print 'Individuals: (',i,'/',len(genome_list),')'
+            
         fitnesses.append(fitness)
-    progress.finish()
+    if prbar_installed:
+        progress.finish()
     elapsed = time.time() - curtime
     print 'seconds elapsed:', elapsed
     pool.close()
@@ -83,87 +114,91 @@ def AlmostEqual(a,b, margin):
 
 # Neural Network display code
 # rect is a tuple in the form (x, y, size_x, size_y)
-MAX_DEPTH = 250
-def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3):
-    for i, n in enumerate(nn.neurons):
-        nn.neurons[i].x = 0
-        nn.neurons[i].y = 0
-    
-    rect_x = rect[0]
-    rect_y = rect[1]
-    rect_x_size = rect[2]
-    rect_y_size = rect[3]
-    
-    depth = 0
-    depth_inc = 1.0 / MAX_DEPTH
-    # for every depth, count how many nodes are on this depth
-    all_depths = np.linspace(0.0, 1.0, MAX_DEPTH)#np.concatenate( np.arange(0.0, 1.0, depth_inc, dtype=np.float32), [1.0] )
-    for depth in all_depths:
-        neuron_count = 0
+if not cvnumpy_installed:
+    def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3):
+        pass
+else:
+    MAX_DEPTH = 250
+    def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3):
+        for i, n in enumerate(nn.neurons):
+            nn.neurons[i].x = 0
+            nn.neurons[i].y = 0
+        
+        rect_x = rect[0]
+        rect_y = rect[1]
+        rect_x_size = rect[2]
+        rect_y_size = rect[3]
+        
+        depth = 0
+        depth_inc = 1.0 / MAX_DEPTH
+        # for every depth, count how many nodes are on this depth
+        all_depths = np.linspace(0.0, 1.0, MAX_DEPTH)#np.concatenate( np.arange(0.0, 1.0, depth_inc, dtype=np.float32), [1.0] )
+        for depth in all_depths:
+            neuron_count = 0
+            for neuron in nn.neurons:
+                if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
+                    neuron_count += 1
+            if neuron_count == 0:
+                continue
+            
+            # calculate x positions of neurons
+            j = 0
+            xxpos = rect_x_size / (1 + neuron_count)
+            for neuron in nn.neurons:
+                if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
+                    neuron.x = rect_x + xxpos + j * (rect_x_size) / (2 + neuron_count)
+                    j += 1
+        
+        # calculate y positions of nodes
         for neuron in nn.neurons:
-            if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
-                neuron_count += 1
-        if neuron_count == 0:
-            continue
+            if neuron.split_y == 0.0:
+                neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) + neuron_radius
+            elif neuron.split_y == 1.0:
+                neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius)
+            else:
+                neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) 
+
+            
+        # the positions of neurons is computed, now we draw
         
-        # calculate x positions of neurons
-        j = 0
-        xxpos = rect_x_size / (1 + neuron_count)
+        # connections first
+        max_weight = max([abs(x.weight) for x in nn.connections])
+        for conn in nn.connections:
+            thickness = conn.weight
+            thickness = Scale(thickness, 0, max_weight, 1, max_line_thickness)
+            thickness = Clamp(thickness, 1, max_line_thickness)
+            
+            w = Scale(abs(conn.weight), 0.0, max_weight, 0.0, 1.0)
+            w = Clamp(w, 0.75, 1.0)
+            
+            if conn.recur_flag:
+                if conn.weight < 0:
+                    # green weight
+                    color = (0, int(255.0 * w), 0 )
+                else:
+                    # white weight
+                    color = (int(255.0 * w), int(255.0 * w), int(255.0 * w) )
+            else:
+                if conn.weight < 0:
+                    # blue weight
+                    color = (int(255.0 * w), 0, 0 )
+                else:
+                    # red weight
+                    color = (0, 0, int(255.0 * w) )
+
+            # if the link is looping back on the same neuron, draw it with ellipse
+            if conn.source_neuron_idx == conn.target_neuron_idx:
+                pass # todo: later
+            else:
+                # Draw a line
+                pt1 = (int(nn.neurons[ conn.source_neuron_idx ].x), int(nn.neurons[ conn.source_neuron_idx ].y))
+                pt2 = (int(nn.neurons[ conn.target_neuron_idx ].x), int(nn.neurons[ conn.target_neuron_idx ].y))
+                cv2.line(image, pt1, pt2, color, int(thickness))
+         
+         # draw all neurons
         for neuron in nn.neurons:
-            if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
-                neuron.x = rect_x + xxpos + j * (rect_x_size) / (2 + neuron_count)
-                j += 1
-    
-    # calculate y positions of nodes
-    for neuron in nn.neurons:
-        if neuron.split_y == 0.0:
-            neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) + neuron_radius
-        elif neuron.split_y == 1.0:
-            neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius)
-        else:
-            neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) 
+            pt = (int( neuron.x ), int( neuron.y))
+            cv2.circle(image, pt, neuron_radius, (255,255,255), -1) 
+
 
         
-    # the positions of neurons is computed, now we draw
-    
-    # connections first
-    max_weight = max([abs(x.weight) for x in nn.connections])
-    for conn in nn.connections:
-        thickness = conn.weight
-        thickness = Scale(thickness, 0, max_weight, 1, max_line_thickness)
-        thickness = Clamp(thickness, 1, max_line_thickness)
-        
-        w = Scale(abs(conn.weight), 0.0, max_weight, 0.0, 1.0)
-        w = Clamp(w, 0.75, 1.0)
-        
-        if conn.recur_flag:
-            if conn.weight < 0:
-                # green weight
-                color = (0, int(255.0 * w), 0 )
-            else:
-                # white weight
-                color = (int(255.0 * w), int(255.0 * w), int(255.0 * w) )
-        else:
-            if conn.weight < 0:
-                # blue weight
-                color = (int(255.0 * w), 0, 0 )
-            else:
-                # red weight
-                color = (0, 0, int(255.0 * w) )
-
-        # if the link is looping back on the same neuron, draw it with ellipse
-        if conn.source_neuron_idx == conn.target_neuron_idx:
-            pass # todo: later
-        else:
-            # Draw a line
-            pt1 = (int(nn.neurons[ conn.source_neuron_idx ].x), int(nn.neurons[ conn.source_neuron_idx ].y))
-            pt2 = (int(nn.neurons[ conn.target_neuron_idx ].x), int(nn.neurons[ conn.target_neuron_idx ].y))
-            cv2.line(image, pt1, pt2, color, int(thickness))
-     
-     # draw all neurons
-    for neuron in nn.neurons:
-        pt = (int( neuron.x ), int( neuron.y))
-        cv2.circle(image, pt, neuron_radius, (255,255,255), -1) 
-
-
-    

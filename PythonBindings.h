@@ -230,6 +230,7 @@ BOOST_PYTHON_MODULE(libNEAT)
 			.def("GetStagnation", &Population::GetStagnation)
 			.def("GetMPCStagnation", &Population::GetMPCStagnation)
 			.def_readwrite("Species", &Population::m_Species)
+			.def_readwrite("Parameters", &Population::m_Parameters)
 			;
 
 ///////////////////////////////////////////////////////////////////
