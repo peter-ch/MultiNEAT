@@ -117,6 +117,8 @@ Genome::Genome(unsigned int a_ID,
                const Parameters& a_Parameters)
 {
     ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
+    RNG t_RNG;
+    t_RNG.TimeSeed();
 
     m_ID = a_ID;
     int t_innovnum = 1, t_nnum = 1;
@@ -217,16 +219,21 @@ Genome::Genome(unsigned int a_ID,
         }
         else
         {
-            // Start very minimally - connect a random input to a random output
+            // Start very minimally - connect a random input to each output
             // Also connect the bias to every output
-           /* int t_inp_id  = a_RNG.RandInt(1, a_NumInputs-1);
-            int t_bias_id = a_NumInputs;
-            int t_outp_id = a_RNG.RandInt(a_NumInputs+1, static_cast<int>(NumNeurons()));
+        	int t_cur_link = 0;
+            for(unsigned int i=0; i < a_NumOutputs; i++)
+            {
+            	int t_inp_id  = t_RNG.RandInt(1, a_NumInputs-1);
+            	int t_bias_id = a_NumInputs;
+            	int t_outp_id = a_NumInputs+1 + i;
 
-            // created with zero weights. needs future random initialization. !!!!!!!!
-            m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  1, 0.0, false) );
-            m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, 2, 0.0, false) ); */
-        	// todo: this will stay like this until I figure ot what to do
+                // created with zero weights. needs future random initialization. !!!!!!!!
+                m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  t_cur_link, 0.0, false) );
+                t_cur_link++;
+                m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, t_cur_link, 0.0, false) );
+                t_cur_link++;
+            }
         }
 
     m_NumInputs  = a_NumInputs;
