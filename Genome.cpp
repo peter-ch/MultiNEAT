@@ -150,7 +150,7 @@ Genome::Genome(unsigned int a_ID,
         t_nnum++;
     }
 
-    // add and connect hidden neurons if type is != 0
+    // add and connect hidden neurons if seed type is != 0
     if ((a_SeedType != 0) && (a_NumHidden > 0))
     {
         for(unsigned int i=0; i < (a_NumHidden); i++)
@@ -221,7 +221,6 @@ Genome::Genome(unsigned int a_ID,
         {
             // Start very minimally - connect a random input to each output
             // Also connect the bias to every output
-        	int t_cur_link = 0;
             for(unsigned int i=0; i < a_NumOutputs; i++)
             {
             	int t_inp_id  = t_RNG.RandInt(1, a_NumInputs-1);
@@ -229,10 +228,10 @@ Genome::Genome(unsigned int a_ID,
             	int t_outp_id = a_NumInputs+1 + i;
 
                 // created with zero weights. needs future random initialization. !!!!!!!!
-                m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  t_cur_link, 0.0, false) );
-                t_cur_link++;
-                m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, t_cur_link, 0.0, false) );
-                t_cur_link++;
+                m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  t_innovnum, 0.0, false) );
+                t_innovnum++;
+                m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false) );
+                t_innovnum++;
             }
         }
 

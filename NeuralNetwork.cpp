@@ -640,6 +640,12 @@ void NeuralNetwork::Input(py::list& a_Inputs)
 	inp.resize(len);
 	for(int i=0; i<len; i++)
 		inp[i] = py::extract<double>(a_Inputs[i]);
+
+	// if the number of passed inputs differs from the actual number of inputs,
+	// clip them to fit.
+	if (inp.size() != m_num_inputs)
+		inp.resize(m_num_inputs);
+
 	Input(inp);
 }
 
