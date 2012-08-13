@@ -10,7 +10,7 @@ import commands as comm
 import cv2
 import numpy as np
 import cPickle as pickle
-import NEAT
+import MultiNEAT as NEAT
 import multiprocessing as mpc
 
 
@@ -24,7 +24,7 @@ def evaluate(genome):
     
     error = 0
     
-    # do shit and return the fitness
+    # do stuff and return the fitness
     net.Flush()
     
     net.Input([1, 0, 1])
@@ -103,11 +103,4 @@ for generation in range(200):
     print "Generation:", generation
 
 cv2.waitKey(0)
-
-#if __name__ == '__main__':
-#    print 'Hello, world!'
-
-y = pickle.loads(xx)
-print y.NumInputs()
-print y.NumOutputs()
 
