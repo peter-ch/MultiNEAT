@@ -313,7 +313,7 @@ void Population::AdjustFitness()
 void Population::CountOffspring()
 {
     ASSERT(m_Genomes.size() > 0);
-    ASSERT(m_Genomes.size() == GlobalParameters.PopulationSize);
+    ASSERT(m_Genomes.size() == m_Parameters.PopulationSize);
 
     double t_total_adjusted_fitness = 0;
     double t_average_adjusted_fitness = 0;
@@ -362,7 +362,7 @@ void Population::Sort()
     // Step through each species and sort its members by fitness
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        ASSERT(m_Species[i].NumMembers() > 0);
+        ASSERT(m_Species[i].NumIndividuals() > 0);
         m_Species[i].SortIndividuals();
     }
 

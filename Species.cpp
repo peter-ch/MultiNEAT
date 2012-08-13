@@ -375,7 +375,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                 bool t_mated = false;
 
                 // There must be individuals there..
-                ASSERT(NumMembers() > 0);
+                ASSERT(NumIndividuals() > 0);
 
                 // for a species of size 1 we can only mutate
                 // NOTE: but does it make sense since we know this is the champ?
@@ -651,7 +651,7 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 
 
     // There must be individuals there..
-    ASSERT(NumMembers() > 0);
+    ASSERT(NumIndividuals() > 0);
 
     // for a species of size 1 we can only mutate
     // NOTE: but does it make sense since we know this is the champ?

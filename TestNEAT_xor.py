@@ -31,33 +31,33 @@ def evaluate(genome):
     net.Activate()
     net.Activate()
     o = net.Output()
-    error += (o[0] - 1)**2
+    error += abs(o[0] - 1)
     
     net.Flush()
     net.Input([0, 1, 1])
     net.Activate()
     net.Activate()
     o = net.Output()
-    error += (o[0] - 1)**2
+    error += abs(o[0] - 1)
 
     net.Flush()
     net.Input([1, 1, 1])
     net.Activate()
     net.Activate()
     o = net.Output()
-    error += (o[0] - 0)**2
+    error += abs(o[0] - 0)
 
     net.Flush()
     net.Input([0, 0, 1])
     net.Activate()
     net.Activate()
     o = net.Output()
-    error += (o[0] - 0)**2
+    error += abs(o[0] - 0)
     
-    return (4 - error)**2
+    return (4 - error)
     
 params = NEAT.Parameters()
-params.PopulationSize = 160
+params.PopulationSize = 100
 params.MutateRemLinkProb = 0
 params.RecurrentProb = 0
 params.OverallMutationRate = 0.25
@@ -66,14 +66,15 @@ params.MutateAddNeuronProb = 0.001
 params.MutateWeightsProb = 0.96
 rng = NEAT.RNG()
 #rng.TimeSeed()
-rng.Seed(0)
+rng.TimeSeed()
+
 g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
 pop = NEAT.Population(g, params, True, 1.0)
 
 
 pool = mpc.Pool(processes = 4)
 
-for generation in range(200):
+for generation in range(1000):
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:

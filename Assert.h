@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GUARD_Assert_h
-#define INCLUDE_GUARD_Assert_h
+#ifndef ASSERT_H
+#define ASSERT_H
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //    MultiNEAT - Python/C++ NeuroEvolution of Augmenting Topologies Library
@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <exception>
 
 // kill any existing declarations
 #ifdef ASSERT
@@ -38,22 +39,23 @@
 #undef VERIFY
 #endif
 
-#ifdef _DEBUG
+#ifdef DEBUG
 
 #if 1
+
 //--------------
 //  debug macros
 //--------------
-#define BREAK_CPU()			__asm { int 3 }
+#define BREAK_CPU()			//__asm { int 3 }
 
 #define ASSERT(expr)\
 		{\
 			if( !(expr) )\
 			{\
-				std::cout << "\n*** ASSERT1 ***\n" << \
+				std::cout << "\n*** ASSERT! ***\n" << \
 				__FILE__ ", line " << __LINE__ << ": " << \
 				#expr << " is false\n\n";\
-				BREAK_CPU();\
+				throw std::exception();\
 			}\
 		}
 
@@ -68,6 +70,7 @@
 			}\
 		}
 #else
+
 #define ASSERT(expr)\
 		{\
 			if( !(expr) )\
@@ -88,6 +91,7 @@
 		}
 
 #endif
+
 #else // _DEBUG
 
 //--------------
@@ -97,8 +101,8 @@
 // ASSERT gets optimised out completely
 #define ASSERT(expr)
 
-// verify has expression evalutated, but no further action taken
-#define VERIFY(expr) if( expr ) {}
+// verify has expression evaluated, but no further action taken
+#define VERIFY(expr) //if( expr ) {}
 
 #endif
 
