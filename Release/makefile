@@ -37,19 +37,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: libMultiNEAT.so
+all: MultiNEAT.so
 
 # Tool invocations
-libMultiNEAT.so: $(OBJS) $(USER_OBJS)
+MultiNEAT.so: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -shared -o "libMultiNEAT.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -shared -o "MultiNEAT.so" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(LIBRARIES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) libMultiNEAT.so
+	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(LIBRARIES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) MultiNEAT.so
 	-@echo ' '
 
 .PHONY: all clean dependents

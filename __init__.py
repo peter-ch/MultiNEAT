@@ -1,7 +1,7 @@
 import sys
 import multiprocessing as mpc
 import time
-from Release.libNEAT import *
+from Release.MultiNEAT import *
 
 try:
     from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
