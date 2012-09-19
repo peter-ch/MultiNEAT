@@ -113,18 +113,7 @@ Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
 int Substrate::GetMinCPPNInputs()
 {
 	// determine the dimensionality across the entire substrate
-	int max_dims = 0;
-	for(unsigned int i=0; i<m_input_coords.size(); i++)
-		if (max_dims < m_input_coords[i].size())
-			max_dims = m_input_coords[i].size();
-	for(unsigned int i=0; i<m_hidden_coords.size(); i++)
-		if (max_dims < m_hidden_coords[i].size())
-			max_dims = m_hidden_coords[i].size();
-	for(unsigned int i=0; i<m_output_coords.size(); i++)
-		if (max_dims < m_output_coords[i].size())
-			max_dims = m_output_coords[i].size();
-
-	int cppn_inputs = max_dims * 2; // twice, because we query 2 points at a time
+	int cppn_inputs = GetMaxDims() * 2; // twice, because we query 2 points at a time
 
     // the distance input
 	if (m_with_distance)
@@ -141,6 +130,22 @@ int Substrate::GetMinCPPNOutputs()
 		return 1;
 }
 
+
+int Substrate::GetMaxDims()
+{
+	int max_dims = 0;
+	for(unsigned int i=0; i<m_input_coords.size(); i++)
+		if (max_dims < m_input_coords[i].size())
+			max_dims = m_input_coords[i].size();
+	for(unsigned int i=0; i<m_hidden_coords.size(); i++)
+		if (max_dims < m_hidden_coords[i].size())
+			max_dims = m_hidden_coords[i].size();
+	for(unsigned int i=0; i<m_output_coords.size(); i++)
+		if (max_dims < m_output_coords[i].size())
+			max_dims = m_output_coords[i].size();
+	return max_dims;
+}
+
 void Substrate::PrintInfo()
 {
 	std::cerr << "Inputs: " << m_input_coords.size() << "\n";
@@ -148,8 +153,7 @@ void Substrate::PrintInfo()
 	std::cerr << "Outputs: " << m_output_coords.size() << "\n\n";
 	std::cerr << "Dimensions: " << GetMinCPPNInputs() << "\n";
 }
+// namespace NEAT
 
 }
 
-
- // namespace NEAT

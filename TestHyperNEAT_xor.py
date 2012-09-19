@@ -13,13 +13,14 @@ import cPickle as pickle
 import MultiNEAT as NEAT
 import multiprocessing as mpc
 
-# the simple 2D substrate with 3 input points, 1 hidden and 1 output for XOR 
-substrate = NEAT.Substrate([(1, 1, 0), (1, 0, 0), (0, 1, 0)], 
-                           [(0.5, 0.5, 0.5)], 
+# the simple 3D substrate with 3 input points, 2 hidden and 1 output for XOR 
+substrate = NEAT.Substrate([(-1, 1, 0), (1, 0, 0), (0, 1, 0)], 
+                           [(0.5, 0.5, 0.5), (-0.5, 1.5, 0.5)], 
                            [(0, 0, 1)])
 
 # let's configure it a bit to avoid recurrence in the substrate
 substrate.m_allow_hidden_hidden_links = False
+substrate.m_allow_hidden_output_links = False
 substrate.m_allow_looped_hidden_links = False
 substrate.m_allow_looped_output_links = False
 
@@ -79,11 +80,11 @@ def evaluate(genome):
         return 1.0
     
 params = NEAT.Parameters()
-params.PopulationSize = 100
+params.PopulationSize = 10000
 params.MutateRemLinkProb = 0
 params.RecurrentProb = 0
-params.OverallMutationRate = 0.25
-params.MutateAddLinkProb = 0.03
+params.OverallMutationRate = 0.15
+params.MutateAddLinkProb = 0.05
 params.MutateAddNeuronProb = 0.01
 params.MutateWeightsProb = 0.96
 
@@ -123,9 +124,9 @@ pop = NEAT.Population(g, params, True, 1.0)
 
 pool = mpc.Pool(processes = 4)
 
-for generation in range(100000):
+for generation in range(10000):
     genome_list = NEAT.GetGenomeList(pop)
-    fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
+    fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate, 4)
     [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
     print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])

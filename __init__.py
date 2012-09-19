@@ -162,7 +162,7 @@ else:
             # HyperNEAT substrate
             # only the first 2 dimensions are used for drawing
             # if a layer is 1D,  y values will be supplied to make 3 rows
-            
+
             # determine min/max coords in NN
             xs = [(neuron.substrate_coords[0]) for neuron in nn.neurons]
             ys = [(neuron.substrate_coords[1]) for neuron in nn.neurons]
@@ -173,6 +173,7 @@ else:
             for neuron in nn.neurons:
                 neuron.x = Scale(neuron.substrate_coords[0], min_x, max_x, rect_x_size/15, 
                                  rect_x_size - rect_x_size/15)
+            for neuron in nn.neurons:
                 neuron.y = Scale(neuron.substrate_coords[1], min_y, max_y, rect_x_size/15, 
                                  rect_y_size - rect_x_size/15)
 

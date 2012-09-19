@@ -430,18 +430,17 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 	ASSERT(subst.m_input_coords.size() > 0);
 	ASSERT(subst.m_output_coords.size() > 0);
 
-	int max_dims = subst.GetMinCPPNInputs();
-	//DBG(max_dims);
+	int CPPN_numinputs = subst.GetMinCPPNInputs();
+	int max_dims = subst.GetMaxDims();
 
 	// Make sure the CPPN dimensionality is right
-	ASSERT(max_dims > 0);
-	ASSERT(NumInputs() == max_dims);
+	ASSERT(CPPN_numinputs > 0);
+	ASSERT(NumInputs() == CPPN_numinputs);
 	if (subst.m_leaky)
 	{
 		ASSERT(NumOutputs() >= subst.GetMinCPPNOutputs());
 	}
 
-//	return;
     // Now we create the substrate (net)
     net.SetInputOutputDimentions(static_cast<unsigned short>(subst.m_input_coords.size()),
     		                     static_cast<unsigned short>(subst.m_output_coords.size()));
@@ -454,6 +453,7 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         t_n.m_a = 1;
         t_n.m_b = 0;
 		t_n.m_substrate_coords = subst.m_input_coords[i];
+		ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
         t_n.m_activation_function_type = NEAT::LINEAR;
         t_n.m_type = NEAT::INPUT;
 
@@ -469,6 +469,7 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         t_n.m_a = 1;
         t_n.m_b = 0;
 		t_n.m_substrate_coords = subst.m_hidden_coords[i];
+		ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
         t_n.m_activation_function_type = subst.m_hidden_nodes_activation;
         t_n.m_type = NEAT::HIDDEN;
 
@@ -484,6 +485,7 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         t_n.m_a = 1;
         t_n.m_b = 0;
 		t_n.m_substrate_coords = subst.m_output_coords[i];
+		ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
         t_n.m_activation_function_type = subst.m_output_nodes_activation;
         t_n.m_type = NEAT::OUTPUT;
 
@@ -513,14 +515,14 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 			// the nodes in the substrate
 			// We input only the position of the first node and ignore the other one
 			std::vector<double> t_inputs;
-			t_inputs.resize(max_dims);
+			t_inputs.resize(CPPN_numinputs);
 
 			for(int n=0; n<net.m_neurons[i].m_substrate_coords.size(); n++)
 				t_inputs[n] = net.m_neurons[i].m_substrate_coords[n];
 
 			if (subst.m_with_distance)
-				t_inputs[max_dims - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
-			t_inputs[max_dims - 1] = 1.0; // the CPPN's bias
+				t_inputs[CPPN_numinputs - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
+			t_inputs[CPPN_numinputs - 1] = 1.0; // the CPPN's bias
 
 			t_temp_phenotype.Input(t_inputs);
 
@@ -585,23 +587,24 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 			int from_dims = net.m_neurons[j].m_substrate_coords.size();
 			int to_dims = net.m_neurons[i].m_substrate_coords.size();
 
-//				DBG("---------");
-//				DBG(from_dims); DBG(to_dims);
-//				DBG(j); DBG(i); DBG(t_inputs.size());
-//				return;
-
 			// input the node positions to the CPPN
 			// from
 			for(int n=0; n<from_dims; n++)
 				t_inputs[n] = net.m_neurons[j].m_substrate_coords[n];
 			// to
 			for(int n=0; n<to_dims; n++)
-				t_inputs[from_dims + n] = net.m_neurons[i].m_substrate_coords[n];
+				t_inputs[max_dims + n] = net.m_neurons[i].m_substrate_coords[n];
+
+			// the input is like
+			// x000|xx00|1 - 1D -> 2D connection
+			// xx00|xx00|1 - 2D -> 2D connection
+			// xx00|xxx0|1 - 2D -> 3D connection
+			// if max_dims is 4 and no distance input
 
 			if (subst.m_with_distance)
-				t_inputs[max_dims - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
+				t_inputs[CPPN_numinputs - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
 
-			t_inputs[max_dims - 1] = 1.0;
+			t_inputs[CPPN_numinputs - 1] = 1.0;
 
 
 			// flush between each query

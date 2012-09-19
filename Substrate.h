@@ -83,6 +83,8 @@ public:
     // Construct from 3 Python lists of tuples
     Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
 
+    int GetMaxDims();
+
     // Return the minimum input dimensionality of the CPPN
     int GetMinCPPNInputs();
     // Return the minimum output dimensionality of the CPPN
