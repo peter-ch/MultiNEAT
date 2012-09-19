@@ -238,6 +238,7 @@ void Species::AdjustFitness(Parameters& a_Parameters)
         double t_fitness = m_Individuals[i].GetFitness();
 
         // the fitness must be positive
+        //DBG(t_fitness);
         ASSERT(t_fitness >= 0);
 
         // this prevents the fitness to be below zero

@@ -119,7 +119,7 @@ if not cvnumpy_installed:
         pass
 else:
     MAX_DEPTH = 250
-    def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3):
+    def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3, substrate=False):
         for i, n in enumerate(nn.neurons):
             nn.neurons[i].x = 0
             nn.neurons[i].y = 0
@@ -129,40 +129,62 @@ else:
         rect_x_size = rect[2]
         rect_y_size = rect[3]
         
-        depth = 0
-        depth_inc = 1.0 / MAX_DEPTH
-        # for every depth, count how many nodes are on this depth
-        all_depths = np.linspace(0.0, 1.0, MAX_DEPTH)#np.concatenate( np.arange(0.0, 1.0, depth_inc, dtype=np.float32), [1.0] )
-        for depth in all_depths:
-            neuron_count = 0
-            for neuron in nn.neurons:
-                if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
-                    neuron_count += 1
-            if neuron_count == 0:
-                continue
+        if not substrate:
+            depth = 0
+            depth_inc = 1.0 / MAX_DEPTH
+            # for every depth, count how many nodes are on this depth
+            all_depths = np.linspace(0.0, 1.0, MAX_DEPTH)#np.concatenate( np.arange(0.0, 1.0, depth_inc, dtype=np.float32), [1.0] )
+            for depth in all_depths:
+                neuron_count = 0
+                for neuron in nn.neurons:
+                    if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
+                        neuron_count += 1
+                if neuron_count == 0:
+                    continue
+                
+                # calculate x positions of neurons
+                j = 0
+                xxpos = rect_x_size / (1 + neuron_count)
+                for neuron in nn.neurons:
+                    if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
+                        neuron.x = rect_x + xxpos + j * (rect_x_size) / (2 + neuron_count)
+                        j += 1
             
-            # calculate x positions of neurons
-            j = 0
-            xxpos = rect_x_size / (1 + neuron_count)
+            # calculate y positions of nodes
             for neuron in nn.neurons:
-                if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
-                    neuron.x = rect_x + xxpos + j * (rect_x_size) / (2 + neuron_count)
-                    j += 1
-        
-        # calculate y positions of nodes
-        for neuron in nn.neurons:
-            if neuron.split_y == 0.0:
-                neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) + neuron_radius
-            elif neuron.split_y == 1.0:
-                neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius)
-            else:
-                neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) 
+                if neuron.split_y == 0.0:
+                    neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius) + neuron_radius
+                elif neuron.split_y == 1.0:
+                    neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius)
+                else:
+                    neuron.y = rect_y + neuron.split_y * (rect_y_size - neuron_radius)
+        else:
+            # HyperNEAT substrate
+            # only the first 2 dimensions are used for drawing
+            # if a layer is 1D,  y values will be supplied to make 3 rows
+            
+            # determine min/max coords in NN
+            xs = [(neuron.substrate_coords[0]) for neuron in nn.neurons]
+            ys = [(neuron.substrate_coords[1]) for neuron in nn.neurons]
+            min_x, min_y, max_x, max_y = min(xs), min(ys), max(xs), max(ys)
+            
+            dims = [len(neuron.substrate_coords) for neuron in nn.neurons]
+            
+            for neuron in nn.neurons:
+                neuron.x = Scale(neuron.substrate_coords[0], min_x, max_x, rect_x_size/15, 
+                                 rect_x_size - rect_x_size/15)
+                neuron.y = Scale(neuron.substrate_coords[1], min_y, max_y, rect_x_size/15, 
+                                 rect_y_size - rect_x_size/15)
 
             
         # the positions of neurons is computed, now we draw
         
-        # connections first
-        max_weight = max([abs(x.weight) for x in nn.connections])
+        # connections first 
+        if nn.connections: 
+            max_weight = max([abs(x.weight) for x in nn.connections])
+        else:
+            max_weight = 1.0
+        
         for conn in nn.connections:
             thickness = conn.weight
             thickness = Scale(thickness, 0, max_weight, 1, max_line_thickness)

@@ -55,9 +55,25 @@ public:
     // NOTE: don't use it, not working yet
     bool m_with_distance;
 
+    // these flags control the connectivity of the substrate
+    bool m_allow_input_hidden_links;
+    bool m_allow_input_output_links;
+    bool m_allow_hidden_hidden_links;
+    bool m_allow_hidden_output_links;
+    bool m_allow_output_hidden_links;
+    bool m_allow_output_output_links;
+    bool m_allow_looped_hidden_links;
+    bool m_allow_looped_output_links;
+
     // the activation functions of hidden/output neurons
     ActivationFunction m_hidden_nodes_activation;
     ActivationFunction m_output_nodes_activation;
+
+    // additional parameters
+    double m_link_threshold;
+    double m_max_weight_and_bias;
+    double m_min_time_const;
+    double m_max_time_const;
 
     Substrate(){};
     Substrate(std::vector< std::vector<double> >& a_inputs,
@@ -71,6 +87,9 @@ public:
     int GetMinCPPNInputs();
     // Return the minimum output dimensionality of the CPPN
     int GetMinCPPNOutputs();
+
+    // Prints some info about itself
+    void PrintInfo();
 };
 }
 

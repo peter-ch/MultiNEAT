@@ -43,16 +43,70 @@ Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
 	m_with_distance = false;
 	m_hidden_nodes_activation = NEAT::UNSIGNED_SIGMOID;
 	m_output_nodes_activation = NEAT::UNSIGNED_SIGMOID;
+    m_allow_input_hidden_links = true;
+    m_allow_input_output_links = true;
+    m_allow_hidden_hidden_links = true;
+    m_allow_hidden_output_links = true;
+    m_allow_output_hidden_links = true;
+    m_allow_output_output_links = true;
+    m_allow_looped_hidden_links = true;
+    m_allow_looped_output_links = true;
 
-	m_input_coords = a_inputs;
+    m_link_threshold = 0.2;
+    m_max_weight_and_bias = 5.0;
+    m_min_time_const = 0.1;
+    m_max_time_const = 1.0;
+
+    m_input_coords = a_inputs;
 	m_hidden_coords = a_hidden;
 	m_output_coords = a_outputs;
 }
 
 
-// 3 lists of tuples
+// 3 lists of iterables of floats
 Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
 {
+	m_leaky = false;
+	m_with_distance = false;
+	m_hidden_nodes_activation = NEAT::UNSIGNED_SIGMOID;
+	m_output_nodes_activation = NEAT::UNSIGNED_SIGMOID;
+    m_allow_input_hidden_links = true;
+    m_allow_input_output_links = true;
+    m_allow_hidden_hidden_links = true;
+    m_allow_hidden_output_links = true;
+    m_allow_output_hidden_links = true;
+    m_allow_output_output_links = true;
+    m_allow_looped_hidden_links = true;
+    m_allow_looped_output_links = true;
+
+    m_link_threshold = 0.2;
+    m_max_weight_and_bias = 5.0;
+    m_min_time_const = 0.1;
+    m_max_time_const = 1.0;
+
+    // Make room for the data
+    int inp = py::len(a_inputs);
+    int hid = py::len(a_hidden);
+    int out = py::len(a_outputs);
+	m_input_coords.resize( inp );
+	m_hidden_coords.resize( hid );
+	m_output_coords.resize( out );
+
+	for(int i=0; i<inp; i++)
+	{
+		for(int j=0; j<py::len(a_inputs[i]); j++)
+			m_input_coords[i].push_back(py::extract<double>(a_inputs[i][j]));
+	}
+	for(int i=0; i<hid; i++)
+	{
+		for(int j=0; j<py::len(a_hidden[i]); j++)
+			m_hidden_coords[i].push_back(py::extract<double>(a_hidden[i][j]));
+	}
+	for(int i=0; i<out; i++)
+	{
+		for(int j=0; j<py::len(a_outputs[i]); j++)
+			m_output_coords[i].push_back(py::extract<double>(a_outputs[i][j]));
+	}
 }
 
 
@@ -60,20 +114,23 @@ int Substrate::GetMinCPPNInputs()
 {
 	// determine the dimensionality across the entire substrate
 	int max_dims = 0;
-	for(int i=0; i<m_input_coords.size(); i++)
+	for(unsigned int i=0; i<m_input_coords.size(); i++)
 		if (max_dims < m_input_coords[i].size())
 			max_dims = m_input_coords[i].size();
-	for(int i=0; i<m_hidden_coords.size(); i++)
+	for(unsigned int i=0; i<m_hidden_coords.size(); i++)
 		if (max_dims < m_hidden_coords[i].size())
 			max_dims = m_hidden_coords[i].size();
-	for(int i=0; i<m_output_coords.size(); i++)
+	for(unsigned int i=0; i<m_output_coords.size(); i++)
 		if (max_dims < m_output_coords[i].size())
 			max_dims = m_output_coords[i].size();
 
-	if (m_with_distance)
-		max_dims += 1;
+	int cppn_inputs = max_dims * 2; // twice, because we query 2 points at a time
 
-	return max_dims;
+    // the distance input
+	if (m_with_distance)
+		cppn_inputs += 1;
+
+	return cppn_inputs + 1; // always count the bias
 }
 
 int Substrate::GetMinCPPNOutputs()
@@ -84,7 +141,15 @@ int Substrate::GetMinCPPNOutputs()
 		return 1;
 }
 
+void Substrate::PrintInfo()
+{
+	std::cerr << "Inputs: " << m_input_coords.size() << "\n";
+	std::cerr << "Hidden: " << m_hidden_coords.size() << "\n";
+	std::cerr << "Outputs: " << m_output_coords.size() << "\n\n";
+	std::cerr << "Dimensions: " << GetMinCPPNInputs() << "\n";
+}
 
 }
+
 
  // namespace NEAT

@@ -269,7 +269,7 @@ public:
     // Other possible methods for building a phenotype go here
     // Like CPPN/HyperNEAT stuff
     ////////////
-    void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst,double a_LinkTreshold, double a_MaxWeight, double a_MinTimeConst, double a_MaxTimeConst);
+    void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst);
 
     // Saves this genome to a file
     void Save(char* a_filename);
@@ -434,7 +434,7 @@ struct Genome_pickle_suite : py::pickle_suite
 };
 
 
-
+#define DBG(x) { std::cerr << x << "\n"; }
 
 } // namespace NEAT
 

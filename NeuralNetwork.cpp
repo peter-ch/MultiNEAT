@@ -50,44 +50,11 @@ namespace NEAT
 // The set of activation functions //
 /////////////////////////////////////
 
-/*
+
 inline double af_sigmoid_unsigned(double aX, double aSlope, double aShift)
 {
     return 1.0 / (1.0 + exp( - aSlope * aX - aShift));
-}*/
-
-// Let's use this fast approximation of sigmoid
-const double PR  =0.66666666;
-const double PO  =1.71593428;
-const double A0  =1.0;
-const double A1  =0.125*PR;
-const double A2  =0.0078125*PR*PR;
-const double A3  =0.000325520833333*PR*PR*PR;
-
-//! Function for fast approximation of sigmoid
-double af_sigmoid_unsigned(double x, double aSlope, double aShift)
-{
-	double y;
-
-	if (x >= 0.0)
-		if (x < 13.0)
-			y = A0+x*(A1+x*(A2+x*(A3)));
-		else
-			return PO;
-	else
-		if (x > -13.0)
-			y = A0-x*(A1-x*(A2-x*(A3)));
-		else
-			return -PO;
-
-	y *= y;
-	y *= y;
-	y *= y;
-	y *= y;
-
-	return (x > 0.0) ? PO*(y-1.0)/(y+1.0) : PO*(1.0-y)/(y+1.0);
 }
-
 
 inline double af_sigmoid_signed(double aX, double aSlope, double aShift)
 {
@@ -663,7 +630,7 @@ std::vector<double> NeuralNetwork::Output()
 void NeuralNetwork::Adapt(Parameters& a_Parameters)
 {
 	// find max absolute magnitude of the weight
-	double t_max_weight = DBL_MIN;
+	double t_max_weight = -999999999;
 	for (unsigned int i = 0; i < m_connections.size(); i++)
 	{
 		if (abs(m_connections[i].m_weight) > t_max_weight)

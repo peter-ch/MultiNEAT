@@ -114,9 +114,7 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 			.def_readwrite("x", &Neuron::m_x)
 			.def_readwrite("y", &Neuron::m_y)
 			.def_readwrite("z", &Neuron::m_z)
-			.def_readwrite("sx", &Neuron::m_sx)
-			.def_readwrite("sy", &Neuron::m_sy)
-			.def_readwrite("sz", &Neuron::m_sz)
+			.def_readwrite("substrate_coords", &Neuron::m_substrate_coords)
 			;
 
 	void (NeuralNetwork::*NN_Save)(char*) = &NeuralNetwork::Save;
@@ -240,13 +238,26 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 		    .def(init<list, list, list>())
 		    .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs)
 		    .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs)
-		    .def_readwrite("m_input_coords", &Substrate::m_input_coords)
-		    .def_readwrite("m_hidden_coords", &Substrate::m_hidden_coords)
-		    .def_readwrite("m_output_coords", &Substrate::m_output_coords)
+		    .def("PrintInfo", &Substrate::PrintInfo)
+
 		    .def_readwrite("m_leaky", &Substrate::m_leaky)
 		    .def_readwrite("m_with_distance", &Substrate::m_with_distance)
 		    .def_readwrite("m_hidden_nodes_activation", &Substrate::m_hidden_nodes_activation)
 		    .def_readwrite("m_output_nodes_activation", &Substrate::m_output_nodes_activation)
+
+		    .def_readwrite("m_allow_input_hidden_links", &Substrate::m_allow_input_hidden_links)
+		    .def_readwrite("m_allow_input_output_links", &Substrate::m_allow_input_output_links)
+		    .def_readwrite("m_allow_hidden_hidden_links", &Substrate::m_allow_hidden_hidden_links)
+		    .def_readwrite("m_allow_hidden_output_links", &Substrate::m_allow_hidden_output_links)
+		    .def_readwrite("m_allow_output_hidden_links", &Substrate::m_allow_output_hidden_links)
+		    .def_readwrite("m_allow_output_output_links", &Substrate::m_allow_output_output_links)
+		    .def_readwrite("m_allow_looped_hidden_links", &Substrate::m_allow_looped_hidden_links)
+		    .def_readwrite("m_allow_looped_output_links", &Substrate::m_allow_looped_output_links)
+
+		    .def_readwrite("m_link_threshold", &Substrate::m_link_threshold)
+		    .def_readwrite("m_max_weight_and_bias", &Substrate::m_max_weight_and_bias)
+		    .def_readwrite("m_min_time_const", &Substrate::m_min_time_const)
+		    .def_readwrite("m_max_time_const", &Substrate::m_max_time_const)
 		    ;
 
 
