@@ -232,6 +232,23 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 			.def_readonly("Blue", &Species::m_B)
 			;
 
+///////////////////////////////////////////////////////////////////
+// Substrate class
+///////////////////////////////////////////////////////////////////
+
+	class_<Substrate>("Substrate", init<>())
+		    .def(init<list, list, list>())
+		    .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs)
+		    .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs)
+		    .def_readwrite("m_input_coords", &Substrate::m_input_coords)
+		    .def_readwrite("m_hidden_coords", &Substrate::m_hidden_coords)
+		    .def_readwrite("m_output_coords", &Substrate::m_output_coords)
+		    .def_readwrite("m_leaky", &Substrate::m_leaky)
+		    .def_readwrite("m_with_distance", &Substrate::m_with_distance)
+		    .def_readwrite("m_hidden_nodes_activation", &Substrate::m_hidden_nodes_activation)
+		    .def_readwrite("m_output_nodes_activation", &Substrate::m_output_nodes_activation)
+		    ;
+
 
 ///////////////////////////////////////////////////////////////////
 // Population class

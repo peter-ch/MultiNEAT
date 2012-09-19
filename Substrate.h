@@ -27,17 +27,16 @@
 
 #include <vector>
 #include "NeuralNetwork.h"
-//#include "Math_Vectors.h"
+
+#include <boost/python.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+
+namespace py = boost::python;
 
 namespace NEAT
 {
-enum substrate_config
-{
-    PARRALEL = 0,
-    CIRCULAR = 1,
-    RANDOM   = 2,
-    PARRALEL_MATRIX = 3 // inputs arranged in a matrix
-};
 
 //-----------------------------------------------------------------------
 // The substrate describes the phenotype space that is used by HyperNEAT
@@ -45,29 +44,34 @@ enum substrate_config
 class Substrate
 {
 public:
-
-    int num_inputs;
-    int num_hidden;
-    int num_outputs;
-
     std::vector< std::vector<double> > m_input_coords;
     std::vector< std::vector<double> > m_hidden_coords;
     std::vector< std::vector<double> > m_output_coords;
 
-    // The positions of the nodes are lists of 3D vectors
-    // An empty vector means there are no nodes
-/*    std::vector<vector3D> inputs;
-    std::vector<vector3D> hidden;
-    std::vector<vector3D> outputs;*/
+    // the substrate is made from leaky integrator neurons?
+    bool m_leaky;
 
-    // Default constructor - initializes a substrate
-    // Given the substrate configuration and counts of the neurons
-    Substrate(substrate_config config, int inp, int hidden, int outp);
+    // the additional distance input is used?
+    // NOTE: don't use it, not working yet
+    bool m_with_distance;
+
+    // the activation functions of hidden/output neurons
+    ActivationFunction m_hidden_nodes_activation;
+    ActivationFunction m_output_nodes_activation;
+
+    Substrate(){};
+    Substrate(std::vector< std::vector<double> >& a_inputs,
+    		  std::vector< std::vector<double> >& a_hidden,
+    		  std::vector< std::vector<double> >& a_outputs );
+
+    // Construct from 3 Python lists of tuples
+    Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
+
+    // Return the minimum input dimensionality of the CPPN
+    int GetMinCPPNInputs();
+    // Return the minimum output dimensionality of the CPPN
+    int GetMinCPPNOutputs();
 };
-
-// A global function that creates a HyperNEAT phenotype based on
-// a given CPPN and a given substrate
-//	NeuralNetwork* create_hyper_phenotype(NeuralNetwork* CPPN, Substrate* substrate);
 }
 
 #endif

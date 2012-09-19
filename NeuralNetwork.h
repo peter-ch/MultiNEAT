@@ -83,6 +83,7 @@ public:
     // displaying and stuff
     double m_x, m_y, m_z;
     double m_sx, m_sy, m_sz;
+    std::vector<double> m_substrate_coords;
     double m_split_y;
     NeuronType m_type;
 

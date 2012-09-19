@@ -419,135 +419,154 @@ void Genome::BuildPhenotype(NeuralNetwork& a_Net) const
 
 
 
-// Builds a HyperNEAT phenotype based on the 2D substrate
-// Current configuration is:
-// inputs: X1, Y1, X2, Y2, distance (X to Y), bias
-// output: weight, node-timeconst, node-bias
-void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate* subst, double a_LinkTreshold, double a_MaxWeight, double a_MinTimeConst, double a_MaxTimeConst)
+// Builds a HyperNEAT phenotype based on the substrate
+// The CPPN input dimensionality must match the largest number of
+// dimensions in the substrate
+// The output dimensionality is determined according to flags set in the
+// substrate
+void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst, double a_LinkTreshold, double a_MaxWeight, double a_MinTimeConst, double a_MaxTimeConst)
 {
-#if 0
-	// this genome must be a CPPN with 6 inputs and 3 outputs!!!
-    ASSERT(NumInputs()  == 6);
-    ASSERT(NumOutputs() == 3);
-    ASSERT(a_LinkTreshold > 0);
-    ASSERT(a_MaxWeight > 0);
+	// We need a substrate with at least one input and output
+	ASSERT(subst.m_input_coords.size() > 0);
+	ASSERT(subst.m_output_coords.size() > 0);
 
-    NeuralNetwork t_temp_phenotype(true);
-    BuildPhenotype(t_temp_phenotype);
-    t_temp_phenotype.Flush();
+	int max_dims = subst.GetMinCPPNInputs();
 
-    // assuming depth is already calculated
+	// Make sure the CPPN dimensionality is right
+	ASSERT(max_dims > 0);
+	ASSERT(NumInputs() == max_dims);
+	if (subst.m_leaky)
+		ASSERT(NumOutputs() >= subst.GetMinCPPNOutputs());
 
-    // Now build the phenotype
-    net.SetInputOutputDimentions(static_cast<unsigned short>(subst->inputs.size()), static_cast<unsigned short>(subst->outputs.size()));
+    // Now we create the substrate (net)
+    net.SetInputOutputDimentions(static_cast<unsigned short>(subst.m_input_coords.size()),
+    		                     static_cast<unsigned short>(subst.m_output_coords.size()));
 
-    // fill neurons
-    for(unsigned int i=0; i<subst->inputs.size(); i++)
+    // Inputs
+    for(unsigned int i=0; i<subst.m_input_coords.size(); i++)
     {
         Neuron t_n;
 
         t_n.m_a = 1;
         t_n.m_b = 0;
-        t_n.m_sx = subst->inputs[i].x;
-        t_n.m_sy = subst->inputs[i].y;
+		t_n.m_substrate_coords = subst.m_input_coords[i];
         t_n.m_activation_function_type = NEAT::LINEAR;
         t_n.m_type = NEAT::INPUT;
 
         net.AddNeuron(t_n);
     }
-    for(unsigned int i=0; i<subst->outputs.size(); i++)
+
+
+    // Hidden
+    for(unsigned int i=0; i<subst.m_hidden_coords.size(); i++)
     {
         Neuron t_n;
 
         t_n.m_a = 1;
         t_n.m_b = 0;
-        t_n.m_sx = subst->outputs[i].x;
-        t_n.m_sy = subst->outputs[i].y;
-        t_n.m_activation_function_type = NEAT::TANH;
-        t_n.m_type = NEAT::OUTPUT;
-
-        net.AddNeuron(t_n);
-    }
-    for(unsigned int i=0; i<subst->hidden.size(); i++)
-    {
-        Neuron t_n;
-
-        t_n.m_a = 1;
-        t_n.m_b = 0;
-        t_n.m_sx = subst->hidden[i].x;
-        t_n.m_sy = subst->hidden[i].y;
-        t_n.m_activation_function_type = NEAT::TANH;
+		t_n.m_substrate_coords = subst.m_hidden_coords[i];
+        t_n.m_activation_function_type = subst.m_hidden_nodes_activation;
         t_n.m_type = NEAT::HIDDEN;
 
         net.AddNeuron(t_n);
     }
 
+
+    // Output
+    for(unsigned int i=0; i<subst.m_output_coords.size(); i++)
+    {
+        Neuron t_n;
+
+        t_n.m_a = 1;
+        t_n.m_b = 0;
+		t_n.m_substrate_coords = subst.m_output_coords[i];
+        t_n.m_activation_function_type = subst.m_output_nodes_activation;
+        t_n.m_type = NEAT::OUTPUT;
+
+        net.AddNeuron(t_n);
+    }
+
+
+	// Begin querying the CPPN
+    // Create the neural network that will represent the CPPN
+    NeuralNetwork t_temp_phenotype(true);
+    BuildPhenotype(t_temp_phenotype);
+    t_temp_phenotype.Flush();
+
     // now loop over every potential connection in the substrate and take its weight
-    std::vector<double> t_inputs;
-    t_inputs.resize( t_temp_phenotype.NumInputs() );
     CalculateDepth();
     int dp = GetDepth();
 
     // only incoming connections, so loop only the hidden and output neurons
     for(unsigned int i=net.NumInputs(); i<net.m_neurons.size(); i++)
     {
-        // neuron specific stuff
-        t_temp_phenotype.Flush();
+    	if (subst.m_leaky)
+    	{
+			// neuron specific stuff
+			t_temp_phenotype.Flush();
 
-        t_inputs[0] = net.m_neurons[i].m_sx;
-        t_inputs[1] = net.m_neurons[i].m_sy;
-        t_inputs[2] = 0;
-        t_inputs[3] = 0;
-        t_inputs[4] = sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
-        t_inputs[5] = 1.0;
+			// Inputs for the generation of time consts and biases across
+			// the nodes in the substrate
+			// We input only the position of the first node and ignore the rest
+			std::vector<double> t_inputs;
+			t_inputs.resize(max_dims);
 
-        t_temp_phenotype.Input(t_inputs);
+			for(int n=0; n<net.m_neurons[i].m_substrate_coords.size(); n++)
+				t_inputs[n] = net.m_neurons[i].m_substrate_coords[n];
 
-        // activate as many times as deep
-        for(int d=0; d<8; d++)
-            t_temp_phenotype.Activate();
+			if (subst.m_with_distance)
+				t_inputs[max_dims - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
+			t_inputs[max_dims - 1] = 1.0; // the CPPN's bias
 
-        double t_tc   = t_temp_phenotype.Output()[1];
-        double t_bias = t_temp_phenotype.Output()[2];
+			t_temp_phenotype.Input(t_inputs);
 
-        Clamp(t_tc, -1, 1);
-        Clamp(t_bias, -1, 1);
+			// activate as many times as deep
+			for(int d=0; d<dp; d++)
+				t_temp_phenotype.Activate();
 
-        // rescale the values
-        Scale(t_tc,   -1, 1, a_MinTimeConst, a_MaxTimeConst);
-        Scale(t_bias, -1, 1, -a_MaxWeight,   a_MaxWeight);
+			double t_tc   = t_temp_phenotype.Output()[1];
+			double t_bias = t_temp_phenotype.Output()[2];
 
-        net.m_neurons[i].m_timeconst = t_tc;
-        net.m_neurons[i].m_bias      = t_bias;
+			Clamp(t_tc, -1, 1);
+			Clamp(t_bias, -1, 1);
+
+			// rescale the values
+			Scale(t_tc,   -1, 1, a_MinTimeConst, a_MaxTimeConst);
+			Scale(t_bias, -1, 1, -a_MaxWeight,   a_MaxWeight);
+
+			net.m_neurons[i].m_timeconst = t_tc;
+			net.m_neurons[i].m_bias      = t_bias;
+    	}
 
         // loop all neurons
         for(unsigned int j=0; j<net.m_neurons.size(); j++)
         {
-            // this is "j" to "i"
+            // this is connection "j" to "i"
 
             // Take the weight of this connection by querying the CPPN
-            // as many times as deep (recurrent CPPNs may be very slow!!!*)
-            ASSERT(t_inputs.size() == 6);
-            ASSERT(t_temp_phenotype.NumInputs() == 6);
-            ASSERT(t_temp_phenotype.NumOutputs() == 3);
+            // as many times as deep (recurrent or looped CPPNs may be very slow!!!*)
+			std::vector<double> t_inputs;
+			t_inputs.resize(max_dims);
 
-            // input the x and y data
-            t_inputs[0] = net.m_neurons[j].m_sx; // from
-            t_inputs[1] = net.m_neurons[j].m_sy;
+			int from_dims = net.m_neurons[j].m_substrate_coords.size();
+			int to_dims = net.m_neurons[i].m_substrate_coords.size();
 
-            t_inputs[2] = net.m_neurons[i].m_sx; // to
-            t_inputs[3] = net.m_neurons[i].m_sy;
+            // input the node positions to the CPPN
+			// from
+			for(int n=0; n<from_dims; n++)
+				t_inputs[n] = net.m_neurons[j].m_substrate_coords[n];
+			// to
+			for(int n=0; n<to_dims; n++)
+				t_inputs[from_dims + n] = net.m_neurons[i].m_substrate_coords[n];
 
-            // distance
-            double t_distance = sqrt(sqr(net.m_neurons[j].m_sx - net.m_neurons[i].m_sx) + sqr(net.m_neurons[j].m_sy - net.m_neurons[i].m_sy));
-            t_inputs[4] = t_distance;
+			if (subst.m_with_distance)
+				t_inputs[max_dims - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
 
-            // bias (1.0)
-            t_inputs[5] = 1.0;
+			t_inputs[max_dims - 1] = 1.0;
+
 
             // flush between each query
             t_temp_phenotype.Flush();
-
             t_temp_phenotype.Input(t_inputs);
 
             // activate as many times as deep
@@ -588,7 +607,6 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate* subst, doubl
             }
         }
     }
-#endif
 }
 
 
