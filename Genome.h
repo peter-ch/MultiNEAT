@@ -150,7 +150,7 @@ public:
     bool operator==(Genome const& other) const { return m_ID == other.m_ID; }
 
     // Builds this genome from a file
-    Genome(char* a_filename);
+    Genome(const char* a_filename);
 
     // Builds this genome from an opened file
     Genome(std::ifstream& a_DataFile);
@@ -272,7 +272,7 @@ public:
     void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst);
 
     // Saves this genome to a file
-    void Save(char* a_filename);
+    void Save(const char* a_filename);
 
     // Saves this genome to an already opened file for writing
     void Save(FILE* a_fstream);
