@@ -6,7 +6,7 @@
 CPP_SRCS += \
 ../Genome.cpp \
 ../Innovation.cpp \
-../MTwistRand.cpp \
+../Main.cpp \
 ../NeuralNetwork.cpp \
 ../Parameters.cpp \
 ../PhenotypeBehavior.cpp \
@@ -20,7 +20,7 @@ CPP_SRCS += \
 OBJS += \
 ./Genome.o \
 ./Innovation.o \
-./MTwistRand.o \
+./Main.o \
 ./NeuralNetwork.o \
 ./Parameters.o \
 ./PhenotypeBehavior.o \
@@ -34,7 +34,7 @@ OBJS += \
 CPP_DEPS += \
 ./Genome.d \
 ./Innovation.d \
-./MTwistRand.d \
+./Main.d \
 ./NeuralNetwork.d \
 ./Parameters.d \
 ./PhenotypeBehavior.d \
@@ -50,7 +50,7 @@ CPP_DEPS += \
 %.o: ../%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -I/usr/include/python2.7 -O3 -fPIC -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -I/usr/include/python2.7 -O2 -fPIC -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

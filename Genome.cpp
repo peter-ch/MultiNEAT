@@ -460,7 +460,6 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         net.AddNeuron(t_n);
     }
 
-
     // Hidden
     for(unsigned int i=0; i<subst.m_hidden_coords.size(); i++)
     {
@@ -476,7 +475,6 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         net.AddNeuron(t_n);
     }
 
-
     // Output
     for(unsigned int i=0; i<subst.m_output_coords.size(); i++)
     {
@@ -491,7 +489,6 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 
         net.AddNeuron(t_n);
     }
-
 
 	// Begin querying the CPPN
     // Create the neural network that will represent the CPPN

@@ -80,7 +80,7 @@ def evaluate(genome):
         return 1.0
     
 params = NEAT.Parameters()
-params.PopulationSize = 10000
+params.PopulationSize = 1000
 params.MutateRemLinkProb = 0
 params.RecurrentProb = 0
 params.OverallMutationRate = 0.15
@@ -121,12 +121,10 @@ g = NEAT.Genome(0,
 
 pop = NEAT.Population(g, params, True, 1.0)
 
-
-pool = mpc.Pool(processes = 4)
-
-for generation in range(10000):
+for generation in range(1000):
     genome_list = NEAT.GetGenomeList(pop)
-    fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate, 4)
+#    fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate, 4)
+    fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
     [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
     print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
@@ -151,5 +149,5 @@ for generation in range(10000):
     pop.Epoch()
     print "Generation:", generation
 
-cv2.waitKey(0)
+cv2.waitKey(1)
 

@@ -27,12 +27,11 @@
 // Description: Definitions for some global functions dealing with random numbers.
 ///////////////////////////////////////////////////////////////////////////////
 
-
+#include <boost/random.hpp>
 
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "MTwistRand.h"
 #include "Utils.h"
 #include "Random.h"
 
@@ -43,42 +42,31 @@ namespace NEAT
 // Seeds the random number generator with this value
 void RNG::Seed(int a_Seed)
 {
-//	srand(a_Seed);
-    rng.seed(a_Seed);
+	gen.seed(a_Seed);
 }
 
 void RNG::TimeSeed()
 {
-//	srand(a_Seed);
-    rng.seed(time(0));
+    gen.seed(time(0));
 }
 
 // Returns randomly either 1 or -1
 int RNG::RandPosNeg()
 {
-    /*	if (rand() % 2)
-    		return 1;
-    	else
-    		return -1;
-    */
-    if (rng() > 0.5)
-        return 1;
+    boost::random::uniform_int_distribution<> dist(0, 1);
+    int choice = dist(gen);
+    if (choice == 0)
+    	return -1;
     else
-        return -1;
+    	return 1;
 }
 
 // Returns a random integer between X and Y
 // in case of ( 0 .. 1 ) returns 0
 int RNG::RandInt(int aX, int aY)
 {
-    if (aY<1)
-    {
-        return 0;
-    }
-    else
-    {
-        return static_cast<int>(rng() * 32768.0) % (aY-aX+1)+aX;
-    }
+    boost::random::uniform_int_distribution<> dist(aX, aY);
+    return dist(gen);
 }
 
 
@@ -87,8 +75,8 @@ int RNG::RandInt(int aX, int aY)
 // Returns a random number from a uniform distribution in the range of [0 .. 1]
 double RNG::RandFloat()
 {
-//	return static_cast<double>(rand() / (static_cast<double>(RAND_MAX)));
-    return rng();
+    boost::random::uniform_01<> dist;
+    return dist(gen);
 }
 
 // Returns a random number from a uniform distribution in the range of [-1 .. 1]
@@ -98,48 +86,20 @@ double RNG::RandFloatClamped()
 }
 
 // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
-// Copy/Pasted from "Numerical Recipes in C"
 double RNG::RandGaussClamped()
 {
-    static int t_iset=0;
-    static double t_gset;
-    double t_fac,t_rsq,t_v1,t_v2;
+	boost::random::normal_distribution<> dist;
+	double pick = dist(gen);
+	Clamp(pick, -1, 1);
+	return pick;
+}
 
-    if (t_iset==0)
-    {
-        do
-        {
-            t_v1=2.0f*(RandFloat())-1.0f;
-            t_v2=2.0f*(RandFloat())-1.0f;
-            t_rsq=t_v1*t_v1+t_v2*t_v2;
-        }
-        while (t_rsq>=1.0f || t_rsq==0.0f);
-        t_fac=sqrt(-2.0f*log(t_rsq)/t_rsq);
-        t_gset=t_v1*t_fac;
-        t_iset=1;
-
-        double t_tmp = t_v2*t_fac;
-        //tmp /= 4.0;
-        //Clamp(tmp, -1.0f, 1.0f);
-
-        //ASSERT((tmp <= 1.0f) && (tmp >= -1.0f));
-
-        return t_tmp;
-    }
-    else
-    {
-        t_iset=0;
-
-        double t_tmp = t_gset;
-        //tmp /= 4.0;
-        //Clamp(tmp, -1.0f, 1.0f);
-
-        //ASSERT((tmp <= 1.0f) && (tmp >= -1.0f));
-
-        return t_tmp;
-    }
+int RNG::Roulette(std::vector<double>& a_probs)
+{
+	boost::random::discrete_distribution<> d_dist(a_probs);
+	return d_dist(gen);
 }
 
 
-
-} // namespace NEAT
+}
+ // namespace NEAT

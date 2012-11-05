@@ -531,7 +531,7 @@ void Population::Epoch()
     // in case there are more than 2, of course
     if (m_Parameters.DeltaCoding)
     {
-        if (m_GensSinceBestFitnessLastChanged > (m_Parameters.SpeciesDropoffAge + 10))
+        if (m_GensSinceBestFitnessLastChanged > (m_Parameters.SpeciesMaxStagnation + 10))
         {
             // make the top 2 reproduce by 50% individuals
             // and the rest - no offspring

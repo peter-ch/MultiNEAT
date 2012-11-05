@@ -77,7 +77,7 @@ public:
     double YoungAgeFitnessBoost;
 
     // Number of generations without improvement (stagnation) allowed for a species
-    unsigned int SpeciesDropoffAge;
+    unsigned int SpeciesMaxStagnation;
 
     // Minimum jump in fitness necessary to be considered as improvement.
     // Setting this value to 0.0 makes the system to behave like regular NEAT.

@@ -27,67 +27,75 @@ def evaluate(genome):
     # do stuff and return the fitness
     net.Flush()
     
-    net.Input([1, 0, 1])
-    net.Activate()
-    net.Activate()
+    net.Input(np.array([1., 0., 1.])) # can input numpy arrays, too
+                                    # for some reason only np.float64 is supported
+    for _ in range(3):
+        net.Activate()
     o = net.Output()
-    error += abs(o[0] - 1)
+    error += abs(1 - o[0])
     
     net.Flush()
     net.Input([0, 1, 1])
-    net.Activate()
-    net.Activate()
+    for _ in range(3):
+        net.Activate()
     o = net.Output()
-    error += abs(o[0] - 1)
+    error += abs(1 - o[0])
 
     net.Flush()
     net.Input([1, 1, 1])
-    net.Activate()
-    net.Activate()
+    for _ in range(3):
+        net.Activate()
     o = net.Output()
-    error += abs(o[0] - 0)
+    error += abs(o[0])
 
     net.Flush()
     net.Input([0, 0, 1])
-    net.Activate()
-    net.Activate()
+    for _ in range(3):
+        net.Activate()
     o = net.Output()
-    error += abs(o[0] - 0)
+    error += abs(o[0])
     
-    return (4 - error)
+    return (4 - error)**2
     
 params = NEAT.Parameters()
 params.PopulationSize = 100
-params.MutateRemLinkProb = 0
+params.DynamicCompatibility = True
+params.CompatTreshold = 2.0
+params.YoungAgeTreshold = 50
+params.SpeciesMaxStagnation = 100
+params.OldAgeTreshold = 75
+params.MinSpecies = 5
+params.MaxSpecies = 15
 params.RecurrentProb = 0
-params.OverallMutationRate = 0.25
-params.MutateAddLinkProb = 0.03
+params.OverallMutationRate = 0.3
+params.MutateAddLinkProb = 0.05
+params.MutateRemLinkProb = 0.05
 params.MutateAddNeuronProb = 0.001
-params.MutateWeightsProb = 0.96
+params.MutateWeightsProb = 0.90
 rng = NEAT.RNG()
 #rng.TimeSeed()
 rng.TimeSeed()
 
-g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.TANH, 0, params)
 pop = NEAT.Population(g, params, True, 1.0)
 
 
 pool = mpc.Pool(processes = 4)
 
-for generation in range(1000):
+for generation in range(5000):
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:
             genome_list.append(i)
 
-    for g in genome_list:
-        f = evaluate(g)
-        g.SetFitness(f)
-
-## Parallel processing
-#    fits = pool.map(evaluate, genome_list)
-#    for f,g in zip(fits, genome_list):
+#    for g in genome_list:
+#        f = evaluate(g)
 #        g.SetFitness(f)
+
+# Parallel processing
+    fits = pool.map(evaluate, genome_list)
+    for f,g in zip(fits, genome_list):
+        g.SetFitness(f)
 
     print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
     

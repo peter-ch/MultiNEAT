@@ -77,7 +77,7 @@ void Parameters::Reset()
     YoungAgeFitnessBoost = 1.1;
 
     // Number of generations without improvement (stagnation) allowed for a species
-    SpeciesDropoffAge = 50;
+    SpeciesMaxStagnation = 50;
 
     // Minimum jump in fitness necessary to be considered as improvement.
     // Setting this value to 0.0 makes the system to behave like regular NEAT.
@@ -110,11 +110,11 @@ void Parameters::Reset()
     OverallMutationRate = 0.25;
 
     // Probability for a baby to result from inter-species mating.
-    InterspeciesCrossoverRate = 0.0001;
+    InterspeciesCrossoverRate = 0.001;
 
     // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
     // The default is the Average mating.
-    MultipointCrossoverRate = 0.75;
+    MultipointCrossoverRate = 0.5;
 
     // Performing roulette wheel selection or not?
     RouletteWheelSelection = false;
@@ -227,7 +227,7 @@ void Parameters::Reset()
     ///////////////////////////////////
 
     // Probability for a baby's weights to be mutated
-    MutateWeightsProb = 0.75;
+    MutateWeightsProb = 0.90;
 
     // Probability for a severe (shaking) weight mutation
     MutateWeightsSevereProb = 0.25;
@@ -239,10 +239,10 @@ void Parameters::Reset()
     WeightMutationMaxPower = 1.0;
 
     // Maximum magnitude of a replaced weight
-    WeightReplacementMaxPower = 1.0;
+    WeightReplacementMaxPower = 4.0;
 
     // Maximum absolute magnitude of a weight
-    MaxWeight = 8.0;
+    MaxWeight = 4.0;
 
     // Probability for a baby's A activation function parameters to be perturbed
     MutateActivationAProb = 0.0;
@@ -409,7 +409,7 @@ int Parameters::Load(std::ifstream& a_DataFile)
             a_DataFile >> YoungAgeFitnessBoost;
 
         if (s == "SpeciesDropoffAge")
-            a_DataFile >> SpeciesDropoffAge;
+            a_DataFile >> SpeciesMaxStagnation;
 
         if (s == "StagnationDelta")
             a_DataFile >> StagnationDelta;
@@ -733,7 +733,7 @@ void Parameters::Save(FILE* a_fstream)
 	fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever==true?"true":"false");
 	fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
 	fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
-	fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesDropoffAge);
+	fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
 	fprintf(a_fstream, "StagnationDelta %3.20f\n", StagnationDelta);
 	fprintf(a_fstream, "OldAgeTreshold %d\n", OldAgeTreshold);
 	fprintf(a_fstream, "OldAgePenalty %3.20f\n", OldAgePenalty);

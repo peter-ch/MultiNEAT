@@ -31,7 +31,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
-#include "MTwistRand.h"
+#include <boost/random.hpp>
+
 
 
 namespace NEAT
@@ -39,7 +40,7 @@ namespace NEAT
 
 class RNG
 {
-	MTRand_closed rng;
+	boost::random::mt19937 gen;
 
 public:
 	// Seeds the random number generator with this value
@@ -64,6 +65,8 @@ public:
 	// Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
 	double RandGaussClamped();
 
+	// Returns an index given a vector of probabilities
+	int Roulette(std::vector<double>& a_probs);
 };
 
 
