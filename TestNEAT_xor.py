@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from __future__ import division
 import os
 import sys
 sys.path.append("/home/peter")
@@ -57,21 +58,21 @@ def evaluate(genome):
     return (4 - error)**2
     
 params = NEAT.Parameters()
-params.PopulationSize = 100
+params.PopulationSize = 80
 params.DynamicCompatibility = True
 params.CompatTreshold = 2.0
 params.YoungAgeTreshold = 15
-params.SpeciesMaxStagnation = 30
+params.SpeciesMaxStagnation = 100
 params.OldAgeTreshold = 35
 params.MinSpecies = 5
-params.MaxSpecies = 15
+params.MaxSpecies = 25
 params.RouletteWheelSelection = False
 params.RecurrentProb = 0
 params.OverallMutationRate = 0.33
 
 params.MutateWeightsProb = 0.90
 
-params.WeightMutationMaxPower = 1.0
+params.WeightMutationMaxPower = 5.0
 params.WeightReplacementMaxPower = 5.0
 params.MutateWeightsSevereProb = 0.5
 params.WeightMutationRate = 0.75
@@ -86,40 +87,57 @@ rng = NEAT.RNG()
 #rng.TimeSeed()
 rng.Seed(0)
 
-g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
-pop = NEAT.Population(g, params, True, 1.0)
-
-
-pool = mpc.Pool(processes = 4)
-
-for generation in range(1000):
-    genome_list = []
-    for s in pop.Species:
-        for i in s.Individuals:
-            genome_list.append(i)
-
-    for g in genome_list:
-        f = evaluate(g)
-        g.SetFitness(f)
-
-# Parallel processing
-#    fits = pool.map(evaluate, genome_list)
-#    for f,g in zip(fits, genome_list):
-#        g.SetFitness(f)
-
-    print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
+def getbest():
     
-    # test
-    net = NEAT.NeuralNetwork()
-    pop.Species[0].GetLeader().BuildPhenotype(net)
-    img = np.zeros((250, 250, 3), dtype=np.uint8)
-    img += 10
-    NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
-    cv2.imshow("nn_win", img)
-    cv2.waitKey(1)
+    g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+    pop = NEAT.Population(g, params, True, 1.0)
+    
+    
+    pool = mpc.Pool(processes = 4)
+    
+    generations = 0
+    for generation in range(1000):
+        genome_list = []
+        for s in pop.Species:
+            for i in s.Individuals:
+                genome_list.append(i)
+    
+        for g in genome_list:
+            f = evaluate(g)
+            g.SetFitness(f)
+    
+    # Parallel processing
+    #    fits = pool.map(evaluate, genome_list)
+    #    for f,g in zip(fits, genome_list):
+    #        g.SetFitness(f)
+    
+        best = max([x.GetLeader().GetFitness() for x in pop.Species])
+        print 'Best fitness:', best, 'Species:', len(pop.Species)
+        
+        # test
+        net = NEAT.NeuralNetwork()
+        pop.Species[0].GetLeader().BuildPhenotype(net)
+        img = np.zeros((250, 250, 3), dtype=np.uint8)
+        img += 10
+        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+        cv2.imshow("nn_win", img)
+        cv2.waitKey(1)
+    
+        pop.Epoch()
+        print "Generation:", generation
+        generations = generation
+        if best > 15.5:
+            break
+        
+    return generations
 
-    pop.Epoch()
-    print "Generation:", generation
 
-cv2.waitKey(0)
+gens = [getbest() for x in range(100)]
+avg_gens = sum(gens) / len(gens)
+
+print gens
+print avg_gens
+
+
+#cv2.waitKey(10000)
 
