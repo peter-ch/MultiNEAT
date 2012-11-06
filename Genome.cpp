@@ -2262,20 +2262,20 @@ Genome Genome::Mate(Genome& a_Dad, bool a_MateAverage, bool a_InterSpecies, RNG&
     // Sort the baby's genes
     t_baby.SortGenes();
 
-    if (t_baby.NumLinks() == 0)
+/*    if (t_baby.NumLinks() == 0)
     {
-        std::cout << "No links in baby after crossover" << std::endl;
+//        std::cout << "No links in baby after crossover" << std::endl;
 //		int p;
 //		std::cin >> p;
     }
 
     if (t_baby.HasDeadEnds())
     {
-        std::cout << "Dead ends in baby after crossover" << std::endl;
+//        std::cout << "Dead ends in baby after crossover" << std::endl;
 //		int p;
 //		std::cin >> p;
     }
-
+*/
     // OK here is the baby
     return t_baby;
 }
