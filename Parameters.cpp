@@ -346,7 +346,7 @@ void Parameters::Reset()
     MinCompatTreshold = 0.2;
 
     // Modifier per generation for keeping the species stable
-    CompatTresholdModifier = 0.1;
+    CompatTresholdModifier = 0.3;
 
     // Per how many generations to change the treshold
     // (used in generational mode)

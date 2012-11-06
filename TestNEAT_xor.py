@@ -58,7 +58,7 @@ def evaluate(genome):
     return (4 - error)**2
     
 params = NEAT.Parameters()
-params.PopulationSize = 80
+params.PopulationSize = 120
 params.DynamicCompatibility = True
 params.CompatTreshold = 2.0
 params.YoungAgeTreshold = 15
@@ -112,7 +112,7 @@ def getbest():
     #        g.SetFitness(f)
     
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
-        print 'Best fitness:', best, 'Species:', len(pop.Species)
+#        print 'Best fitness:', best, 'Species:', len(pop.Species)
         
         # test
         net = NEAT.NeuralNetwork()
@@ -124,19 +124,23 @@ def getbest():
         cv2.waitKey(1)
     
         pop.Epoch()
-        print "Generation:", generation
+#        print "Generation:", generation
         generations = generation
         if best > 15.5:
             break
         
     return generations
 
-
-gens = [getbest() for x in range(100)]
+gens = []
+for run in range(100):
+    gen = getbest()
+    print 'Run:', run, 'Generations to solve XOR:', gen
+    gens += [gen]
+    
 avg_gens = sum(gens) / len(gens)
 
-print gens
-print avg_gens
+print 'All:', gens
+print 'Average:', avg_gens
 
 
 #cv2.waitKey(10000)

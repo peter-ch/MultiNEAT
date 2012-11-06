@@ -177,6 +177,12 @@ public:
     // Kill all adults.
     void KillOldParents();
 
+    // Removes all individuals
+    void Clear()
+    {
+    	m_Individuals.clear();
+    }
+
 
 
     ////////////////////////////////////////

@@ -437,6 +437,15 @@ void Population::UpdateSpecies()
 // the epoch method - the heart of the GA
 void Population::Epoch()
 {
+	// So, all genomes are evaluated..
+    for(unsigned int i=0; i<m_Species.size(); i++)
+    {
+        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
+        {
+        	m_Species[i].m_Individuals[j].SetEvaluated();
+        }
+    }
+
     // Sort each species's members by fitness and the species by fitness
     Sort();
 
@@ -644,11 +653,15 @@ void Population::Epoch()
 
 
     // Kill all bad performing individuals
-    for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillWorst(m_Parameters);
+    // Todo: this baby/adult/killworst scheme is complicated and basically sucks,
+    // I should remove it completely.
+   // for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillWorst(m_Parameters);
 
     // Perform reproduction for each species
     m_TempSpecies.clear();
     m_TempSpecies = m_Species;
+    for(unsigned int i=0; i<m_TempSpecies.size(); i++)
+    	m_TempSpecies[i].Clear();
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
@@ -661,7 +674,9 @@ void Population::Epoch()
 
 
     // Now we kill off the old parents
-    for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillOldParents();
+    // Todo: this baby/adult scheme is complicated and basically sucks,
+    // I should remove it completely.
+   // for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillOldParents();
 
     // Here we kill off any empty species too
     // Remove all empty species (cleanup routine for every case..)

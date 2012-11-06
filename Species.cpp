@@ -373,13 +373,13 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                 // NOTE: but does it make sense since we know this is the champ?
                 if (NumIndividuals() == 1)
                 {
-                    t_baby = GetRandomIndividual(a_RNG);
+                    t_baby = GetIndividual(a_Parameters, a_RNG);
                     t_mated = false;
                 }
                 // else we can mate
                 else
                 {
-                    Genome t_mom = GetRandomIndividual(a_RNG);
+                    Genome t_mom = GetIndividual(a_Parameters, a_RNG);
 
                     // choose whether to mate at all
                     // Do not allow crossover when in simplifying phase
@@ -394,20 +394,20 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                         {
                             // Find different species (random one) // !!!!!!!!!!!!!!!!!
                             int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size()-1));
-                            t_dad = a_Pop.m_Species[t_diffspec].GetRandomIndividual(a_RNG);
+                            t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
                             t_interspecies = true;
                         }
                         else
                         {
                             // Mate within species
-                            t_dad = GetRandomIndividual(a_RNG);
+                            t_dad = GetIndividual(a_Parameters, a_RNG);
 
                             // The other parent should be a different one
                             // number of tries to find different parent
-                            int t_tries = 16;
-                            while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) == 0)) && (t_tries--))
+                            int t_tries = 128;
+                            while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)) && (t_tries--))
                             {
-                                t_dad = GetRandomIndividual(a_RNG);
+                                t_dad = GetIndividual(a_Parameters, a_RNG);
                             }
                             t_interspecies = false;
                         }
@@ -450,10 +450,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                     for(unsigned int j=0; j<a_Pop.m_TempSpecies[i].m_Individuals.size(); j++)
                     {
                         if (
-                            //(!a_Pop.m_TempSpecies[i].m_Individuals[j].IsAdult()) // don't compare with adults (optional)
-                            //&&
-                            (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j], a_Parameters) < 0.000001) // identical genome?
-                        )
+                            (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j], a_Parameters) < 0.00001) // identical genome?
+                           )
 
                         {
                             t_baby_exists_in_pop = true;
@@ -462,7 +460,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                     }
                 }
             }
-           while (t_baby_exists_in_pop); // end do
+            while (t_baby_exists_in_pop); // end do
         }
 
         // We have a new offspring now
