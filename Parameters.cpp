@@ -230,7 +230,7 @@ void Parameters::Reset()
     MutateWeightsProb = 0.90;
 
     // Probability for a severe (shaking) weight mutation
-    MutateWeightsSevereProb = 0.25;
+    MutateWeightsSevereProb = 0.5;
 
     // Probability for a particular gene's weight to be mutated. 1.0 = 100%
     WeightMutationRate = 1.0;
@@ -239,10 +239,10 @@ void Parameters::Reset()
     WeightMutationMaxPower = 1.0;
 
     // Maximum magnitude of a replaced weight
-    WeightReplacementMaxPower = 4.0;
+    WeightReplacementMaxPower = 1.0;
 
     // Maximum absolute magnitude of a weight
-    MaxWeight = 4.0;
+    MaxWeight = 8.0;
 
     // Probability for a baby's A activation function parameters to be perturbed
     MutateActivationAProb = 0.0;
@@ -346,7 +346,7 @@ void Parameters::Reset()
     MinCompatTreshold = 0.2;
 
     // Modifier per generation for keeping the species stable
-    CompatTresholdModifier = 0.2;
+    CompatTresholdModifier = 0.1;
 
     // Per how many generations to change the treshold
     // (used in generational mode)

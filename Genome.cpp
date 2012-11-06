@@ -1746,7 +1746,10 @@ bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs, RNG& a_RNG)
 void Genome::Mutate_LinkWeights(Parameters& a_Parameters, RNG& a_RNG)
 {
     // The end part of the genome
-    unsigned int t_genometail = static_cast<unsigned int>(NumLinks() * 0.8);
+	// Note - in the beginning of evolution, the genome tail (the new genes) does not
+	// yet exist and this becomes difficult for the kickstart in the right
+	// direction. todo: fix this issue
+    unsigned int t_genometail = static_cast<unsigned int>(NumLinks() * 0.99);
 
     // This tells us if this mutation will shake things up
     bool t_severe_mutation;

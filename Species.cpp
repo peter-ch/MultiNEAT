@@ -133,13 +133,6 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
         return (t_Evaluated[ Rounded(a_RNG.RandFloat()) ]);
     }
 
-    // Roulette wheel variables init
-    double t_marble = 0, t_spin = 0, t_total_fitness = 0;
-    for(unsigned int i=0; i<t_Evaluated.size(); i++)
-        t_total_fitness += t_Evaluated[i].GetFitness();
-    t_marble = a_RNG.RandFloat() * t_total_fitness;
-
-
     // Warning!!!! The individuals must be sorted by best fitness for this to work
     int t_chosen_one=0;
 
@@ -153,12 +146,10 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
     else
     {
         // roulette wheel selection
-        t_spin = t_Evaluated[t_chosen_one].GetFitness();
-        while(t_spin < t_marble)
-        {
-            t_chosen_one++;
-            t_spin += t_Evaluated[t_chosen_one].GetFitness();
-        }
+    	std::vector<double> t_probs;
+    	for(int i=0; i<t_Evaluated.size(); i++)
+    		t_probs.push_back( t_Evaluated[i].GetFitness() );
+    	t_chosen_one = a_RNG.Roulette(t_probs);
     }
 
     return (t_Evaluated[t_chosen_one]);
@@ -773,6 +764,7 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 // Mutates a genome
 void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters& a_Parameters, RNG& a_RNG )
 {
+#if 1
     // NEW version:
     // All mutations are mutually exclusive - can't have 2 mutations at once
     // for example a weight mutation and time constants mutation
@@ -929,6 +921,59 @@ void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_b
 			break;
 		}
     }
+
+
+#else
+
+    // Old version of the function - added just to test various ways to do mutation
+
+    bool t_mutation_success = false;
+    // repeat until successful
+    while (t_mutation_success == false)
+    {
+    	if (a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb)
+    		t_mutation_success = t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+    	else
+    	if (a_RNG.RandFloat() < a_Parameters.MutateAddLinkProb)
+    		t_mutation_success = t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+    	else
+    	{
+    		/*if (a_RNG.RandFloat() < a_Parameters.MutateNeuronActivationTypeProb)
+    		{
+				t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
+				t_mutation_success = true;
+    		}*/
+
+    		if (a_RNG.RandFloat() < a_Parameters.MutateWeightsProb)
+    		{
+				t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
+				t_mutation_success = true;
+				break;
+    		}
+
+			/*case MUTATE_ACTIVATION_A:
+				t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
+				t_mutation_success = true;
+				break;
+
+			case MUTATE_ACTIVATION_B:
+				t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
+				t_mutation_success = true;
+				break;
+
+			case MUTATE_TIMECONSTS:
+				t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
+				t_mutation_success = true;
+				break;
+
+			case MUTATE_BIASES:
+				t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
+				t_mutation_success = true;
+				break;*/
+    	}
+    }
+
+#endif
 }
 
 

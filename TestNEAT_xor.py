@@ -25,8 +25,7 @@ def evaluate(genome):
     error = 0
     
     # do stuff and return the fitness
-    net.Flush()
-    
+    net.Flush()    
     net.Input(np.array([1., 0., 1.])) # can input numpy arrays, too
                                     # for some reason only np.float64 is supported
     for _ in range(3):
@@ -61,41 +60,52 @@ params = NEAT.Parameters()
 params.PopulationSize = 100
 params.DynamicCompatibility = True
 params.CompatTreshold = 2.0
-params.YoungAgeTreshold = 50
-params.SpeciesMaxStagnation = 100
-params.OldAgeTreshold = 75
+params.YoungAgeTreshold = 15
+params.SpeciesMaxStagnation = 30
+params.OldAgeTreshold = 35
 params.MinSpecies = 5
 params.MaxSpecies = 15
+params.RouletteWheelSelection = False
 params.RecurrentProb = 0
-params.OverallMutationRate = 0.3
+params.OverallMutationRate = 0.33
+
+params.MutateWeightsProb = 0.90
+
+params.WeightMutationMaxPower = 1.0
+params.WeightReplacementMaxPower = 5.0
+params.MutateWeightsSevereProb = 0.5
+params.WeightMutationRate = 0.75
+
+params.MaxWeight = 20
+
+params.MutateAddNeuronProb = 0.01
 params.MutateAddLinkProb = 0.05
 params.MutateRemLinkProb = 0.05
-params.MutateAddNeuronProb = 0.001
-params.MutateWeightsProb = 0.90
+
 rng = NEAT.RNG()
 #rng.TimeSeed()
-rng.TimeSeed()
+rng.Seed(0)
 
-g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.TANH, 0, params)
+g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
 pop = NEAT.Population(g, params, True, 1.0)
 
 
 pool = mpc.Pool(processes = 4)
 
-for generation in range(5000):
+for generation in range(1000):
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:
             genome_list.append(i)
 
-#    for g in genome_list:
-#        f = evaluate(g)
-#        g.SetFitness(f)
+    for g in genome_list:
+        f = evaluate(g)
+        g.SetFitness(f)
 
 # Parallel processing
-    fits = pool.map(evaluate, genome_list)
-    for f,g in zip(fits, genome_list):
-        g.SetFitness(f)
+#    fits = pool.map(evaluate, genome_list)
+#    for f,g in zip(fits, genome_list):
+#        g.SetFitness(f)
 
     print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
     
