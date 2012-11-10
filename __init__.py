@@ -115,7 +115,7 @@ def AlmostEqual(a,b, margin):
 # Neural Network display code
 # rect is a tuple in the form (x, y, size_x, size_y)
 if not cvnumpy_installed:
-    def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3):
+    def DrawPhenotype(image, rect, nn, neuron_radius=10, max_line_thickness=3, substrate=False):
         pass
 else:
     MAX_DEPTH = 250

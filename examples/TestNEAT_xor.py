@@ -5,6 +5,9 @@ import sys
 sys.path.append("/home/peter")
 sys.path.append("/home/peter/Desktop")
 sys.path.append("/home/peter/Desktop/projects")
+sys.path.append("/home/peter")
+sys.path.append("/home/peter/code/work")
+sys.path.append("/home/peter/code/projects")
 import time
 import random as rnd
 import commands as comm
