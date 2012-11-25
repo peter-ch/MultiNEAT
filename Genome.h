@@ -89,9 +89,6 @@ private:
     // how many individuals this genome should spawn
     double m_OffspringAmount;
 
-    // The species ID that this genome belogs to
-    //unsigned int m_BelongsToSpeciesID;
-
     ////////////////////
     // Private methods
 
@@ -380,12 +377,6 @@ public:
     ////////////////////
     // new stuff
 
-    bool m_Parent; // a marker that tells this genome is used already and should be deleted
-    void Birth() { m_Parent = false;  }   // called for every new born baby
-    void Adult() { m_Parent = true; }   // called before reproduction
-    bool IsBaby()  const { return !m_Parent; }
-    bool IsAdult() const { return m_Parent; }
-
     bool IsEvaluated() const { return m_Evaluated; }
     void SetEvaluated() { m_Evaluated = true; }
     void ResetEvaluated() { m_Evaluated = false; }
@@ -406,8 +397,6 @@ public:
 		ar & m_OffspringAmount;
 		ar & m_Evaluated;
 		//ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
-		ar & m_Parent;
-
 	}
 };
 

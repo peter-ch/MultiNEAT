@@ -1,7 +1,9 @@
+import os
 import sys
 import multiprocessing as mpc
 import time
 from Release.MultiNEAT import *
+        
 
 try:
     from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
@@ -19,6 +21,13 @@ except:
     print 'Tip: install the OpenCV computer vision library (2.0+) with Python bindings'
     print '     to get convenient neural network visualization to NumPy arrays'
     cvnumpy_installed = False
+    
+# NetworkX support
+try:
+    import networkx as nx
+    networkx_installed = True
+except:
+    networkx_installed = False
 
 # Get all genomes from the population
 def GetGenomeList(pop):

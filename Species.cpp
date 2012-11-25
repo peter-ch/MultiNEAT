@@ -486,7 +486,6 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         t_baby.SetFitness(0);
         t_baby.SetAdjFitness(0);
         t_baby.SetOffspringAmount(0);
-        t_baby.Birth();
 
         t_baby.ResetEvaluated();
 
@@ -546,53 +545,6 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 }
 
 
-
-// KillWorst eliminates the worst individuals from the species. It actually
-// deletes them so the species size may shrink.
-// Also calls Adult() for the remaining individuals (they are ready for mating)
-void Species::KillWorst(Parameters& a_Parameters)
-{
-    ASSERT(m_Individuals.size() > 0);
-
-    // make sure they are all babies
-    for(unsigned int i=0; i<m_Individuals.size(); i++)
-    {
-        m_Individuals[i].Birth();
-    }
-
-    // sort the individuals by fitness
-    SortIndividuals();
-
-    // for now just keep the first N% as adults
-    int t_num_parents = static_cast<int>( floor((a_Parameters.SurvivalRate * (static_cast<double>(m_Individuals.size())))+1.0));
-    ASSERT(t_num_parents>0);
-
-    std::vector<Genome>::iterator t_iter = m_Individuals.begin();
-    for(int i=0; i<t_num_parents; i++)
-    {
-        m_Individuals[i].Adult();
-        t_iter++;
-    }
-
-    // now erase the rest
-    m_Individuals.erase(t_iter, m_Individuals.end());
-}
-
-
-
-// KillOldParents eliminates the individuals with the Parent flag set.
-// The species size may shrink.
-void Species::KillOldParents()
-{
-    for(unsigned int i=0; i<m_Individuals.size(); i++)
-    {
-        if (m_Individuals[i].IsAdult())
-        {
-            m_Individuals.erase(m_Individuals.begin() + i);
-            i--;
-        }
-    }
-}
 
 
 
@@ -738,7 +690,6 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
     t_baby.SetAdjFitness(0);
     t_baby.SetOffspringAmount(0);
 
-    t_baby.Birth();
     t_baby.ResetEvaluated();
 
     // debug trap

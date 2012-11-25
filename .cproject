@@ -96,12 +96,13 @@
 							<builder buildPath="${workspace_loc:/NEAT/Release}" id="cdt.managedbuild.target.gnu.builder.so.release.1502794638" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.so.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.230948411" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.1458015053" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
-								<option id="gnu.cpp.compiler.so.release.option.optimization.level.1463211977" name="Optimization Level" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.so.release.option.optimization.level.1463211977" name="Optimization Level" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.so.release.option.debugging.level.234350670" name="Debug Level" superClass="gnu.cpp.compiler.so.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.211133230" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/include/python2.7"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.optimization.flags.999186272" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-fPIC" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.optimization.flags.999186272" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.pic.1551678852" superClass="gnu.cpp.compiler.option.other.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.828210750" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.so.release.1117861333" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release">

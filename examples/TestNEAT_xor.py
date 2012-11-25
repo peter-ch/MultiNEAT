@@ -105,14 +105,14 @@ def getbest():
             for i in s.Individuals:
                 genome_list.append(i)
     
-        for g in genome_list:
-            f = evaluate(g)
-            g.SetFitness(f)
+    #    for g in genome_list:
+    #        f = evaluate(g)
+    #        g.SetFitness(f)
     
     # Parallel processing
-    #    fits = pool.map(evaluate, genome_list)
-    #    for f,g in zip(fits, genome_list):
-    #        g.SetFitness(f)
+        fits = pool.map(evaluate, genome_list)
+        for f,g in zip(fits, genome_list):
+            g.SetFitness(f)
     
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
 #        print 'Best fitness:', best, 'Species:', len(pop.Species)

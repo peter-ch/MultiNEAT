@@ -1277,7 +1277,6 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
     // Now we assign a fitness score based on the sparseness
     // This is still now clear how, but for now fitness = sparseness
     t_new_baby->SetFitness( t_sparseness );
-    t_new_baby->Adult();
 
     a_SuccessfulGenome = *t_new_baby;
 

@@ -59,7 +59,6 @@ Genome::Genome()
     m_NumOutputs=0;
     m_AdjustedFitness = 0;
     m_OffspringAmount = 0;
-    m_Parent = false;
     m_Evaluated = false;
     m_PhenotypeBehavior = NULL;
 }
@@ -77,7 +76,6 @@ Genome::Genome(const Genome& a_G)
     m_NumOutputs  = a_G.m_NumOutputs;
     m_AdjustedFitness = a_G.m_AdjustedFitness;
     m_OffspringAmount = a_G.m_OffspringAmount;
-    m_Parent = a_G.m_Parent;
     m_Evaluated = a_G.m_Evaluated;
     m_PhenotypeBehavior = a_G.m_PhenotypeBehavior;
 }
@@ -97,7 +95,6 @@ Genome& Genome::operator =(const Genome& a_G)
         m_NumInputs   = a_G.m_NumInputs;
         m_NumOutputs  = a_G.m_NumOutputs;
         m_OffspringAmount = a_G.m_OffspringAmount;
-        m_Parent    = a_G.m_Parent;
         m_Evaluated = a_G.m_Evaluated;
         m_PhenotypeBehavior = a_G.m_PhenotypeBehavior;
     }
@@ -242,8 +239,6 @@ Genome::Genome(unsigned int a_ID,
     m_OffspringAmount = 0.0;
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
-
-    Birth();
 }
 
 // A little helper function to find the index of a neuron, given its ID

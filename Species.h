@@ -171,12 +171,6 @@ public:
 
     void MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters& a_Parameters, RNG& a_RNG);
 
-    // Kill all worst individuals form the species.
-    void KillWorst(Parameters& a_Parameters);
-
-    // Kill all adults.
-    void KillOldParents();
-
     // Removes all individuals
     void Clear()
     {

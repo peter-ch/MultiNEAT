@@ -43,7 +43,7 @@ class Genome;
 class PhenotypeBehavior
 {
 public:
-	~PhenotypeBehavior(){};
+	virtual ~PhenotypeBehavior(){};
 
     // A 2D matrix of doubles with arbitrary size
     // is enough to represent any behavior in most domains
