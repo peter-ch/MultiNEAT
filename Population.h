@@ -149,7 +149,7 @@ public:
 
 
     // Loads a population from a file.
-    Population(char* a_FileName);
+    Population(const char* a_FileName);
 
     ////////////////////////////
     // Destructor
@@ -193,7 +193,7 @@ public:
     void Epoch();
 
     // Saves the whole population to a file
-    void Save(char* a_FileName);
+    void Save(const char* a_FileName);
 
     //////////////////////
     // NEW STUFF

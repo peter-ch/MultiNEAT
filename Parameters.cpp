@@ -703,7 +703,7 @@ int Parameters::Load(std::ifstream& a_DataFile)
 }
 
 
-int Parameters::Load(char* a_FileName)
+int Parameters::Load(const char* a_FileName)
 {
     std::ifstream data(a_FileName);
     if (!data.is_open())
@@ -714,7 +714,7 @@ int Parameters::Load(char* a_FileName)
     return result;
 }
 
-void Parameters::Save(char* filename)
+void Parameters::Save(const char* filename)
 {
 	FILE* f = fopen(filename, "w");
 	Save(f);

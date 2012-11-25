@@ -102,7 +102,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
 }
 
 
-Population::Population(char *a_FileName)
+Population::Population(const char *a_FileName)
 {
     m_BestFitnessEver = 0.0;
 
@@ -163,7 +163,7 @@ Population::Population(char *a_FileName)
 
 
 // Save a whole population to a file
-void Population::Save(char* a_FileName)
+void Population::Save(const char* a_FileName)
 {
     FILE* t_file = fopen(a_FileName, "w");
 

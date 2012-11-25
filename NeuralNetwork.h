@@ -186,8 +186,8 @@ public:
     }
 
     // one-shot save/load
-    void Save(char* a_filename);
-    bool Load(char* a_filename);
+    void Save(const char* a_filename);
+    bool Load(const char* a_filename);
 
     // save/load from already opened files for reading/writing
     void Save(FILE* a_file);

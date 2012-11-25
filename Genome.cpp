@@ -2387,7 +2387,7 @@ void Genome::CalculateDepth()
 //////////////////////////////////////////////////////////////////////////////////
 
 // Builds this genome from a file
-Genome::Genome(char* a_FileName)
+Genome::Genome(const char* a_FileName)
 {
     std::ifstream t_DataFile(a_FileName);
     *this = Genome(t_DataFile);
@@ -2484,7 +2484,7 @@ Genome::Genome(std::ifstream& a_DataFile)
 
 
 // Saves this genome to a file
-void Genome::Save(char* a_FileName)
+void Genome::Save(const char* a_FileName)
 {
     FILE* t_file;
     t_file = fopen(a_FileName, "w");

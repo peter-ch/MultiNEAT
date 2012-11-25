@@ -795,7 +795,7 @@ void NeuralNetwork::RTRL_update_weights()
 	m_total_error = 0;
 }
 
-void NeuralNetwork::Save(char* a_filename)
+void NeuralNetwork::Save(const char* a_filename)
 {
 	FILE* fil = fopen(a_filename, "w");
 	Save(fil);
@@ -925,7 +925,7 @@ bool NeuralNetwork::Load(std::ifstream& a_DataFile)
 
     return true;
 }
-bool NeuralNetwork::Load(char *a_filename)
+bool NeuralNetwork::Load(const char *a_filename)
 {
     std::ifstream t_DataFile(a_filename);
     return Load(t_DataFile);
