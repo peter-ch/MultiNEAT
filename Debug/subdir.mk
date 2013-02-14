@@ -6,7 +6,7 @@
 CPP_SRCS += \
 ../Genome.cpp \
 ../Innovation.cpp \
-../MTwistRand.cpp \
+../Main.cpp \
 ../NeuralNetwork.cpp \
 ../Parameters.cpp \
 ../PhenotypeBehavior.cpp \
@@ -20,7 +20,7 @@ CPP_SRCS += \
 OBJS += \
 ./Genome.o \
 ./Innovation.o \
-./MTwistRand.o \
+./Main.o \
 ./NeuralNetwork.o \
 ./Parameters.o \
 ./PhenotypeBehavior.o \
@@ -34,7 +34,7 @@ OBJS += \
 CPP_DEPS += \
 ./Genome.d \
 ./Innovation.d \
-./MTwistRand.d \
+./Main.d \
 ./NeuralNetwork.d \
 ./Parameters.d \
 ./PhenotypeBehavior.d \
