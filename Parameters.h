@@ -63,9 +63,18 @@ public:
     // Maximum number of species
     unsigned int MaxSpecies;
 
+    // Don't wipe the innovation database each generation?
     bool InnovationsForever;
 
-    ////////////////////////////////
+    // Allow clones or nearly identical genomes to exist simultaneously in the population.
+    // This is useful for non-deterministic environments,
+    // as the same individual will get more than one chance to prove himself, also
+    // there will be more chances the same individual to mutate in different ways.
+    // The drawback is greatly increased time for reproduction. If you want to
+    // search quickly, yet less efficient, leave this to true.
+    bool AllowClones;
+
+   ////////////////////////////////
     // GA Parameters
     ////////////////////////////////
 
