@@ -9,8 +9,8 @@ try:
     from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
     prbar_installed = True
 except:
-    print 'Tip: install the progressbar Python package through pip or easy_install'
-    print '     to get good looking evolution progress bar with ETA'
+    print ('Tip: install the progressbar Python package through pip or easy_install')
+    print ('     to get good looking evolution progress bar with ETA')
     prbar_installed = False
 
 try:
@@ -18,8 +18,8 @@ try:
     import numpy as np
     cvnumpy_installed = True
 except:
-    print 'Tip: install the OpenCV computer vision library (2.0+) with Python bindings'
-    print '     to get convenient neural network visualization to NumPy arrays'
+    print ('Tip: install the OpenCV computer vision library (2.0+) with Python bindings')
+    print ('     to get convenient neural network visualization to NumPy arrays')
     cvnumpy_installed = False
     
 # NetworkX support
@@ -58,7 +58,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator):
         if prbar_installed:
             progress.update(count)
         else:
-            print 'Individuals: (',count,'/',len(genome_list),')'
+            print ('Individuals: (',count,'/',len(genome_list),')')
             
         count += 1
         
@@ -66,7 +66,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator):
         progress.finish()
         
     elapsed = time.time() - curtime
-    print 'seconds elapsed:', elapsed
+    print ('seconds elapsed:', elapsed)
     return (fitnesses, elapsed)
     
 # Evaluates all genomes in parallel manner (many processes) and returns a list of corresponding fitness values and the time it took
@@ -82,13 +82,13 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores):
         if prbar_installed:
             progress.update(i)
         else:
-            print 'Individuals: (',i,'/',len(genome_list),')'
+            print ('Individuals: (',i,'/',len(genome_list),')')
             
         fitnesses.append(fitness)
     if prbar_installed:
         progress.finish()
     elapsed = time.time() - curtime
-    print 'seconds elapsed:', elapsed
+    print ('seconds elapsed:', elapsed)
     pool.close()
     pool.join()
     return (fitnesses, elapsed)
