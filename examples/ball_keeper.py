@@ -243,7 +243,7 @@ def main():
     
     
     params = NEAT.Parameters()
-    params.PopulationSize = 300
+    params.PopulationSize = 10000
     params.DynamicCompatibility = True
     params.CompatTreshold = 5.0
     params.CompatTresholdModifier = 0.3
@@ -251,7 +251,7 @@ def main():
     params.SpeciesMaxStagnation = 100
     params.OldAgeTreshold = 35
     params.MinSpecies = 5
-    params.MaxSpecies = 25
+    params.MaxSpecies = 250
     params.RouletteWheelSelection = True
     params.RecurrentProb = 0.25
     params.OverallMutationRate = 0.33
