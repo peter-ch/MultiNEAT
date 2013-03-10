@@ -886,7 +886,7 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
     LinkGene t_chosenlink(0, 0, -1, 0, false); // to save it for later
 
     // numer of tries to find a good link or give up
-    int t_tries = 128;
+    int t_tries = 32;
     while(!t_link_found)
     {
         if (NumLinks() == 1)

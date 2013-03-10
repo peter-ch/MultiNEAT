@@ -243,8 +243,9 @@ def main():
     
     
     params = NEAT.Parameters()
-    params.PopulationSize = 10000
+    params.PopulationSize = 1000
     params.DynamicCompatibility = True
+    params.AllowClones = True
     params.CompatTreshold = 5.0
     params.CompatTresholdModifier = 0.3
     params.YoungAgeTreshold = 15
@@ -274,6 +275,9 @@ def main():
     best_genome_ever = None
     fast_mode = False
     for generation in range(1000):
+        print "Generation:", generation
+        
+        now = time.time()
         genome_list = []
         for s in pop.Species:
             for i in s.Individuals:
@@ -307,9 +311,12 @@ def main():
             break # evolution is complete if an individual keeps the ball up for that many timesteps
         #if pop.GetStagnation() > 500:
         #    break
-
+        
+        print "Evaluation took", time.time() - now, "seconds."
+        print "Reproducing.."
+        now = time.time()
         pop.Epoch()
-        print "Generation:", generation
+        print "Reproduction took", time.time() - now, "seconds."
         
     # Show the best genome's performance forever
     pygame.display.set_caption("Best genome ever")

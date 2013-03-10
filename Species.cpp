@@ -406,11 +406,17 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
 								// The other parent should be a different one
 								// number of tries to find different parent
-								int t_tries = 128;
-								while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)) && (t_tries--))
-								{
-									t_dad = GetIndividual(a_Parameters, a_RNG);
-								}
+								int t_tries = 32;
+								if (!a_Parameters.AllowClones)
+									while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001) ) && (t_tries--))
+									{
+										t_dad = GetIndividual(a_Parameters, a_RNG);
+									}
+								else
+									while(((t_mom.GetID() == t_dad.GetID()) ) && (t_tries--))
+									{
+										t_dad = GetIndividual(a_Parameters, a_RNG);
+									}
 								t_interspecies = false;
 							}
 
@@ -447,19 +453,23 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                 // Check if this baby is already present somewhere in the offspring
                 // we don't want that
                 t_baby_exists_in_pop = false;
-                for(unsigned int i=0; i<a_Pop.m_TempSpecies.size(); i++)
+                // Unless of course, we want
+                if (!a_Parameters.AllowClones)
                 {
-                    for(unsigned int j=0; j<a_Pop.m_TempSpecies[i].m_Individuals.size(); j++)
-                    {
-                        if (
-                            (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j], a_Parameters) < 0.00001) // identical genome?
-                           )
+					for(unsigned int i=0; i<a_Pop.m_TempSpecies.size(); i++)
+					{
+						for(unsigned int j=0; j<a_Pop.m_TempSpecies[i].m_Individuals.size(); j++)
+						{
+							if (
+								(t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j], a_Parameters) < 0.00001) // identical genome?
+							   )
 
-                        {
-                            t_baby_exists_in_pop = true;
-                            break;
-                        }
-                    }
+							{
+								t_baby_exists_in_pop = true;
+								break;
+							}
+						}
+					}
                 }
             }
             while (t_baby_exists_in_pop); // end do
@@ -637,8 +647,8 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 
                 // The other parent should be a different one
                 // number of tries to find different parent
-                int t_tries = 16;
-                while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) == 0)) && (t_tries--))
+                int t_tries = 32;
+                while(((t_mom.GetID() == t_dad.GetID()) || ((!a_Parameters.AllowClones) && (t_mom.CompatibilityDistance(t_dad, a_Parameters) <= 0.00001)) ) && (t_tries--))
                 {
                     t_dad = GetIndividual(a_Parameters, a_RNG);
                 }
@@ -665,12 +675,13 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
         }
     }
 
-    if (t_baby.HasDeadEnds())
+/*    if (t_baby.HasDeadEnds())
     {
         std::cout << "Dead ends in baby after crossover" << std::endl;
 //		int p;
 //		std::cin >> p;
-    }
+    }*/
+
     // OK we have the baby, so let's mutate it.
     bool t_baby_is_clone = false;
 
@@ -693,7 +704,7 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
     t_baby.ResetEvaluated();
 
     // debug trap
-    if (t_baby.NumLinks() == 0)
+/*    if (t_baby.NumLinks() == 0)
     {
         std::cout << "No links in baby after reproduction" << std::endl;
 //		int p;
@@ -706,7 +717,7 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 //		int p;
 //		std::cin >> p;
     }
-
+*/
     return t_baby;
 }
 

@@ -62,6 +62,14 @@ void Parameters::Reset()
     // Don't wipe the innovation database each generation?
     InnovationsForever = true;
 
+    // Allow clones or nearly identical genomes to exist simultaneously in the population.
+    // This is useful for non-deterministic environments,
+    // as the same individual will get more than one chance to prove himself, also
+    // there will be more chances the same individual to mutate in different ways.
+    // The drawback is greatly increased time for reproduction. If you want to
+    // search quickly, yet less efficient, leave this to true.
+    AllowClones = false;
+
 
 
 
@@ -210,7 +218,7 @@ void Parameters::Reset()
     MutateRemSimpleNeuronProb = 0.0;
 
     // Maximum number of tries to find 2 neurons to add/remove a link
-    LinkTries = 128;
+    LinkTries = 32;
 
     // Probability that a link mutation will be made recurrent
     RecurrentProb = 0.25;
@@ -400,6 +408,15 @@ int Parameters::Load(std::ifstream& a_DataFile)
                 InnovationsForever = true;
             else
                 InnovationsForever = false;
+        }
+
+        if (s == "AllowClones")
+        {
+            a_DataFile >> tf;
+            if (tf == "true" || tf == "1" || tf == "1.0")
+                AllowClones = true;
+            else
+            	AllowClones = false;
         }
 
         if (s == "YoungAgeTreshold")
@@ -731,6 +748,7 @@ void Parameters::Save(FILE* a_fstream)
 	fprintf(a_fstream, "MinSpecies %d\n", MinSpecies);
 	fprintf(a_fstream, "MaxSpecies %d\n", MaxSpecies);
 	fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever==true?"true":"false");
+	fprintf(a_fstream, "AllowClones %s\n", AllowClones==true?"true":"false");
 	fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
 	fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
 	fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
