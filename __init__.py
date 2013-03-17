@@ -84,8 +84,8 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores):
         else:
             print ('Individuals: (',i,'/',len(genome_list),')')
             
-        if cvnumpy_installed:
-            cv2.waitKey(1)
+#        if cvnumpy_installed:
+#            cv2.waitKey(1)
             
         fitnesses.append(fitness)
     if prbar_installed:
