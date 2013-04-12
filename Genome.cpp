@@ -232,6 +232,7 @@ Genome::Genome(unsigned int a_ID,
             }
         }
 
+    m_Evaluated = false;
     m_NumInputs  = a_NumInputs;
     m_NumOutputs = a_NumOutputs;
     m_Fitness = 0.0;
@@ -2414,7 +2415,9 @@ Genome::Genome(std::ifstream& a_DataFile)
     while (t_Str != "GenomeStart");
 
     // read the genome ID
-    a_DataFile >> m_ID;
+    int t_id;
+    a_DataFile >> t_id;
+    m_ID = t_id;
 
     // read the genome until GenomeEnd is encountered
     do
@@ -2480,6 +2483,7 @@ Genome::Genome(std::ifstream& a_DataFile)
     m_OffspringAmount = 0.0;
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
+    m_Evaluated = false;
 }
 
 
