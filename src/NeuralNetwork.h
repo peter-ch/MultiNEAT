@@ -30,12 +30,6 @@
 // Description: Definition for the phenotype data structures.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/python.hpp>
-#include <boost/python/numeric.hpp>
-#include <boost/python/tuple.hpp>
-
-namespace py = boost::python;
-
 #include <vector>
 #include "Genes.h"
 
@@ -146,9 +140,7 @@ public:
     void Flush();     // clears all activations
     void FlushCube(); // clears the sensitivity cube
 
-    void Input(std::vector<double>& a_Inputs);
-    void Input_python_list(py::list& a_Inputs);
-    void Input_numpy(py::numeric::array& a_Inputs);
+    void Input(const std::vector<double>& a_Inputs);
     std::vector<double> Output();
 
     // accessor methods

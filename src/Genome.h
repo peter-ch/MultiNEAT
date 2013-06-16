@@ -30,7 +30,6 @@
 // Description: Definition for the Genome class.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/python.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -41,9 +40,9 @@
 #include "Substrate.h"
 #include "Innovation.h"
 #include "Genes.h"
-#include "Assert.h"
 #include "PhenotypeBehavior.h"
 #include "Random.h"
+#include "Utils.h"
 
 namespace NEAT
 {
@@ -399,29 +398,6 @@ public:
 		//ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
 	}
 };
-
-
-struct Genome_pickle_suite : py::pickle_suite
-{
-	static py::object getstate(const Genome& a)
-	{
-		std::ostringstream os;
-		boost::archive::binary_oarchive oa(os);
-		oa << a;
-		return py::str (os.str());
-	}
-
-	static void setstate(Genome& a, py::object entries)
-	{
-	    py::str s = py::extract<py::str> (entries)();
-	    std::string st = py::extract<std::string> (s)();
-	    std::istringstream is (st);
-
-	    boost::archive::binary_iarchive ia (is);
-	    ia >> a;
-	}
-};
-
 
 #define DBG(x) { std::cerr << x << "\n"; }
 

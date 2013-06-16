@@ -31,6 +31,9 @@
 #include <boost/python/tuple.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+
 #include "NeuralNetwork.h"
 #include "Genes.h"
 #include "Genome.h"
@@ -44,7 +47,69 @@ using namespace NEAT;
 using namespace py;
 
 
-BOOST_PYTHON_MODULE(MultiNEAT)
+void NeuralNetworkInput_python_list(NeuralNetwork* nn, py::list& a_Inputs) {
+	int len = py::len(a_Inputs);
+	std::vector<double> inp;
+	inp.resize(len);
+	for(int i=0; i<len; i++)
+		inp[i] = py::extract<double>(a_Inputs[i]);
+
+	// if the number of passed inputs differs from the actual number of inputs,
+	// clip them to fit.
+	if (inp.size() != nn->m_num_inputs)
+		inp.resize(nn->m_num_inputs);
+
+	nn->Input(inp);
+}
+
+void NeuralNetworkInput_numpy(NeuralNetwork* nn, py::numeric::array& a_Inputs)
+{
+	int len = py::len(a_Inputs);
+	std::vector<double> inp;
+	inp.resize(len);
+	for(int i=0; i<len; i++)
+		inp[i] = py::extract<double>(a_Inputs[i]);
+
+	// if the number of passed inputs differs from the actual number of inputs,
+	// clip them to fit.
+	if (inp.size() != nn->m_num_inputs)
+		inp.resize(nn->m_num_inputs);
+
+	nn->Input(inp);
+}
+
+// 3 lists of iterables of floats
+Substrate* SubstrateInit(py::list a_inputs, py::list a_hidden, py::list a_outputs) {
+	 // Make room for the data
+	 int inpl = py::len(a_inputs);
+	 int hidl = py::len(a_hidden);
+	 int outl = py::len(a_outputs);
+	 std::vector<std::vector<double> > inp;
+	 std::vector<std::vector<double> > hid;
+	 std::vector<std::vector<double> > out;
+	 inp.resize( inpl );
+	 hid.resize( hidl );
+	 out.resize( outl );
+
+	for(int i=0; i<inpl; i++)
+	{
+		for(int j=0; j<py::len(a_inputs[i]); j++)
+			inp[i].push_back(py::extract<double>(a_inputs[i][j]));
+	}
+	for(int i=0; i<hidl; i++)
+	{
+		for(int j=0; j<py::len(a_hidden[i]); j++)
+			hid[i].push_back(py::extract<double>(a_hidden[i][j]));
+	}
+	for(int i=0; i<outl; i++)
+	{
+		for(int j=0; j<py::len(a_outputs[i]); j++)
+			out[i].push_back(py::extract<double>(a_outputs[i][j]));
+	}
+	return new Substrate(inp, hid, out);
+}
+
+BOOST_PYTHON_MODULE(_MultiNEAT)
 {
 	numeric::array::set_module_and_type("numpy", "ndarray");
 
@@ -123,8 +188,6 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 	void (NeuralNetwork::*NN_Save)(const char*) = &NeuralNetwork::Save;
 	bool (NeuralNetwork::*NN_Load)(const char*) = &NeuralNetwork::Load;
 	void (Genome::*Genome_Save)(const char*) = &Genome::Save;
-	void (NeuralNetwork::*NN_Input)(list&) = &NeuralNetwork::Input_python_list;
-	void (NeuralNetwork::*NN_Input_numpy)(numeric::array&) = &NeuralNetwork::Input_numpy;
 	void (Parameters::*Parameters_Save)(const char*) = &Parameters::Save;
 	int (Parameters::*Parameters_Load)(const char*) = &Parameters::Load;
 
@@ -171,9 +234,9 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 			NN_Load)
 
 			.def("Input",
-			NN_Input)
+			&NeuralNetworkInput_python_list)
 			.def("Input",
-			NN_Input_numpy)
+			&NeuralNetworkInput_numpy)
 			.def("Output",
 			&NeuralNetwork::Output)
 
@@ -186,6 +249,27 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 ///////////////////////////////////////////////////////////////////
 // Genome class
 ///////////////////////////////////////////////////////////////////
+
+	struct Genome_pickle_suite : py::pickle_suite
+	{
+		static py::object getstate(const Genome& a)
+		{
+			std::ostringstream os;
+			boost::archive::binary_oarchive oa(os);
+			oa << a;
+			return py::str (os.str());
+		}
+
+		static void setstate(Genome& a, py::object entries)
+		{
+		    py::str s = py::extract<py::str> (entries)();
+		    std::string st = py::extract<std::string> (s)();
+		    std::istringstream is (st);
+
+		    boost::archive::binary_iarchive ia (is);
+		    ia >> a;
+		}
+	};
 
 	def("GetRandomActivation", &GetRandomActivation);
 
@@ -240,7 +324,7 @@ BOOST_PYTHON_MODULE(MultiNEAT)
 ///////////////////////////////////////////////////////////////////
 
 	class_<Substrate>("Substrate", init<>())
-		    .def(init<list, list, list>())
+		    .def("__init__", make_constructor(&SubstrateInit))
 		    .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs)
 		    .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs)
 		    .def("PrintInfo", &Substrate::PrintInfo)

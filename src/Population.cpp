@@ -39,7 +39,6 @@
 #include "PhenotypeBehavior.h"
 #include "Population.h"
 #include "Utils.h"
-#include "Assert.h"
 
 
 namespace NEAT

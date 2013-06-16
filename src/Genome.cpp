@@ -37,7 +37,6 @@
 #include "Random.h"
 #include "Utils.h"
 #include "Parameters.h"
-#include "Assert.h"
 
 
 namespace NEAT

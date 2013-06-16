@@ -36,12 +36,93 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include "Assert.h"
+#include <assert.h>
+#include <exception>
 #include "Random.h"
 #include <float.h>
 
+
+
+// kill any existing declarations
+#ifdef ASSERT
+#undef ASSERT
+#endif
+
+#ifdef VERIFY
+#undef VERIFY
+#endif
+
+#ifdef DEBUG
+
+#if 1
+
+//--------------
+//  debug macros
+//--------------
+#define BREAK_CPU()			//__asm { int 3 }
+
+#define ASSERT(expr)\
+		{\
+			if( !(expr) )\
+			{\
+				std::cout << "\n*** ASSERT! ***\n" << \
+				__FILE__ ", line " << __LINE__ << ": " << \
+				#expr << " is false\n\n";\
+				throw std::exception();\
+			}\
+		}
+
+#define VERIFY(expr)\
+		{\
+			if( !(expr) )\
+			{\
+				std::cout << "\n*** VERIFY FAILED ***\n" << \
+				__FILE__ ", line " << __LINE__ << ": " << \
+				#expr << " is false\n\n";\
+				BREAK_CPU();\
+			}\
+		}
+#else
+
+#define ASSERT(expr)\
+		{\
+			if( !(expr) )\
+			{\
+				std::cout << "\n*** ASSERT ***\n"; \
+				assert(expr);\
+			}\
+		}
+
+
+#define VERIFY(expr)\
+		{\
+			if( !(expr) )\
+			{\
+				std::cout << "\n*** VERIFY FAILED ***\n"; \
+				assert(expr);\
+			}\
+		}
+
+#endif
+
+#else // _DEBUG
+
+//--------------
+//  release macros
+//--------------
+
+// ASSERT gets optimised out completely
+#define ASSERT(expr)
+
+// verify has expression evaluated, but no further action taken
+#define VERIFY(expr) //if( expr ) {}
+
+#endif
+
+
 using namespace std;
 
+typedef vector<double>& DoublesList;
 
 inline void GetMaxMin(const vector<double>& a_Vals, double& a_Min, double& a_Max)
 {

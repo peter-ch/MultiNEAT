@@ -34,7 +34,7 @@
 #include "Innovation.h"
 #include "Genes.h"
 #include "Genome.h"
-#include "assert.h"
+#include "Utils.h"
 
 namespace NEAT
 {

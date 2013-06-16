@@ -26,14 +26,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
-#include "NeuralNetwork.h"
-
-#include <boost/python.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-
-namespace py = boost::python;
 
 namespace NEAT
 {
@@ -81,7 +73,7 @@ public:
     		  std::vector< std::vector<double> >& a_outputs );
 
     // Construct from 3 Python lists of tuples
-    Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
+    //Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
 
     int GetMaxDims();
 
