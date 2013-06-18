@@ -20,3 +20,7 @@ add_library(MultiNEAT ${MultiNEAT_SRCS} ${MultiNEAT_HDRS})
 if (PYTHON_BINDINGS)
 	add_subdirectory(bindings/python)
 endif()
+
+if (NODE_BINDINGS)
+	add_subdirectory(bindings/node)
+endif()
