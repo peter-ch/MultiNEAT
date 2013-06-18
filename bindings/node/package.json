@@ -2,6 +2,6 @@
   "name": "MultiNEAT",
   "version": "0.1.0",
   "author": "Peter Chervenski",
-  "contributors": "David Rivron"
+  "contributors": "David Rivron",
   "main": "build/Release/MultiNEAT.node"
 }

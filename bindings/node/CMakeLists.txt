@@ -18,6 +18,12 @@ if (NOT NPM_EXECUTABLE)
 	set(NPM_EXECUTABLE "npm")
 endif ()
 
+if (ARCH STREQUAL "i386")
+	set(NPM_CONFIG_ARCH "npm_config_arch=ia32")
+elseif (ARCH STREQUAL "x86_64") 
+	set(NPM_CONFIG_ARCH "npm_config_arch=x64")
+endif ()
+		
 if (NODE_GYP_TARGET)
 	set(NODE_GYP_TARGET_PARAM "--target=${NODE_GYP_TARGET}")
 endif ()
@@ -27,7 +33,7 @@ set(NODE_MODULE_DIR "${CMAKE_CURRENT_BINARY_DIR}/module")
 # file(MAKE_DIRECTORY ${directory})
 configure_file(binding.gyp.in "${NODE_MODULE_DIR}/binding.gyp")
 add_custom_command(OUTPUT "${NODE_MODULE_DIR}/build/Makefile"
-                   COMMAND "${NODE_GYP_EXECUTABLE}" configure ${NODE_GYP_TARGET_PARAM} ${NODE_GYP_DEBUG} ${NODE_GYP_VERBOSE}
+                   COMMAND ${NPM_CONFIG_ARCH} "${NODE_GYP_EXECUTABLE}" configure ${NODE_GYP_TARGET_PARAM} ${NODE_GYP_DEBUG} ${NODE_GYP_VERBOSE}
                    WORKING_DIRECTORY "${NODE_MODULE_DIR}"
                    DEPENDS binding.gyp.in)
                    
