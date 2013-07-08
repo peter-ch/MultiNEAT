@@ -218,8 +218,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
 			.def("Flush",
 			&NeuralNetwork::Flush)
-			.def("FlushCude",
-			&NeuralNetwork::InitRTRLMatrix)
+			.def("FlushCube",
+			&NeuralNetwork::FlushCube)
 
 			.def("NumInputs",
 			&NeuralNetwork::NumInputs)
