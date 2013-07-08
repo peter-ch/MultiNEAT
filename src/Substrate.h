@@ -68,9 +68,9 @@ public:
     double m_max_time_const;
 
     Substrate(){};
-    Substrate(std::vector< std::vector<double> >& a_inputs,
-    		  std::vector< std::vector<double> >& a_hidden,
-    		  std::vector< std::vector<double> >& a_outputs );
+    Substrate(const std::vector< std::vector<double> >& a_inputs,
+    		  const std::vector< std::vector<double> >& a_hidden,
+    		  const std::vector< std::vector<double> >& a_outputs );
 
     // Construct from 3 Python lists of tuples
     //Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);

@@ -35,9 +35,9 @@ using namespace std;
 namespace NEAT
 {
 
-Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
-		std::vector<std::vector<double> >& a_hidden,
-		std::vector<std::vector<double> >& a_outputs)
+Substrate::Substrate(const std::vector<std::vector<double> >& a_inputs,
+		const std::vector<std::vector<double> >& a_hidden,
+		const std::vector<std::vector<double> >& a_outputs)
 {
 	m_leaky = false;
 	m_with_distance = false;
