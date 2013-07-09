@@ -9,9 +9,13 @@ using namespace v8;
 using namespace cvv8;
 
 void RegisterModule(Handle<Object> target) {
-	ClassCreator<Population>::Instance().SetupBindings(target);
-	ClassCreator<Genome>::Instance().SetupBindings(target);
+	ClassCreator<Neuron>::Instance().SetupBindings(target);
+	ClassCreator<Connection>::Instance().SetupBindings(target);
 	ClassCreator<NeuralNetwork>::Instance().SetupBindings(target);
+	ClassCreator<Genome>::Instance().SetupBindings(target);
+	ClassCreator<Species>::Instance().SetupBindings(target);
+	ClassCreator<Substrate>::Instance().SetupBindings(target);
+	ClassCreator<Population>::Instance().SetupBindings(target);
 	ClassCreator<Parameters>::Instance().SetupBindings(target);
 
 	Handle<Object> activationFunction = Object::New();
@@ -30,6 +34,14 @@ void RegisterModule(Handle<Object> target) {
 	activationFunction->Set($("UNSIGNED_SQUARE"), Integer::New(12));
 	activationFunction->Set($("LINEAR"), Integer::New(13));
 	target->Set($("ActivationFunction"), activationFunction);
+
+	Handle<Object> neuronType = Object::New();
+	neuronType->Set($("NONE"), Integer::New(0));
+	neuronType->Set($("INPUT"), Integer::New(1));
+	neuronType->Set($("BIAS"), Integer::New(2));
+	neuronType->Set($("HIDDEN"), Integer::New(3));
+	neuronType->Set($("OUTPUT"), Integer::New(4));
+	target->Set($("NeuronType"), neuronType);
 
 }
 
