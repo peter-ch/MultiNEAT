@@ -1,6 +1,6 @@
 import multiprocessing as mpc
 import time
-from MultiNEAT import *  # noqa
+from _MultiNEAT import *  # noqa
 
 
 try:
