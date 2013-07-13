@@ -115,16 +115,16 @@ private:
 public:
 
     // Serialization
-	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & m_FromNeuronID;
-		ar & m_ToNeuronID;
-		ar & m_InnovationID;
-		ar & m_IsRecurrent;
-		ar & m_Weight;
-	}
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & m_FromNeuronID;
+        ar & m_ToNeuronID;
+        ar & m_InnovationID;
+        ar & m_IsRecurrent;
+        ar & m_Weight;
+    }
 
 
     double GetWeight() const
@@ -282,21 +282,21 @@ public:
     ActivationFunction m_ActFunction;
 
     // Serialization
-	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & m_ID;
-		ar & m_Type;
-		ar & m_A;
-		ar & m_B;
-		ar & m_TimeConstant;
-		ar & m_Bias;
-		ar & x;
-		ar & y;
-		ar & m_ActFunction;
-		ar & m_SplitY;
-	}
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & m_ID;
+        ar & m_Type;
+        ar & m_A;
+        ar & m_B;
+        ar & m_TimeConstant;
+        ar & m_Bias;
+        ar & x;
+        ar & y;
+        ar & m_ActFunction;
+        ar & m_SplitY;
+    }
 
 
     ////////////////

@@ -46,49 +46,49 @@
 //--------------
 //  debug macros
 //--------------
-#define BREAK_CPU()			//__asm { int 3 }
+#define BREAK_CPU()            //__asm { int 3 }
 
 #define ASSERT(expr)\
-		{\
-			if( !(expr) )\
-			{\
-				std::cout << "\n*** ASSERT! ***\n" << \
-				__FILE__ ", line " << __LINE__ << ": " << \
-				#expr << " is false\n\n";\
-				throw std::exception();\
-			}\
-		}
+        {\
+            if( !(expr) )\
+            {\
+                std::cout << "\n*** ASSERT! ***\n" << \
+                __FILE__ ", line " << __LINE__ << ": " << \
+                #expr << " is false\n\n";\
+                throw std::exception();\
+            }\
+        }
 
 #define VERIFY(expr)\
-		{\
-			if( !(expr) )\
-			{\
-				std::cout << "\n*** VERIFY FAILED ***\n" << \
-				__FILE__ ", line " << __LINE__ << ": " << \
-				#expr << " is false\n\n";\
-				BREAK_CPU();\
-			}\
-		}
+        {\
+            if( !(expr) )\
+            {\
+                std::cout << "\n*** VERIFY FAILED ***\n" << \
+                __FILE__ ", line " << __LINE__ << ": " << \
+                #expr << " is false\n\n";\
+                BREAK_CPU();\
+            }\
+        }
 #else
 
 #define ASSERT(expr)\
-		{\
-			if( !(expr) )\
-			{\
-				std::cout << "\n*** ASSERT ***\n"; \
-				assert(expr);\
-			}\
-		}
+        {\
+            if( !(expr) )\
+            {\
+                std::cout << "\n*** ASSERT ***\n"; \
+                assert(expr);\
+            }\
+        }
 
 
 #define VERIFY(expr)\
-		{\
-			if( !(expr) )\
-			{\
-				std::cout << "\n*** VERIFY FAILED ***\n"; \
-				assert(expr);\
-			}\
-		}
+        {\
+            if( !(expr) )\
+            {\
+                std::cout << "\n*** VERIFY FAILED ***\n"; \
+                assert(expr);\
+            }\
+        }
 
 #endif
 

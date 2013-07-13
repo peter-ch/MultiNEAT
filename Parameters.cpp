@@ -373,11 +373,11 @@ Parameters::Parameters()
 int Parameters::Load(std::ifstream& a_DataFile)
 {
     std::string s,tf;
-	do
-	{
-		a_DataFile >> s;
-	}
-	while (s != "NEAT_ParametersStart");
+    do
+    {
+        a_DataFile >> s;
+    }
+    while (s != "NEAT_ParametersStart");
 
     while(s != "NEAT_ParametersEnd")
     {
@@ -416,7 +416,7 @@ int Parameters::Load(std::ifstream& a_DataFile)
             if (tf == "true" || tf == "1" || tf == "1.0")
                 AllowClones = true;
             else
-            	AllowClones = false;
+                AllowClones = false;
         }
 
         if (s == "YoungAgeTreshold")
@@ -733,114 +733,114 @@ int Parameters::Load(const char* a_FileName)
 
 void Parameters::Save(const char* filename)
 {
-	FILE* f = fopen(filename, "w");
-	Save(f);
-	fclose(f);
+    FILE* f = fopen(filename, "w");
+    Save(f);
+    fclose(f);
 }
 
 
 void Parameters::Save(FILE* a_fstream)
 {
-	fprintf(a_fstream, "NEAT_ParametersStart\n");
+    fprintf(a_fstream, "NEAT_ParametersStart\n");
 
-	fprintf(a_fstream, "PopulationSize %d\n", PopulationSize);
-	fprintf(a_fstream, "DynamicCompatibility %s\n", DynamicCompatibility==true?"true":"false");
-	fprintf(a_fstream, "MinSpecies %d\n", MinSpecies);
-	fprintf(a_fstream, "MaxSpecies %d\n", MaxSpecies);
-	fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever==true?"true":"false");
-	fprintf(a_fstream, "AllowClones %s\n", AllowClones==true?"true":"false");
-	fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
-	fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
-	fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
-	fprintf(a_fstream, "StagnationDelta %3.20f\n", StagnationDelta);
-	fprintf(a_fstream, "OldAgeTreshold %d\n", OldAgeTreshold);
-	fprintf(a_fstream, "OldAgePenalty %3.20f\n", OldAgePenalty);
-	fprintf(a_fstream, "DetectCompetetiveCoevolutionStagnation %s\n", DetectCompetetiveCoevolutionStagnation==true?"true":"false");
-	fprintf(a_fstream, "KillWorstSpeciesEach %d\n", KillWorstSpeciesEach);
-	fprintf(a_fstream, "KillWorstAge %d\n", KillWorstAge);
-	fprintf(a_fstream, "SurvivalRate %3.20f\n", SurvivalRate);
-	fprintf(a_fstream, "CrossoverRate %3.20f\n", CrossoverRate);
-	fprintf(a_fstream, "OverallMutationRate %3.20f\n", OverallMutationRate);
-	fprintf(a_fstream, "InterspeciesCrossoverRate %3.20f\n", InterspeciesCrossoverRate);
-	fprintf(a_fstream, "MultipointCrossoverRate %3.20f\n", MultipointCrossoverRate);
-	fprintf(a_fstream, "RouletteWheelSelection %s\n", RouletteWheelSelection==true?"true":"false");
-	fprintf(a_fstream, "PhasedSearching %s\n", PhasedSearching==true?"true":"false");
-	fprintf(a_fstream, "DeltaCoding %s\n", DeltaCoding==true?"true":"false");
-	fprintf(a_fstream, "SimplifyingPhaseMPCTreshold %d\n", SimplifyingPhaseMPCTreshold);
-	fprintf(a_fstream, "SimplifyingPhaseStagnationTreshold %d\n", SimplifyingPhaseStagnationTreshold);
-	fprintf(a_fstream, "ComplexityFloorGenerations %d\n", ComplexityFloorGenerations);
-	fprintf(a_fstream, "NoveltySearch_K %d\n", NoveltySearch_K);
-	fprintf(a_fstream, "NoveltySearch_P_min %3.20f\n", NoveltySearch_P_min);
-	fprintf(a_fstream, "NoveltySearch_Dynamic_Pmin %s\n", NoveltySearch_Dynamic_Pmin==true?"true":"false");
-	fprintf(a_fstream, "NoveltySearch_No_Archiving_Stagnation_Treshold %d\n", NoveltySearch_No_Archiving_Stagnation_Treshold);
-	fprintf(a_fstream, "NoveltySearch_Pmin_lowering_multiplier %3.20f\n", NoveltySearch_Pmin_lowering_multiplier);
-	fprintf(a_fstream, "NoveltySearch_Pmin_min %3.20f\n", NoveltySearch_Pmin_min);
-	fprintf(a_fstream, "NoveltySearch_Quick_Archiving_Min_Evaluations %d\n", NoveltySearch_Quick_Archiving_Min_Evaluations);
-	fprintf(a_fstream, "NoveltySearch_Pmin_raising_multiplier %3.20f\n", NoveltySearch_Pmin_raising_multiplier);
-	fprintf(a_fstream, "NoveltySearch_Recompute_Sparseness_Each %d\n", NoveltySearch_Recompute_Sparseness_Each);
-	fprintf(a_fstream, "MutateAddNeuronProb %3.20f\n", MutateAddNeuronProb);
-	fprintf(a_fstream, "SplitRecurrent %s\n", SplitRecurrent==true?"true":"false");
-	fprintf(a_fstream, "SplitLoopedRecurrent %s\n", SplitLoopedRecurrent==true?"true":"false");
-	fprintf(a_fstream, "NeuronTries %d\n", NeuronTries);
-	fprintf(a_fstream, "MutateAddLinkProb %3.20f\n", MutateAddLinkProb);
-	fprintf(a_fstream, "MutateAddLinkFromBiasProb %3.20f\n", MutateAddLinkFromBiasProb);
-	fprintf(a_fstream, "MutateRemLinkProb %3.20f\n", MutateRemLinkProb);
-	fprintf(a_fstream, "MutateRemSimpleNeuronProb %3.20f\n", MutateRemSimpleNeuronProb);
-	fprintf(a_fstream, "LinkTries %d\n", LinkTries);
-	fprintf(a_fstream, "RecurrentProb %3.20f\n", RecurrentProb);
-	fprintf(a_fstream, "RecurrentLoopProb %3.20f\n", RecurrentLoopProb);
-	fprintf(a_fstream, "MutateWeightsProb %3.20f\n", MutateWeightsProb);
-	fprintf(a_fstream, "MutateWeightsSevereProb %3.20f\n", MutateWeightsSevereProb);
-	fprintf(a_fstream, "WeightMutationRate %3.20f\n", WeightMutationRate);
-	fprintf(a_fstream, "WeightMutationMaxPower %3.20f\n", WeightMutationMaxPower);
-	fprintf(a_fstream, "WeightReplacementMaxPower %3.20f\n", WeightReplacementMaxPower);
-	fprintf(a_fstream, "MaxWeight %3.20f\n", MaxWeight);
-	fprintf(a_fstream, "MutateActivationAProb %3.20f\n", MutateActivationAProb);
-	fprintf(a_fstream, "MutateActivationBProb %3.20f\n", MutateActivationBProb);
-	fprintf(a_fstream, "ActivationAMutationMaxPower %3.20f\n", ActivationAMutationMaxPower);
-	fprintf(a_fstream, "ActivationBMutationMaxPower %3.20f\n", ActivationBMutationMaxPower);
-	fprintf(a_fstream, "TimeConstantMutationMaxPower %3.20f\n", TimeConstantMutationMaxPower);
-	fprintf(a_fstream, "BiasMutationMaxPower %3.20f\n", BiasMutationMaxPower);
-	fprintf(a_fstream, "MinActivationA %3.20f\n", MinActivationA);
-	fprintf(a_fstream, "MaxActivationA %3.20f\n", MaxActivationA);
-	fprintf(a_fstream, "MinActivationB %3.20f\n", MinActivationB);
-	fprintf(a_fstream, "MaxActivationB %3.20f\n", MaxActivationB);
-	fprintf(a_fstream, "MutateNeuronActivationTypeProb %3.20f\n", MutateNeuronActivationTypeProb);
-	fprintf(a_fstream, "ActivationFunction_SignedSigmoid_Prob %3.20f\n", ActivationFunction_SignedSigmoid_Prob);
-	fprintf(a_fstream, "ActivationFunction_UnsignedSigmoid_Prob %3.20f\n", ActivationFunction_UnsignedSigmoid_Prob);
-	fprintf(a_fstream, "ActivationFunction_Tanh_Prob %3.20f\n", ActivationFunction_Tanh_Prob);
-	fprintf(a_fstream, "ActivationFunction_TanhCubic_Prob %3.20f\n", ActivationFunction_TanhCubic_Prob);
-	fprintf(a_fstream, "ActivationFunction_SignedStep_Prob %3.20f\n", ActivationFunction_SignedStep_Prob);
-	fprintf(a_fstream, "ActivationFunction_UnsignedStep_Prob %3.20f\n", ActivationFunction_UnsignedStep_Prob);
-	fprintf(a_fstream, "ActivationFunction_SignedGauss_Prob %3.20f\n", ActivationFunction_SignedGauss_Prob);
-	fprintf(a_fstream, "ActivationFunction_UnsignedGauss_Prob %3.20f\n", ActivationFunction_UnsignedGauss_Prob);
-	fprintf(a_fstream, "ActivationFunction_Abs_Prob %3.20f\n", ActivationFunction_Abs_Prob);
-	fprintf(a_fstream, "ActivationFunction_SignedSine_Prob %3.20f\n", ActivationFunction_SignedSine_Prob);
-	fprintf(a_fstream, "ActivationFunction_UnsignedSine_Prob %3.20f\n", ActivationFunction_UnsignedSine_Prob);
-	fprintf(a_fstream, "ActivationFunction_SignedSquare_Prob %3.20f\n", ActivationFunction_SignedSquare_Prob);
-	fprintf(a_fstream, "ActivationFunction_UnsignedSquare_Prob %3.20f\n", ActivationFunction_UnsignedSquare_Prob);
-	fprintf(a_fstream, "ActivationFunction_Linear_Prob %3.20f\n", ActivationFunction_Linear_Prob);
-	fprintf(a_fstream, "MutateNeuronTimeConstantsProb %3.20f\n", MutateNeuronTimeConstantsProb);
-	fprintf(a_fstream, "MutateNeuronBiasesProb %3.20f\n", MutateNeuronBiasesProb);
-	fprintf(a_fstream, "MinNeuronTimeConstant %3.20f\n", MinNeuronTimeConstant);
-	fprintf(a_fstream, "MaxNeuronTimeConstant %3.20f\n", MaxNeuronTimeConstant);
-	fprintf(a_fstream, "MinNeuronBias %3.20f\n", MinNeuronBias);
-	fprintf(a_fstream, "MaxNeuronBias %3.20f\n", MaxNeuronBias);
-	fprintf(a_fstream, "DisjointCoeff %3.20f\n", DisjointCoeff);
-	fprintf(a_fstream, "ExcessCoeff %3.20f\n", ExcessCoeff);
-	fprintf(a_fstream, "ActivationADiffCoeff %3.20f\n", ActivationADiffCoeff);
-	fprintf(a_fstream, "ActivationBDiffCoeff %3.20f\n", ActivationBDiffCoeff);
-	fprintf(a_fstream, "WeightDiffCoeff %3.20f\n", WeightDiffCoeff);
-	fprintf(a_fstream, "TimeConstantDiffCoeff %3.20f\n", TimeConstantDiffCoeff);
-	fprintf(a_fstream, "BiasDiffCoeff %3.20f\n", BiasDiffCoeff);
-	fprintf(a_fstream, "ActivationFunctionDiffCoeff %3.20f\n", ActivationFunctionDiffCoeff);
-	fprintf(a_fstream, "CompatTreshold %3.20f\n", CompatTreshold);
-	fprintf(a_fstream, "MinCompatTreshold %3.20f\n", MinCompatTreshold);
-	fprintf(a_fstream, "CompatTresholdModifier %3.20f\n", CompatTresholdModifier);
-	fprintf(a_fstream, "CompatTreshChangeInterval_Generations %d\n", CompatTreshChangeInterval_Generations);
-	fprintf(a_fstream, "CompatTreshChangeInterval_Evaluations %d\n", CompatTreshChangeInterval_Evaluations);
+    fprintf(a_fstream, "PopulationSize %d\n", PopulationSize);
+    fprintf(a_fstream, "DynamicCompatibility %s\n", DynamicCompatibility==true?"true":"false");
+    fprintf(a_fstream, "MinSpecies %d\n", MinSpecies);
+    fprintf(a_fstream, "MaxSpecies %d\n", MaxSpecies);
+    fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever==true?"true":"false");
+    fprintf(a_fstream, "AllowClones %s\n", AllowClones==true?"true":"false");
+    fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
+    fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
+    fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
+    fprintf(a_fstream, "StagnationDelta %3.20f\n", StagnationDelta);
+    fprintf(a_fstream, "OldAgeTreshold %d\n", OldAgeTreshold);
+    fprintf(a_fstream, "OldAgePenalty %3.20f\n", OldAgePenalty);
+    fprintf(a_fstream, "DetectCompetetiveCoevolutionStagnation %s\n", DetectCompetetiveCoevolutionStagnation==true?"true":"false");
+    fprintf(a_fstream, "KillWorstSpeciesEach %d\n", KillWorstSpeciesEach);
+    fprintf(a_fstream, "KillWorstAge %d\n", KillWorstAge);
+    fprintf(a_fstream, "SurvivalRate %3.20f\n", SurvivalRate);
+    fprintf(a_fstream, "CrossoverRate %3.20f\n", CrossoverRate);
+    fprintf(a_fstream, "OverallMutationRate %3.20f\n", OverallMutationRate);
+    fprintf(a_fstream, "InterspeciesCrossoverRate %3.20f\n", InterspeciesCrossoverRate);
+    fprintf(a_fstream, "MultipointCrossoverRate %3.20f\n", MultipointCrossoverRate);
+    fprintf(a_fstream, "RouletteWheelSelection %s\n", RouletteWheelSelection==true?"true":"false");
+    fprintf(a_fstream, "PhasedSearching %s\n", PhasedSearching==true?"true":"false");
+    fprintf(a_fstream, "DeltaCoding %s\n", DeltaCoding==true?"true":"false");
+    fprintf(a_fstream, "SimplifyingPhaseMPCTreshold %d\n", SimplifyingPhaseMPCTreshold);
+    fprintf(a_fstream, "SimplifyingPhaseStagnationTreshold %d\n", SimplifyingPhaseStagnationTreshold);
+    fprintf(a_fstream, "ComplexityFloorGenerations %d\n", ComplexityFloorGenerations);
+    fprintf(a_fstream, "NoveltySearch_K %d\n", NoveltySearch_K);
+    fprintf(a_fstream, "NoveltySearch_P_min %3.20f\n", NoveltySearch_P_min);
+    fprintf(a_fstream, "NoveltySearch_Dynamic_Pmin %s\n", NoveltySearch_Dynamic_Pmin==true?"true":"false");
+    fprintf(a_fstream, "NoveltySearch_No_Archiving_Stagnation_Treshold %d\n", NoveltySearch_No_Archiving_Stagnation_Treshold);
+    fprintf(a_fstream, "NoveltySearch_Pmin_lowering_multiplier %3.20f\n", NoveltySearch_Pmin_lowering_multiplier);
+    fprintf(a_fstream, "NoveltySearch_Pmin_min %3.20f\n", NoveltySearch_Pmin_min);
+    fprintf(a_fstream, "NoveltySearch_Quick_Archiving_Min_Evaluations %d\n", NoveltySearch_Quick_Archiving_Min_Evaluations);
+    fprintf(a_fstream, "NoveltySearch_Pmin_raising_multiplier %3.20f\n", NoveltySearch_Pmin_raising_multiplier);
+    fprintf(a_fstream, "NoveltySearch_Recompute_Sparseness_Each %d\n", NoveltySearch_Recompute_Sparseness_Each);
+    fprintf(a_fstream, "MutateAddNeuronProb %3.20f\n", MutateAddNeuronProb);
+    fprintf(a_fstream, "SplitRecurrent %s\n", SplitRecurrent==true?"true":"false");
+    fprintf(a_fstream, "SplitLoopedRecurrent %s\n", SplitLoopedRecurrent==true?"true":"false");
+    fprintf(a_fstream, "NeuronTries %d\n", NeuronTries);
+    fprintf(a_fstream, "MutateAddLinkProb %3.20f\n", MutateAddLinkProb);
+    fprintf(a_fstream, "MutateAddLinkFromBiasProb %3.20f\n", MutateAddLinkFromBiasProb);
+    fprintf(a_fstream, "MutateRemLinkProb %3.20f\n", MutateRemLinkProb);
+    fprintf(a_fstream, "MutateRemSimpleNeuronProb %3.20f\n", MutateRemSimpleNeuronProb);
+    fprintf(a_fstream, "LinkTries %d\n", LinkTries);
+    fprintf(a_fstream, "RecurrentProb %3.20f\n", RecurrentProb);
+    fprintf(a_fstream, "RecurrentLoopProb %3.20f\n", RecurrentLoopProb);
+    fprintf(a_fstream, "MutateWeightsProb %3.20f\n", MutateWeightsProb);
+    fprintf(a_fstream, "MutateWeightsSevereProb %3.20f\n", MutateWeightsSevereProb);
+    fprintf(a_fstream, "WeightMutationRate %3.20f\n", WeightMutationRate);
+    fprintf(a_fstream, "WeightMutationMaxPower %3.20f\n", WeightMutationMaxPower);
+    fprintf(a_fstream, "WeightReplacementMaxPower %3.20f\n", WeightReplacementMaxPower);
+    fprintf(a_fstream, "MaxWeight %3.20f\n", MaxWeight);
+    fprintf(a_fstream, "MutateActivationAProb %3.20f\n", MutateActivationAProb);
+    fprintf(a_fstream, "MutateActivationBProb %3.20f\n", MutateActivationBProb);
+    fprintf(a_fstream, "ActivationAMutationMaxPower %3.20f\n", ActivationAMutationMaxPower);
+    fprintf(a_fstream, "ActivationBMutationMaxPower %3.20f\n", ActivationBMutationMaxPower);
+    fprintf(a_fstream, "TimeConstantMutationMaxPower %3.20f\n", TimeConstantMutationMaxPower);
+    fprintf(a_fstream, "BiasMutationMaxPower %3.20f\n", BiasMutationMaxPower);
+    fprintf(a_fstream, "MinActivationA %3.20f\n", MinActivationA);
+    fprintf(a_fstream, "MaxActivationA %3.20f\n", MaxActivationA);
+    fprintf(a_fstream, "MinActivationB %3.20f\n", MinActivationB);
+    fprintf(a_fstream, "MaxActivationB %3.20f\n", MaxActivationB);
+    fprintf(a_fstream, "MutateNeuronActivationTypeProb %3.20f\n", MutateNeuronActivationTypeProb);
+    fprintf(a_fstream, "ActivationFunction_SignedSigmoid_Prob %3.20f\n", ActivationFunction_SignedSigmoid_Prob);
+    fprintf(a_fstream, "ActivationFunction_UnsignedSigmoid_Prob %3.20f\n", ActivationFunction_UnsignedSigmoid_Prob);
+    fprintf(a_fstream, "ActivationFunction_Tanh_Prob %3.20f\n", ActivationFunction_Tanh_Prob);
+    fprintf(a_fstream, "ActivationFunction_TanhCubic_Prob %3.20f\n", ActivationFunction_TanhCubic_Prob);
+    fprintf(a_fstream, "ActivationFunction_SignedStep_Prob %3.20f\n", ActivationFunction_SignedStep_Prob);
+    fprintf(a_fstream, "ActivationFunction_UnsignedStep_Prob %3.20f\n", ActivationFunction_UnsignedStep_Prob);
+    fprintf(a_fstream, "ActivationFunction_SignedGauss_Prob %3.20f\n", ActivationFunction_SignedGauss_Prob);
+    fprintf(a_fstream, "ActivationFunction_UnsignedGauss_Prob %3.20f\n", ActivationFunction_UnsignedGauss_Prob);
+    fprintf(a_fstream, "ActivationFunction_Abs_Prob %3.20f\n", ActivationFunction_Abs_Prob);
+    fprintf(a_fstream, "ActivationFunction_SignedSine_Prob %3.20f\n", ActivationFunction_SignedSine_Prob);
+    fprintf(a_fstream, "ActivationFunction_UnsignedSine_Prob %3.20f\n", ActivationFunction_UnsignedSine_Prob);
+    fprintf(a_fstream, "ActivationFunction_SignedSquare_Prob %3.20f\n", ActivationFunction_SignedSquare_Prob);
+    fprintf(a_fstream, "ActivationFunction_UnsignedSquare_Prob %3.20f\n", ActivationFunction_UnsignedSquare_Prob);
+    fprintf(a_fstream, "ActivationFunction_Linear_Prob %3.20f\n", ActivationFunction_Linear_Prob);
+    fprintf(a_fstream, "MutateNeuronTimeConstantsProb %3.20f\n", MutateNeuronTimeConstantsProb);
+    fprintf(a_fstream, "MutateNeuronBiasesProb %3.20f\n", MutateNeuronBiasesProb);
+    fprintf(a_fstream, "MinNeuronTimeConstant %3.20f\n", MinNeuronTimeConstant);
+    fprintf(a_fstream, "MaxNeuronTimeConstant %3.20f\n", MaxNeuronTimeConstant);
+    fprintf(a_fstream, "MinNeuronBias %3.20f\n", MinNeuronBias);
+    fprintf(a_fstream, "MaxNeuronBias %3.20f\n", MaxNeuronBias);
+    fprintf(a_fstream, "DisjointCoeff %3.20f\n", DisjointCoeff);
+    fprintf(a_fstream, "ExcessCoeff %3.20f\n", ExcessCoeff);
+    fprintf(a_fstream, "ActivationADiffCoeff %3.20f\n", ActivationADiffCoeff);
+    fprintf(a_fstream, "ActivationBDiffCoeff %3.20f\n", ActivationBDiffCoeff);
+    fprintf(a_fstream, "WeightDiffCoeff %3.20f\n", WeightDiffCoeff);
+    fprintf(a_fstream, "TimeConstantDiffCoeff %3.20f\n", TimeConstantDiffCoeff);
+    fprintf(a_fstream, "BiasDiffCoeff %3.20f\n", BiasDiffCoeff);
+    fprintf(a_fstream, "ActivationFunctionDiffCoeff %3.20f\n", ActivationFunctionDiffCoeff);
+    fprintf(a_fstream, "CompatTreshold %3.20f\n", CompatTreshold);
+    fprintf(a_fstream, "MinCompatTreshold %3.20f\n", MinCompatTreshold);
+    fprintf(a_fstream, "CompatTresholdModifier %3.20f\n", CompatTresholdModifier);
+    fprintf(a_fstream, "CompatTreshChangeInterval_Generations %d\n", CompatTreshChangeInterval_Generations);
+    fprintf(a_fstream, "CompatTreshChangeInterval_Evaluations %d\n", CompatTreshChangeInterval_Evaluations);
 
-	fprintf(a_fstream, "NEAT_ParametersEnd\n");
+    fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }
 
 

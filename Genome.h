@@ -382,44 +382,44 @@ public:
     void ResetEvaluated() { m_Evaluated = false; }
 
     // Serialization
-	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & m_ID;
-		ar & m_NeuronGenes;
-		ar & m_LinkGenes;
-		ar & m_NumInputs;
-		ar & m_NumOutputs;
-		ar & m_Fitness;
-		ar & m_AdjustedFitness;
-		ar & m_Depth;
-		ar & m_OffspringAmount;
-		ar & m_Evaluated;
-		//ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
-	}
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & m_ID;
+        ar & m_NeuronGenes;
+        ar & m_LinkGenes;
+        ar & m_NumInputs;
+        ar & m_NumOutputs;
+        ar & m_Fitness;
+        ar & m_AdjustedFitness;
+        ar & m_Depth;
+        ar & m_OffspringAmount;
+        ar & m_Evaluated;
+        //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
+    }
 };
 
 
 struct Genome_pickle_suite : py::pickle_suite
 {
-	static py::object getstate(const Genome& a)
-	{
-		std::ostringstream os;
-		boost::archive::binary_oarchive oa(os);
-		oa << a;
-		return py::str (os.str());
-	}
+    static py::object getstate(const Genome& a)
+    {
+        std::ostringstream os;
+        boost::archive::binary_oarchive oa(os);
+        oa << a;
+        return py::str (os.str());
+    }
 
-	static void setstate(Genome& a, py::object entries)
-	{
-	    py::str s = py::extract<py::str> (entries)();
-	    std::string st = py::extract<std::string> (s)();
-	    std::istringstream is (st);
+    static void setstate(Genome& a, py::object entries)
+    {
+        py::str s = py::extract<py::str> (entries)();
+        std::string st = py::extract<std::string> (s)();
+        std::istringstream is (st);
 
-	    boost::archive::binary_iarchive ia (is);
-	    ia >> a;
-	}
+        boost::archive::binary_iarchive ia (is);
+        ia >> a;
+    }
 };
 
 

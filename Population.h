@@ -175,23 +175,23 @@ public:
     double GetBestFitnessEver() const { return m_BestFitnessEver; }
     Genome GetBestGenome() const
     {
-    	double best = -9999999;
-    	int idx_species = 0;
-    	int idx_genome = 0;
-    	for(int i=0; i<m_Species.size(); i++)
-    	{
-    		for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
-    		{
-    			if (m_Species[i].m_Individuals[j].GetFitness() > best)
-    			{
-    				best = m_Species[i].m_Individuals[j].GetFitness();
-    				idx_species = i;
-    				idx_genome = j;
-    			}
-    		}
-    	}
+        double best = -9999999;
+        int idx_species = 0;
+        int idx_genome = 0;
+        for(int i=0; i<m_Species.size(); i++)
+        {
+            for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+            {
+                if (m_Species[i].m_Individuals[j].GetFitness() > best)
+                {
+                    best = m_Species[i].m_Individuals[j].GetFitness();
+                    idx_species = i;
+                    idx_genome = j;
+                }
+            }
+        }
 
-    	return m_Species[idx_species].m_Individuals[idx_genome];
+        return m_Species[idx_species].m_Individuals[idx_genome];
     }
     unsigned int GetStagnation() const { return m_GensSinceBestFitnessLastChanged; }
     unsigned int GetMPCStagnation() const { return m_GensSinceMPCLastChanged; }

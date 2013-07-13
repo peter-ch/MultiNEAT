@@ -61,13 +61,13 @@ public:
     // comparison operator (nessesary for boost::python)
     bool operator==(Connection const& other) const
     {
-    	if ((m_source_neuron_idx == other.m_source_neuron_idx) &&
-    		(m_target_neuron_idx == other.m_target_neuron_idx) &&
-    		(m_weight == other.m_weight) &&
-    		(m_recur_flag == other.m_recur_flag))
-    		return true;
-    	else
-    		return false;
+        if ((m_source_neuron_idx == other.m_source_neuron_idx) &&
+            (m_target_neuron_idx == other.m_target_neuron_idx) &&
+            (m_weight == other.m_weight) &&
+            (m_recur_flag == other.m_recur_flag))
+            return true;
+        else
+            return false;
     }
 
 };
@@ -95,14 +95,14 @@ public:
     // comparison operator (nessesary for boost::python)
     bool operator==(Neuron const& other) const
     {
-    	if ((m_type == other.m_type) &&
-    		(m_split_y == other.m_split_y) &&
-    		(m_activation_function_type == other.m_activation_function_type)// &&
-    		//(this == other.this))
-    		)
-    		return true;
-    	else
-    		return false;
+        if ((m_type == other.m_type) &&
+            (m_split_y == other.m_split_y) &&
+            (m_activation_function_type == other.m_activation_function_type)// &&
+            //(this == other.this))
+            )
+            return true;
+        else
+            return false;
     }
 };
 

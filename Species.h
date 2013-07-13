@@ -174,7 +174,7 @@ public:
     // Removes all individuals
     void Clear()
     {
-    	m_Individuals.clear();
+        m_Individuals.clear();
     }
 
 
