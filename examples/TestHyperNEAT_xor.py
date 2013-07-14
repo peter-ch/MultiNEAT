@@ -13,21 +13,28 @@ import cPickle as pickle
 import MultiNEAT as NEAT
 import multiprocessing as mpc
 
-# the simple 3D substrate with 3 input points, 2 hidden and 1 output for XOR 
+# the simple 2D substrate with 3 input points, 2 hidden and 1 output for XOR 
 substrate = NEAT.Substrate([(-1, -1), (-1, 1), (-1, 0)], 
-                           [(0, -1), (0,-.5), (0, 0), (0, .5), (0, 1)], 
+                           [(0, -1), (0, 1)], 
                            [(1, 0)])
 
-# let's configure it a bit to avoid recurrence in the substrate
-substrate.m_allow_input_output_links = True
+substrate.m_allow_input_hidden_links = False
+substrate.m_allow_input_output_links = False
 substrate.m_allow_hidden_hidden_links = False
-substrate.m_allow_hidden_output_links = True
+substrate.m_allow_hidden_output_links = False
+substrate.m_allow_output_hidden_links = False
+substrate.m_allow_output_output_links = False
 substrate.m_allow_looped_hidden_links = False
 substrate.m_allow_looped_output_links = False
 
+# let's configure it a bit to avoid recurrence in the substrate
+substrate.m_allow_input_hidden_links = True
+substrate.m_allow_input_output_links = True
+substrate.m_allow_hidden_output_links = True
+substrate.m_allow_hidden_hidden_links = True
 # let's set the activation functions
 substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.TANH
-substrate.m_outputs_nodes_activation = NEAT.ActivationFunction.TANH
+substrate.m_outputs_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
 # when to output a link and max weight
 substrate.m_link_threshold = 0.2
@@ -43,7 +50,7 @@ def evaluate(genome):
         genome.BuildHyperNEATPhenotype(net, substrate)
         
         error = 0
-        depth = 4
+        depth = 2
         
         # do stuff and return the fitness
         net.Flush()
@@ -76,7 +83,7 @@ def evaluate(genome):
     except Exception as ex:
         print 'Exception:', ex
         return 1.0
-    
+
 params = NEAT.Parameters()
 params.PopulationSize = 150
 params.MutateRemLinkProb = 0.02

@@ -47,10 +47,10 @@ Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
     m_allow_input_output_links = true;
     m_allow_hidden_hidden_links = true;
     m_allow_hidden_output_links = true;
-    m_allow_output_hidden_links = true;
-    m_allow_output_output_links = true;
-    m_allow_looped_hidden_links = true;
-    m_allow_looped_output_links = true;
+    m_allow_output_hidden_links = false;
+    m_allow_output_output_links = false;
+    m_allow_looped_hidden_links = false;
+    m_allow_looped_output_links = false;
 
     m_link_threshold = 0.2;
     m_max_weight_and_bias = 5.0;
