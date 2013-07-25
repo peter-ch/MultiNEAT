@@ -14,10 +14,10 @@
 			'libraries': [ '-L${CMAKE_CURRENT_BINARY_DIR}/../..', '-lMultiNEAT' ],
 		  }],
 		  ['OS=="linux"', {
-			'libraries': [ '-L../..', '-lMultiNEAT' ],
+			'libraries': [ '-L${CMAKE_CURRENT_BINARY_DIR}/../..', '-lMultiNEAT' ],
 		  }],
 		  ['OS=="win"', {
-			'libraries': [ '../../MultiNEAT.lib' ]
+			'libraries': [ '${CMAKE_CURRENT_BINARY_DIR}/../../MultiNEAT.lib' ]
 		  }]
 	  ]
     }
