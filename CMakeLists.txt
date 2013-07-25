@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.10)
 
 project(MultiNEAT)
 
-option(PYTHON_BINDING "Python binding" OFF)
+option(PYTHON_BINDING "Python binding" ON)
 option(NODE_BINDING "Node binding" OFF)
 
 if (ARCH)
