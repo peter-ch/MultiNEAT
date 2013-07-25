@@ -36,9 +36,11 @@ http://multineat.com
 ## Examples
 
 - Verbose make
+
     cmake .. -CMAKE_VERBOSE_MAKEFILE=ON
 
 - [node-webkit build](https://github.com/rogerwang/node-webkit)
+
     cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF -DNODE_BINDINGS=ON -DCMAKE_OSX_ARCHITECTURES=i386 -DNODE_GYP_EXECUTABLE=nw-gyp -DNODE_GYP_TARGET=0.6.2
 
 # Licence
