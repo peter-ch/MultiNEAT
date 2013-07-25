@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8.10)
 
 project(MultiNEAT)
 
-option(PYTHON_BINDINGS "Python bindings" OFF)
-option(NODE_BINDINGS "Node bindings" OFF)
+option(PYTHON_BINDING "Python binding" OFF)
+option(NODE_BINDING "Node binding" OFF)
 
 if (ARCH)
 	if (APPLE) 
@@ -29,10 +29,10 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_library(MultiNEAT ${MultiNEAT_SRCS} ${MultiNEAT_HDRS})
 
 
-if (PYTHON_BINDINGS)
+if (PYTHON_BINDING)
 	add_subdirectory(bindings/python)
 endif()
 
-if (NODE_BINDINGS)
+if (NODE_BINDING)
 	add_subdirectory(bindings/node)
 endif()

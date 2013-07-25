@@ -253,15 +253,15 @@ inline int RoundUnderOffset(const double a_Val, const double a_Offset)
 
 // Scales the value "a", that is in range [a_min .. a_max] into its relative value in the range [tr_min .. tr_max]
 // Example: A=2, in the range [0 .. 4] .. we want to scale it to the range [-12 .. 12] .. we get 0..
-inline void Scale(	double& a,
+inline void Scale(    double& a,
                     const double a_min,
                     const double a_max,
                     const double a_tr_min,
                     const double a_tr_max)
 {
-//		ASSERT((a >= a_min) && (a <= a_max));
-//		ASSERT(a_min <= a_max);
-//		ASSERT(a_tr_min <= a_tr_max);
+//        ASSERT((a >= a_min) && (a <= a_max));
+//        ASSERT(a_min <= a_max);
+//        ASSERT(a_tr_min <= a_tr_max);
 
     const double t_a_r = a_max - a_min;
     const double t_r = a_tr_max - a_tr_min;
@@ -271,15 +271,15 @@ inline void Scale(	double& a,
 
 // Scales the value "a", that is in range [a_min .. a_max] into its relative value in the range [tr_min .. tr_max]
 // Example: A=2, in the range [0 .. 4] .. we want to scale it to the range [-12 .. 12] .. we get 0..
-inline void Scale(	float& a,
+inline void Scale(    float& a,
                     const double a_min,
                     const double a_max,
                     const double a_tr_min,
                     const double a_tr_max)
 {
-//		ASSERT((a >= a_min) && (a <= a_max));
-//		ASSERT(a_min <= a_max);
-//		ASSERT(a_tr_min <= a_tr_max);
+//        ASSERT((a >= a_min) && (a <= a_max));
+//        ASSERT(a_min <= a_max);
+//        ASSERT(a_tr_min <= a_tr_max);
 
     const double t_a_r = a_max - a_min;
     const double t_r = a_tr_max - a_tr_min;

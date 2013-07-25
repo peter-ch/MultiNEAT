@@ -69,8 +69,8 @@ public:
 
     Substrate(){};
     Substrate(const std::vector< std::vector<double> >& a_inputs,
-    		  const std::vector< std::vector<double> >& a_hidden,
-    		  const std::vector< std::vector<double> >& a_outputs );
+            const std::vector< std::vector<double> >& a_hidden,
+            const std::vector< std::vector<double> >& a_outputs );
 
     // Construct from 3 Python lists of tuples
     //Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);

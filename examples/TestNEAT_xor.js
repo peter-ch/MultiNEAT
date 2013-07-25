@@ -1,8 +1,8 @@
 var NEAT = require('MultiNEAT');
 
-var input1 = new Float64Array([1, 0, 1]);
-	input2 = new Float64Array([0, 1, 1]);
-	input3 = new Float64Array([1, 1, 1]);
+var input1 = new Float64Array([1, 0, 1]),
+	input2 = new Float64Array([0, 1, 1]),
+	input3 = new Float64Array([1, 1, 1]),
 	input4 = new Float64Array([0, 0, 1]);
 
 function evaluate(genome) {
@@ -38,7 +38,7 @@ function evaluate(genome) {
    return Math.pow(4 - error, 2);
 }
 
-params = new NEAT.Parameters();
+var params = new NEAT.Parameters();
 params.PopulationSize = 120;
 params.DynamicCompatibility = true;
 params.CompatTreshold = 2.0;
@@ -61,8 +61,8 @@ params.MutateAddLinkProb = 0.05;
 params.MutateRemLinkProb = 0.05;
 
 function getbest() {
-   genome = new NEAT.Genome(0, 3, 0, 1, false, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params);
-   pop = new NEAT.Population(genome, params, true, 1.0);
+   var g = new NEAT.Genome(0, 3, 0, 1, false, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params);
+   var pop = new NEAT.Population(g, params, true, 1.0);
    
    for (var generations = 0; generations<1000; generations++) {
    	var genomes = pop.genomes;

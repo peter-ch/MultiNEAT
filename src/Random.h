@@ -40,33 +40,33 @@ namespace NEAT
 
 class RNG
 {
-	boost::random::mt19937 gen;
+    boost::random::mt19937 gen;
 
 public:
-	// Seeds the random number generator with this value
-	void Seed(int seed);
+    // Seeds the random number generator with this value
+    void Seed(int seed);
 
-	// Seeds the random number generator with time
-	void TimeSeed();
+    // Seeds the random number generator with time
+    void TimeSeed();
 
-	// Returns randomly either 1 or -1
-	int RandPosNeg();
+    // Returns randomly either 1 or -1
+    int RandPosNeg();
 
-	// Returns a random integer between X and Y
-	// in case of ( 0 .. 1 ) returns 0
-	int RandInt(int x, int y);
+    // Returns a random integer between X and Y
+    // in case of ( 0 .. 1 ) returns 0
+    int RandInt(int x, int y);
 
-	// Returns a random number from a uniform distribution in the range of [0 .. 1]
-	double RandFloat();
+    // Returns a random number from a uniform distribution in the range of [0 .. 1]
+    double RandFloat();
 
-	// Returns a random number from a uniform distribution in the range of [-1 .. 1]
-	double RandFloatClamped();
+    // Returns a random number from a uniform distribution in the range of [-1 .. 1]
+    double RandFloatClamped();
 
-	// Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
-	double RandGaussClamped();
+    // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
+    double RandGaussClamped();
 
-	// Returns an index given a vector of probabilities
-	int Roulette(std::vector<double>& a_probs);
+    // Returns an index given a vector of probabilities
+    int Roulette(std::vector<double>& a_probs);
 };
 
 

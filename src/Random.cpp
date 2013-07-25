@@ -42,7 +42,7 @@ namespace NEAT
 // Seeds the random number generator with this value
 void RNG::Seed(int a_Seed)
 {
-	gen.seed(a_Seed);
+    gen.seed(a_Seed);
 }
 
 void RNG::TimeSeed()
@@ -56,9 +56,9 @@ int RNG::RandPosNeg()
     boost::random::uniform_int_distribution<> dist(0, 1);
     int choice = dist(gen);
     if (choice == 0)
-    	return -1;
+        return -1;
     else
-    	return 1;
+        return 1;
 }
 
 // Returns a random integer between X and Y
@@ -88,16 +88,16 @@ double RNG::RandFloatClamped()
 // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
 double RNG::RandGaussClamped()
 {
-	boost::random::normal_distribution<> dist;
-	double pick = dist(gen);
-	Clamp(pick, -1, 1);
-	return pick;
+    boost::random::normal_distribution<> dist;
+    double pick = dist(gen);
+    Clamp(pick, -1, 1);
+    return pick;
 }
 
 int RNG::Roulette(std::vector<double>& a_probs)
 {
-	boost::random::discrete_distribution<> d_dist(a_probs);
-	return d_dist(gen);
+    boost::random::discrete_distribution<> d_dist(a_probs);
+    return d_dist(gen);
 }
 
 

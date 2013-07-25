@@ -47,8 +47,8 @@ namespace NEAT
 // The constructor
 Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomizationRange)
 {
-	m_RNG.TimeSeed();
-	//m_RNG.Seed(0);
+    m_RNG.TimeSeed();
+    //m_RNG.Seed(0);
     m_BestFitnessEver = 0.0;
     m_Parameters = a_Parameters;
 
@@ -113,7 +113,7 @@ Population::Population(const char *a_FileName)
 
     std::ifstream t_DataFile(a_FileName);
     if (!t_DataFile.is_open())
-    	throw std::exception();
+        throw std::exception();
     std::string t_str;
 
     // Load the parameters
@@ -257,38 +257,38 @@ void Population::Speciate()
 
 
     /*
-    	//////////////////
-    	// extensive test DEBUG
-    	// ////
-    	// check to see if compatible enough individuals are in different species
+        //////////////////
+        // extensive test DEBUG
+        // ////
+        // check to see if compatible enough individuals are in different species
 
-    	// for each species
-    	for(int i=0; i<m_Species.size(); i++)
-    	{
-    		for(int j=0; j<m_Species.size(); j++)
-    		{
-    			// do not check individuals in the same species
-    			if (i != j)
-    			{
-    				// now for each individual in species [i]
-    				// compare it to all individuals in species [j]
-    				// report if there is a distance smaller that CompatTreshold
-    				for(int sp1=0; sp1<m_Species[i].m_Members.size(); sp1++)
-    				{
-    					for(int sp2=0; sp2<m_Species[j].m_Members.size(); sp2++)
-    					{
-    						double t_dist = m_Species[i].m_Members[sp1]->CompatibilityDistance( *(m_Species[j].m_Members[sp2]) );
+        // for each species
+        for(int i=0; i<m_Species.size(); i++)
+        {
+            for(int j=0; j<m_Species.size(); j++)
+            {
+                // do not check individuals in the same species
+                if (i != j)
+                {
+                    // now for each individual in species [i]
+                    // compare it to all individuals in species [j]
+                    // report if there is a distance smaller that CompatTreshold
+                    for(int sp1=0; sp1<m_Species[i].m_Members.size(); sp1++)
+                    {
+                        for(int sp2=0; sp2<m_Species[j].m_Members.size(); sp2++)
+                        {
+                            double t_dist = m_Species[i].m_Members[sp1]->CompatibilityDistance( *(m_Species[j].m_Members[sp2]) );
 
-    						if (t_dist <= GlobalParameters.CompatTreshold)
-    						{
-    							const string tMessage = "Compatible individuals in different species!";
-    							m_MessageQueue.push(tMessage);
-    						}
-    					}
-    				}
-    			}
-    		}
-    	}
+                            if (t_dist <= GlobalParameters.CompatTreshold)
+                            {
+                                const string tMessage = "Compatible individuals in different species!";
+                                m_MessageQueue.push(tMessage);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     */
 }
 
@@ -436,12 +436,12 @@ void Population::UpdateSpecies()
 // the epoch method - the heart of the GA
 void Population::Epoch()
 {
-	// So, all genomes are evaluated..
+    // So, all genomes are evaluated..
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
-        	m_Species[i].m_Individuals[j].SetEvaluated();
+            m_Species[i].m_Individuals[j].SetEvaluated();
         }
     }
 
@@ -512,11 +512,11 @@ void Population::Epoch()
         {
             if (m_Species.size() > m_Parameters.MaxSpecies)
             {
-            	m_Parameters.CompatTreshold += m_Parameters.CompatTresholdModifier;
+                m_Parameters.CompatTreshold += m_Parameters.CompatTresholdModifier;
             }
             else if (m_Species.size() < m_Parameters.MinSpecies)
             {
-            	m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
+                m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
             }
         }
 
@@ -660,7 +660,7 @@ void Population::Epoch()
     m_TempSpecies.clear();
     m_TempSpecies = m_Species;
     for(unsigned int i=0; i<m_TempSpecies.size(); i++)
-    	m_TempSpecies[i].Clear();
+        m_TempSpecies[i].Clear();
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
@@ -905,8 +905,8 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 {
     // Make sure all individuals are evaluated
     /*for(unsigned int i=0; i<m_Species.size(); i++)
-    	for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
-    		ASSERT(m_Species[i].m_Individuals[j].m_Evaluated);*/
+        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
+            ASSERT(m_Species[i].m_Individuals[j].m_Evaluated);*/
 
     m_NumEvaluations++;
 
@@ -963,12 +963,12 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         {
             if (m_Species.size() > m_Parameters.MaxSpecies)
             {
-            	m_Parameters.CompatTreshold += m_Parameters.CompatTresholdModifier;
+                m_Parameters.CompatTreshold += m_Parameters.CompatTresholdModifier;
                 t_changed = true;
             }
             else if (m_Species.size() < m_Parameters.MinSpecies)
             {
-            	m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
+                m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
                 t_changed = true;
             }
 
@@ -1232,11 +1232,11 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
         // maybe they don't repeat?
         /*for(unsigned int i=0; i<(*m_BehaviorArchive).size(); i++)
         {
-        	if ( (*(t_new_baby->m_PhenotypeBehavior)).m_Data == (*m_BehaviorArchive)[i].m_Data )
-        	{
-        		present = true;
-        		break;
-        	}
+            if ( (*(t_new_baby->m_PhenotypeBehavior)).m_Data == (*m_BehaviorArchive)[i].m_Data )
+            {
+                present = true;
+                break;
+            }
         }*/
 
         if (!present)
@@ -1259,17 +1259,17 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
         // too many generations without adding to the archive?
         if (m_GensSinceLastArchiving > m_Parameters.NoveltySearch_No_Archiving_Stagnation_Treshold)
         {
-        	m_Parameters.NoveltySearch_P_min *= m_Parameters.NoveltySearch_Pmin_lowering_multiplier;
+            m_Parameters.NoveltySearch_P_min *= m_Parameters.NoveltySearch_Pmin_lowering_multiplier;
             if (m_Parameters.NoveltySearch_P_min < m_Parameters.NoveltySearch_Pmin_min)
             {
-            	m_Parameters.NoveltySearch_P_min = m_Parameters.NoveltySearch_Pmin_min;
+                m_Parameters.NoveltySearch_P_min = m_Parameters.NoveltySearch_Pmin_min;
             }
         }
 
         // too much additions to the archive (one after another)?
         if (m_QuickAddCounter > m_Parameters.NoveltySearch_Quick_Archiving_Min_Evaluations)
         {
-        	m_Parameters.NoveltySearch_P_min *= m_Parameters.NoveltySearch_Pmin_raising_multiplier;
+            m_Parameters.NoveltySearch_P_min *= m_Parameters.NoveltySearch_Pmin_raising_multiplier;
         }
     }
 
