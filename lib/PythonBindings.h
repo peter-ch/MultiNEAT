@@ -44,7 +44,7 @@ using namespace NEAT;
 using namespace py;
 
 
-BOOST_PYTHON_MODULE(MultiNEAT)
+BOOST_PYTHON_MODULE(_MultiNEAT)
 {
     numeric::array::set_module_and_type("numpy", "ndarray");
 
