@@ -14,8 +14,8 @@ import MultiNEAT as NEAT
 import multiprocessing as mpc
 
 # the simple 2D substrate with 3 input points, 2 hidden and 1 output for XOR 
-substrate = NEAT.Substrate([(-1, -1), (-1, 1), (-1, 0)], 
-                           [(0, -1), (0, 1)], 
+substrate = NEAT.Substrate([(-1, -1), (-1, 1), (-1, 0)],
+                           [(0, -1), (0, 1)],
                            [(1, 0)])
 
 substrate.m_allow_input_hidden_links = False
@@ -85,7 +85,17 @@ def evaluate(genome):
         return 1.0
 
 params = NEAT.Parameters()
-params.PopulationSize = 150
+params.PopulationSize = 120
+
+params.DynamicCompatibility = True
+params.CompatTreshold = 2.0
+params.YoungAgeTreshold = 15
+params.SpeciesMaxStagnation = 100
+params.OldAgeTreshold = 35
+params.MinSpecies = 5
+params.MaxSpecies = 25
+params.RouletteWheelSelection = False
+
 params.MutateRemLinkProb = 0.02
 params.RecurrentProb = 0
 params.OverallMutationRate = 0.15
@@ -121,45 +131,62 @@ params.ActivationFunction_Linear_Prob = 1.0;
 rng = NEAT.RNG()
 rng.TimeSeed()
 
-g = NEAT.Genome(0, 
-                substrate.GetMinCPPNInputs(), 
-                0, 
-                substrate.GetMinCPPNOutputs(), 
-                False, 
-                NEAT.ActivationFunction.SIGNED_GAUSS, 
-                NEAT.ActivationFunction.SIGNED_GAUSS, 
-                0, 
-                params)
-
-pop = NEAT.Population(g, params, True, 1.0)
-
-for generation in range(1000):
-    genome_list = NEAT.GetGenomeList(pop)
-    fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate, 8, show_progress=False)
-#    fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
-    [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
-
-    print 'Best fitness:', max([x.GetLeader().GetFitness() for x in pop.Species])
+def getbest():
+    g = NEAT.Genome(0, 
+                    substrate.GetMinCPPNInputs(), 
+                    0, 
+                    substrate.GetMinCPPNOutputs(), 
+                    False, 
+                    NEAT.ActivationFunction.SIGNED_GAUSS, 
+                    NEAT.ActivationFunction.SIGNED_GAUSS, 
+                    0, 
+                    params)
     
-    # test
-    net = NEAT.NeuralNetwork()
-    pop.Species[0].GetLeader().BuildPhenotype(net)
-    img = np.zeros((250, 250, 3), dtype=np.uint8)
-    img += 10
-    NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
-    cv2.imshow("CPPN", img)
-
-    net = NEAT.NeuralNetwork()
-    pop.Species[0].GetLeader().BuildHyperNEATPhenotype(net, substrate)
-    img = np.zeros((250, 250, 3), dtype=np.uint8)
-    img += 10
-    NEAT.DrawPhenotype(img, (0, 0, 250, 250), net, substrate=True )
-    cv2.imshow("NN", img)
+    pop = NEAT.Population(g, params, True, 1.0)
     
-    cv2.waitKey(1)
+    for generation in range(1000):
+        genome_list = NEAT.GetGenomeList(pop)
+        fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate, 8, show_progress=False)
+    #    fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
+        [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
+    
+        best = max([x.GetLeader().GetFitness() for x in pop.Species])
+#        print 'Best fitness:', best
+        
+        # test
+        net = NEAT.NeuralNetwork()
+        pop.Species[0].GetLeader().BuildPhenotype(net)
+        img = np.zeros((250, 250, 3), dtype=np.uint8)
+        img += 10
+        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+        cv2.imshow("CPPN", img)
+    
+        net = NEAT.NeuralNetwork()
+        pop.Species[0].GetLeader().BuildHyperNEATPhenotype(net, substrate)
+        img = np.zeros((250, 250, 3), dtype=np.uint8)
+        img += 10
+        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net, substrate=True )
+        cv2.imshow("NN", img)
+        
+        cv2.waitKey(1)
+    
+        pop.Epoch()
+#        print "Generation:", generation
+        generations = generation
+        if best > 15.5:
+            break
+        
+    return generations
 
-    pop.Epoch()
-    print "Generation:", generation
+gens = []
+for run in range(100):
+    gen = getbest()
+    print 'Run:', run, 'Generations to solve XOR:', gen
+    gens += [gen]
+    
+avg_gens = sum(gens) / len(gens)
 
-cv2.waitKey(1)
+print 'All:', gens
+print 'Average:', avg_gens
+
 
