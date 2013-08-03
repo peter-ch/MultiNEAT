@@ -1,0 +1,15 @@
+from distutils.core import setup, Extension
+
+setup(name='MultiNEAT',
+	version='0.1',
+	py_modules=['MultiNEAT'],
+	ext_modules=[Extension(
+		name='_MultiNEAT',
+		sources=['src/PythonBindings.cpp'],
+		depends=['src/PythonBindings.h'],
+		extra_objects=['${CMAKE_CURRENT_BINARY_DIR}/../../libMultiNEAT.a'],
+		include_dirs=['${Boost_INCLUDE_DIRS}', '${MultiNEAT_SOURCE_DIR}'],
+		library_dirs=['${CMAKE_CURRENT_BINARY_DIR}/../..', '${Boost_LIBRARY_DIRS}'],
+		libraries=['boost_python-mt', 'boost_serialization-mt']
+	)]
+)
