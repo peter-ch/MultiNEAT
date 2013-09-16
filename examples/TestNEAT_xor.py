@@ -122,7 +122,7 @@ def getbest():
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
         img += 10
-        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+ #       NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
         cv2.imshow("nn_win", img)
         cv2.waitKey(1)
     
