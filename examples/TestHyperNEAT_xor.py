@@ -146,7 +146,7 @@ def getbest():
     
     for generation in range(1000):
         genome_list = NEAT.GetGenomeList(pop)
-        fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate, 8, show_progress=False)
+        fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, 8, show_progress=False)
     #    fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
     
@@ -158,14 +158,14 @@ def getbest():
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
         img += 10
-#        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
         cv2.imshow("CPPN", img)
     
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildHyperNEATPhenotype(net, substrate)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
         img += 10
-#        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net, substrate=True )
+        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net, substrate=True )
         cv2.imshow("NN", img)
         
         cv2.waitKey(1)

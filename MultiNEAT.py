@@ -111,8 +111,9 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores, show_progress=Tru
     if show_progress:
         print 'seconds elapsed: %s' % elapsed
 
-    pool.close()
     pool.join()
+    pool.close()
+
     return (fitnesses, elapsed)
 
 

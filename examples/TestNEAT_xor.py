@@ -100,20 +100,10 @@ def getbest():
     
     generations = 0
     for generation in range(1000):
-        genome_list = []
-        for s in pop.Species:
-            for i in s.Individuals:
-                genome_list.append(i)
-    
-    #    for g in genome_list:
-    #        f = evaluate(g)
-    #        g.SetFitness(f)
-    
-    # Parallel processing
-        fits = pool.map(evaluate, genome_list)
-        for f,g in zip(fits, genome_list):
-            g.SetFitness(f)
-    
+        genome_list = NEAT.GetGenomeList(pop)
+        fitness_list, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, 8, show_progress=False)
+        NEAT.ZipFitness(genome_list, fitness_list)
+        
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
 #        print 'Best fitness:', best, 'Species:', len(pop.Species)
         
@@ -122,7 +112,7 @@ def getbest():
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
         img += 10
- #       NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
         cv2.imshow("nn_win", img)
         cv2.waitKey(1)
     
