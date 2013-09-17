@@ -101,7 +101,7 @@ def getbest():
     generations = 0
     for generation in range(1000):
         genome_list = NEAT.GetGenomeList(pop)
-        fitness_list, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, 8, show_progress=False)
+        fitness_list, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
         NEAT.ZipFitness(genome_list, fitness_list)
         
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
