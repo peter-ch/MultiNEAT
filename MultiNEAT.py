@@ -65,7 +65,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator):
         fitnesses.append(f)
 
         if prbar_installed:
-            progress.update(count)
+            progress.update(count+1)
         else:
             print 'Individuals: (%s/%s)' % (count, len(genome_list))
 
@@ -81,7 +81,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator):
 # Evaluates all genomes in parallel manner (many processes) and returns a
 # list of corresponding fitness values and the time it took  evaluator is
 # a callable that is supposed to take Genome as argument and return a double
-def EvaluateGenomeList_Parallel(genome_list, evaluator, cores, show_progress=True):
+def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, show_progress=True):
     fitnesses = []
     pool = mpc.Pool(processes=cores)
     curtime = time.time()
@@ -94,7 +94,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores, show_progress=Tru
 
     for i, fitness in enumerate(pool.imap(evaluator, genome_list)):
         if prbar_installed and show_progress:
-            progress.update(i+1)
+            progress.update(i)
         else:
             if show_progress:
                 print 'Individuals: (%s/%s)' % (i, len(genome_list))
@@ -111,10 +111,10 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores, show_progress=Tru
     if show_progress:
         print 'seconds elapsed: %s' % elapsed
 
-    pool.join()
     pool.close()
+    pool.join()
 
-    return (fitnesses, elapsed)
+    return fitnesses
 
 
 # Just set the fitness values to the genomes
