@@ -146,7 +146,7 @@ def getbest():
     
     for generation in range(1000):
         genome_list = NEAT.GetGenomeList(pop)
-        fitnesses, elapsed = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
+        fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
     #    fitnesses, elapsed = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
     
