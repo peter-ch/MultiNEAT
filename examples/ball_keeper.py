@@ -28,7 +28,7 @@ from pygame.color import *
 
 import pymunk as pm
 from pymunk import Vec2d
-from pymunk.pygame_util import draw_space, from_pygame
+from pymunk.pygame_util import draw, from_pygame
 
 collision_type_wall = 0
 collision_type_nn = 1
@@ -193,7 +193,7 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
             screen.fill(THECOLORS["black"])
             
             ### Draw stuff
-            draw_space(screen, space)
+            draw(screen, space)
             
             ### Flip screen
             pygame.display.flip()
