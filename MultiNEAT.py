@@ -1,6 +1,7 @@
+from __future__ import division
 import multiprocessing as mpc
 import time
-from _MultiNEAT import *  # noqa
+from _MultiNEAT import *  
 
 
 try:
@@ -25,13 +26,6 @@ except:
     cvnumpy_installed = False
 
 
-# NetworkX support
-#try:
-#    import networkx as nx
-#    networkx_installed = True
-#except:
-#    networkx_installed = False
-
 
 # Get all genomes from the population
 def GetGenomeList(pop):
@@ -50,65 +44,63 @@ FetchGenomeList = GetGenomeList
 # returns a list of corresponding fitness values and the time it took
 # evaluator is a callable that is supposed to take Genome as argument and
 # return a double
-def EvaluateGenomeList_Serial(genome_list, evaluator):
+def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
     fitnesses = []
-    curtime = time.time()
+    count = 0
 
-    if prbar_installed:
+    if prbar_installed and display:
         widg = ['Individuals: ', Counter(), ' of ' + str(len(genome_list)),
                 ' ', ETA(), ' ', AnimatedMarker()]
         progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
 
-    count = 0
     for g in genome_list:
         f = evaluator(g)
         fitnesses.append(f)
 
-        if prbar_installed:
-            progress.update(count+1)
-        else:
-            print 'Individuals: (%s/%s)' % (count, len(genome_list))
+        if display:
+            if prbar_installed:
+                progress.update(count+1)
+            else:
+                print 'Individuals: (%s/%s)' % (count, len(genome_list))
+        
+                count += 1
 
-        count += 1
-
-    if prbar_installed:
+    if prbar_installed and display:
         progress.finish()
 
-    elapsed = time.time() - curtime
-    print 'seconds elapsed: %s' % elapsed
-    return (fitnesses, elapsed)
+    return fitnesses
     
 # Evaluates all genomes in parallel manner (many processes) and returns a
 # list of corresponding fitness values and the time it took  evaluator is
 # a callable that is supposed to take Genome as argument and return a double
-def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, show_progress=True):
+def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
     fitnesses = []
     pool = mpc.Pool(processes=cores)
     curtime = time.time()
 
-    if prbar_installed:
+    if prbar_installed and display:
         widg = ['Individuals: ', Counter(),
                 ' of ' + str(len(genome_list)), ' ', ETA(), ' ',
                 AnimatedMarker()]
         progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
 
     for i, fitness in enumerate(pool.imap(evaluator, genome_list)):
-        if prbar_installed and show_progress:
+        if prbar_installed and display:
             progress.update(i)
         else:
-            if show_progress:
+            if display:
                 print 'Individuals: (%s/%s)' % (i, len(genome_list))
 
-#        if cvnumpy_installed:
-#            cv2.waitKey(1)
+        if cvnumpy_installed:
+            cv2.waitKey(1)
         fitnesses.append(fitness)
 
-    if prbar_installed and show_progress:
+    if prbar_installed and display:
         progress.finish()
 
     elapsed = time.time() - curtime
 
-    if show_progress:
+    if display:
         print 'seconds elapsed: %s' % elapsed
 
     pool.close()
@@ -154,9 +146,10 @@ def AlmostEqual(a, b, margin):
 if not cvnumpy_installed:
     def DrawPhenotype(image, rect, nn, neuron_radius=10,
                       max_line_thickness=3, substrate=False):
-        pass
+        print "OpenCV/NumPy don't appear to be installed"
+        raise NotImplementedError
 else:
-    MAX_DEPTH = 250
+    MAX_DEPTH = 64
 
     def DrawPhenotype(image, rect, nn, neuron_radius=10,
                       max_line_thickness=3, substrate=False):
@@ -174,10 +167,6 @@ else:
             # for every depth, count how many nodes are on this depth
             all_depths = np.linspace(0.0, 1.0, MAX_DEPTH)
 
-            #depth_inc = 1.0 / MAX_DEPTH
-            #np.concatenate(np.arange(0.0, 1.0, depth_inc, dtype=np.float32),
-            #               [1.0])
-
             for depth in all_depths:
                 neuron_count = 0
                 for neuron in nn.neurons:
@@ -188,12 +177,11 @@ else:
 
                 # calculate x positions of neurons
                 xxpos = rect_x_size / (1 + neuron_count)
-
-                for j, neuron in enumerate(nn.neurons):
-                    if AlmostEqual(neuron.split_y, depth,
-                                   1.0 / (MAX_DEPTH + 1)):
-                        new_pos = rect_x + xxpos + j
-                        neuron.x = new_pos * (rect_x_size) / (2 + neuron_count)
+                j = 0
+                for neuron in nn.neurons:
+                    if AlmostEqual(neuron.split_y, depth, 1.0 / (MAX_DEPTH+1)):
+                        neuron.x = rect_x + xxpos + j * (rect_x_size / (2 + neuron_count))
+                        j = j + 1
 
             # calculate y positions of nodes
             for neuron in nn.neurons:
@@ -260,7 +248,7 @@ else:
                     color = (0, 0, int(255.0 * w))
 
             # if the link is looping back on the same neuron, draw it with
-            #ellipse
+            # ellipse
             if conn.source_neuron_idx == conn.target_neuron_idx:
                 pass  # todo: later
 

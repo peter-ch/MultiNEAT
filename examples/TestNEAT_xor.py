@@ -95,13 +95,10 @@ def getbest():
     g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
     pop = NEAT.Population(g, params, True, 1.0)
     
-    
-    pool = mpc.Pool(processes = 4)
-    
     generations = 0
     for generation in range(1000):
         genome_list = NEAT.GetGenomeList(pop)
-        fitness_list = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
+        fitness_list = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         NEAT.ZipFitness(genome_list, fitness_list)
         
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
@@ -113,6 +110,7 @@ def getbest():
         img = np.zeros((250, 250, 3), dtype=np.uint8)
         img += 10
         NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+        
         cv2.imshow("nn_win", img)
         cv2.waitKey(1)
     

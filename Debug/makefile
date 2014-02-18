@@ -9,6 +9,7 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include lib/subdir.mk
+-include build/temp.linux-x86_64-2.7/lib/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -38,19 +39,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: MultiNEAT.so
+all: MultiNEAT
 
 # Tool invocations
-MultiNEAT.so: $(OBJS) $(USER_OBJS)
+MultiNEAT: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -shared -o "MultiNEAT.so" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -shared -o "MultiNEAT" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(LIBRARIES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) MultiNEAT.so
+	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(LIBRARIES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) MultiNEAT
 	-@echo ' '
 
 .PHONY: all clean dependents
