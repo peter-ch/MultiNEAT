@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lboost_python -lboost_serialization -lpython2.7
+LIBS := -lpython2.7 -lboost_python -lboost_serialization
 

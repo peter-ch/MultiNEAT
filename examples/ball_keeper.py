@@ -185,7 +185,7 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
             # draw the phenotype
             img = np.zeros((250, 250, 3), dtype=np.uint8)
             img += 10
-#            NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+            NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
             cv2.imshow("current best", img)
             cv2.waitKey(1)
             
@@ -243,7 +243,7 @@ def main():
     
     
     params = NEAT.Parameters()
-    params.PopulationSize = 1000
+    params.PopulationSize = 250
     params.DynamicCompatibility = True
     params.AllowClones = True
     params.CompatTreshold = 5.0
@@ -251,8 +251,8 @@ def main():
     params.YoungAgeTreshold = 15
     params.SpeciesMaxStagnation = 100
     params.OldAgeTreshold = 35
-    params.MinSpecies = 5
-    params.MaxSpecies = 250
+    params.MinSpecies = 3
+    params.MaxSpecies = 10
     params.RouletteWheelSelection = True
     params.RecurrentProb = 0.25
     params.OverallMutationRate = 0.33
