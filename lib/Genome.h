@@ -210,10 +210,10 @@ public:
     }
 
     // A little helper function to find the index of a neuron, given its ID
-    unsigned int GetNeuronIndex(unsigned int a_id) const;
+    int GetNeuronIndex(unsigned int a_id) const;
 
     // A little helper function to find the index of a link, given its innovation ID
-    unsigned int GetLinkIndex(unsigned int a_innovid) const;
+    int GetLinkIndex(unsigned int a_innovid) const;
 
     unsigned int NumNeurons() const { return static_cast<unsigned int>(m_NeuronGenes.size()); }
     unsigned int NumLinks() const { return static_cast<unsigned int>(m_LinkGenes.size()); }

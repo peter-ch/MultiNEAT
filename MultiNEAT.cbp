@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="MultiNEAT" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/MultiNEAT" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="/usr/include/python2.7" />
+				</Compiler>
+				<Linker>
+					<Add library="python2.7" />
+					<Add library="boost_python" />
+					<Add library="boost_serialization" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/MultiNEAT" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="lib/Assert.h" />
+		<Unit filename="lib/Genes.h" />
+		<Unit filename="lib/Genome.cpp" />
+		<Unit filename="lib/Genome.h" />
+		<Unit filename="lib/Innovation.cpp" />
+		<Unit filename="lib/Innovation.h" />
+		<Unit filename="lib/Main.cpp" />
+		<Unit filename="lib/NeuralNetwork.cpp" />
+		<Unit filename="lib/NeuralNetwork.h" />
+		<Unit filename="lib/Parameters.cpp" />
+		<Unit filename="lib/Parameters.h" />
+		<Unit filename="lib/PhenotypeBehavior.cpp" />
+		<Unit filename="lib/PhenotypeBehavior.h" />
+		<Unit filename="lib/Population.cpp" />
+		<Unit filename="lib/Population.h" />
+		<Unit filename="lib/PythonBindings.cpp" />
+		<Unit filename="lib/PythonBindings.h" />
+		<Unit filename="lib/Random.cpp" />
+		<Unit filename="lib/Random.h" />
+		<Unit filename="lib/Species.cpp" />
+		<Unit filename="lib/Species.h" />
+		<Unit filename="lib/Substrate.cpp" />
+		<Unit filename="lib/Substrate.h" />
+		<Unit filename="lib/Utils.cpp" />
+		<Unit filename="lib/Utils.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

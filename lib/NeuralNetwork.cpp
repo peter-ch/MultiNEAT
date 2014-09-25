@@ -39,7 +39,7 @@
 #include "assert.h"
 #include "Utils.h"
 
-#define NULL 0
+//#define NULL 0
 #define sqr(x) ((x)*(x))
 #define LEARNING_RATE 0.0001
 

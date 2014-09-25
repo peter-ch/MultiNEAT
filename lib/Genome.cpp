@@ -244,7 +244,7 @@ Genome::Genome(unsigned int a_ID,
 
 // A little helper function to find the index of a neuron, given its ID
 // returns -1 if not found
-unsigned int Genome::GetNeuronIndex(unsigned int a_ID) const
+int Genome::GetNeuronIndex(unsigned int a_ID) const
 {
     ASSERT(a_ID > 0);
 
@@ -261,7 +261,7 @@ unsigned int Genome::GetNeuronIndex(unsigned int a_ID) const
 
 // A little helper function to find the index of a link, given its innovation ID
 // returns -1 if not found
-unsigned int Genome::GetLinkIndex(unsigned int a_InnovID) const
+int Genome::GetLinkIndex(unsigned int a_InnovID) const
 {
     ASSERT(a_InnovID > 0);
     ASSERT(NumLinks() > 0);
@@ -283,7 +283,7 @@ unsigned int Genome::GetLastNeuronID() const
 {
     ASSERT(NumNeurons() > 0);
 
-    int t_maxid = 0;
+    unsigned int t_maxid = 0;
 
     for(unsigned int i=0; i< NumNeurons(); i++)
     {
@@ -299,7 +299,7 @@ unsigned int Genome::GetLastInnovationID() const
 {
     ASSERT(NumLinks() > 0);
 
-    int t_maxid = 0;
+    unsigned int t_maxid = 0;
 
     for(unsigned int i=0; i< NumLinks(); i++)
     {
@@ -510,7 +510,7 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
             std::vector<double> t_inputs;
             t_inputs.resize(CPPN_numinputs);
 
-            for(int n=0; n<net.m_neurons[i].m_substrate_coords.size(); n++)
+            for(unsigned int n=0; n<net.m_neurons[i].m_substrate_coords.size(); n++)
                 t_inputs[n] = net.m_neurons[i].m_substrate_coords[n];
 
             if (subst.m_with_distance)
@@ -697,8 +697,8 @@ double Genome::CompatibilityDistance(Genome &a_G, Parameters& a_Parameters)
     double t_num_matching_neurons = 0;
 
     // used for percentage of excess/disjoint genes calculation
-    int t_max_genome_size = static_cast<int> (NumLinks()   < a_G.NumLinks())   ? (a_G.NumLinks())   : (NumLinks());
-    int t_max_neurons     = static_cast<int> (NumNeurons() < a_G.NumNeurons()) ? (a_G.NumNeurons()) : (NumNeurons());
+    //int t_max_genome_size = static_cast<int> (NumLinks()   < a_G.NumLinks())   ? (a_G.NumLinks())   : (NumLinks());
+    //int t_max_neurons     = static_cast<int> (NumNeurons() < a_G.NumNeurons()) ? (a_G.NumNeurons()) : (NumNeurons());
 
     t_g1 = m_LinkGenes.begin();
     t_g2 = a_G.m_LinkGenes.begin();

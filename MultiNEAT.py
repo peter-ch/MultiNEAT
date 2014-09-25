@@ -41,7 +41,7 @@ FetchGenomeList = GetGenomeList
 
 
 # Evaluates all genomes in sequential manner (using only 1 process) and
-# returns a list of corresponding fitness values and the time it took
+# returns a list of corresponding fitness values.
 # evaluator is a callable that is supposed to take Genome as argument and
 # return a double
 def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
@@ -71,8 +71,8 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
     return fitnesses
     
 # Evaluates all genomes in parallel manner (many processes) and returns a
-# list of corresponding fitness values and the time it took  evaluator is
-# a callable that is supposed to take Genome as argument and return a double
+# list of corresponding fitness values. 
+# evaluator is a callable that is supposed to take Genome as argument and return a double
 def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
     fitnesses = []
     pool = mpc.Pool(processes=cores)

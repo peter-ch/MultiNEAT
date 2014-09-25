@@ -174,7 +174,7 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
         if (tstep % 20) == 0:
             agent.interact(ball)
         avg_ball_height += ball.body.position[1]
-            
+        
         # stopping conditions
         if not ball.in_air:
             break

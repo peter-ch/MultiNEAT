@@ -178,9 +178,9 @@ public:
         double best = -9999999;
         int idx_species = 0;
         int idx_genome = 0;
-        for(int i=0; i<m_Species.size(); i++)
+        for(unsigned int i=0; i<m_Species.size(); i++)
         {
-            for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+            for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
             {
                 if (m_Species[i].m_Individuals[j].GetFitness() > best)
                 {

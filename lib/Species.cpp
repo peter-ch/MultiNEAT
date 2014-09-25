@@ -147,7 +147,7 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
     {
         // roulette wheel selection
         std::vector<double> t_probs;
-        for(int i=0; i<t_Evaluated.size(); i++)
+        for(unsigned int i=0; i<t_Evaluated.size(); i++)
             t_probs.push_back( t_Evaluated[i].GetFitness() );
         t_chosen_one = a_RNG.Roulette(t_probs);
     }

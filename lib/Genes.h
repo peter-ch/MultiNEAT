@@ -100,18 +100,18 @@ private:
     // anymore
 
     // The IDs of the neurons that this link connects
-    int m_FromNeuronID, m_ToNeuronID;
+    unsigned int m_FromNeuronID, m_ToNeuronID;
 
     // The link's innovation ID
-    int m_InnovationID;
-
-    // Is it recurrent?
-    bool m_IsRecurrent;
+    unsigned int m_InnovationID;
 
     // This variable is modified during evolution
     // The weight of the connection
     double m_Weight;
 
+    // Is it recurrent?
+    bool m_IsRecurrent;
+	
 public:
 
     // Serialization
@@ -140,7 +140,7 @@ public:
     ////////////////
     // Constructors
     ////////////////
-    LinkGene(int a_InID, int a_OutID, int a_InnovID, double a_Wgt, bool a_Recurrent = false):
+    LinkGene(unsigned int a_InID, unsigned int a_OutID, unsigned int a_InnovID, double a_Wgt, bool a_Recurrent = false):
         m_FromNeuronID(a_InID), m_ToNeuronID(a_OutID), m_InnovationID(a_InnovID), m_Weight(a_Wgt), m_IsRecurrent(a_Recurrent)
     {}
 
@@ -171,15 +171,15 @@ public:
     //////////////
 
     // Access to static (const) variables
-    int FromNeuronID() const
+    unsigned int FromNeuronID() const
     {
         return m_FromNeuronID;
     }
-    int ToNeuronID() const
+    unsigned int ToNeuronID() const
     {
         return m_ToNeuronID;
     }
-    int InnovationID() const
+    unsigned int InnovationID() const
     {
         return m_InnovationID;
     }
@@ -230,7 +230,7 @@ private:
     // anymore
 
     // Its unique identification number
-    int m_ID;
+    unsigned int m_ID;
 
     // Its type and role in the network
     NeuronType m_Type;
@@ -303,7 +303,7 @@ public:
     // Constructors
     ////////////////
     NeuronGene(NeuronType a_type,
-               int a_id,
+               unsigned int a_id,
                double a_splity)
         :m_ID(a_id), m_Type(a_type), m_SplitY(a_splity)
     {
@@ -354,7 +354,7 @@ public:
     //////////////
 
     // Accessing static (const) variables
-    int ID() const
+    unsigned int ID() const
     {
         return m_ID;
     }

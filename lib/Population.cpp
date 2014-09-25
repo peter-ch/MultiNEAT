@@ -459,7 +459,7 @@ void Population::Epoch()
     // Adjust the species's fitness
     AdjustFitness();
 
-    // Count the offpring of each individual and species
+    // Count the offspring of each individual and species
     CountOffspring();
 
     // Incrementing the global stagnation counter, we can check later for global stagnation
@@ -492,7 +492,7 @@ void Population::Epoch()
     }
 
     // Find and save the current best genome
-    double t_bestf = -999999;
+    double t_bestf = DBL_MIN;
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
@@ -506,7 +506,7 @@ void Population::Epoch()
     }
 
 
-    // adjust the compatibility treshold
+    // adjust the compatibility threshold
     if (m_Parameters.DynamicCompatibility == true)
     {
         if ((m_Generation % m_Parameters.CompatTreshChangeInterval_Generations) == 0)
@@ -609,7 +609,7 @@ void Population::Epoch()
 
                     // Reset variables for simplifying mode
                     m_GensSinceMPCLastChanged = 0;
-                    m_OldMPC = 10000000; // Really big one
+                    m_OldMPC = DBL_MAX; // Really big one
 
                     // reset the age of species
                     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -738,7 +738,7 @@ Genome g_dummy; // empty genome
 Genome& Population::AccessGenomeByIndex(unsigned int const a_idx)
 {
     ASSERT(a_idx < m_Genomes.size());
-    int t_counter = 0;
+    unsigned int t_counter = 0;
 
     for (unsigned int i = 0; i < m_Species.size(); i++)
     {
@@ -805,7 +805,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     ASSERT(a_genome_idx < m_Genomes.size());
 
     // first remember where is this genome exactly
-    unsigned int t_species_idx, t_genome_rel_idx;
+    unsigned int t_species_idx = 0, t_genome_rel_idx = 0;
     unsigned int t_counter = 0;
 
     // to keep the genome
@@ -901,7 +901,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
 
 // Main realtime loop. We assume that the whole population was evaluated once before calling this.
 // Returns a pointer to the baby in the population. It will be the only individual that was not evaluated.
-// Set the m_Evaluated flag of the baby to true after evaluation! Or simply call Adult()
+// Set the m_Evaluated flag of the baby to true after evaluation! 
 Genome* Population::Tick(Genome& a_deleted_genome)
 {
     // Make sure all individuals are evaluated
@@ -919,7 +919,9 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
             if (m_Species[i].m_Individuals[j].GetFitness() <= 0.0)
+            {
                 m_Species[i].m_Individuals[j].SetFitness(0.00001);
+            }
 
             const double  t_Fitness = m_Species[i].m_Individuals[j].GetFitness();
             if (t_Fitness > m_BestFitnessEver)
@@ -990,7 +992,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     Sort();
 
     // Remove the worst individual
-    a_deleted_genome = RemoveWorstIndividual();
+    /*a_deleted_genome = */RemoveWorstIndividual();
 
     // Recalculate all averages for each species
     // If the average species fitness of a species is 0,
@@ -1065,7 +1067,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 Genome Population::RemoveWorstIndividual()
 {
     unsigned int t_worst_idx=-1; // within the species
-    unsigned int t_worst_absolute_idx=0; // within the population
+    //unsigned int t_worst_absolute_idx=0; // within the population
     unsigned int t_worst_species_idx=0; // within the population
     double       t_worst_fitness = DBL_MAX;
 
@@ -1085,7 +1087,7 @@ Genome Population::RemoveWorstIndividual()
                 t_worst_fitness = t_adjusted_fitness;
                 t_worst_idx = j;
                 t_worst_species_idx = i;
-                t_worst_absolute_idx = t_abs_counter;
+                //t_worst_absolute_idx = t_abs_counter;
                 t_genome = m_Species[i].m_Individuals[j];
             }
 

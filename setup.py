@@ -17,5 +17,6 @@ setup(name='MultiNEAT',
                                             'lib/Substrate.cpp',
                                             'lib/Utils.cpp'],
                              libraries=['boost_python',
-                                        'boost_serialization'])]
-      )
+                                        'boost_serialization'], 
+                             extra_compile_args=['-O3', '-march=native'])
+                   ])

@@ -133,7 +133,7 @@ int Substrate::GetMinCPPNOutputs()
 
 int Substrate::GetMaxDims()
 {
-    int max_dims = 0;
+    unsigned int max_dims = 0;
     for(unsigned int i=0; i<m_input_coords.size(); i++)
         if (max_dims < m_input_coords[i].size())
             max_dims = m_input_coords[i].size();
