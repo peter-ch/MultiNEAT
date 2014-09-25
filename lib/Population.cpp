@@ -992,7 +992,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     Sort();
 
     // Remove the worst individual
-    /*a_deleted_genome = */RemoveWorstIndividual();
+    a_deleted_genome = RemoveWorstIndividual();
 
     // Recalculate all averages for each species
     // If the average species fitness of a species is 0,

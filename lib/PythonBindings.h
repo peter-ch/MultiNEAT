@@ -189,7 +189,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
     def("GetRandomActivation", &GetRandomActivation);
 
-    class_<Genome>("Genome", init<>())
+    class_<Genome, Genome*>("Genome", init<>())
 
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
@@ -273,6 +273,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     class_<Population>("Population", init<Genome, Parameters, bool, double>())
             .def(init<char*>())
             .def("Epoch", &Population::Epoch)
+            .def("Tick", &Population::Tick, return_value_policy<manage_new_object>())
             .def("Save", &Population::Save)
             .def("GetBestFitnessEver", &Population::GetBestFitnessEver)
             .def("GetBestGenome", &Population::GetBestGenome)
