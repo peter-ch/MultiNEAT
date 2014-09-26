@@ -1,7 +1,7 @@
 from __future__ import division
 import multiprocessing as mpc
 import time
-from _MultiNEAT import *  
+from _MultiNEAT import *
 
 
 try:
@@ -62,16 +62,16 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
                 progress.update(count+1)
             else:
                 print 'Individuals: (%s/%s)' % (count, len(genome_list))
-        
+
                 count += 1
 
     if prbar_installed and display:
         progress.finish()
 
     return fitnesses
-    
+
 # Evaluates all genomes in parallel manner (many processes) and returns a
-# list of corresponding fitness values. 
+# list of corresponding fitness values.
 # evaluator is a callable that is supposed to take Genome as argument and return a double
 def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
     fitnesses = []
@@ -113,6 +113,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
 def ZipFitness(genome_list, fitness_list):
     for g, f in zip(genome_list, fitness_list):
         g.SetFitness(f)
+        g.SetEvaluated()
 
 
 def Scale(a, a_min, a_max, a_tr_min, a_tr_max):
