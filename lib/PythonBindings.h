@@ -267,6 +267,21 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
 
 ///////////////////////////////////////////////////////////////////
+// PhenotypeBehavior class
+///////////////////////////////////////////////////////////////////
+
+    class_<PhenotypeBehavior, PhenotypeBehavior*>("PhenotypeBehavior", init<>())
+
+            .def("Acquire", &PhenotypeBehavior::Acquire)
+            .def("Distance_To", &PhenotypeBehavior::Distance_To)
+            .def("Successful", &PhenotypeBehavior::Successful)
+            
+            .def_readwrite("m_Data", &PhenotypeBehavior::m_Data)
+            ;
+
+
+
+///////////////////////////////////////////////////////////////////
 // Population class
 ///////////////////////////////////////////////////////////////////
 
@@ -274,6 +289,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def("Epoch", &Population::Epoch)
             .def("Tick", &Population::Tick, return_value_policy<reference_existing_object>())
+            .def("InitPhenotypeBehaviorData", &Population::InitPhenotypeBehaviorData)
+            .def("NoveltySearchTick", &Population::NoveltySearchTick)
             .def("Save", &Population::Save)
             .def("GetBestFitnessEver", &Population::GetBestFitnessEver)
             .def("GetBestGenome", &Population::GetBestGenome)
@@ -401,6 +418,10 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(vector_indexing_suite< std::vector<double> >() )
             ;
 
+    class_< std::vector< std::vector<double> > >("DoublesList2D")
+            .def(vector_indexing_suite< std::vector< std::vector<double> > >() )
+            ; 
+
     class_< std::vector<float> >("FloatsList")
             .def(vector_indexing_suite< std::vector<float> >() )
             ;
@@ -425,6 +446,11 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
     class_< std::vector<Connection> >("ConnectionList")
             .def(vector_indexing_suite< std::vector<Connection> >() )
+            ;
+
+    // For dealing with Phenotype behaviors
+    class_< std::vector<PhenotypeBehavior> >("PhenotypeBehaviorList")
+            .def(vector_indexing_suite< std::vector<PhenotypeBehavior> >() )
             ;
 };
 

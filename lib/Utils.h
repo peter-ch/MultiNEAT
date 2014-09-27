@@ -36,17 +36,17 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <limits>
 #include "Assert.h"
 #include "Random.h"
-#include <float.h>
 
 using namespace std;
 
 
 inline void GetMaxMin(const vector<double>& a_Vals, double& a_Min, double& a_Max)
 {
-    a_Max = DBL_MIN;
-    a_Min = DBL_MAX;
+    a_Max = std::numeric_limits<double>::min();
+    a_Min = std::numeric_limits<double>::max();
     for(vector<double>::const_iterator t_It = a_Vals.begin(); t_It != a_Vals.end(); ++t_It)
     {
         const double t_CurrentVal = (*t_It);

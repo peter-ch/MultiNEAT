@@ -72,6 +72,10 @@ public:
         //ASSERT(false);
         return true;
     }
+    
+    // comparison operator (nessesary for boost::python)
+    // todo: implement a better comparison technique
+    bool operator==(PhenotypeBehavior const& other) const { return m_Data == other.m_Data; }
 };
 
 

@@ -31,6 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
+#include <float.h>
 
 #include "Innovation.h"
 #include "Genome.h"
@@ -175,7 +176,7 @@ public:
     double GetBestFitnessEver() const { return m_BestFitnessEver; }
     Genome GetBestGenome() const
     {
-        double best = -9999999;
+        double best = std::numeric_limits<double>::min();
         int idx_species = 0;
         int idx_genome = 0;
         for(unsigned int i=0; i<m_Species.size(); i++)
@@ -259,7 +260,8 @@ public:
 
     // Call this function to allocate memory for your custom
     // behaviors. This initializes everything.
-    void InitPhenotypeBehaviorData(std::vector< PhenotypeBehavior >* a_population, std::vector< PhenotypeBehavior >* a_archive);
+    void InitPhenotypeBehaviorData(std::vector< PhenotypeBehavior >* a_population, 
+                                   std::vector< PhenotypeBehavior >* a_archive);
 
     // This is the main method performing novelty search.
     // Performs one reproduction and assigns novelty scores

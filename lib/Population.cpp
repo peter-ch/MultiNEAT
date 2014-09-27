@@ -492,7 +492,7 @@ void Population::Epoch()
     }
 
     // Find and save the current best genome
-    double t_bestf = DBL_MIN;
+    double t_bestf = std::numeric_limits<double>::min();
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
@@ -609,7 +609,7 @@ void Population::Epoch()
 
                     // Reset variables for simplifying mode
                     m_GensSinceMPCLastChanged = 0;
-                    m_OldMPC = DBL_MAX; // Really big one
+                    m_OldMPC = std::numeric_limits<double>::max(); // Really big one
 
                     // reset the age of species
                     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -938,7 +938,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         }
     }
 
-    double t_f = DBL_MIN;
+    double t_f = std::numeric_limits<double>::min();
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
@@ -1066,10 +1066,10 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
 Genome Population::RemoveWorstIndividual()
 {
-    unsigned int t_worst_idx=-1; // within the species
+    unsigned int t_worst_idx=0; // within the species
     //unsigned int t_worst_absolute_idx=0; // within the population
     unsigned int t_worst_species_idx=0; // within the population
-    double       t_worst_fitness = DBL_MAX;
+    double       t_worst_fitness = std::numeric_limits<double>::max();
 
     Genome t_genome;
 
@@ -1194,10 +1194,12 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
     if ((m_NumEvaluations % m_Parameters.NoveltySearch_Recompute_Sparseness_Each)==0)
     {
         for(unsigned int i=0; i<m_Species.size(); i++)
+        {
             for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
             {
                 m_Species[i].m_Individuals[j].SetFitness(ComputeSparseness(m_Species[i].m_Individuals[j]));
             }
+        }
     }
 
     // OK now get the new baby
