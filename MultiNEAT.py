@@ -62,8 +62,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
                 progress.update(count+1)
             else:
                 print 'Individuals: (%s/%s)' % (count, len(genome_list))
-
-                count += 1
+        count += 1
 
     if prbar_installed and display:
         progress.finish()
