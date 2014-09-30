@@ -24,16 +24,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // File:        Random.cpp
-// Description: Definitions for some global functions dealing with random numbers.
+// Description: Definition for a class dealing with random numbers.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/random.hpp>
 
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "Utils.h"
 #include "Random.h"
+#include "Utils.h"
 
 namespace NEAT
 {
@@ -53,7 +52,11 @@ void RNG::TimeSeed()
 // Returns randomly either 1 or -1
 int RNG::RandPosNeg()
 {
+#ifdef USE_BOOST_RANDOM
     boost::random::uniform_int_distribution<> dist(0, 1);
+#elif USE_CPP11_RANDOM
+    std::uniform_int_distribution<int> dist(0,1);
+#endif
     int choice = dist(gen);
     if (choice == 0)
         return -1;
@@ -65,30 +68,44 @@ int RNG::RandPosNeg()
 // in case of ( 0 .. 1 ) returns 0
 int RNG::RandInt(int aX, int aY)
 {
+#ifdef USE_BOOST_RANDOM
     boost::random::uniform_int_distribution<> dist(aX, aY);
+#elif USE_CPP11_RANDOM
+    std::uniform_int_distribution<int> dist(0,1);
+#endif
     return dist(gen);
 }
-
-
-
 
 // Returns a random number from a uniform distribution in the range of [0 .. 1]
 double RNG::RandFloat()
 {
+#ifdef USE_BOOST_RANDOM
     boost::random::uniform_01<> dist;
+#elif USE_CPP11_RANDOM
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+#endif
     return dist(gen);
 }
 
 // Returns a random number from a uniform distribution in the range of [-1 .. 1]
 double RNG::RandFloatClamped()
 {
+#ifdef USE_BOOST_RANDOM
     return (RandFloat() - RandFloat());
+#elif USE_CPP11_RANDOM
+    std::uniform_real_distribution<double> dist(-1.0, 1.0);
+    return dist(gen);
+#endif
 }
 
 // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
 double RNG::RandGaussClamped()
 {
+#ifdef USE_BOOST_RANDOM
     boost::random::normal_distribution<> dist;
+#elif USE_CPP11_RANDOM
+    std::normal_distribution<double> dist(0.0, 1.0);
+#endif
     double pick = dist(gen);
     Clamp(pick, -1, 1);
     return pick;
@@ -96,7 +113,11 @@ double RNG::RandGaussClamped()
 
 int RNG::Roulette(std::vector<double>& a_probs)
 {
+#ifdef USE_BOOST_RANDOM
     boost::random::discrete_distribution<> d_dist(a_probs);
+#elif USE_CPP11_RANDOM
+    std::discrete_distribution<int> dist(a_probs);
+#endif
     return d_dist(gen);
 }
 

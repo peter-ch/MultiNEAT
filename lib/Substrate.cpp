@@ -62,6 +62,7 @@ Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
     m_output_coords = a_outputs;
 }
 
+#ifdef USE_BOOST_PYTHON
 
 // 3 lists of iterables of floats
 Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
@@ -109,6 +110,7 @@ Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
     }
 }
 
+#endif
 
 int Substrate::GetMinCPPNInputs()
 {
@@ -130,19 +132,30 @@ int Substrate::GetMinCPPNOutputs()
         return 1;
 }
 
-
 int Substrate::GetMaxDims()
 {
     unsigned int max_dims = 0;
     for(unsigned int i=0; i<m_input_coords.size(); i++)
+    {
         if (max_dims < m_input_coords[i].size())
+        {
             max_dims = m_input_coords[i].size();
+        }
+    }
     for(unsigned int i=0; i<m_hidden_coords.size(); i++)
+    {
         if (max_dims < m_hidden_coords[i].size())
+        {
             max_dims = m_hidden_coords[i].size();
+        }
+    }
     for(unsigned int i=0; i<m_output_coords.size(); i++)
+    {
         if (max_dims < m_output_coords[i].size())
+        {
             max_dims = m_output_coords[i].size();
+        }
+    }
     return max_dims;
 }
 

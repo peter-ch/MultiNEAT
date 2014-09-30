@@ -30,6 +30,8 @@
 // Description: Definitions for the Neuron and Link gene classes.
 /////////////////////////////////////////////////////////////////
 
+#ifdef USE_BOOST_PYTHON
+
 #include <boost/python.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -37,6 +39,7 @@
 
 namespace py = boost::python;
 
+#endif
 
 #include <iostream>
 #include <vector>
@@ -114,6 +117,8 @@ private:
 	
 public:
 
+#ifdef USE_BOOST_PYTHON
+
     // Serialization
     friend class boost::serialization::access;
     template<class Archive>
@@ -125,6 +130,8 @@ public:
         ar & m_IsRecurrent;
         ar & m_Weight;
     }
+    
+#endif
 
     double GetWeight() const
     {
@@ -280,6 +287,8 @@ public:
     // The type of activation function the neuron has
     ActivationFunction m_ActFunction;
 
+#ifdef USE_BOOST_PYTHON
+
     // Serialization
     friend class boost::serialization::access;
     template<class Archive>
@@ -297,6 +306,7 @@ public:
         ar & m_SplitY;
     }
 
+#endif
 
     ////////////////
     // Constructors

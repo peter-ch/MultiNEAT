@@ -30,10 +30,14 @@
 // Description: Definition for the Genome class.
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef USE_BOOST_PYTHON
+
 #include <boost/python.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+
+#endif
 
 #include <vector>
 
@@ -381,6 +385,8 @@ public:
     void SetEvaluated() { m_Evaluated = true; }
     void ResetEvaluated() { m_Evaluated = false; }
 
+#ifdef USE_BOOST_PYTHON
+
     // Serialization
     friend class boost::serialization::access;
     template<class Archive>
@@ -398,8 +404,12 @@ public:
         ar & m_Evaluated;
         //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
     }
+    
+#endif
+    
 };
 
+#ifdef USE_BOOST_PYTHON
 
 struct Genome_pickle_suite : py::pickle_suite
 {
@@ -422,6 +432,7 @@ struct Genome_pickle_suite : py::pickle_suite
     }
 };
 
+#endif
 
 #define DBG(x) { std::cerr << x << "\n"; }
 

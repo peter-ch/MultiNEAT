@@ -36,7 +36,7 @@
 #include <string>
 #include <iostream>
 #include "NeuralNetwork.h"
-#include "assert.h"
+#include "Assert.h"
 #include "Utils.h"
 
 //#define NULL 0
@@ -598,6 +598,8 @@ void NeuralNetwork::Input(std::vector<double>& a_Inputs)
     }
 }
 
+#ifdef USE_BOOST_PYTHON
+
 void NeuralNetwork::Input_python_list(py::list& a_Inputs)
 {
     int len = py::len(a_Inputs);
@@ -629,6 +631,8 @@ void NeuralNetwork::Input_numpy(py::numeric::array& a_Inputs)
 
     Input(inp);
 }
+
+#endif
 
 std::vector<double> NeuralNetwork::Output()
 {

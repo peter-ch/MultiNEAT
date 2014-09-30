@@ -25,6 +25,7 @@
 //    Shane Ryan < shane.mcdonald.ryan@gmail.com >
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
@@ -456,5 +457,6 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             ;
 };
 
+#endif // USE_BOOST_PYTHON
 
 #endif /* PYTHONBINDINGS_H_ */

@@ -27,20 +27,35 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // File:        Random.h
-// Description: Declarations for some global functions dealing with random numbers.
+// Description: Declarations for a class dealing with random numbers.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <stdlib.h>
+#define USE_BOOST_RANDOM
+#ifdef USE_BOOST_RANDOM
+
 #include <boost/random.hpp>
 
+#elif USE_CPP11_RANDOM
 
+#include <random>
+
+#endif
 
 namespace NEAT
 {
 
 class RNG
 {
+    
+#ifdef USE_BOOST_RANDOM
+
     boost::random::mt19937 gen;
+
+#elif USE_CPP11_RANDOM
+
+    std::default_random_engine gen;
+    
+#endif
 
 public:
     // Seeds the random number generator with this value

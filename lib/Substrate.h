@@ -28,12 +28,16 @@
 #include <vector>
 #include "NeuralNetwork.h"
 
+#ifdef USE_BOOST_PYTHON
+
 #include <boost/python.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 namespace py = boost::python;
+
+#endif
 
 namespace NEAT
 {
@@ -98,8 +102,13 @@ public:
     Substrate(std::vector< std::vector<double> >& a_inputs,
               std::vector< std::vector<double> >& a_hidden,
               std::vector< std::vector<double> >& a_outputs );
+
+#ifdef USE_BOOST_PYTHON
+              
     // Construct from 3 Python lists of tuples
     Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
+    
+#endif
 
     int GetMaxDims();
 
@@ -110,6 +119,8 @@ public:
     
     // Prints some info about itself
     void PrintInfo();
+    
+#ifdef USE_BOOST_PYTHON
     
     // Serialization
     friend class boost::serialization::access;
@@ -140,8 +151,12 @@ public:
         ar & m_min_time_const;
         ar & m_max_time_const;
     }
+    
+#endif
+
 };
 
+#ifdef USE_BOOST_PYTHON
 
 struct Substrate_pickle_suite : py::pickle_suite
 {
@@ -166,10 +181,7 @@ struct Substrate_pickle_suite : py::pickle_suite
     //static bool getstate_manages_dict() { return true; }
 };
 
-
-
-
-
+#endif
 
 }
 
