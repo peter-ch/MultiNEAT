@@ -263,6 +263,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("m_max_weight_and_bias", &Substrate::m_max_weight_and_bias)
             .def_readwrite("m_min_time_const", &Substrate::m_min_time_const)
             .def_readwrite("m_max_time_const", &Substrate::m_max_time_const)
+            
+            .def_pickle(Substrate_pickle_suite())
             ;
 
 

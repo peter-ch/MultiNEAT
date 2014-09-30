@@ -75,11 +75,29 @@ public:
     double m_min_time_const;
     double m_max_time_const;
 
-    Substrate(){};
+
+    Substrate()
+    {
+        m_leaky = false;
+        m_with_distance = false;
+        m_allow_input_hidden_links = true;
+        m_allow_input_output_links = true;
+        m_allow_hidden_hidden_links = true;
+        m_allow_hidden_output_links = true;
+        m_allow_output_hidden_links = false;
+        m_allow_output_output_links = false;
+        m_allow_looped_hidden_links = false;
+        m_allow_looped_output_links = false;
+        m_hidden_nodes_activation = UNSIGNED_SIGMOID;
+        m_output_nodes_activation = UNSIGNED_SIGMOID;
+        m_link_threshold = 0.2;
+        m_max_weight_and_bias = 5.0;
+        m_min_time_const = 0.1;
+        m_max_time_const = 1.0;
+    };
     Substrate(std::vector< std::vector<double> >& a_inputs,
               std::vector< std::vector<double> >& a_hidden,
               std::vector< std::vector<double> >& a_outputs );
-
     // Construct from 3 Python lists of tuples
     Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
 
@@ -89,10 +107,70 @@ public:
     int GetMinCPPNInputs();
     // Return the minimum output dimensionality of the CPPN
     int GetMinCPPNOutputs();
-
+    
     // Prints some info about itself
     void PrintInfo();
+    
+    // Serialization
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & m_input_coords;
+        ar & m_hidden_coords;
+        ar & m_output_coords;
+        
+        ar & m_leaky;
+        ar & m_with_distance;
+        
+        ar & m_allow_input_hidden_links;
+        ar & m_allow_input_output_links;
+        ar & m_allow_hidden_hidden_links;
+        ar & m_allow_hidden_output_links;
+        ar & m_allow_output_hidden_links;
+        ar & m_allow_output_output_links;
+        ar & m_allow_looped_hidden_links;
+        ar & m_allow_looped_output_links;
+        
+        ar & m_hidden_nodes_activation;
+        ar & m_output_nodes_activation;        
+
+        ar & m_link_threshold;
+        ar & m_max_weight_and_bias;
+        ar & m_min_time_const;
+        ar & m_max_time_const;
+    }
 };
+
+
+struct Substrate_pickle_suite : py::pickle_suite
+{
+    static py::object getstate(const Substrate& a)
+    {
+        std::ostringstream os;
+        boost::archive::binary_oarchive oa(os);
+        oa << a;
+        return py::str(os.str());
+    }
+
+    static void setstate(Substrate& a, py::object entries)
+    {
+        py::str s = py::extract<py::str> (entries)();
+        std::string st = py::extract<std::string> (s)();
+        std::istringstream is(st);
+
+        boost::archive::binary_iarchive ia (is);
+        ia >> a;
+    }
+    
+    //static bool getstate_manages_dict() { return true; }
+};
+
+
+
+
+
+
 }
 
 #endif

@@ -126,7 +126,6 @@ public:
         ar & m_Weight;
     }
 
-
     double GetWeight() const
     {
         return m_Weight;

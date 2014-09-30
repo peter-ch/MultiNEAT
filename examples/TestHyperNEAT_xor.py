@@ -34,11 +34,17 @@ substrate.m_allow_hidden_output_links = True
 substrate.m_allow_hidden_hidden_links = True
 # let's set the activation functions
 substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.TANH
-substrate.m_outputs_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
 # when to output a link and max weight
 substrate.m_link_threshold = 0.2
-substrate.m_max_weight = 8.0
+substrate.m_max_weight_and_bias = 8.0
+
+try:
+    x = pickle.dumps(substrate)
+except:
+    print 'You have mistyped a substrate member name upon setup. Please fix it.'
+    sys.exit(1)
 
 # code
 cv2.namedWindow('CPPN', 0)
