@@ -29,31 +29,31 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
-    <File Name="lib/Assert.h"/>
-    <File Name="lib/Genes.h"/>
-    <File Name="lib/Genome.cpp"/>
-    <File Name="lib/Genome.h"/>
-    <File Name="lib/Innovation.cpp"/>
-    <File Name="lib/Innovation.h"/>
-    <File Name="lib/Main.cpp"/>
-    <File Name="lib/NeuralNetwork.cpp"/>
-    <File Name="lib/NeuralNetwork.h"/>
-    <File Name="lib/Parameters.cpp"/>
-    <File Name="lib/Parameters.h"/>
-    <File Name="lib/PhenotypeBehavior.cpp"/>
-    <File Name="lib/PhenotypeBehavior.h"/>
-    <File Name="lib/Population.cpp"/>
-    <File Name="lib/Population.h"/>
-    <File Name="lib/PythonBindings.cpp"/>
-    <File Name="lib/PythonBindings.h"/>
-    <File Name="lib/Random.cpp"/>
-    <File Name="lib/Random.h"/>
-    <File Name="lib/Species.cpp"/>
-    <File Name="lib/Species.h"/>
-    <File Name="lib/Substrate.cpp"/>
-    <File Name="lib/Substrate.h"/>
-    <File Name="lib/Utils.cpp"/>
-    <File Name="lib/Utils.h"/>
+    <File Name="src/Assert.h"/>
+    <File Name="src/Genes.h"/>
+    <File Name="src/Genome.cpp"/>
+    <File Name="src/Genome.h"/>
+    <File Name="src/Innovation.cpp"/>
+    <File Name="src/Innovation.h"/>
+    <File Name="src/Main.cpp"/>
+    <File Name="src/NeuralNetwork.cpp"/>
+    <File Name="src/NeuralNetwork.h"/>
+    <File Name="src/Parameters.cpp"/>
+    <File Name="src/Parameters.h"/>
+    <File Name="src/PhenotypeBehavior.cpp"/>
+    <File Name="src/PhenotypeBehavior.h"/>
+    <File Name="src/Population.cpp"/>
+    <File Name="src/Population.h"/>
+    <File Name="src/PythonBindings.cpp"/>
+    <File Name="src/PythonBindings.h"/>
+    <File Name="src/Random.cpp"/>
+    <File Name="src/Random.h"/>
+    <File Name="src/Species.cpp"/>
+    <File Name="src/Species.h"/>
+    <File Name="src/Substrate.cpp"/>
+    <File Name="src/Substrate.h"/>
+    <File Name="src/Utils.cpp"/>
+    <File Name="src/Utils.h"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

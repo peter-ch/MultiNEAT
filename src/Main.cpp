@@ -18,6 +18,9 @@ double test(Genome& g)
 
 int main()
 {
+    srand(time(0));
+    std::cout << (double)(rand() % 10000000) / 10000000.0 << "\n";
+    /*
 	Parameters params;
 	params.PopulationSize = 1000;
 	RNG rng;
@@ -41,6 +44,7 @@ int main()
         pop.Tick(g);
     }
 	//pop.Epoch();
+     */
 
     /*for(int i=0; i < pop.m_Species.size(); i++)
         for(int j=0; j < pop.m_Species[i].m_Individuals.size(); j++)
