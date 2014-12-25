@@ -1,9 +1,6 @@
 #!/usr/bin/python
 import os
 import sys
-sys.path.append("/home/peter")
-sys.path.append("/home/peter/Desktop")
-sys.path.append("/home/peter/Desktop/projects")
 import time
 import random as rnd
 import commands as comm
@@ -15,7 +12,10 @@ import multiprocessing as mpc
 
 # the simple 2D substrate with 3 input points, 2 hidden and 1 output for XOR
 substrate = NEAT.Substrate([(-1, -1), (-1, 1), (-1, 0)],
-                           [(0, -1), (0, 1)],
+                           [(0, -1), 
+			    #(0, -0.5), 
+                            #(0, 0.5), 
+                            (0, 1)],
                            [(1, 0)])
 
 substrate.m_allow_input_hidden_links = False
@@ -32,6 +32,7 @@ substrate.m_allow_input_hidden_links = True
 substrate.m_allow_input_output_links = True
 substrate.m_allow_hidden_output_links = True
 substrate.m_allow_hidden_hidden_links = True
+
 # let's set the activation functions
 substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.TANH
 substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
@@ -91,7 +92,7 @@ def evaluate(genome):
         return 1.0
 
 params = NEAT.Parameters()
-params.PopulationSize = 120
+params.PopulationSize = 150
 
 params.DynamicCompatibility = True
 params.CompatTreshold = 2.0
@@ -100,24 +101,24 @@ params.SpeciesMaxStagnation = 100
 params.OldAgeTreshold = 35
 params.MinSpecies = 5
 params.MaxSpecies = 25
-params.RouletteWheelSelection = False
+params.RouletteWheelSelection = True
 
-params.MutateRemLinkProb = 0.02
+params.MutateRemLinkProb = 0.0
 params.RecurrentProb = 0
-params.OverallMutationRate = 0.15
-params.MutateAddLinkProb = 0.08
+params.OverallMutationRate = 0.25
+params.MutateAddLinkProb = 0.05
 params.MutateAddNeuronProb = 0.01
 params.MutateWeightsProb = 0.90
 params.MaxWeight = 8.0
-params.WeightMutationMaxPower = 0.2
-params.WeightReplacementMaxPower = 1.0
+params.WeightMutationMaxPower = 0.5
+params.WeightReplacementMaxPower = 2.0
 
 params.MutateActivationAProb = 0.0
 params.ActivationAMutationMaxPower = 0.5
 params.MinActivationA = 0.05
 params.MaxActivationA = 6.0
 
-params.MutateNeuronActivationTypeProb = 0.03;
+params.MutateNeuronActivationTypeProb = 0.01;
 
 # Probabilities for a particular activation function appearance
 params.ActivationFunction_SignedSigmoid_Prob = 0.0;
@@ -150,7 +151,7 @@ def getbest():
 
     pop = NEAT.Population(g, params, True, 1.0)
 
-    for generation in range(1000):
+    for generation in range(5000):
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
         fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
@@ -185,7 +186,7 @@ def getbest():
     return generations
 
 gens = []
-for run in range(100):
+for run in range(1000):
     gen = getbest()
     print 'Run:', run, 'Generations to solve XOR:', gen
     gens += [gen]

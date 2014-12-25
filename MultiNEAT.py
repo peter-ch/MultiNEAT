@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import print_function
 import multiprocessing as mpc
 import time
 from _MultiNEAT import *
@@ -61,7 +62,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
             if prbar_installed:
                 progress.update(count+1)
             else:
-                print 'Individuals: (%s/%s)' % (count, len(genome_list))
+                print('Individuals: (%s/%s)' % (count, len(genome_list)))
         count += 1
 
     if prbar_installed and display:
@@ -88,7 +89,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
             progress.update(i)
         else:
             if display:
-                print 'Individuals: (%s/%s)' % (i, len(genome_list))
+                print('Individuals: (%s/%s)' % (i, len(genome_list)))
 
         if cvnumpy_installed:
             cv2.waitKey(1)
@@ -100,7 +101,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
     elapsed = time.time() - curtime
 
     if display:
-        print 'seconds elapsed: %s' % elapsed
+        print('seconds elapsed: %s' % elapsed)
 
     pool.close()
     pool.join()
@@ -146,7 +147,7 @@ def AlmostEqual(a, b, margin):
 if not cvnumpy_installed:
     def DrawPhenotype(image, rect, nn, neuron_radius=10,
                       max_line_thickness=3, substrate=False):
-        print "OpenCV/NumPy don't appear to be installed"
+        print("OpenCV/NumPy don't appear to be installed")
         raise NotImplementedError
 else:
     MAX_DEPTH = 64

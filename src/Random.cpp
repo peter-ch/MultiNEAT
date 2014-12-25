@@ -114,13 +114,13 @@ double RNG::RandGaussClamped()
     {
         do
         {
-            t_v1=2.0f*(RandFloat())-1.0f;
-            t_v2=2.0f*(RandFloat())-1.0f;
+            t_v1=2.0*(RandFloat())-1.0;
+            t_v2=2.0*(RandFloat())-1.0;
             t_rsq=t_v1*t_v1+t_v2*t_v2;
         }
-        while (t_rsq>=1.0f || t_rsq==0.0f);
+        while (t_rsq>=1.0 || t_rsq==0.0);
     
-        t_fac=sqrt(-2.0f*log(t_rsq)/t_rsq);
+        t_fac=sqrt(-2.0*log(t_rsq)/t_rsq);
         t_gset=t_v1*t_fac;
         t_iset=1;
     

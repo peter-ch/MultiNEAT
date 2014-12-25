@@ -68,7 +68,7 @@ void Parameters::Reset()
     // there will be more chances the same individual to mutate in different ways.
     // The drawback is greatly increased time for reproduction. If you want to
     // search quickly, yet less efficient, leave this to true.
-    AllowClones = false;
+    AllowClones = true;
 
 
 
@@ -107,22 +107,22 @@ void Parameters::Reset()
     KillWorstAge = 10;
 
     // Percent of best individuals that are allowed to reproduce. 1.0 = 100%
-    SurvivalRate = 0.25;
+    SurvivalRate = 0.2;
 
     // Probability for a baby to result from sexual reproduction (crossover/mating). 1.0 = 100%
     // If asexual reprodiction is chosen, the baby will be mutated 100%
-    CrossoverRate = 0.75;
+    CrossoverRate = 0.7;
 
     // If a baby results from sexual reproduction, this probability determines if mutation will
     // be performed after crossover. 1.0 = 100% (always mutate after crossover)
     OverallMutationRate = 0.25;
 
     // Probability for a baby to result from inter-species mating.
-    InterspeciesCrossoverRate = 0.001;
+    InterspeciesCrossoverRate = 0.0001;
 
     // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
     // The default is the Average mating.
-    MultipointCrossoverRate = 0.5;
+    MultipointCrossoverRate = 0.75;
 
     // Performing roulette wheel selection or not?
     RouletteWheelSelection = false;
@@ -205,14 +205,14 @@ void Parameters::Reset()
     SplitLoopedRecurrent = true;
 
     // Probability for a baby to be mutated with the Add-Link mutation
-    MutateAddLinkProb = 0.07;
+    MutateAddLinkProb = 0.03;
 
     // Probability for a new incoming link to be from the bias neuron;
     // This enforces it. A value of 0.0 doesn't mean there will not be such links
     MutateAddLinkFromBiasProb = 0.0;
 
     // Probability for a baby to be mutated with the Remove-Link mutation
-    MutateRemLinkProb = 0.01;
+    MutateRemLinkProb = 0.0;
 
     // Probability for a baby that a simple neuron will be replaced with a link
     MutateRemSimpleNeuronProb = 0.0;
@@ -238,7 +238,7 @@ void Parameters::Reset()
     MutateWeightsProb = 0.90;
 
     // Probability for a severe (shaking) weight mutation
-    MutateWeightsSevereProb = 0.5;
+    MutateWeightsSevereProb = 0.25;
 
     // Probability for a particular gene's weight to be mutated. 1.0 = 100%
     WeightMutationRate = 1.0;
@@ -330,7 +330,7 @@ void Parameters::Reset()
     ExcessCoeff = 1.0;
 
     // Average weight difference importance
-    WeightDiffCoeff = 1.5;
+    WeightDiffCoeff = 0.5;
 
     // Node-specific activation parameter A difference importance
     ActivationADiffCoeff = 0.0;

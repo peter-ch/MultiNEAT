@@ -361,8 +361,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         // or if it was, then proceed with the others
         else
         {
-            do // - while the baby already exists somewhere in the new population
-            {
+            //do // - while the baby already exists somewhere in the new population
+            //{
                 // this tells us if the baby is a result of mating
                 bool t_mated = false;
 
@@ -408,15 +408,19 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                                 // number of tries to find different parent
                                 int t_tries = 32;
                                 if (!a_Parameters.AllowClones)
-                                    while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001) ) && (t_tries--))
+                                {
+                                    while(((t_mom.GetID() == t_dad.GetID()) /*|| (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)*/ ) && (t_tries--))
                                     {
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
                                     }
+                                }
                                 else
+                                {
                                     while(((t_mom.GetID() == t_dad.GetID()) ) && (t_tries--))
                                     {
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
                                     }
+                                }
                                 t_interspecies = false;
                             }
 
@@ -447,12 +451,14 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
 
                 // Mutate the baby
-                if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
+                if (/*(!t_mated) ||*/ (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
+                {
                     MutateGenome(t_baby_exists_in_pop, a_Pop, t_baby, a_Parameters, a_RNG);
+                }
 
                 // Check if this baby is already present somewhere in the offspring
                 // we don't want that
-                t_baby_exists_in_pop = false;
+                /*t_baby_exists_in_pop = false;
                 // Unless of course, we want
                 if (!a_Parameters.AllowClones)
                 {
@@ -470,9 +476,9 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                             }
                         }
                     }
-                }
-            }
-            while (t_baby_exists_in_pop); // end do
+                }*/
+            //}
+            //while (t_baby_exists_in_pop); // end do
         }
 
         // Final place to test for problems

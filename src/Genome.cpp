@@ -1706,12 +1706,12 @@ bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs, RNG& a_RNG)
 // Perturbs the weights
 void Genome::Mutate_LinkWeights(Parameters& a_Parameters, RNG& a_RNG)
 {
-#if 0
+#if 1
     // The end part of the genome
     // Note - in the beginning of evolution, the genome tail (the new genes) does not
     // yet exist and this becomes difficult for the kickstart in the right
     // direction. todo: fix this issue
-    unsigned int t_genometail = static_cast<unsigned int>(NumLinks() * 0.99);
+    unsigned int t_genometail = static_cast<unsigned int>(NumLinks() * 0.95);
 
     // This tells us if this mutation will shake things up
     bool t_severe_mutation;
@@ -1775,7 +1775,6 @@ void Genome::Mutate_LinkWeights(Parameters& a_Parameters, RNG& a_RNG)
         if (t_random_choice > t_soft_mutation_point)
         {
             t_LinkGenesWeight += a_RNG.RandFloatClamped() * a_Parameters.WeightMutationMaxPower;
-
         }
         else if (t_random_choice > t_hard_mutation_point)
         {
@@ -1808,16 +1807,18 @@ void Genome::Mutate_LinkWeights(Parameters& a_Parameters, RNG& a_RNG)
          if (a_RNG.RandFloat() < a_Parameters.WeightMutationRate)
          {
              if (t_severe_mutation)
-                 t_LinkGenesWeight  = a_RNG.RandFloatClamped() * a_Parameters.WeightReplacementMaxPower;
+             {
+                 t_LinkGenesWeight = a_RNG.RandFloatClamped() * a_Parameters.WeightReplacementMaxPower;
+             }
              else
+             {
                  t_LinkGenesWeight += a_RNG.RandFloatClamped() * a_Parameters.WeightMutationMaxPower;
+             }
          }
 
          Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
          m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
      }
-
-
 #endif
 }
 
@@ -2029,7 +2030,7 @@ Genome Genome::Mate(Genome& a_Dad, bool a_MateAverage, bool a_InterSpecies, RNG&
     // for cleaning up
     LinkGene t_emptygene(0, 0, -1, 0, false);
     bool t_skip = false;
-    int t_innov_mum, t_innov_dad;
+    unsigned int t_innov_mum, t_innov_dad;
 
     // step through each parents link genes until we reach the end of both
     while (!((t_curMum == m_LinkGenes.end()) && (t_curDad == a_Dad.m_LinkGenes.end())))
@@ -2128,7 +2129,6 @@ Genome Genome::Mate(Genome& a_Dad, bool a_MateAverage, bool a_InterSpecies, RNG&
         // for interspecies mating, allow all genes through
         if (a_InterSpecies)
             t_skip = false;
-
 
         // If the selected gene's innovation number is negative,
         // this means that no gene is selected (should be skipped)

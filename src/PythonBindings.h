@@ -96,6 +96,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("RandFloat", &RNG::RandFloat)
             .def("RandFloatClamped", &RNG::RandFloatClamped)
             .def("RandGaussClamped", &RNG::RandGaussClamped)
+            .def("Roulette", &RNG::Roulette)
             ;
 
 

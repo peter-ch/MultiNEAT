@@ -4,12 +4,21 @@
  *  Created on: Sep 20, 2012
  *      Author: peter
  */
+ 
+ /*
+  * Ignore this file. I use it to test stuff.
+  * 
+  */
+ 
 #include "Genome.h"
 #include "Population.h"
 #include "NeuralNetwork.h"
 #include "Parameters.h"
 
 using namespace NEAT;
+
+#define ENABLE_TESTING
+#ifdef ENABLE_TESTING
 
 double test(Genome& g)
 {
@@ -30,7 +39,6 @@ int main()
     
     for(int k=0; k<100; k++)
     {
-
         for(unsigned int i=0; i < pop.m_Species.size(); i++)
         {
             for(unsigned int j=0; j < pop.m_Species[i].m_Individuals.size(); j++)
@@ -59,3 +67,4 @@ int main()
     return 0;
 }
 
+#endif
