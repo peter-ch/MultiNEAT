@@ -14,8 +14,8 @@ import MultiNEAT as NEAT
 import multiprocessing as mpc
 
 # the simple 2D substrate with 3 input points, 2 hidden and 1 output for XOR
-substrate = NEAT.Substrate([(-1, -1), (-1, 1), (-1, 0)],
-                           [(0, -1), (0, 1)],
+substrate = NEAT.Substrate([(-1, -1), (-1, 0), (-1, 1)],
+                           [(0, -1), (0, 0), (0, 1)],
                            [(1, 0)])
 
 substrate.m_allow_input_hidden_links = False
@@ -29,11 +29,11 @@ substrate.m_allow_looped_output_links = False
 
 # let's configure it a bit to avoid recurrence in the substrate
 substrate.m_allow_input_hidden_links = True
-substrate.m_allow_input_output_links = True
+substrate.m_allow_input_output_links = False
 substrate.m_allow_hidden_output_links = True
-substrate.m_allow_hidden_hidden_links = True
+substrate.m_allow_hidden_hidden_links = False
 # let's set the activation functions
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.TANH
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
 # when to output a link and max weight
@@ -56,7 +56,7 @@ def evaluate(genome):
         genome.BuildHyperNEATPhenotype(net, substrate)
 
         error = 0
-        depth = 2
+        depth = 5
 
         # do stuff and return the fitness
         net.Flush()
@@ -91,7 +91,7 @@ def evaluate(genome):
         return 1.0
 
 params = NEAT.Parameters()
-params.PopulationSize = 120
+params.PopulationSize = 150
 
 params.DynamicCompatibility = True
 params.CompatTreshold = 2.0
@@ -150,7 +150,7 @@ def getbest():
 
     pop = NEAT.Population(g, params, True, 1.0)
 
-    for generation in range(1000):
+    for generation in range(2000):
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
         fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
@@ -179,7 +179,7 @@ def getbest():
         pop.Epoch()
 #        print "Generation:", generation
         generations = generation
-        if best > 15.5:
+        if best > 15.0:
             break
 
     return generations

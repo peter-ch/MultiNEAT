@@ -456,21 +456,6 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         net.AddNeuron(t_n);
     }
 
-    // Hidden
-    for(unsigned int i=0; i<subst.m_hidden_coords.size(); i++)
-    {
-        Neuron t_n;
-
-        t_n.m_a = 1;
-        t_n.m_b = 0;
-        t_n.m_substrate_coords = subst.m_hidden_coords[i];
-        ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
-        t_n.m_activation_function_type = subst.m_hidden_nodes_activation;
-        t_n.m_type = NEAT::HIDDEN;
-
-        net.AddNeuron(t_n);
-    }
-
     // Output
     for(unsigned int i=0; i<subst.m_output_coords.size(); i++)
     {
@@ -482,6 +467,21 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
         ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
         t_n.m_activation_function_type = subst.m_output_nodes_activation;
         t_n.m_type = NEAT::OUTPUT;
+
+        net.AddNeuron(t_n);
+    }
+
+    // Hidden
+    for(unsigned int i=0; i<subst.m_hidden_coords.size(); i++)
+    {
+        Neuron t_n;
+
+        t_n.m_a = 1;
+        t_n.m_b = 0;
+        t_n.m_substrate_coords = subst.m_hidden_coords[i];
+        ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
+        t_n.m_activation_function_type = subst.m_hidden_nodes_activation;
+        t_n.m_type = NEAT::HIDDEN;
 
         net.AddNeuron(t_n);
     }
@@ -511,17 +511,23 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
             t_inputs.resize(CPPN_numinputs);
 
             for(unsigned int n=0; n<net.m_neurons[i].m_substrate_coords.size(); n++)
+            {
                 t_inputs[n] = net.m_neurons[i].m_substrate_coords[n];
+            }
 
             if (subst.m_with_distance)
+            {
                 t_inputs[CPPN_numinputs - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
+            }
             t_inputs[CPPN_numinputs - 1] = 1.0; // the CPPN's bias
 
             t_temp_phenotype.Input(t_inputs);
 
             // activate as many times as deep
             for(int d=0; d<dp; d++)
+            {
                 t_temp_phenotype.Activate();
+            }
 
             double t_tc   = t_temp_phenotype.Output()[1];
             double t_bias = t_temp_phenotype.Output()[2];
@@ -583,10 +589,14 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
             // input the node positions to the CPPN
             // from
             for(int n=0; n<from_dims; n++)
+            {
                 t_inputs[n] = net.m_neurons[j].m_substrate_coords[n];
+            }
             // to
             for(int n=0; n<to_dims; n++)
+            {
                 t_inputs[max_dims + n] = net.m_neurons[i].m_substrate_coords[n];
+            }
 
             // the input is like
             // x000|xx00|1 - 1D -> 2D connection
@@ -595,7 +605,9 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
             // if max_dims is 4 and no distance input
 
             if (subst.m_with_distance)
+            {
                 t_inputs[CPPN_numinputs - 2] = 0.0;//sqrt(sqr(net.m_neurons[i].m_sx) + sqr(net.m_neurons[i].m_sy)); // distance from 0,0
+            }
 
             t_inputs[CPPN_numinputs - 1] = 1.0;
 
@@ -606,7 +618,9 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 
             // activate as many times as deep
             for(int d=0; d<dp; d++)
+            {
                 t_temp_phenotype.Activate();
+            }
 
             // the output is a weight
             double t_weight = t_temp_phenotype.Output()[0];
@@ -618,9 +632,13 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
             {
                 // now this weight will be scaled
                 if (t_weight < 0)
+                {
                     Scale(t_weight, -1, -subst.m_link_threshold, -subst.m_max_weight_and_bias, 0);
+                }
                 else
+                {
                     Scale(t_weight, subst.m_link_threshold, 1, 0, subst.m_max_weight_and_bias);
+                }
 
                 // build the connection
                 Connection t_c;
