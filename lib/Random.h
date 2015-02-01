@@ -1,5 +1,5 @@
-#ifndef _RANDOM_H
-#define _RANDOM_H
+#ifndef _RANDOMNESS_HEADER_H
+#define _RANDOMNESS_HEADER_H
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //    MultiNEAT - Python/C++ NeuroEvolution of Augmenting Topologies Library

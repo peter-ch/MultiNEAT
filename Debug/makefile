@@ -8,7 +8,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include obj/Debug/lib/subdir.mk
 -include lib/subdir.mk
 -include build/temp.linux-x86_64-3.4/src/subdir.mk
 -include build/temp.linux-x86_64-3.4/subdir.mk

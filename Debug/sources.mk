@@ -23,7 +23,6 @@ C_UPPER_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-obj/Debug/lib \
 lib \
 build/temp.linux-x86_64-3.4/src \
 build/temp.linux-x86_64-3.4 \
