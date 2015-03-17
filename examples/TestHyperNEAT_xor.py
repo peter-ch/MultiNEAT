@@ -93,9 +93,9 @@ params = NEAT.Parameters()
 params.PopulationSize = 150
 
 params.DynamicCompatibility = True
-params.CompatTreshold = 2.0
+params.CompatTreshold = 3.0
 params.YoungAgeTreshold = 15
-params.SpeciesMaxStagnation = 100
+params.SpeciesMaxStagnation = 15
 params.OldAgeTreshold = 35
 params.MinSpecies = 5
 params.MaxSpecies = 25
@@ -184,7 +184,7 @@ def getbest():
     return generations
 
 gens = []
-for run in range(1000):
+for run in range(100):
     gen = getbest()
     print 'Run:', run, 'Generations to solve XOR:', gen
     gens += [gen]

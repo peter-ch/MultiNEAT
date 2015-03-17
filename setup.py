@@ -13,7 +13,7 @@ try:
     from Cython.Build import cythonize
 
     # easy way to turn Boost.Python on/off
-    #1/0
+    1/0
 
     setup(name='MultiNEAT',
           version='0.2',

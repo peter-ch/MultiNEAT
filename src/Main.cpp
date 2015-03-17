@@ -175,7 +175,7 @@ int main()
     substrate.m_link_threshold = 0.2;
     substrate.m_max_weight_and_bias = 8.0;
 
-    Genome s(0, substrate.GetMinCPPNInputs(), 0, substrate.GetMinCPPNOutputs(), false, UNSIGNED_SIGMOID, UNSIGNED_SIGMOID, 0, params);
+    Genome s(0, substrate.GetMinCPPNInputs(), 0, substrate.GetMinCPPNOutputs(), false, TANH, TANH, 0, params);
     Population pop(s, params, true, 1.0);
 
     for(int k=0; k<2000; k++)

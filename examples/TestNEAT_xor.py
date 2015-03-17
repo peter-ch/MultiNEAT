@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python2
 from __future__ import division
 from __future__ import print_function
 import os
@@ -19,35 +19,34 @@ def evaluate(genome):
     net = NEAT.NeuralNetwork()
     genome.BuildPhenotype(net)
 
-
     error = 0
 
     # do stuff and return the fitness
     net.Flush()
     net.Input(np.array([1., 0., 1.])) # can input numpy arrays, too
-                                    # for some reason only np.float64 is supported
-    for _ in range(3):
+                                      # for some reason only np.float64 is supported
+    for _ in range(2):
         net.Activate()
     o = net.Output()
     error += abs(1 - o[0])
 
     net.Flush()
     net.Input([0, 1, 1])
-    for _ in range(3):
+    for _ in range(2):
         net.Activate()
     o = net.Output()
     error += abs(1 - o[0])
 
     net.Flush()
     net.Input([1, 1, 1])
-    for _ in range(3):
+    for _ in range(2):
         net.Activate()
     o = net.Output()
     error += abs(o[0])
 
     net.Flush()
     net.Input([0, 0, 1])
-    for _ in range(3):
+    for _ in range(2):
         net.Activate()
     o = net.Output()
     error += abs(o[0])
@@ -57,28 +56,41 @@ def evaluate(genome):
 params = NEAT.Parameters()
 params.PopulationSize = 150
 params.DynamicCompatibility = True
+params.WeightDiffCoeff = 4.0
 params.CompatTreshold = 2.0
-params.YoungAgeTreshold = 5
+params.YoungAgeTreshold = 15
 params.SpeciesMaxStagnation = 15
-params.OldAgeTreshold = 10
+params.OldAgeTreshold = 35
 params.MinSpecies = 5
 params.MaxSpecies = 25
 params.RouletteWheelSelection = False
-params.RecurrentProb = 0
-params.OverallMutationRate = 0.5
+params.RecurrentProb = 0.0
+params.OverallMutationRate = 0.8
 
 params.MutateWeightsProb = 0.90
 
-params.WeightMutationMaxPower = 1.0
-params.WeightReplacementMaxPower = 2.0
-params.MutateWeightsSevereProb = 0.25
-params.WeightMutationRate = 1.0
+params.WeightMutationMaxPower = 2.5
+params.WeightReplacementMaxPower = 5.0
+params.MutateWeightsSevereProb = 0.5
+params.WeightMutationRate = 0.25
 
-params.MaxWeight = 20
+params.MaxWeight = 8
 
-params.MutateAddNeuronProb = 0.01
+params.MutateAddNeuronProb = 0.03
 params.MutateAddLinkProb = 0.05
-params.MutateRemLinkProb = 0.05
+params.MutateRemLinkProb = 0.0
+
+params.MinActivationA  = 4.9
+params.MaxActivationA  = 4.9
+
+params.ActivationFunction_SignedSigmoid_Prob = 0.0
+params.ActivationFunction_UnsignedSigmoid_Prob = 1.0
+params.ActivationFunction_Tanh_Prob = 0.0
+params.ActivationFunction_SignedStep_Prob = 0.0
+
+params.CrossoverRate = 0.75  # mutate only 0.25
+params.MultipointCrossoverRate = 0.4
+params.SurvivalRate = 0.2
 
 rng = NEAT.RNG()
 #rng.TimeSeed()
@@ -96,7 +108,7 @@ def getbest():
         NEAT.ZipFitness(genome_list, fitness_list)
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
-#        print 'Best fitness:', best, 'Species:', len(pop.Species)
+#        print('Best fitness:', best, 'Species:', len(pop.Species))
 
         # test
         net = NEAT.NeuralNetwork()
@@ -111,13 +123,13 @@ def getbest():
         pop.Epoch()
 #        print "Generation:", generation
         generations = generation
-        if best > 15.5:
+        if best > 15.0:
             break
 
     return generations
 
 gens = []
-for run in range(100):
+for run in range(250):
     gen = getbest()
     print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
