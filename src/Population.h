@@ -168,9 +168,15 @@ public:
     double GetCurrentMPC() const { return m_CurrentMPC; }
     double GetBaseMPC() const { return m_BaseMPC; }
 
-    // todo: fix that, it tells the wrong number of genomes
-    // actually the genomes are contained in the species and we must count those instead
-    unsigned int NumGenomes() const { return static_cast<unsigned int>(m_Genomes.size()); }
+    unsigned int NumGenomes() const
+    {
+    	unsigned int num=0;
+    	for(unsigned int i=0; i<m_Species.size(); i++)
+    	{
+    		num += m_Species[i].m_Individuals.size();
+    	}
+    	return num;
+    }
 
     unsigned int GetGeneration() const { return m_Generation; }
     double GetBestFitnessEver() const { return m_BestFitnessEver; }
@@ -197,8 +203,8 @@ public:
     unsigned int GetStagnation() const { return m_GensSinceBestFitnessLastChanged; }
     unsigned int GetMPCStagnation() const { return m_GensSinceMPCLastChanged; }
 
-    int GetNextGenomeID() const { return m_NextGenomeID; }
-    int GetNextSpeciesID() const { return m_NextSpeciesID; }
+    unsigned int GetNextGenomeID() const { return m_NextGenomeID; }
+    unsigned int GetNextSpeciesID() const { return m_NextSpeciesID; }
     void IncrementNextGenomeID() { m_NextGenomeID++; }
     void IncrementNextSpeciesID() { m_NextSpeciesID++; }
 
