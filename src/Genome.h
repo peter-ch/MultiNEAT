@@ -404,9 +404,9 @@ public:
         ar & m_Evaluated;
         //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
     }
-    
+
 #endif
-    
+
 };
 
 #ifdef USE_BOOST_PYTHON
@@ -435,6 +435,102 @@ struct Genome_pickle_suite : py::pickle_suite
 #endif
 
 #define DBG(x) { std::cerr << x << "\n"; }
+
+/////////////////////////////////////////////
+// Evolvable Substrate HyperNEAT
+////////////////////////////////////////////
+
+// A connection between two points. Stores weight and the coordinates of the points
+struct TempConnection
+{
+    std::vector<double> source;
+    std::vector<double> target;
+    double weight;
+
+    TempConnection()
+    {
+    }
+
+    TempConnection( std::vector<double> t_source, std::vector<double> t_target,
+        double t_weight)
+    {
+        source = t_source;
+        target = t_target;
+        weight = t_weight;
+    }
+
+    ~TempConnection(){};
+
+    bool operator==(const TempConnection& rhs) const
+    {   return (source == rhs.source && target == rhs.target);
+    }
+};
+
+// A quadpoint in the HyperCube.
+struct QuadPoint
+{
+    double x;
+    double y;
+    double z;
+    double width;
+    double weight;
+    int level;
+    // Do I use this?
+    double leo;
+
+
+    std::vector<boost::shared_ptr<QuadPoint> > children;
+
+    QuadPoint()
+    {
+    }
+
+    QuadPoint(double t_x, double t_y, double t_width, int t_level)
+    {   x = t_x;
+        y = t_y;
+        z = 0.0;
+        width = t_width;
+        level = t_level;
+        weight = 0.0;
+        leo = 0.0;
+    }
+    // Mind the Z
+    QuadPoint(double t_x, double t_y, double t_z, double t_width,
+        int t_level)
+    {
+        x = t_x;
+        y = t_y;
+        z = t_z;
+        width = t_width;
+        level = t_level;
+        weight = 0.0;
+        leo = 0.0;
+    }
+
+    ~QuadPoint()
+    {
+    };
+};
+void Build_Evolvable_Substrate(NeuralNetwork& net, Substrate& subst,
+    Parameters& params);
+
+boost::shared_ptr<Genome::QuadPoint> DivideInitialize(
+    std::vector<double>& node, NeuralNetwork& cppn, Parameters& params,
+    const bool& outgoing, const double& z_coord);
+
+void PruneExpress( std::vector<double>& node,
+    boost::shared_ptr<QuadPoint> root, NeuralNetwork& cppn,
+    Parameters& params, std::vector<Genome::TempConnection>& connections,
+    const bool& outgoing);
+
+void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint> point);
+
+double Variance( boost::shared_ptr<QuadPoint> point);
+
+void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
+        unsigned int output_count, unsigned int hidden_count);
+
+py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
 
 } // namespace NEAT
 
