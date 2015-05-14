@@ -2548,7 +2548,7 @@ You can use any subsstrate, but the hidden nodes in it will not be used for the 
 Relies on the Divide Initialize, PruneExpress and CleanNet methods.
 */
 
-void Genome::Build_Evolvable_Substrate(NeuralNetwork& net, Substrate& subst, Parameters& params)
+void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters& params)
 {
     ASSERT(subst.m_input_coords.size() > 0);
     ASSERT(subst.m_output_coords.size() > 0);

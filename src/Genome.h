@@ -511,7 +511,7 @@ struct QuadPoint
     {
     };
 };
-void Build_Evolvable_Substrate(NeuralNetwork& net, Substrate& subst,
+void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
     Parameters& params);
 
 boost::shared_ptr<Genome::QuadPoint> DivideInitialize(
