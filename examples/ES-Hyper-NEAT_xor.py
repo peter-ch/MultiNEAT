@@ -52,16 +52,16 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 0.25
 
 
-params.DivisionThreshold = 0.5
+params.DivisionThreshold = 0.03
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
-params.InitialDepth = 4
-params.MaxDepth = 4
+params.InitialDepth = 3
+params.MaxDepth = 3
 params.IterationLevel = 1
 params.Leo = True
-params.LeoSeed = True
+params.LeoSeed = False
 params.LeoThreshold = 0.3
-params.CPPN_Bias = -2.0
+params.CPPN_Bias = 1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.0
 params.Width = 2.0
