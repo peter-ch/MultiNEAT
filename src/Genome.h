@@ -170,7 +170,14 @@ public:
     // Other possible constructors for different types of networks go here
     // TODO
     /////////////
-
+    // Alternative constructor for dealing with LEO, Gaussian seed etc.
+    // empty means only bias is connected
+    Genome(unsigned int a_ID,
+               unsigned int a_NumInputs,
+               unsigned int a_NumOutputs,
+               ActivationFunction a_OutputActType,
+               ActivationFunction a_HiddenActType,
+               const Parameters& a_Parameters)
     ////////////////////////////
     // Destructor
     ////////////////////////////

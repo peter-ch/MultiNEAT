@@ -241,6 +241,305 @@ Genome::Genome(unsigned int a_ID,
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
 }
+Genome::Genome(unsigned int a_ID,
+               unsigned int a_NumInputs,
+               unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
+               unsigned int a_NumOutputs,
+               bool a_FS_NEAT, ActivationFunction a_OutputActType,
+               ActivationFunction a_HiddenActType,
+               unsigned int a_SeedType,
+               const Parameters& a_Parameters)
+{
+    ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
+    RNG t_RNG;
+    t_RNG.TimeSeed();
+
+    m_ID = a_ID;
+    int t_innovnum = 1, t_nnum = 1;
+
+    // Create the input neurons.
+    // Warning! The last one is a bias!
+    // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
+    for(unsigned int i=0; i < (a_NumInputs-1); i++)
+    {
+        m_NeuronGenes.push_back( NeuronGene(INPUT, t_nnum, 0.0) );
+        t_nnum++;
+    }
+    // add the bias
+    m_NeuronGenes.push_back( NeuronGene(BIAS, t_nnum, 0.0) );
+    t_nnum++;
+
+    // now the outputs
+    for(unsigned int i=0; i < (a_NumOutputs); i++)
+    {
+        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
+        // Initialize the neuron gene's properties
+        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                      a_OutputActType );
+
+        m_NeuronGenes.push_back( t_ngene );
+        t_nnum++;
+    }
+    // Now add LEO
+    if (params.LEO)
+    {
+        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
+        // Initialize the neuron gene's properties
+        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                      UNSIGNED_STEP );
+
+        m_NeuronGenes.push_back( t_ngene );
+        t_nnum++;
+        a_NumOutputs++;
+
+    }
+
+    // add and connect hidden neurons if seed type is != 0
+    if ((a_SeedType != 0) && (a_NumHidden > 0))
+    {
+        for(unsigned int i=0; i < (a_NumHidden); i++)
+        {
+            NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
+            // Initialize the neuron gene's properties
+            t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                          a_HiddenActType );
+
+            t_ngene.m_SplitY = 0.5;
+
+            m_NeuronGenes.push_back( t_ngene );
+            t_nnum++;
+        }
+
+
+
+        if (!a_FS_NEAT)
+        {
+            // The links from each input to this hidden node
+            for(unsigned int i=0; i < (a_NumHidden); i++)
+            {
+                for(unsigned int j= 0; j < a_NumInputs; j++)
+                {
+                    // add the link
+                    // created with zero weights. needs future random initialization. !!!!!!!!
+                    m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+a_NumOutputs+1, t_innovnum, 0.0, false) );
+                    t_innovnum++;
+                }
+            }
+            // The links from this hidden node to each output
+            for(unsigned int i=0; i < (a_NumOutputs); i++)
+            {
+                for(unsigned int j= 0; j < a_NumHidden; j++)
+                {
+                    // add the link
+                    // created with zero weights. needs future random initialization. !!!!!!!!
+                    m_LinkGenes.push_back( LinkGene(j+a_NumInputs+a_NumOutputs+1, i+a_NumInputs+1, t_innovnum, 0.0, false) );
+                    t_innovnum++;
+                }
+            }
+            // Connect the bias to the outputs as well
+            for(unsigned int i=0; i < (a_NumOutputs); i++)
+            {
+                // add the link
+                // created with zero weights. needs future random initialization. !!!!!!!!
+                m_LinkGenes.push_back( LinkGene(a_NumInputs, i+a_NumInputs+1, t_innovnum, 0.0, false) );
+                t_innovnum++;
+            }
+        }
+    }
+    else    // The links connecting every input to every output - perceptron structure
+    {
+
+        if ((!a_FS_NEAT) && (a_SeedType == 0))
+        {
+            for(unsigned int i=0; i < (a_NumOutputs); i++)
+            {
+                for(unsigned int j= 0; j < a_NumInputs; j++)
+                {
+                    // add the link
+                    // created with zero weights. needs future random initialization. !!!!!!!!
+                    m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, 0.0, false) );
+                    t_innovnum++;
+                }
+            }
+        }
+        else
+        {
+            // Start very minimally - connect a random input to each output
+            // Also connect the bias to every output
+            for(unsigned int i=0; i < a_NumOutputs; i++)
+            {
+                int t_inp_id  = t_RNG.RandInt(1, a_NumInputs-1);
+                int t_bias_id = a_NumInputs;
+                int t_outp_id = a_NumInputs+1 + i;
+
+                // created with zero weights. needs future random initialization. !!!!!!!!
+                m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  t_innovnum, 0.0, false) );
+                t_innovnum++;
+                m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false) );
+                t_innovnum++;
+            }
+        }
+    }
+    m_Evaluated = false;
+    m_NumInputs  = a_NumInputs;
+    m_NumOutputs = a_NumOutputs;
+    m_Fitness = 0.0;
+    m_AdjustedFitness = 0.0;
+    m_OffspringAmount = 0.0;
+    m_Depth = 0;
+    m_PhenotypeBehavior = NULL;
+}
+
+
+// Alternative constructor that creates a minimum genome with a leo output and if needed a gaussian seed.
+
+Genome::Genome(unsigned int a_ID,
+               unsigned int a_NumInputs,
+               unsigned int a_NumOutputs,
+               bool empty,
+               ActivationFunction a_OutputActType,
+               ActivationFunction a_HiddenActType,
+               const Parameters& a_Parameters)
+{
+    ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
+    RNG t_RNG;
+    t_RNG.TimeSeed();
+    m_ID = a_ID;
+    int t_innovnum = 1, t_nnum = 1;
+    double weight = 0.0;
+    //Add the inputs
+    for(unsigned int i=0; i < (a_NumInputs-1); i++)
+    {   m_NeuronGenes.push_back( NeuronGene(INPUT, t_nnum, 0.0) );
+        t_nnum++;
+    }
+    // Add bias
+    m_NeuronGenes.push_back( NeuronGene(BIAS, t_nnum, 0.0) );
+    t_nnum++;
+    // Add Outputs
+    for(unsigned int i=0; i < (a_NumOutputs); i++)
+    {
+        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
+        // Initialize the neuron gene's properties
+        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                      a_OutputActType );
+        m_NeuronGenes.push_back( t_ngene );
+        t_nnum++;
+    }
+
+    if (a_Parameters.Leo)
+    {
+        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
+        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                    (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                    (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                    (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                    UNSIGNED_STEP);
+        m_NeuronGenes.push_back( t_ngene );
+        t_nnum++;
+        a_NumOutputs++;
+1
+        if (a_Parameters.LeoSeed == true)
+        {
+            NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
+            // Initialize the neuron gene's properties
+            t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                        SIGNED_GAUSS );
+
+            t_ngene.m_SplitY = 0.5;
+            m_NeuronGenes.push_back( t_ngene );
+            t_nnum++;
+
+            //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
+            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum, -0.5, false) );
+            t_innovnum++;
+
+            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, 0.5 , false) );
+            t_innovnum++;
+
+            //connect gaussian node to LEO
+            weight = ((t_RNG.RandFloatClamped() + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA;
+            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 1, a_NumInputs+a_NumOutputs, t_innovnum, weight, false) );
+            t_innovnum++;
+        }
+
+    }
+    //Genome with only bias connected
+    if (empty)
+    {
+        for(unsigned int i=0; i < (a_NumOutputs); i++)
+        {
+            weight = t_RNG.RandFloatClamped();
+            weight = ((weight + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA ;
+
+            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, weight , false) );
+            t_innovnum++;
+        }
+     }
+
+     // If there is a gaussian seed connect all inputs to all outputs but the LEO.
+    else if (a_Parameters.LEO && a_Parameters.LeoSeed)
+    {
+
+        for(unsigned int i=0; i < (a_NumOutputs-1); i++)
+
+        {
+            for(unsigned int j= 0; j < a_NumInputs - 1; j++)
+            {
+                weight = t_RNG.RandFloatClamped();
+                weight = ((weight + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA ;
+                m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, weight, false));
+                t_innovnum++;
+            }
+        m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, 0.5 , false) );
+        t_innovnum++;
+        }
+    }
+
+    // Or just buld a fully connected minimal genome, eh?
+    else
+    {
+        for(unsigned int i=0; i < (a_NumOutputs); i++)
+        {
+            for(unsigned int j= 0; j < a_NumInputs - 1; j++)
+            {
+                weight = t_RNG.RandFloatClamped();
+                weight = ((weight + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA ;
+                m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, weight, false));
+                t_innovnum++;
+            }
+
+            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, 0.5 , false) );
+            t_innovnum++;
+        }
+    }
+
+    // setup final properties
+    m_Evaluated = false;
+    m_NumInputs  = a_NumInputs;
+    m_NumOutputs = a_NumOutputs;
+    m_Fitness = 0.0;
+    m_AdjustedFitness = 0.0;
+    m_OffspringAmount = 0.0;
+    m_Depth = 0;
+    m_PhenotypeBehavior = NULL;
+
+}
+
 
 // A little helper function to find the index of a neuron, given its ID
 // returns -1 if not found
