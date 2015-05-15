@@ -150,7 +150,7 @@ def getbest():
 
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
-        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=False)
+        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=True)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
