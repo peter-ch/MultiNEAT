@@ -196,7 +196,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, int, Parameters>())
-
+	    .def(init<unsigned int, unsigned int, unsigned int,
+                    bool, ActivationFunction, ActivationFunction, Parameters>())
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)
             .def("NumInputs", &Genome::NumInputs)
@@ -216,6 +217,9 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("ResetEvaluated", &Genome::ResetEvaluated)
 
             .def("Save", Genome_Save)
+
+	    .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
+	    .def("GetPoints", &Genome::GetPoints)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -265,7 +269,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("m_max_weight_and_bias", &Substrate::m_max_weight_and_bias)
             .def_readwrite("m_min_time_const", &Substrate::m_min_time_const)
             .def_readwrite("m_max_time_const", &Substrate::m_max_time_const)
-            
+
             .def_pickle(Substrate_pickle_suite())
             ;
 
@@ -279,7 +283,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("Acquire", &PhenotypeBehavior::Acquire)
             .def("Distance_To", &PhenotypeBehavior::Distance_To)
             .def("Successful", &PhenotypeBehavior::Successful)
-            
+
             .def_readwrite("m_Data", &PhenotypeBehavior::m_Data)
             ;
 
@@ -411,7 +415,20 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("CompatTresholdModifier", &Parameters::CompatTresholdModifier)
             .def_readwrite("CompatTreshChangeInterval_Generations", &Parameters::CompatTreshChangeInterval_Generations)
             .def_readwrite("CompatTreshChangeInterval_Evaluations", &Parameters::CompatTreshChangeInterval_Evaluations)
-            ;
+
+            .def_readwrite("DivisionThreshold", &Parameters::DivisionThreshold)
+            .def_readwrite("VarianceThreshold", &Parameters::VarianceThreshold)
+            .def_readwrite("BandThreshold", &Parameters::BandThreshold)
+            .def_readwrite("InitialDepth", &Parameters::InitialDepth)
+            .def_readwrite("MaxDepth", &Parameters::MaxDepth)
+            .def_readwrite("CPPN_Bias", &Parameters::CPPN_Bias)
+            .def_readwrite("Width", &Parameters::Width)
+            .def_readwrite("Qtree_Y", &Parameters::Qtree_Y)
+            .def_readwrite("Qtree_X", &Parameters::Qtree_X)
+            .def_readwrite("Leo", &Parameters::Leo)
+            .def_readwrite("LeoThreshold", &Parameters::LeoThreshold)
+            .def_readwrite("LeoSeed", &Parameters::LeoSeed)
+        ;
 
 
 /////////////////////////////////////////////////////////
@@ -424,7 +441,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
     class_< std::vector< std::vector<double> > >("DoublesList2D")
             .def(vector_indexing_suite< std::vector< std::vector<double> > >() )
-            ; 
+            ;
 
     class_< std::vector<float> >("FloatsList")
             .def(vector_indexing_suite< std::vector<float> >() )

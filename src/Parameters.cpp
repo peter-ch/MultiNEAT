@@ -363,6 +363,45 @@ void Parameters::Reset()
     // Per how many evaluations to change the treshold
     // (used in steady state mode)
     CompatTreshChangeInterval_Evaluations = 10;
+
+
+    DivisionThreshold = 0.03;
+
+    VarianceThreshold = 0.03;
+
+    // Used for Band prunning.
+    BandThreshold = 0.3;
+
+    // Max and Min Depths of the quadtree
+    InitialDepth = 3;
+
+    MaxDepth = 3;
+
+    // How many hidden layers before connecting nodes to output. At 0 there is
+    // one hidden layer. At 1, there are two and so on.
+    IterationLevel = 1;
+
+    // The Bias value for the CPPN queries.
+    CPPN_Bias = -1;
+
+    // Quadtree Dimensions
+    // The range of the tree. Typically set to 2,
+    Width = 2.0;
+
+    // The (x, y) coordinates of the tree
+    Qtree_X = 0.0;
+
+    Qtree_Y = 0.0;
+
+    // Use Link Expression output
+    Leo = false;
+
+    // Threshold above which a connection is expressed
+    LeoThreshold = 0.1;
+
+    // Use geometric seeding. Currently only along the X axis. 1
+    LeoSeed = false;
+
 }
 Parameters::Parameters()
 {
@@ -714,6 +753,56 @@ int Parameters::Load(std::ifstream& a_DataFile)
 
         if (s == "CompatTreshChangeInterval_Evaluations")
             a_DataFile >> CompatTreshChangeInterval_Evaluations;
+
+        if (s == "DivisionThreshold")
+            a_DataFile >> DivisionThreshold;
+
+        if (s == "VarianceThreshold")
+            a_DataFile >> VarianceThreshold;
+
+        if (s == "BandThreshold")
+            a_DataFile >> BandThreshold;
+
+        if (s == "InitialDepth")
+            a_DataFile >> InitialDepth;
+
+        if (s == "MaxDepth")
+            a_DataFile >> MaxDepth;
+
+        if (s == "IterationLevel")
+            a_DataFile >> IterationLevel;
+
+        if (s == "CPPN_Bias")
+            a_DataFile >> CPPN_Bias;
+
+        if (s == "Width")
+            a_DataFile >> Width;
+
+        if (s == "Qtree_X")
+            a_DataFile >> Qtree_X;
+
+        if (s == "Qtree_Y")
+            a_DataFile >> Qtree_Y;
+
+        if (s == "Leo")
+        {  a_DataFile >> tf;
+           if (tf == "true" || tf == "1" || tf == "1.0")
+                Leo = true;
+            else
+                Leo = false;
+        }
+
+        if (s == "LeoThreshold")
+            a_DataFile >> LeoThreshold;
+
+        if (s == "LeoSeed")
+        {
+            a_DataFile >> tf;
+           if (tf == "true" || tf == "1" || tf == "1.0")
+                LeoSeed = true;
+            else
+                LeoSeed = false;
+        }
     }
 
     return 0;
@@ -839,6 +928,19 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "CompatTresholdModifier %3.20f\n", CompatTresholdModifier);
     fprintf(a_fstream, "CompatTreshChangeInterval_Generations %d\n", CompatTreshChangeInterval_Generations);
     fprintf(a_fstream, "CompatTreshChangeInterval_Evaluations %d\n", CompatTreshChangeInterval_Evaluations);
+    fprintf(a_fstream, "DivisionThreshold %3.20f\n", DivisionThreshold);
+    fprintf(a_fstream, "VarianceThreshold %3.20f\n", VarianceThreshold);
+    fprintf(a_fstream, "BandThreshold %3.20f\n", BandThreshold);
+    fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
+    fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
+    fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
+    fprintf(a_fstream, "CPPN_Bias %d\n", CPPN_Bias);
+    fprintf(a_fstream, "Width %3.20f\n", Width);
+    fprintf(a_fstream, "Qtree_X %3.20f\n", Qtree_X);
+    fprintf(a_fstream, "Qtree_Y %3.20f\n", Qtree_Y);
+    fprintf(a_fstream, "Leo %s\n", Leo==true?"true":"false");
+    fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
+    fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }
