@@ -169,15 +169,17 @@ public:
     /////////////
     // Other possible constructors for different types of networks go here
     // TODO
+
     /////////////
     // Alternative constructor for dealing with LEO, Gaussian seed etc.
-    // empty means only bias is connected
+    // empty means only bias is connected to outputs
     Genome(unsigned int a_ID,
                unsigned int a_NumInputs,
                unsigned int a_NumOutputs,
+               bool empty,
                ActivationFunction a_OutputActType,
                ActivationFunction a_HiddenActType,
-               const Parameters& a_Parameters)
+               const Parameters& a_Parameters);
     ////////////////////////////
     // Destructor
     ////////////////////////////
@@ -392,56 +394,6 @@ public:
     void SetEvaluated() { m_Evaluated = true; }
     void ResetEvaluated() { m_Evaluated = false; }
 
-#ifdef USE_BOOST_PYTHON
-
-    // Serialization
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-        ar & m_ID;
-        ar & m_NeuronGenes;
-        ar & m_LinkGenes;
-        ar & m_NumInputs;
-        ar & m_NumOutputs;
-        ar & m_Fitness;
-        ar & m_AdjustedFitness;
-        ar & m_Depth;
-        ar & m_OffspringAmount;
-        ar & m_Evaluated;
-        //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
-    }
-
-#endif
-
-};
-
-#ifdef USE_BOOST_PYTHON
-
-struct Genome_pickle_suite : py::pickle_suite
-{
-    static py::object getstate(const Genome& a)
-    {
-        std::ostringstream os;
-        boost::archive::binary_oarchive oa(os);
-        oa << a;
-        return py::str (os.str());
-    }
-
-    static void setstate(Genome& a, py::object entries)
-    {
-        py::str s = py::extract<py::str> (entries)();
-        std::string st = py::extract<std::string> (s)();
-        std::istringstream is (st);
-
-        boost::archive::binary_iarchive ia (is);
-        ia >> a;
-    }
-};
-
-#endif
-
-#define DBG(x) { std::cerr << x << "\n"; }
 
 /////////////////////////////////////////////
 // Evolvable Substrate HyperNEAT
@@ -538,6 +490,60 @@ void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);
 
 py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
+
+
+#ifdef USE_BOOST_PYTHON
+
+    // Serialization
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & m_ID;
+        ar & m_NeuronGenes;
+        ar & m_LinkGenes;
+        ar & m_NumInputs;
+        ar & m_NumOutputs;
+        ar & m_Fitness;
+        ar & m_AdjustedFitness;
+        ar & m_Depth;
+        ar & m_OffspringAmount;
+        ar & m_Evaluated;
+        //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
+    }
+
+#endif
+
+};
+
+#ifdef USE_BOOST_PYTHON
+
+struct Genome_pickle_suite : py::pickle_suite
+{
+    static py::object getstate(const Genome& a)
+    {
+        std::ostringstream os;
+        boost::archive::binary_oarchive oa(os);
+        oa << a;
+        return py::str (os.str());
+    }
+
+    static void setstate(Genome& a, py::object entries)
+    {
+        py::str s = py::extract<py::str> (entries)();
+        std::string st = py::extract<std::string> (s)();
+        std::istringstream is (st);
+
+        boost::archive::binary_iarchive ia (is);
+        ia >> a;
+    }
+};
+
+#endif
+
+#define DBG(x) { std::cerr << x << "\n"; }
+
+
 
 } // namespace NEAT
 

@@ -31,7 +31,7 @@
 
 #include <algorithm>
 #include <fstream>
-
+#include <queue>
 #include <math.h>
 #include "Genome.h"
 #include "Random.h"
@@ -102,145 +102,6 @@ Genome& Genome::operator =(const Genome& a_G)
     return *this;
 }
 
-
-// This creates a standart minimal genome - perceptron-like structure
-Genome::Genome(unsigned int a_ID,
-               unsigned int a_NumInputs,
-               unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
-               unsigned int a_NumOutputs,
-               bool a_FS_NEAT, ActivationFunction a_OutputActType,
-               ActivationFunction a_HiddenActType,
-               unsigned int a_SeedType,
-               const Parameters& a_Parameters)
-{
-    ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
-    RNG t_RNG;
-    t_RNG.TimeSeed();
-
-    m_ID = a_ID;
-    int t_innovnum = 1, t_nnum = 1;
-
-    // Create the input neurons.
-    // Warning! The last one is a bias!
-    // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
-    for(unsigned int i=0; i < (a_NumInputs-1); i++)
-    {
-        m_NeuronGenes.push_back( NeuronGene(INPUT, t_nnum, 0.0) );
-        t_nnum++;
-    }
-    // add the bias
-    m_NeuronGenes.push_back( NeuronGene(BIAS, t_nnum, 0.0) );
-    t_nnum++;
-
-    // now the outputs
-    for(unsigned int i=0; i < (a_NumOutputs); i++)
-    {
-        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
-        // Initialize the neuron gene's properties
-        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                      a_OutputActType );
-
-        m_NeuronGenes.push_back( t_ngene );
-        t_nnum++;
-    }
-
-    // add and connect hidden neurons if seed type is != 0
-    if ((a_SeedType != 0) && (a_NumHidden > 0))
-    {
-        for(unsigned int i=0; i < (a_NumHidden); i++)
-        {
-            NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
-            // Initialize the neuron gene's properties
-            t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                          a_HiddenActType );
-
-            t_ngene.m_SplitY = 0.5;
-
-            m_NeuronGenes.push_back( t_ngene );
-            t_nnum++;
-        }
-
-        if (!a_FS_NEAT)
-        {
-            // The links from each input to this hidden node
-            for(unsigned int i=0; i < (a_NumHidden); i++)
-            {
-                for(unsigned int j= 0; j < a_NumInputs; j++)
-                {
-                    // add the link
-                    // created with zero weights. needs future random initialization. !!!!!!!!
-                    m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+a_NumOutputs+1, t_innovnum, 0.0, false) );
-                    t_innovnum++;
-                }
-            }
-            // The links from this hidden node to each output
-            for(unsigned int i=0; i < (a_NumOutputs); i++)
-            {
-                for(unsigned int j= 0; j < a_NumHidden; j++)
-                {
-                    // add the link
-                    // created with zero weights. needs future random initialization. !!!!!!!!
-                    m_LinkGenes.push_back( LinkGene(j+a_NumInputs+a_NumOutputs+1, i+a_NumInputs+1, t_innovnum, 0.0, false) );
-                    t_innovnum++;
-                }
-            }
-            // Connect the bias to the outputs as well
-            for(unsigned int i=0; i < (a_NumOutputs); i++)
-            {
-                // add the link
-                // created with zero weights. needs future random initialization. !!!!!!!!
-                m_LinkGenes.push_back( LinkGene(a_NumInputs, i+a_NumInputs+1, t_innovnum, 0.0, false) );
-                t_innovnum++;
-            }
-        }
-    }
-    else    // The links connecting every input to every output - perceptron structure
-        if ((!a_FS_NEAT) && (a_SeedType == 0))
-        {
-            for(unsigned int i=0; i < (a_NumOutputs); i++)
-            {
-                for(unsigned int j= 0; j < a_NumInputs; j++)
-                {
-                    // add the link
-                    // created with zero weights. needs future random initialization. !!!!!!!!
-                    m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, 0.0, false) );
-                    t_innovnum++;
-                }
-            }
-        }
-        else
-        {
-            // Start very minimally - connect a random input to each output
-            // Also connect the bias to every output
-            for(unsigned int i=0; i < a_NumOutputs; i++)
-            {
-                int t_inp_id  = t_RNG.RandInt(1, a_NumInputs-1);
-                int t_bias_id = a_NumInputs;
-                int t_outp_id = a_NumInputs+1 + i;
-
-                // created with zero weights. needs future random initialization. !!!!!!!!
-                m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  t_innovnum, 0.0, false) );
-                t_innovnum++;
-                m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false) );
-                t_innovnum++;
-            }
-        }
-
-    m_Evaluated = false;
-    m_NumInputs  = a_NumInputs;
-    m_NumOutputs = a_NumOutputs;
-    m_Fitness = 0.0;
-    m_AdjustedFitness = 0.0;
-    m_OffspringAmount = 0.0;
-    m_Depth = 0;
-    m_PhenotypeBehavior = NULL;
-}
 Genome::Genome(unsigned int a_ID,
                unsigned int a_NumInputs,
                unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
@@ -284,7 +145,7 @@ Genome::Genome(unsigned int a_ID,
         t_nnum++;
     }
     // Now add LEO
-    if (params.LEO)
+    if (a_Parameters.Leo)
     {
         NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
         // Initialize the neuron gene's properties
@@ -449,7 +310,7 @@ Genome::Genome(unsigned int a_ID,
         m_NeuronGenes.push_back( t_ngene );
         t_nnum++;
         a_NumOutputs++;
-1
+
         if (a_Parameters.LeoSeed == true)
         {
             NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
@@ -492,7 +353,7 @@ Genome::Genome(unsigned int a_ID,
      }
 
      // If there is a gaussian seed connect all inputs to all outputs but the LEO.
-    else if (a_Parameters.LEO && a_Parameters.LeoSeed)
+    else if (a_Parameters.Leo && a_Parameters.LeoSeed)
     {
 
         for(unsigned int i=0; i < (a_NumOutputs-1); i++)
@@ -3166,7 +3027,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
                     inputs.push_back(root -> children[i] -> y);
                     inputs.push_back(root -> children[i] -> z);
 
-                    root_index = node.size()
+                    root_index = node.size();
                 }
 
                 else
