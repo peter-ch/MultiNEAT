@@ -2988,6 +2988,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
     return r;
 }
 
+
 // We take the tree generated above and see which connections can be expressed on the basis of Variance threshold, Band threshold and LEO.
 void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoint> root, NeuralNetwork& cppn, Parameters& params, std::vector<Genome::TempConnection>& connections, const bool& outgoing)
 {   //double weight;
@@ -3049,7 +3050,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
                 {    cppn.Activate();
                 }
 
-                d_left = std::abs (root -> children[i] -> weight - cppn.Output()[0]);
+                d_left = Abs(root -> children[i] -> weight - cppn.Output()[0]);
                 cppn.Flush();
 
                 // Right
@@ -3060,7 +3061,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
                 {   cppn.Activate();
                 }
 
-                d_right = std::abs (root -> children[i] -> weight - cppn.Output()[0]);
+                d_right = Abs(root -> children[i] -> weight - cppn.Output()[0]);
                 cppn.Flush();
 
                 // Top
@@ -3072,7 +3073,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
                 {   cppn.Activate();
                 }
 
-                d_top = std::abs (root -> children[i] -> weight - cppn.Output()[0]);
+                d_top = Abs(root -> children[i] -> weight - cppn.Output()[0]);
                 cppn.Flush();
 
                 // Bottom
@@ -3083,7 +3084,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
                 {   cppn.Activate();
                 }
 
-                d_bottom = std::abs (root -> children[i] -> weight - cppn.Output()[0]);
+                d_bottom = Abs(root -> children[i] -> weight - cppn.Output()[0]);
                 cppn.Flush();
             }
 
@@ -3175,6 +3176,8 @@ void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoin
     }
 }
 
+#ifdef USE_BOOST_PYTHON
+
 // Returns all the nodes found by a query for a single point. Useful for visualisation and things like that.
 py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 {   std::vector<double> node;
@@ -3198,6 +3201,8 @@ py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 
     return return_values;
 }
+
+#endif
 
 // Removes all the dangling connections. This still leaves the nodes though,
 void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_count,unsigned int output_count,unsigned int hidden_count)

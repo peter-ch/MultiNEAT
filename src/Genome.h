@@ -33,11 +33,13 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 #endif
+
+#include <boost/shared_ptr.hpp>
 
 #include <vector>
 
@@ -470,8 +472,8 @@ struct QuadPoint
     {
     };
 };
-void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
-    Parameters& params);
+
+void Build_ES_Phenotype(NeuralNetwork& a_net, Substrate& subst, Parameters& params);
 
 boost::shared_ptr<Genome::QuadPoint> DivideInitialize(
     std::vector<double>& node, NeuralNetwork& cppn, Parameters& params,
@@ -489,7 +491,9 @@ double Variance( boost::shared_ptr<QuadPoint> point);
 void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);
 
+#ifdef USE_BOOST_PYTHON
 py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
+#endif
 
 
 #ifdef USE_BOOST_PYTHON
@@ -523,7 +527,7 @@ struct Genome_pickle_suite : py::pickle_suite
     static py::object getstate(const Genome& a)
     {
         std::ostringstream os;
-        boost::archive::binary_oarchive oa(os);
+        boost::archive::text_oarchive oa(os);
         oa << a;
         return py::str (os.str());
     }
@@ -534,7 +538,7 @@ struct Genome_pickle_suite : py::pickle_suite
         std::string st = py::extract<std::string> (s)();
         std::istringstream is (st);
 
-        boost::archive::binary_iarchive ia (is);
+        boost::archive::text_iarchive ia (is);
         ia >> a;
     }
 };

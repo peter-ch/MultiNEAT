@@ -206,6 +206,18 @@ inline void Scale(    float& a,
     a = a_tr_min + t_r * rel_a;
 }
 
+inline double Abs(double x)
+{
+	if (x<0)
+	{
+		return -x;
+	}
+	else
+	{
+		return x;
+	}
+}
+
 
 #endif
 

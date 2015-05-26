@@ -31,8 +31,8 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 namespace py = boost::python;
@@ -163,7 +163,7 @@ struct Substrate_pickle_suite : py::pickle_suite
     static py::object getstate(const Substrate& a)
     {
         std::ostringstream os;
-        boost::archive::binary_oarchive oa(os);
+        boost::archive::text_oarchive oa(os);
         oa << a;
         return py::str(os.str());
     }
@@ -174,7 +174,7 @@ struct Substrate_pickle_suite : py::pickle_suite
         std::string st = py::extract<std::string> (s)();
         std::istringstream is(st);
 
-        boost::archive::binary_iarchive ia (is);
+        boost::archive::text_iarchive ia (is);
         ia >> a;
     }
     
