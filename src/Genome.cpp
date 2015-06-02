@@ -2717,9 +2717,12 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     BuildPhenotype(t_temp_phenotype);
     t_temp_phenotype.Flush();
     // Various stuff we need.
+    
     std::vector<std::vector<double> > hidden_nodes;
     std::vector<Connection> connections;
+    connections.reserve(std::pow(4,params.MaxDepth)/2);
     std::vector<TempConnection> TempConnections;
+    connections.reserve(5);
 
     unsigned int input_count, output_count, hidden_index,counter;
     unsigned int source_index;
@@ -2789,6 +2792,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     // Hidden to hidden.
     // Basically the same procedure as above repeated IterationLevel times (see the params)
     std::vector<std::vector<double> > temp;
+    temp.reserve(hidden_nodes.size());
     std::vector< std::vector <double> > unexplored_nodes = hidden_nodes;
     for (unsigned int i = 0; i < params.IterationLevel; i++){
 
@@ -3137,6 +3141,7 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> point)
     }
 
     std::vector<double> var;
+    var.resererve(std::pow(4,m_Parameters.MaxDepth)); // max number of nodes.We dont need that much here, do we? 
     CollectValues(var, point);
 
     double variance = 0.0;
