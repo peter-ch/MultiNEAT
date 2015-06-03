@@ -2996,12 +2996,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
 // We take the tree generated above and see which connections can be expressed on the basis of Variance threshold, Band threshold and LEO.
 void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoint> root, NeuralNetwork& cppn, Parameters& params, std::vector<Genome::TempConnection>& connections, const bool& outgoing)
 {   //double weight;
-    CalculateDepth();
-
-    int cppn_depth = GetDepth();
-
-    double d_left, d_right, d_top, d_bottom;
-    std::vector<double> inputs;
+    
     
     if(root == NULL || root -> children.size() == 0)
     {
@@ -3009,21 +3004,28 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
     }
 
     else
-    {
+    {   
+        // Here or later under the next else if thingy? Need to think about it. 
+        CalculateDepth();
+        int cppn_depth = GetDepth();
+        double d_left, d_right, d_top, d_bottom;
+        std::vector<double> inputs;
+        inputs.reserve(7); // 3d + bias 
+            
         for (unsigned int i = 0; i < 4; i++)
-        {
-            if (Variance(root -> children[i]) > params.VarianceThreshold)
-            {    PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
+        {   if (Variance(root -> children[i]) > params.VarianceThreshold)
+            {    
+                PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
             }
-
             // Band Pruning phase.
             // If LEO is turned off this should always happen.
             // If it is not it should only happen if the LEO output is greater than a specified threshold
             else if ((params.Leo == false) || (params.Leo == true && root -> children[i] -> leo > params.LeoThreshold))
             {   
                 inputs.clear();
-                inputs.reserve(7); // 3d + bias 
+                
                 int root_index = 0;
+                
                 if (outgoing)
                 {
                     inputs.push_back(node[0]);
@@ -3125,10 +3127,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
                 }
                 // Check if the connection is already added. If not add it.
                 tc.weight = weight;
-                std::vector<TempConnection>::iterator itr = std::find(connections.begin(), connections.end(), tc);
-                if (itr == connections.end())
-                {   connections.push_back(tc);
-                }
+                connections.push_back(tc);
             }
         }
     }
