@@ -2910,6 +2910,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
 
     // the inputs for the CPPN, the queue and the root.
     std::vector<double> t_inputs;
+    t_inputs.reseve(7); // 3 dimensions + bias. 
     boost::shared_ptr<QuadPoint> r(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, 1));
 
     std::queue<boost::shared_ptr<QuadPoint> > q;
@@ -3001,6 +3002,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
 
     double d_left, d_right, d_top, d_bottom;
     std::vector<double> inputs;
+    
     if(root == NULL || root -> children.size() == 0)
     {
         return;
@@ -3018,8 +3020,9 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
             // If LEO is turned off this should always happen.
             // If it is not it should only happen if the LEO output is greater than a specified threshold
             else if ((params.Leo == false) || (params.Leo == true && root -> children[i] -> leo > params.LeoThreshold))
-            {
+            {   
                 inputs.clear();
+                inputs.reserve(7); // 3d + bias 
                 int root_index = 0;
                 if (outgoing)
                 {
@@ -3141,7 +3144,7 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> point)
     }
 
     std::vector<double> var;
-    var.resererve(std::pow(4,m_Parameters.MaxDepth)); // max number of nodes.We dont need that much here, do we? 
+    var.resererve(std::pow( 4, m_Parameters.MaxDepth - point -> level)+1);  
     CollectValues(var, point);
 
     double variance = 0.0;
@@ -3238,6 +3241,7 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
         }
 
         std::vector<Connection> temp;
+        temp.reserve(connections.size());
         for (unsigned int i = 0; i< connections.size(); i++)
         {
             if( hasOutgoing[connections[i].m_target_neuron_idx] && hasIncoming[connections[i].m_source_neuron_idx])
