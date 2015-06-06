@@ -484,7 +484,7 @@ void PruneExpress( std::vector<double>& node,
 
 void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint> point);
 
-double Variance( boost::shared_ptr<QuadPoint> point);
+double Variance( boost::shared_ptr<QuadPoint> point, int maxDepth);
 
 void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);

@@ -2709,7 +2709,7 @@ Relies on the Divide Initialize, PruneExpress and CleanNet methods.
 */
 
 void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters& params)
-{
+{   int maxNodes = std::pow(4, params.MaxDepth);
     ASSERT(subst.m_input_coords.size() > 0);
     ASSERT(subst.m_output_coords.size() > 0);
     // Build the cppn
@@ -2717,12 +2717,23 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     BuildPhenotype(t_temp_phenotype);
     t_temp_phenotype.Flush();
     // Various stuff we need.
-    
+    // hidden nodes vector and temp vector that is used to copy the hidden one
+    // since max number of nodes is 4**MaxDepth
     std::vector<std::vector<double> > hidden_nodes;
+    hidden_nodes.reserve(maxNodes);
+    std::vector<std::vector<double> > temp;
+    temp.reserve(maxNodes);
+    std::vector< std::vector <double> > unexplored_nodes;
+    // its not like it can get to that much right? 
+    unexplored_nodes.reserve(maxNodes);
+    
     std::vector<Connection> connections;
-    connections.reserve(std::pow(4,params.MaxDepth)/2);
+    connections.reserve(maxNodes/2);
     std::vector<TempConnection> TempConnections;
-    connections.reserve(5);
+    TempConnections.reserve(maxNodes/2);
+
+    net.m_neurons.reserve(maxNodes);
+    net.m_connections.reserve(maxNodes/2)
 
     unsigned int input_count, output_count, hidden_index,counter;
     unsigned int source_index;
@@ -2730,6 +2741,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
 
 
     std::vector<double> point;
+    point.reserve(3);
 
     input_count = subst.m_input_coords.size();
     output_count = subst.m_output_coords.size();
@@ -2759,6 +2771,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             net.AddNeuron(t_n);
         // Get the Quadtree and express the connections in it for this input
         boost::shared_ptr<QuadPoint> root = DivideInitialize(subst.m_input_coords[i], t_temp_phenotype,  params, true, 0.0);
+        
         PruneExpress( subst.m_input_coords[i], root, t_temp_phenotype, params, TempConnections, true);
         // See which connections are worth keeping.
         for(unsigned int j = 0; j < TempConnections.size(); j++){
@@ -2791,9 +2804,8 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     }
     // Hidden to hidden.
     // Basically the same procedure as above repeated IterationLevel times (see the params)
-    std::vector<std::vector<double> > temp;
-    temp.reserve(hidden_nodes.size());
-    std::vector< std::vector <double> > unexplored_nodes = hidden_nodes;
+
+    unexplored_nodes = hidden_nodes;
     for (unsigned int i = 0; i < params.IterationLevel; i++){
 
         for(unsigned int j = 0; j < unexplored_nodes.size(); j++){
@@ -2835,6 +2847,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         for(unsigned int k = 0; k < hidden_nodes.size();k++)
         {
             std::vector<std::vector<double> >::iterator itr = std::find(unexplored_nodes.begin(), unexplored_nodes.end(), hidden_nodes[k]);
+            
             if (itr  == unexplored_nodes.end())
             {   temp.push_back(hidden_nodes[k]);    }
         }
@@ -2910,7 +2923,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
 
     // the inputs for the CPPN, the queue and the root.
     std::vector<double> t_inputs;
-    t_inputs.reseve(7); // 3 dimensions + bias. 
+    t_inputs.reserve(7); // 3 dimensions + bias. 
     boost::shared_ptr<QuadPoint> r(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, 1));
 
     std::queue<boost::shared_ptr<QuadPoint> > q;
@@ -2982,7 +2995,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
             cppn.Flush();
         }
 
-        if ((c_level < params.InitialDepth) || ((c_level < params.MaxDepth) && (Variance(p) > params.DivisionThreshold)))
+        if ((c_level < params.InitialDepth) || ((c_level < params.MaxDepth) && (Variance(p, params.MaxDepth) > params.DivisionThreshold)))
         {
             q.push(c1);
             q.push(c2);
@@ -3013,7 +3026,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
         inputs.reserve(7); // 3d + bias 
             
         for (unsigned int i = 0; i < 4; i++)
-        {   if (Variance(root -> children[i]) > params.VarianceThreshold)
+        {   if (Variance(root -> children[i], params.MaxDepth) > params.VarianceThreshold)
             {    
                 PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
             }
@@ -3134,7 +3147,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
 }
 // Calculates the variance of a given Quadpoint.
 // Maybe an alternative solution would be to add this in the Quadpoint const.
-double Genome::Variance(boost::shared_ptr<QuadPoint> point)
+double Genome::Variance(boost::shared_ptr<QuadPoint> point, int maxDepth)
 {   if(point == NULL)
     {   return 0.0;
     }
@@ -3143,7 +3156,7 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> point)
     }
 
     std::vector<double> var;
-    var.resererve(std::pow( 4, m_Parameters.MaxDepth - point -> level)+1);  
+    var.reserve(std::pow( 4, maxDepth - point -> level)+1);  
     CollectValues(var, point);
 
     double variance = 0.0;

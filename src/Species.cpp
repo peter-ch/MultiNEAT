@@ -138,10 +138,23 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
 
     // Here might be introduced better selection scheme, but this works OK for now
     if (!a_Parameters.RouletteWheelSelection)
-    {
+    {   //start with the last one just for comparison sake
+        int temp_genome;
+        t_chosen_one = m_Individuals.size() - 1;
+        
         int t_num_parents = static_cast<int>( floor((a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size())))+1.0));
         ASSERT(t_num_parents>0);
-        t_chosen_one = a_RNG.RandInt(0, t_num_parents);
+        
+        for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
+        {
+            temp_genome = a_RNG.RandInt(0, t_num_parents);
+            
+            if (m_Individuals[temp_genome].GetFitness() > m_Individuals[t_chosen_one].GetFitness())
+            {
+                t_chosen_one = temp_genome;
+            }
+        }
+        
     }
     else
     {

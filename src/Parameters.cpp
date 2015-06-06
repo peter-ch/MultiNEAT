@@ -402,6 +402,9 @@ void Parameters::Reset()
     // Use geometric seeding. Currently only along the X axis. 1
     LeoSeed = false;
 
+    // Binary tournament selection
+    TournamentSize = 2; 
+
 }
 Parameters::Parameters()
 {
@@ -803,6 +806,8 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 LeoSeed = false;
         }
+        if (s == "TournamentSize")
+            a_DataFile >> TournamentSize;
     }
 
     return 0;
@@ -934,13 +939,14 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
     fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
     fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
-    fprintf(a_fstream, "CPPN_Bias %d\n", CPPN_Bias);
+    fprintf(a_fstream, "CPPN_Bias %f\n", CPPN_Bias);
     fprintf(a_fstream, "Width %3.20f\n", Width);
     fprintf(a_fstream, "Qtree_X %3.20f\n", Qtree_X);
     fprintf(a_fstream, "Qtree_Y %3.20f\n", Qtree_Y);
     fprintf(a_fstream, "Leo %s\n", Leo==true?"true":"false");
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
+    fprintf(a_fstream, "TournamentSize%d\n", TournamentSize );
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }

@@ -407,6 +407,8 @@ public:
 
     // resets the parameters to built-in defaults
     void Reset();
+
+    unsigned int TournamentSize;
 };
 
 } // namespace NEAT

@@ -52,16 +52,16 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 0.25
 
 
-params.DivisionThreshold = 0.03
+params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
 params.InitialDepth = 3
-params.MaxDepth = 3
+params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = False
 params.LeoThreshold = 0.3
-params.CPPN_Bias = 1.0
+params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.0
 params.Width = 2.0
@@ -141,20 +141,21 @@ def evaluate_xor(genome):
 
 
 def getbest():
-    g = NEAT.Genome(0, 7, 1, False, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
+    g = NEAT.Genome(0, 7, 1, False, NEAT.ActivationFunction.SIGNED_GAUSS, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
 
     for generation in range(2000):
-
+        print "---------------------------"
+        print "Generation: ", generation
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
-        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=True)
+        fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_xor, display = False, cores= 4)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
-
+        print "Best: ", best
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
@@ -173,8 +174,8 @@ def getbest():
 
         generations = generation
 
-        if best > 15.0:
-            break
+        #if best > 15.0:
+         #   break
 
         pop.Epoch()
 
