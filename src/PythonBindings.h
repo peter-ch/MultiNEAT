@@ -429,6 +429,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("LeoThreshold", &Parameters::LeoThreshold)
             .def_readwrite("LeoSeed", &Parameters::LeoSeed)
             .def_readwrite("TournamentSize", &Parameters::TournamentSize)
+            .def_readwrite("Elitism", &Parameters::Elitism)
         ;
 
 

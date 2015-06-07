@@ -349,7 +349,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
     Genome t_baby; // temp genome for reproduction
 
     int t_offspring_count = Rounded(GetOffspringRqd());
-
+    int elite_offspring = Rounded(a_Parameters.Elitism*m_Individuals.size());
+    int elite_count = 1;
     // no offspring?! yikes.. dead species!
     if (t_offspring_count == 0)
     {
@@ -370,6 +371,12 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         {
             t_baby = m_Individuals[0];
             t_champ_chosen = true;
+        }
+        //Now copy the elite individuals onto next generation
+        else if (elite_offspring > 1 && elite_count < elite_offspring)
+        {   
+            t_baby = m_Individuals[elite_count];
+            elite_count++;
         }
         // or if it was, then proceed with the others
         else
@@ -464,7 +471,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
 
                 // Mutate the baby
-                if (/*(!t_mated) ||*/ (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
+                if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
                 {
                     MutateGenome(t_baby_exists_in_pop, a_Pop, t_baby, a_Parameters, a_RNG);
                 }

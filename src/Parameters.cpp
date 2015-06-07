@@ -405,6 +405,8 @@ void Parameters::Reset()
     // Binary tournament selection
     TournamentSize = 2; 
 
+    Elitism = 0.1;
+
 }
 Parameters::Parameters()
 {
@@ -808,6 +810,8 @@ int Parameters::Load(std::ifstream& a_DataFile)
         }
         if (s == "TournamentSize")
             a_DataFile >> TournamentSize;
+        if (s == "Elitism")
+            a_DataFile >> Elitism;
     }
 
     return 0;
@@ -947,6 +951,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
     fprintf(a_fstream, "TournamentSize%d\n", TournamentSize );
+    fprintf(a_fstream, "Elitism%f\n", Elitism);
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }

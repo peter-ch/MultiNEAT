@@ -76,12 +76,23 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
 
         //m_Genomes[i].CalculateDepth();
     }
+    // Speciate
+    Speciate();
+    // initial mutation
+    for (unsigned int i = 0; i < m_Species.size(); i++)
+    {
+        for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
+        {
+            m_Species[i].MutateGenome( true, *this, m_Species[i].m_Individuals[j], m_Parameters, m_RNG );
+        }
+    }
 
+    Speciate();
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
 
-    // Speciate
-    Speciate();
+
+
     m_BestGenome = m_Species[0].GetLeader();
 
     Sort();

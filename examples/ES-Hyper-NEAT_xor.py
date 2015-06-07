@@ -27,15 +27,14 @@ params.OverallMutationRate = 0.15
 params.MutateAddLinkProb = 0.03
 params.MutateAddNeuronProb = 0.01
 params.MutateWeightsProb = 0.90
-params.MaxWeight = 8.0
-params.WeightMutationMaxPower = 0.2
+params.MaxWeight = 5.0
+params.WeightMutationMaxPower = 0.8
 params.WeightReplacementMaxPower = 1.0
 params.MutateActivationAProb = 0.0
 params.ActivationAMutationMaxPower = 0.5
-params.MinActivationA = -6.0
-params.MaxActivationA = 6.0
 params.MutateNeuronActivationTypeProb = 0.03
 params.CrossoverRate = 0.5
+params.MutateWeightsSevereProb = 0.01
 
 # Probabilities for a particular activation function appearance
 params.ActivationFunction_SignedSigmoid_Prob = 0.25
@@ -59,7 +58,7 @@ params.InitialDepth = 3
 params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
-params.LeoSeed = False
+params.LeoSeed = True
 params.LeoThreshold = 0.3
 params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
@@ -141,7 +140,7 @@ def evaluate_xor(genome):
 
 
 def getbest():
-    g = NEAT.Genome(0, 7, 1, False, NEAT.ActivationFunction.SIGNED_GAUSS, NEAT.ActivationFunction.SIGNED_SIGMOID,
+    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_GAUSS, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)

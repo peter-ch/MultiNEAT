@@ -333,7 +333,7 @@ Genome::Genome(unsigned int a_ID,
             t_innovnum++;
 
             //connect gaussian node to LEO
-            weight = ((t_RNG.RandFloatClamped() + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA;
+            weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
             m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 1, a_NumInputs+a_NumOutputs, t_innovnum, weight, false) );
             t_innovnum++;
         }
@@ -341,36 +341,25 @@ Genome::Genome(unsigned int a_ID,
     }
     //Genome with only bias connected
     if (empty)
-    {
-        for(unsigned int i=0; i < (a_NumOutputs); i++)
+    {   if (a_Parameters.Leo && a_Parameters.LeoSeed) // Connect bias to LEO.
         {
-            weight = t_RNG.RandFloatClamped();
-            weight = ((weight + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA ;
-
-            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, weight , false) );
+            weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
+            
+            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+a_NumOutputs , t_innovnum, weight , false) );
             t_innovnum++;
         }
-     }
 
-     // If there is a gaussian seed connect all inputs to all outputs but the LEO.
-    else if (a_Parameters.Leo && a_Parameters.LeoSeed)
-    {
-
-        for(unsigned int i=0; i < (a_NumOutputs-1); i++)
-
+        else
         {
-            for(unsigned int j= 0; j < a_NumInputs - 1; j++)
+            for(unsigned int i=0; i < (a_NumOutputs); i++)
             {
-                weight = t_RNG.RandFloatClamped();
-                weight = ((weight + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA ;
-                m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, weight, false));
+                weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
+                
+                m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, weight , false) );
                 t_innovnum++;
             }
-        m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, 0.5 , false) );
-        t_innovnum++;
         }
     }
-
     // Or just buld a fully connected minimal genome, eh?
     else
     {
@@ -378,8 +367,7 @@ Genome::Genome(unsigned int a_ID,
         {
             for(unsigned int j= 0; j < a_NumInputs - 1; j++)
             {
-                weight = t_RNG.RandFloatClamped();
-                weight = ((weight + 1)/2)*(a_Parameters.MaxActivationA - a_Parameters.MinActivationA) + a_Parameters.MinActivationA ;
+                weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
                 m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, weight, false));
                 t_innovnum++;
             }
@@ -2733,7 +2721,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     TempConnections.reserve(maxNodes/2);
 
     net.m_neurons.reserve(maxNodes);
-    net.m_connections.reserve(maxNodes/2)
+    net.m_connections.reserve(maxNodes/2);
 
     unsigned int input_count, output_count, hidden_index,counter;
     unsigned int source_index;
@@ -3200,7 +3188,7 @@ py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 {   std::vector<double> node;
     std::vector<TempConnection> validpoints;
     for(int j=0; j<py::len(t_node); j++)
-    { node.push_back(py::extract<double>(t_node[j]));
+    {   node.push_back(py::extract<double>(t_node[j]));
     }
 
     NeuralNetwork cppn(true);
