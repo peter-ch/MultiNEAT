@@ -14,24 +14,22 @@ import utilities
 params = NEAT.Parameters()
 params.PopulationSize = 200
 params.DynamicCompatibility = True
-params.CompatTreshold = 2.0
+params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
-params.SpeciesMaxStagnation = 100
+params.SpeciesMaxStagnation = 30
 params.OldAgeTreshold = 35
 params.MinSpecies = 1
 params.MaxSpecies = 15
 params.RouletteWheelSelection = False
 params.MutateRemLinkProb = 0.02
 params.RecurrentProb = 0.001
-params.OverallMutationRate = 0.15
+params.OverallMutationRate = 0.
 params.MutateAddLinkProb = 0.03
 params.MutateAddNeuronProb = 0.01
 params.MutateWeightsProb = 0.90
 params.MaxWeight = 5.0
 params.WeightMutationMaxPower = 0.8
 params.WeightReplacementMaxPower = 1.0
-params.MutateActivationAProb = 0.0
-params.ActivationAMutationMaxPower = 0.5
 params.MutateNeuronActivationTypeProb = 0.03
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
@@ -54,7 +52,7 @@ params.ActivationFunction_Linear_Prob = 0.25
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
-params.InitialDepth = 3
+params.InitialDepth = 4
 params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
@@ -89,8 +87,7 @@ substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
 substrate.m_link_threshold = 0.2
 substrate.m_max_weight_and_bias = 8.0
 
-cv2.namedWindow('CPPN', 0)
-cv2.namedWindow('NN', 0)
+
 
 def evaluate_xor(genome):
 
@@ -109,53 +106,66 @@ def evaluate_xor(genome):
         [net.Activate() for _ in range(depth)]
         o = net.Output()
         error += abs(o[0] - 1)
+        if o[0] > 0.75:
+            correct +=1.
 
         net.Flush()
         net.Input([0,1,1])
         [net.Activate() for _ in range(depth)]
         o = net.Output()
         error += abs(o[0] - 1)
+        if o[0] > 0.75:
+            correct +=1.
 
         net.Flush()
         net.Input([1,1,1])
         [net.Activate() for _ in range(depth)]
         o = net.Output()
         error += abs(o[0] - 0)
+        if o[0] < 0.25:
+            correct +=1.
 
         net.Flush()
         net.Input([0,0,1])
         [net.Activate() for _ in range(depth)]
         o = net.Output()
         error += abs(o[0] - 0)
+        if o[0] < 0.25:
+            correct +=1.
 
 
-        return (4 - error)**2
+
+        return [(4 - error)**2, correct/4., net.GetTotalConnectionLength()]
 
     except Exception as ex:
 
         print 'Exception:', ex
 
-        return 1.0
+        return [1.0, 0.0, 0.0]
 
 
 
-def getbest():
+def getbest(run, filename):
     g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_GAUSS, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
-
-    for generation in range(2000):
+    results = []
+    for generation in range(20):
         print "---------------------------"
         print "Generation: ", generation
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
         fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_xor, display = False, cores= 4)
-        [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
-
-        best = max([x.GetLeader().GetFitness() for x in pop.Species])
-        print "Best: ", best
+        [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
+        [genome.SetPerformance(fitness[1]) for genome, fitness in zip(genome_list, fitnesses)]
+        [genome.SetLength(fitness[2]) for genome, fitness in zip(genome_list, fitnesses)]
+       
+        best = pop.GetBestGenome()
+        results.append([run,generation, best.GetFitness(), best.Length, best.GetPerformance()])
+        print "Best ", best.GetFitness(), " ",  best.Length, " ", best.GetPerformance()
         net = NEAT.NeuralNetwork()
+       
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
@@ -178,12 +188,13 @@ def getbest():
 
         pop.Epoch()
 
+    utilities.dump_to_file(results, filename)
     return generations
 
 
 gens = []
-for run in range(100):
-    gen = getbest()
+for run in range(2):
+    gen = getbest(run, "test.csv")
     print 'Run:', run, 'Generations to solve XOR:', gen
     gens += [gen]
 

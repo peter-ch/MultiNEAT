@@ -61,6 +61,8 @@ Genome::Genome()
     m_OffspringAmount = 0;
     m_Evaluated = false;
     m_PhenotypeBehavior = NULL;
+    Performance = 0.0;
+    Length = 0.0;
 }
 
 
@@ -78,6 +80,8 @@ Genome::Genome(const Genome& a_G)
     m_OffspringAmount = a_G.m_OffspringAmount;
     m_Evaluated = a_G.m_Evaluated;
     m_PhenotypeBehavior = a_G.m_PhenotypeBehavior;
+    Performance = a_G.Performance;
+    Length = a_G.Length;
 }
 
 // assignment operator
@@ -97,6 +101,8 @@ Genome& Genome::operator =(const Genome& a_G)
         m_OffspringAmount = a_G.m_OffspringAmount;
         m_Evaluated = a_G.m_Evaluated;
         m_PhenotypeBehavior = a_G.m_PhenotypeBehavior;
+        Performance = a_G.Performance;
+        Length = a_G.Length;
     }
 
     return *this;
@@ -258,6 +264,8 @@ Genome::Genome(unsigned int a_ID,
     m_OffspringAmount = 0.0;
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
+    Performance = 0.0;
+    Length = 0.0;
 }
 
 
@@ -386,6 +394,8 @@ Genome::Genome(unsigned int a_ID,
     m_OffspringAmount = 0.0;
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
+    Performance = 0.0;
+    Length = 0.0;
 
 }
 
@@ -2901,6 +2911,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     // Easy as 1,2,4 ...
     Clean_Net(connections, input_count, output_count, hidden_nodes.size());
     net.m_connections = connections;
+    //Length = net.GetTotalConnectionLength();
 }
 
 // Used to determine the placement of hidden neurons in the Evolvable Substrate.

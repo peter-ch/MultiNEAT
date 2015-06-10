@@ -178,6 +178,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             NN_Input_numpy)
             .def("Output",
             &NeuralNetwork::Output)
+            .def("GetTotalConnectionLength", &NeuralNetwork::GetTotalConnectionLength)
 
             .def_readwrite("neurons", &NeuralNetwork::m_neurons)
             .def_readonly("connections", &NeuralNetwork::m_connections)
@@ -220,6 +221,10 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
 	    .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
 	    .def("GetPoints", &Genome::GetPoints)
+        .def("SetPerformance", &Genome::SetPerformance)
+        .def("GetPerformance", &Genome::GetPerformance)
+        .def("SetLength", &Genome::SetLength)
+        .def_readwrite("Length", &Genome::Length)
 
             .def_pickle(Genome_pickle_suite())
             ;

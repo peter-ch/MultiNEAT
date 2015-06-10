@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import MultiNEAT as NEAT
-
+import csv
 params = NEAT.Parameters()
 params.PopulationSize = 150
 params.DynamicCompatibility = True
@@ -67,6 +67,13 @@ params.NumObjectives = 2
 params.MultiobjectiveProbability = 0.
 rng = NEAT.RNG()
 rng.TimeSeed()
+
+def dump_to_file(data, filename):
+    with open(filename,"a") as output:
+        writer = csv.writer(output, lineterminator='\n')
+        for val in data:
+            writer.writerow(val)
+    return
 
 def get_neuron_indices(connections):
     indices = []

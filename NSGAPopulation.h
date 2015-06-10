@@ -26,8 +26,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// File:        Population.h
-// Description: Definition for the Population class.
+// File:        MSGAPopulation.h
+// Description: Definition for the Multiobjective Population class.
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
@@ -57,7 +57,7 @@ enum SearchMode
 
 class Species;
 
-class Population
+class NSGAPopulation
 {
     /////////////////////
     // Members
@@ -71,44 +71,13 @@ private:
     // next genome ID
     unsigned int m_NextGenomeID;
 
-    // next species ID
-    unsigned int m_NextSpeciesID;
-
-    ////////////////////////////
-    // Phased searching members
-
-    // The current mode of search
-    SearchMode m_SearchMode;
-
-    // The current Mean Population Complexity
-    double m_CurrentMPC;
-
-    // The MPC from the previous generation (for comparison)
-    double m_OldMPC;
-
-    // The base MPC (for switching between complexifying/simplifying phase)
-    double m_BaseMPC;
-
-    // Separates the population into species based on compatibility distance
-    void Speciate();
-
     // Adjusts each species's fitness
     void AdjustFitness();
 
     // Calculates how many offspring each genome should have
     void CountOffspring();
 
-    // Empties all species
-    void ResetSpecies();
-
-    // Updates the species
-    void UpdateSpecies();
-
-    // Calculates the current mean population complexity
-    void CalculateMPC();
-
-
-    // best fitness ever achieved
+   // best fitness ever achieved
     double m_BestFitnessEver;
 
     // Keep a local copy of the best ever genome found in the run
@@ -117,9 +86,6 @@ private:
 
     // Number of generations since the best fitness changed
     unsigned int m_GensSinceBestFitnessLastChanged;
-
-    // How many generations passed until the last change of MPC
-    unsigned int m_GensSinceMPCLastChanged;
 
     // The initial list of genomes
     std::vector<Genome> m_Genomes;
@@ -134,10 +100,6 @@ public:
 
     // Current generation
     unsigned int m_Generation;
-
-    // The list of species
-    std::vector<Species> m_Species;
-
 
     ////////////////////////////
     // Constructors
@@ -164,10 +126,6 @@ public:
     ////////////////////////////
 
     // Access
-    SearchMode GetSearchMode() const { return m_SearchMode; }
-    double GetCurrentMPC() const { return m_CurrentMPC; }
-    double GetBaseMPC() const { return m_BaseMPC; }
-
     unsigned int NumGenomes() const
     {
     	unsigned int num=0;
@@ -206,19 +164,16 @@ public:
     
 
     unsigned int GetStagnation() const { return m_GensSinceBestFitnessLastChanged; }
-    unsigned int GetMPCStagnation() const { return m_GensSinceMPCLastChanged; }
 
     unsigned int GetNextGenomeID() const { return m_NextGenomeID; }
-    unsigned int GetNextSpeciesID() const { return m_NextSpeciesID; }
     void IncrementNextGenomeID() { m_NextGenomeID++; }
-    void IncrementNextSpeciesID() { m_NextSpeciesID++; }
 
     Genome& AccessGenomeByIndex(unsigned int const a_idx);
 
     InnovationDatabase& AccessInnovationDatabase() { return m_InnovationDatabase; }
 
     // Sorts each species's genomes by fitness
-    void Sort();
+    void NSGASort();
 
     // Performs one generation and reproduces the genomes
     void Epoch();
@@ -228,10 +183,7 @@ public:
 
     //////////////////////
     // NEW STUFF
-    std::vector<Species> m_TempSpecies; // useful in reproduction
-
-
-    //////////////////////
+      //////////////////////
     // Real-Time methods
 
     // Estimates the estimated average fitness for all species
@@ -239,11 +191,6 @@ public:
 
     // Reproduce the population champ only
     Genome ReproduceChamp();
-
-    // Choose the parent species that will reproduce
-    // This is a real-time version of fitness sharing
-    // Returns the species index
-    unsigned int ChooseParentSpecies();
 
     // Removes worst member of the whole population that has been around for a minimum amount of time
     // returns the genome that was just deleted (may be useful)
@@ -259,8 +206,6 @@ public:
     void ReassignSpecies(unsigned int a_genome_idx);
 
     unsigned int m_NumEvaluations;
-
-
 
     ///////////////////////////////
     // Novelty search

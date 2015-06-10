@@ -130,6 +130,11 @@ public:
     // used in steady state evolution
     bool m_Evaluated;
 
+    double Length;
+
+    // Sometimes fitness and performance on a task differ. 
+    double Performance;
+
     // A pointer to a class representing the phenotype's behavior
     // Used in novelty searches
     PhenotypeBehavior* m_PhenotypeBehavior;
@@ -183,7 +188,17 @@ public:
     ////////////////////////////
     // Destructor
     ////////////////////////////
-
+    void SetPerformance(double perf)
+    {
+        Performance = perf;
+    }
+    void SetLength(double len){
+        Length = len;
+    }
+    double GetPerformance()
+    {
+        return Performance;
+    }
     ////////////////////////////
     // Methods
     ////////////////////////////
