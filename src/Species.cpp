@@ -373,11 +373,11 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
             t_champ_chosen = true;
         }
         //Now copy the elite individuals onto next generation
-        else if (elite_offspring > 1 && elite_count < elite_offspring)
+        /*else if (elite_offspring > 1 && elite_count < elite_offspring)
         {   
             t_baby = m_Individuals[elite_count];
             elite_count++;
-        }
+        }*/
         // or if it was, then proceed with the others
         else
         {

@@ -110,6 +110,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
     {
         m_SearchMode = BLENDED;
     }
+    m_InnovationDatabase.m_Innovations.reserve(50000);
 }
 
 
@@ -447,7 +448,7 @@ void Population::UpdateSpecies()
 
 // the epoch method - the heart of the GA
 void Population::Epoch()
-{
+{   cout << "Innovation database size : " << m_InnovationDatabase.m_Innovations.size() << endl;
     // So, all genomes are evaluated..
     for(unsigned int i=0; i<m_Species.size(); i++)
     {

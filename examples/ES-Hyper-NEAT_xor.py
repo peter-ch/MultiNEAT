@@ -52,8 +52,8 @@ params.ActivationFunction_Linear_Prob = 0.25
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
-params.InitialDepth = 4
-params.MaxDepth = 4
+params.InitialDepth = 5
+params.MaxDepth = 5
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
@@ -151,7 +151,7 @@ def getbest(run, filename):
 
     pop = NEAT.Population(g, params, True, 1.0)
     results = []
-    for generation in range(20):
+    for generation in range(2000):
         print "---------------------------"
         print "Generation: ", generation
         genome_list = NEAT.GetGenomeList(pop)
@@ -163,7 +163,7 @@ def getbest(run, filename):
        
         best = pop.GetBestGenome()
         results.append([run,generation, best.GetFitness(), best.Length, best.GetPerformance()])
-        print "Best ", best.GetFitness(), " ",  best.Length, " ", best.GetPerformance()
+        print "Best ", best.GetFitness(), " Connecions: ",  best.Length, " Performance: ", best.GetPerformance()
         net = NEAT.NeuralNetwork()
        
         pop.Species[0].GetLeader().BuildPhenotype(net)

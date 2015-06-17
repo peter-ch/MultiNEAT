@@ -423,6 +423,8 @@ struct TempConnection
 
     TempConnection()
     {
+        source.reserve(3);
+        target.reserve(3);
     }
 
     TempConnection( std::vector<double> t_source, std::vector<double> t_target,
@@ -431,6 +433,9 @@ struct TempConnection
         source = t_source;
         target = t_target;
         weight = t_weight;
+        source.reserve(3);
+        target.reserve(3);
+    
     }
 
     ~TempConnection(){};
@@ -457,6 +462,7 @@ struct QuadPoint
 
     QuadPoint()
     {
+        children.reserve(4);
     }
 
     QuadPoint(double t_x, double t_y, double t_width, int t_level)
@@ -467,6 +473,7 @@ struct QuadPoint
         level = t_level;
         weight = 0.0;
         leo = 0.0;
+        children.reserve(4);
     }
     // Mind the Z
     QuadPoint(double t_x, double t_y, double t_z, double t_width,
@@ -479,6 +486,7 @@ struct QuadPoint
         level = t_level;
         weight = 0.0;
         leo = 0.0;
+        children.reserve(4);
     }
 
     ~QuadPoint()
@@ -493,13 +501,13 @@ boost::shared_ptr<Genome::QuadPoint> DivideInitialize(
     const bool& outgoing, const double& z_coord);
 
 void PruneExpress( std::vector<double>& node,
-    boost::shared_ptr<QuadPoint> root, NeuralNetwork& cppn,
+    boost::shared_ptr<QuadPoint>& root, NeuralNetwork& cppn,
     Parameters& params, std::vector<Genome::TempConnection>& connections,
     const bool& outgoing);
 
-void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint> point);
+void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point);
 
-double Variance( boost::shared_ptr<QuadPoint> point, int maxDepth);
+double Variance( boost::shared_ptr<QuadPoint> &point, int maxDepth);
 
 void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);

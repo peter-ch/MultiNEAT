@@ -17,7 +17,7 @@ import scipy.stats as ss
 # NEAT parameters
 
 params = NEAT.Parameters()
-params.PopulationSize = 200
+params.PopulationSize = 125
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -40,25 +40,25 @@ params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
 
 # Probabilities for a particular activation function appearance
-params.ActivationFunction_SignedSigmoid_Prob = 0.25
+params.ActivationFunction_SignedSigmoid_Prob = 0.16
 params.ActivationFunction_UnsignedSigmoid_Prob = 0.0
 params.ActivationFunction_Tanh_Prob = 0.0
 params.ActivationFunction_TanhCubic_Prob = 0.0
-params.ActivationFunction_SignedStep_Prob = 0.0
+params.ActivationFunction_SignedStep_Prob = 0.16
 params.ActivationFunction_UnsignedStep_Prob = 0.0
-params.ActivationFunction_SignedGauss_Prob = 0.25
+params.ActivationFunction_SignedGauss_Prob = 0.16
 params.ActivationFunction_UnsignedGauss_Prob = 0.0
-params.ActivationFunction_Abs_Prob = 0.0
-params.ActivationFunction_SignedSine_Prob = 0.25
+params.ActivationFunction_Abs_Prob = 0.16
+params.ActivationFunction_SignedSine_Prob = 0.16
 params.ActivationFunction_UnsignedSine_Prob = 0.0
-params.ActivationFunction_Linear_Prob = 0.25
+params.ActivationFunction_Linear_Prob = 0.16
 
 
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
-params.InitialDepth = 4
-params.MaxDepth = 5
+params.InitialDepth = 3
+params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
@@ -222,11 +222,12 @@ def getbest(run, filename):
         results.append([run,generation, best.GetFitness(), best.GetPerformance(),best.Length])
         print "---------------------------"
         print "Generation: ", generation
-        print "Best ", best.GetFitness(), " ",  best.Length, " ", best.GetPerformance()
+        print "Best ", best.GetFitness(), " Connections: ",  best.Length, " ", best.GetPerformance()
         
         net = NEAT.NeuralNetwork()
        
         pop.Species[0].GetLeader().BuildPhenotype(net)
+
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
         NEAT.DrawPhenotype(img, (0, 0, 500, 500), net )
@@ -234,6 +235,7 @@ def getbest(run, filename):
 
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().Build_ES_Phenotype(net, substrate, params)
+        print "Neurons: ", len(net.neurons), " Connections: ", len( net.connections)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
 
@@ -248,7 +250,8 @@ def getbest(run, filename):
 
         pop.Epoch()
 
-    #utilities.dump_to_file(results, filename)
+        if generation %250 ==0:
+            utilities.dump_to_file(results, filename)
     return generations
 
 

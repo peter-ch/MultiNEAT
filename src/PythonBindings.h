@@ -312,8 +312,10 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetBaseMPC", &Population::GetBaseMPC)
             .def("GetStagnation", &Population::GetStagnation)
             .def("GetMPCStagnation", &Population::GetMPCStagnation)
+            .def("NumGenomes", &Population::NumGenomes)
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
+
             ;
 
 ///////////////////////////////////////////////////////////////////

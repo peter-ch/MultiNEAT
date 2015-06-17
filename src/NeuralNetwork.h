@@ -204,7 +204,7 @@ public:
 
     double GetTotalConnectionLength()
     {   //return m_connections.size(); //The alternative approach
-        double total = 0;
+       /* double total = 0;
         for (unsigned int i = 0; i < m_connections.size(); i++)
         {   
             //std:: cout << GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx])<< std::endl;
@@ -212,7 +212,8 @@ public:
             total += std::pow(GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx]),2);
         }
         //std::cout <<  total << std::endl;
-        return total;
+        */
+        return m_connections.size();
     }
 
     // one-shot save/load

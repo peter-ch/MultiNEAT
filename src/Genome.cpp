@@ -2809,6 +2809,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         for(unsigned int j = 0; j < unexplored_nodes.size(); j++){
 
             boost::shared_ptr<QuadPoint> root = DivideInitialize(unexplored_nodes[j], t_temp_phenotype, params, true, 0.0);
+
             PruneExpress(unexplored_nodes[j], root, t_temp_phenotype, params, TempConnections, true);
 
             for (unsigned int k = 0; k < TempConnections.size(); k++){
@@ -2852,6 +2853,10 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
 
         unexplored_nodes = temp;
         temp.clear();
+    }
+    if (hidden_nodes.size() > maxNodes)
+    {
+        throw std::invalid_argument( "More Nodes than Max" );
     }
     // Finally Output to Hidden. Note that unlike before, here we connect the outputs to
     // existing hidden nodes and no new nodes are added.
@@ -2940,15 +2945,19 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
         unsigned int c_level = p -> level + 1;
         double offset = c_width *0.5;
         // Add children
-        boost::shared_ptr<QuadPoint> c1(new QuadPoint(p -> x - offset, p -> y - offset, c_width, c_level));
-        p -> children.push_back(c1);
-        boost::shared_ptr<QuadPoint> c2(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level));
-        p -> children.push_back(c2);
-        boost::shared_ptr<QuadPoint> c3(new QuadPoint(p -> x + offset, p -> y + offset, c_width, c_level));
-        p -> children.push_back(c3);
-        boost::shared_ptr<QuadPoint> c4(new QuadPoint(p -> x + offset, p -> y - offset, c_width, c_level));
-        p -> children.push_back(c4);
+        //boost::shared_ptr<QuadPoint> c1();
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset, p -> y - offset, c_width, c_level)));
+        //boost::shared_ptr<QuadPoint> c2(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level)));
+        //boost::shared_ptr<QuadPoint> c3();
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset, p -> y + offset, c_width, c_level)));
+       // boost::shared_ptr<QuadPoint> c4();
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset, p -> y - offset, c_width, c_level)));
+        if (p -> children.size() > 4)
+        {
+            throw std::invalid_argument( "What do I do with all these children?" );
 
+        }
 
         for(unsigned int i = 0; i < 4; i++)
         {
@@ -2996,17 +3005,17 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize(std::vector<double
 
         if ((c_level < params.InitialDepth) || ((c_level < params.MaxDepth) && (Variance(p, params.MaxDepth) > params.DivisionThreshold)))
         {
-            q.push(c1);
-            q.push(c2);
-            q.push(c3);
-            q.push(c4);
+            q.push(p -> children[0]);
+            q.push(p -> children[1]);
+            q.push(p -> children[2]);
+            q.push(p -> children[3]);
         }
     }
     return r;
 }
 
 // We take the tree generated above and see which connections can be expressed on the basis of Variance threshold, Band threshold and LEO.
-void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoint> root, NeuralNetwork& cppn, Parameters& params, std::vector<Genome::TempConnection>& connections, const bool& outgoing)
+void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoint> &root, NeuralNetwork& cppn, Parameters& params, std::vector<Genome::TempConnection>& connections, const bool& outgoing)
 {   //double weight;
     
     
@@ -3146,7 +3155,7 @@ void Genome::PruneExpress( std::vector<double>& node, boost::shared_ptr<QuadPoin
 }
 // Calculates the variance of a given Quadpoint.
 // Maybe an alternative solution would be to add this in the Quadpoint const.
-double Genome::Variance(boost::shared_ptr<QuadPoint> point, int maxDepth)
+double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
 {   if(point == NULL)
     {   return 0.0;
     }
@@ -3177,7 +3186,7 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> point, int maxDepth)
     return variance;
 }
 // Helper method for Variance
-void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint> point)
+void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point)
 {   //In theory we shouldn't get here at all.
     if (point == NULL)
     {   return;
