@@ -26,7 +26,7 @@ params.OldAgeTreshold = 35
 params.MinSpecies = 1
 params.MaxSpecies = 15
 params.RouletteWheelSelection = False
-params.MutateRemLinkProb = 0.02
+params.MutateRemLinkProb = 0.01
 params.RecurrentProb = 0.001
 params.OverallMutationRate = 0.
 params.MutateAddLinkProb = 0.03
@@ -38,6 +38,7 @@ params.WeightReplacementMaxPower = 1.0
 params.MutateNeuronActivationTypeProb = 0.03
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
+params.TournamentSize = 2;
 
 # Probabilities for a particular activation function appearance
 params.ActivationFunction_SignedSigmoid_Prob = 0.16
@@ -55,7 +56,7 @@ params.ActivationFunction_Linear_Prob = 0.16
 
 
 params.DivisionThreshold = 0.5
-params.VarianceThreshold = 0.03
+params.VarianceThreshold = .03
 params.BandThreshold = 0.3
 params.InitialDepth = 3
 params.MaxDepth = 4
@@ -65,8 +66,8 @@ params.LeoSeed = True
 params.LeoThreshold = 0.3
 params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
-params.Qtree_Y = 0.5
-params.Width = 1.0
+params.Qtree_Y = 0.0
+params.Width = 2.0
 
 rng = NEAT.RNG()
 rng.TimeSeed()
@@ -124,14 +125,23 @@ left_patterns.append([-3, 3,3,3])
 
 possible_inputs.append([3, 3,3,3])
 
-
+#'''
 substrate = NEAT.Substrate(
-        [(-1.0,0, 1.0),(-.33,0,1.0),(0.33,0.0,1.0),(1.0,0.0,1.0),
-        (-1.0,0.0,-1.0), (-0.33,0.0,-1.0),(0.33,0.0,-1.0),(1.0,0.0,-1.0),
-        (0.0,0.0,0.0)],
+        [(-1.0,-1, 1.0),(-.33,-1,1.0),(0.33,-1.0,1.0),(1.0,-1,1.0),
+        (-1.0,-1.0,-1.0), (-0.33,-1.0,-1.0),(0.33,-1.0,-1.0),(1.0,-1.0,-1.0),
+        (0.0,-1.0,0.0)],
         [],
         [(-1.,1,0),(1,1,0)]
         )
+'''
+substrate = NEAT.Substrate(
+        [(-1.0,0.0, 1.0),(-.33,0,1.0),(0.33,.0,1.0),(1.0,0,1.0),
+        (-1.0,.0,-1.0), (-0.33,.0,-1.0),(0.33,.0,-1.0),(1.0,.0,-1.0),
+        (0.0,.0,0.0)],
+        [],
+        [(-1.,1,0),(1,1,0)]
+        )
+#'''
 substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
 substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
 
@@ -209,7 +219,7 @@ def getbest(run, filename):
 
     pop = NEAT.Population(g, params, True, 1.0)
     results = []
-    for generation in range(1500):
+    for generation in range(2500):
         
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
@@ -247,9 +257,8 @@ def getbest(run, filename):
 
         #if best > 15.0:
          #   break
-
         pop.Epoch()
-
+        
         if generation %250 ==0:
             utilities.dump_to_file(results, filename)
     return generations
@@ -258,4 +267,4 @@ def getbest(run, filename):
 
 #runs = 5
 #for i in range(runs):
-getbest(1, "retina_GS.csv")
+getbest(1, "retina_GS_222.csv")

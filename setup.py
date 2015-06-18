@@ -30,7 +30,7 @@ try:
                                               'src/Species.cpp',
                                               'src/Substrate.cpp',
                                               'src/Utils.cpp'],
-                                     extra_compile_args=['-O3', '-march=native'])],
+                                     extra_compile_args=['-O3', '-march=native', '-std=c++0x1'])],
                                     ))
 
 except Exception as ex:

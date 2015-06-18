@@ -88,6 +88,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
     }
 
     Speciate();
+    
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
 
@@ -476,7 +477,6 @@ void Population::Epoch()
 
     // Incrementing the global stagnation counter, we can check later for global stagnation
     m_GensSinceBestFitnessLastChanged++;
-
     // Find and save the best genome and fitness
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
@@ -516,7 +516,6 @@ void Population::Epoch()
             }
         }
     }
-
 
     // adjust the compatibility threshold
     if (m_Parameters.DynamicCompatibility == true)
@@ -681,8 +680,6 @@ void Population::Epoch()
     }
 
     m_Species = m_TempSpecies;
-
-
 
 
     // Now we kill off the old parents

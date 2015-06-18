@@ -52,8 +52,8 @@ params.ActivationFunction_Linear_Prob = 0.25
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
-params.InitialDepth = 5
-params.MaxDepth = 5
+params.InitialDepth = 3
+params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
@@ -165,7 +165,7 @@ def getbest(run, filename):
         results.append([run,generation, best.GetFitness(), best.Length, best.GetPerformance()])
         print "Best ", best.GetFitness(), " Connecions: ",  best.Length, " Performance: ", best.GetPerformance()
         net = NEAT.NeuralNetwork()
-       
+        #
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10

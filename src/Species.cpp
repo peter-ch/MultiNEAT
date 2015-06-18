@@ -47,7 +47,7 @@ namespace NEAT
 Species::Species(const Genome& a_Genome, int a_ID)
 {
     m_ID     = a_ID;
-
+    m_Individuals.reserve(50);
     // copy the initializing genome locally.
     // it is now the representative of the species.
     m_Representative = a_Genome;
@@ -140,11 +140,11 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
     if (!a_Parameters.RouletteWheelSelection)
     {   //start with the last one just for comparison sake
         int temp_genome;
-        t_chosen_one = m_Individuals.size() - 1;
+        
         
         int t_num_parents = static_cast<int>( floor((a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size())))+1.0));
         ASSERT(t_num_parents>0);
-        
+        t_chosen_one = a_RNG.RandInt(0, t_num_parents);
         for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
         {
             temp_genome = a_RNG.RandInt(0, t_num_parents);
