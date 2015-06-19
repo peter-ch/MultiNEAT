@@ -12,7 +12,7 @@ import multiprocessing as mpc
 import utilities
 
 params = NEAT.Parameters()
-params.PopulationSize = 200
+params.PopulationSize = 150
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -52,7 +52,7 @@ params.ActivationFunction_Linear_Prob = 0.25
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
-params.InitialDepth = 3
+params.InitialDepth = 4
 params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
@@ -138,7 +138,7 @@ def evaluate_xor(genome):
         return [(4 - error)**2, correct/4., net.GetTotalConnectionLength()]
 
     except Exception as ex:
-
+        print "Alert"
         print 'Exception:', ex
 
         return [1.0, 0.0, 0.0]

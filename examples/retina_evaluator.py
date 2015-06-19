@@ -261,10 +261,11 @@ def getbest(run, filename):
         
         if generation %250 ==0:
             utilities.dump_to_file(results, filename)
+            pop.Save("pop_gen_%d" %(generation))
     return generations
 
 
 
 #runs = 5
 #for i in range(runs):
-getbest(1, "retina_GS_222.csv")
+getbest(1, "retina_GS_666.csv")

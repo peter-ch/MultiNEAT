@@ -30,7 +30,7 @@ try:
                                               'src/Species.cpp',
                                               'src/Substrate.cpp',
                                               'src/Utils.cpp'],
-                                     extra_compile_args=['-O3', '-march=native', '-std=c++0x1'])],
+                                     extra_compile_args=['-O3', '-march=native'])],
                                     ))
 
 except Exception as ex:
@@ -54,6 +54,7 @@ except Exception as ex:
                                             'boost_serialization'],
                                  extra_compile_args=['-O3', '-march=native',
                                                      '-DUSE_BOOST_PYTHON',
-                                                     '-DUSE_BOOST_RANDOM'
+                                                     '-DUSE_BOOST_RANDOM', 
+                                                    '-std=gnu++11'
                                                      ])
                        ])

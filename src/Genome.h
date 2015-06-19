@@ -443,6 +443,10 @@ struct TempConnection
     bool operator==(const TempConnection& rhs) const
     {   return (source == rhs.source && target == rhs.target);
     }
+
+    bool operator!=(const TempConnection& rhs) const
+    {   return (source != rhs.source && target != rhs.target);
+    }
 };
 
 // A quadpoint in the HyperCube.
@@ -497,10 +501,10 @@ void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
     Parameters& params);
 
 boost::shared_ptr<Genome::QuadPoint> DivideInitialize(
-    std::vector<double>& node, NeuralNetwork& cppn, Parameters& params,
+    const std::vector<double>& node, NeuralNetwork& cppn, Parameters& params,
     const bool& outgoing, const double& z_coord);
 
-void PruneExpress( std::vector<double>& node,
+void PruneExpress(const std::vector<double>& node,
     boost::shared_ptr<QuadPoint>& root, NeuralNetwork& cppn,
     Parameters& params, std::vector<Genome::TempConnection>& connections,
     const bool& outgoing);
