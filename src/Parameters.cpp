@@ -388,6 +388,8 @@ void Parameters::Reset()
     // The range of the tree. Typically set to 2,
     Width = 2.0;
 
+    Height = Width;
+
     // The (x, y) coordinates of the tree
     Qtree_X = 0.0;
 
@@ -783,6 +785,9 @@ int Parameters::Load(std::ifstream& a_DataFile)
         if (s == "Width")
             a_DataFile >> Width;
 
+        if (s == "Height")
+            a_DataFile >> Height;
+
         if (s == "Qtree_X")
             a_DataFile >> Qtree_X;
 
@@ -945,6 +950,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
     fprintf(a_fstream, "CPPN_Bias %f\n", CPPN_Bias);
     fprintf(a_fstream, "Width %3.20f\n", Width);
+    fprintf(a_fstream, "Height %3.20f\n", Height);
     fprintf(a_fstream, "Qtree_X %3.20f\n", Qtree_X);
     fprintf(a_fstream, "Qtree_Y %3.20f\n", Qtree_Y);
     fprintf(a_fstream, "Leo %s\n", Leo==true?"true":"false");

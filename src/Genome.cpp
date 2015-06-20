@@ -2910,10 +2910,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         unexplored_nodes = temp;
         temp.clear();
     }
-    if (hidden_nodes.size() > maxNodes)
-    {   cout << "Expected: " << maxNodes << " Actual: " << hidden_nodes.size() << endl;
-        throw std::invalid_argument( "More Nodes than Max" );
-    }
+
     // Finally Output to Hidden. Note that unlike before, here we connect the outputs to
     // existing hidden nodes and no new nodes are added.
     for(unsigned int i = 0; i < output_count; i++){
@@ -2985,7 +2982,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
     // the inputs for the CPPN, the queue and the root.
     std::vector<double> t_inputs;
     t_inputs.reserve(7); // 3 dimensions + bias. 
-    boost::shared_ptr<QuadPoint> r(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, 1));
+    boost::shared_ptr<QuadPoint> r(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width,params.Height, 1));
 
     std::queue<boost::shared_ptr<QuadPoint> > q;
     q.push(r);
@@ -2998,18 +2995,20 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
         p = q.front();
 
         q.pop();
-        double c_width = p -> width/2.0;
+        double c_width = p -> width*0.5;
+        double c_height = p -> height*0.5;
         unsigned int c_level = p -> level + 1;
-        double offset = c_width *0.5;
+        //double offset_x = c_width *0.5;
+        //double offset_x = c_height *0.5;
         // Add children
         //boost::shared_ptr<QuadPoint> c1();
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset, p -> y - offset, c_width, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - c_width, p -> y - c_height, c_width, c_height, c_level)));
         //boost::shared_ptr<QuadPoint> c2(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level));
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - c_width, p -> y + c_height, c_width, c_height, c_level)));
         //boost::shared_ptr<QuadPoint> c3();
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset, p -> y + offset, c_width, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + c_width, p -> y + c_height, c_width, c_height, c_level)));
        // boost::shared_ptr<QuadPoint> c4();
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset, p -> y - offset, c_width, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + c_width, p -> y - c_height, c_width,  c_height,c_level)));
         if (p -> children.size() > 4)
         {
             throw std::invalid_argument( "What do I do with all these children?" );
@@ -3287,49 +3286,46 @@ py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 
 // Removes all the dangling connections. This still leaves the nodes though,
 void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_count,unsigned int output_count,unsigned int hidden_count)
-{  
+{   
     bool loose_connections = true;
     int node_count = input_count + output_count + hidden_count;
     //loose_conections = true;
     std::vector<Connection> temp;
     temp.reserve(connections.size());
+    int counter = 0;
     while (loose_connections)
-    {
+    {   
         std::vector<bool> hasOutgoing (node_count, false);
         std::vector<bool> hasIncoming (node_count, false);
-        for (unsigned int i = input_count; i< output_count + input_count; i++)
+        // Make sure inputs and outputs are covered.
+        for (unsigned int i = 0; i< output_count + input_count; i++)
         {   hasOutgoing[i] = true;
+            hasIncoming[i] = true;
         }
 
-        for (unsigned int i = 0; i< input_count; i++)
-        {   hasIncoming[i] = true;
-        }
-
+        // Move on to the nodes. 
         for (unsigned int i = 0; i < connections.size(); i++)
-        {   hasOutgoing[connections[i].m_source_neuron_idx] = true;
+        {   
+            hasOutgoing[connections[i].m_source_neuron_idx] = true;
             hasIncoming[connections[i].m_target_neuron_idx] = true;
 
         }
 
         loose_connections = false;
-        for (unsigned int i = 0; i<connections.size(); i++)
-        {   if( !hasOutgoing[connections[i].m_target_neuron_idx]) //|| !hasIncoming[connections[i].m_source_neuron_idx])
-            {   loose_connections = true;
-                break;
+        
+        std::vector<Connection>::iterator itr;
+        for (itr = connections.begin(); itr<connections.end();)
+        {   
+            if( !hasOutgoing[itr -> m_target_neuron_idx] || !hasIncoming[itr -> m_source_neuron_idx])
+            {   itr = connections.erase(itr);
+                loose_connections = true;
+               
             }
+            else
+                itr++;
         }
-
-        temp.clear();
-        for (unsigned int i = 0; i< connections.size(); i++)
-        {
-            if( hasOutgoing[connections[i].m_target_neuron_idx])// && hasIncoming[connections[i].m_source_neuron_idx])
-            {   temp.push_back(connections[i]);
-            }
-        }
-
-        connections = temp;
-
     }
+    
 }
 
 } // namespace NEAT

@@ -58,17 +58,18 @@ params.ActivationFunction_Linear_Prob = 0.16
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = .03
 params.BandThreshold = 0.3
-params.InitialDepth = 3
-params.MaxDepth = 4
+params.InitialDepth = 4
+params.MaxDepth = 5
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
 params.LeoThreshold = 0.3
 params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
-params.Qtree_Y = 0.0
-params.Width = 2.0
-
+params.Qtree_Y = 0.5
+params.Width = 1.0
+params.Height = 0.5
+params.Elitism = 0.1
 rng = NEAT.RNG()
 rng.TimeSeed()
 
@@ -127,9 +128,9 @@ possible_inputs.append([3, 3,3,3])
 
 #'''
 substrate = NEAT.Substrate(
-        [(-1.0,-1, 1.0),(-.33,-1,1.0),(0.33,-1.0,1.0),(1.0,-1,1.0),
-        (-1.0,-1.0,-1.0), (-0.33,-1.0,-1.0),(0.33,-1.0,-1.0),(1.0,-1.0,-1.0),
-        (0.0,-1.0,0.0)],
+        [(-1.0,0.0, 1.0),(-.33,0.0,1.0),(0.33,0.0,1.0),(1.0,0.0,1.0),
+        (-1.0,0.0,-1.0), (-0.33,0.0,-1.0),(0.33,0.0,-1.0),(1.0,0.0,-1.0),
+        (0.0,0.0,0.0)],
         [],
         [(-1.,1,0),(1,1,0)]
         )
@@ -232,7 +233,7 @@ def getbest(run, filename):
         results.append([run,generation, best.GetFitness(), best.GetPerformance(),best.Length])
         print "---------------------------"
         print "Generation: ", generation
-        print "Best ", best.GetFitness(), " Connections: ",  best.Length, " ", best.GetPerformance()
+        print "Best ", max([x.GetLeader().GetFitness() for x in pop.Species]), " Connections: ",  best.Length, " ", best.GetPerformance()
         
         net = NEAT.NeuralNetwork()
        
@@ -268,4 +269,4 @@ def getbest(run, filename):
 
 #runs = 5
 #for i in range(runs):
-getbest(1, "retina_GS_666.csv")
+getbest(1, "retina_GS_966.csv")

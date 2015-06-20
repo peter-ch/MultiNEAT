@@ -350,7 +350,10 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
     int t_offspring_count = Rounded(GetOffspringRqd());
     int elite_offspring = Rounded(a_Parameters.Elitism*m_Individuals.size());
-    int elite_count = 1;
+    //ensure we have a champ
+    if (elite_offspring == 0)
+        elite_offspring = 1;
+    int elite_count = 0;
     // no offspring?! yikes.. dead species!
     if (t_offspring_count == 0)
     {
@@ -367,18 +370,14 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
     while(t_offspring_count--)
     {
         // if the champ was not chosen, do it now..
-        if (!t_champ_chosen)
+        if (elite_count < elite_offspring)
         {
-            t_baby = m_Individuals[0];
-            t_champ_chosen = true;
-        }
-        //Now copy the elite individuals onto next generation
-        /*else if (elite_offspring > 1 && elite_count < elite_offspring)
-        {   
             t_baby = m_Individuals[elite_count];
             elite_count++;
-        }*/
-        // or if it was, then proceed with the others
+            if (!t_champ_chosen)
+                t_champ_chosen = true;
+        }
+
         else
         {
             //do // - while the baby already exists somewhere in the new population

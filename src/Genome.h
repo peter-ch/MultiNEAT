@@ -457,6 +457,7 @@ struct QuadPoint
     double z;
     double width;
     double weight;
+    double height;
     int level;
     // Do I use this?
     double leo;
@@ -469,24 +470,26 @@ struct QuadPoint
         children.reserve(4);
     }
 
-    QuadPoint(double t_x, double t_y, double t_width, int t_level)
+    QuadPoint(double t_x, double t_y, double t_width, double t_height, int t_level)
     {   x = t_x;
         y = t_y;
         z = 0.0;
         width = t_width;
+        height = t_height;
         level = t_level;
         weight = 0.0;
         leo = 0.0;
         children.reserve(4);
     }
     // Mind the Z
-    QuadPoint(double t_x, double t_y, double t_z, double t_width,
+    QuadPoint(double t_x, double t_y, double t_z, double t_width,double t_height,
         int t_level)
     {
         x = t_x;
         y = t_y;
         z = t_z;
         width = t_width;
+        height = t_height;
         level = t_level;
         weight = 0.0;
         leo = 0.0;

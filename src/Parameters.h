@@ -368,6 +368,7 @@ public:
     // Quadtree Dimensions
     // The range of the tree. Typically set to 2,
     double Width;
+    double Height;
 
     // The (x, y) coordinates of the tree
     double Qtree_X;

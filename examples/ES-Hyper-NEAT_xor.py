@@ -12,7 +12,7 @@ import multiprocessing as mpc
 import utilities
 
 params = NEAT.Parameters()
-params.PopulationSize = 150
+params.PopulationSize = 15
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -61,7 +61,8 @@ params.LeoThreshold = 0.3
 params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.0
-params.Width = 2.0
+params.Width = 1.0
+params.Height = 1.0
 
 rng = NEAT.RNG()
 rng.TimeSeed()
