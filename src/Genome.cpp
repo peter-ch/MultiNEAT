@@ -339,15 +339,15 @@ Genome::Genome(unsigned int a_ID,
             t_nnum++;
 
             //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
-            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum, -0.33, false) );
+            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum, -0.5, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, 0.33 , false) );
+            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, 0.5 , false) );
             t_innovnum++;
 
             //connect gaussian node to LEO
-            weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 1, a_NumInputs+a_NumOutputs, t_innovnum, weight, false) );
+            //weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
+            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 1, a_NumInputs+a_NumOutputs, t_innovnum, 1.0, false) );
             t_innovnum++;
 
             // -----------------------------------------------------------------//
@@ -370,21 +370,19 @@ Genome::Genome(unsigned int a_ID,
             m_NeuronGenes.push_back( t_ngene );
             t_nnum++;
             // y1 and y2 coords
-            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, -0.33, false) );
+            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, -0.5, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, 0.33 , false) );
+            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, 0.5 , false) );
             t_innovnum++;
 
             //connect gaussian node to LEO
-            weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
+            
 
-            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 2, a_NumInputs+a_NumOutputs, t_innovnum, weight, false) );
+            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 2, a_NumInputs+1, t_innovnum, 1.0, false) );
             t_innovnum++;
 
-            weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 2, a_NumInputs+a_NumOutputs-1, t_innovnum, weight, false) );
-            t_innovnum++;
+
             // connect bias to GeoSeed
             m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+a_NumOutputs + 2 , t_innovnum, 0.33 , false) );
             t_innovnum++;
@@ -3324,7 +3322,7 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
             if( !hasOutgoing[itr -> m_target_neuron_idx] || !hasIncoming[itr -> m_source_neuron_idx])
             {   itr = connections.erase(itr);
                 loose_connections = true;
-               
+             
             }
             else
                 itr++;

@@ -59,7 +59,7 @@ params.ActivationFunction_Linear_Prob = 0.16
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = .03
 params.BandThreshold = 0.3
-params.InitialDepth = 3
+params.InitialDepth = 4
 params.MaxDepth = 5
 params.IterationLevel = 1
 params.Leo = True
@@ -145,8 +145,8 @@ substrate = NEAT.Substrate(
         [(-1.,1,0),(1,1,0)]
         )
 #'''
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_GAUSS
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.TANH
 
 # when to output a link and max weight
 substrate.m_link_threshold = 0.01
@@ -272,4 +272,4 @@ def getbest(run, filename):
 
 #runs = 5
 #for i in range(runs):
-getbest(1, "test_gen.csv")
+getbest(1, "test_gen_next.csv")

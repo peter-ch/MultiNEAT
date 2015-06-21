@@ -85,16 +85,12 @@ def get_neuron_indices(connections):
     return indices
 
 
-def plot_nn(nn):
+def plot_nn(genome,substrate, params, ax):
+    nn = NEAT.NeuralNetwork()
+    genome.Build_ES_Phenotype(genome,substrate, params)
 
-    # connections
-    # neurons
     indices = get_neuron_indices(nn.connections)
 
-    ax = plt.gca()
-    ax.set_xlim(-1.5, 1.5)
-    ax.set_ylim(-1.5, 1.5)
-    #print len(nn.connections)
     for connection in nn.connections:
         n1 = nn.neurons[connection.source_neuron_idx]
         n2 = nn.neurons[connection.target_neuron_idx]
@@ -102,7 +98,6 @@ def plot_nn(nn):
 
         offsety = n2.substrate_coords[1] - n1.substrate_coords[1]
         offsetz = n2.substrate_coords[2] - n1.substrate_coords[2]
-        #print n1.substrate_coords[0], " ", n2.substrate_coords[0]
         if offsetx == 0 or offsety == 0:
             continue
         if connection.weight < 0.0:
@@ -120,10 +115,9 @@ def plot_nn(nn):
             ax.add_patch(plt.Circle((n.substrate_coords[0], n.substrate_coords[1]), 0.05, fc='red'))
         else:
             ax.add_patch(plt.Circle((n.substrate_coords[0], n.substrate_coords[1]), 0.05, fc='green'))
-    plt.show()
     return
 
-def plot_pattern(node, genome):
+def plot_cppn_pattern(node, genome, ax):
 
     net = NEAT.NeuralNetwork()
     genome.BuildPhenotype(net)
@@ -142,17 +136,23 @@ def plot_pattern(node, genome):
            
         i += 1
 
-
-    ax = plt.gca()
-    ax.set_xlim(-1.2, 1.2)
-    ax.set_ylim(-1.3, 1.2)
-    cm = ax.contourf(pattern, 200, cmap='autumn',
+    cm = ax.contourf(pattern, 200, cmap='greys',
                      origin='lower',extent=[-1, 1, -1, 1])
     #for point in points:
     #    ax.add_patch(plt.Circle((point[0], point[1]), 0.04, fc='red'))
-    plt.show()
-
     return
+
+def visualize(node, genome, neural_network = False, substrate = None, params = None, save_to_file = False, filename = ''  ):
+    ax = plt.gca()
+    ax.set_xlim(-1.5, 1.5)
+    ax.set_ylim(-1.5, 1.5)
+    plot_cppn_pattern(node,genome, ax)
+    if neural_network:
+        plot_nn(genome,substrate, params, ax)
+    if save_to_file:
+        if filename == '':
+            filename = "Visualization.png"
+        
 
 ################################################################
 
