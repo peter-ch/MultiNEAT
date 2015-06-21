@@ -2769,6 +2769,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     // since max number of nodes is 4**MaxDepth
     
     boost::unordered_map< std::vector<double>, int > hidden_nodes;
+    int hidden_counter = 0;
     //hidden_nodes.reserve(maxNodes);
     
     boost::unordered_map< std::vector<double>, int > temp;
@@ -2832,7 +2833,8 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             boost::unordered_map< std::vector<double>, int >::iterator itr = hidden_nodes.find(TempConnections[j].target);
 
             if (itr == hidden_nodes.end()){
-                target_index = hidden_nodes.size();
+                target_index = hidden_counter;
+                hidden_counter++;
                 hidden_nodes.insert(std::make_pair(TempConnections[j].target, target_index));
              }
             // Add connection
@@ -2873,17 +2875,18 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
 
                 if (itr == hidden_nodes.end())
                 {
-                    target_index = hidden_nodes.size();
+                    target_index = hidden_counter;
+                    hidden_counter++;
                     hidden_nodes.insert(std::make_pair(TempConnections[k].target, target_index));
                 }
 
                 else
-                {
+                {   
                     target_index= itr -> second;
                 }
 
                 Connection tc;
-                tc.m_source_neuron_idx = k + hidden_index;
+                tc.m_source_neuron_idx = itr_hid->second + hidden_index;  // NO!!!
                 tc.m_target_neuron_idx = target_index + hidden_index;
                 tc.m_weight = TempConnections[k].weight;
                 tc.m_recur_flag = false;
@@ -2900,13 +2903,16 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         // Now get the newly discovered hidden nodes
         temp = hidden_nodes;
         boost::unordered_map< std::vector<double>, int >::iterator itr1;
+
         for(itr1 = unexplored_nodes.begin(); itr1 != unexplored_nodes.end(); itr1++)
         {
             boost::unordered_map< std::vector<double>, int >::iterator itr = temp.find(itr1 -> first);
-            temp.erase(itr);
-            //if (itr  == unexplored_nodes.end())
-            //{   temp.insert(std::make_pair(itr1 -> first, itr1 -> second));    
+            if (itr != temp.end())
+            {   
+                temp.erase(itr);
+            }
         }
+
         unexplored_nodes = temp;
         temp.clear();
     }
@@ -2982,7 +2988,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
     // the inputs for the CPPN, the queue and the root.
     std::vector<double> t_inputs;
     t_inputs.reserve(7); // 3 dimensions + bias. 
-    boost::shared_ptr<QuadPoint> r(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width,params.Height, 1));
+    boost::shared_ptr<QuadPoint> r(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
 
     std::queue<boost::shared_ptr<QuadPoint> > q;
     q.push(r);
@@ -2993,22 +2999,21 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
     while (!q.empty())
     {
         p = q.front();
-
         q.pop();
-        double c_width = p -> width*0.5;
-        double c_height = p -> height*0.5;
-        unsigned int c_level = p -> level + 1;
-        //double offset_x = c_width *0.5;
-        //double offset_x = c_height *0.5;
+        double offset_x = p -> width*0.5;
+        double offset_y = p -> height*0.5;
+        
+        int c_level = p -> level + 1;
+        
         // Add children
         //boost::shared_ptr<QuadPoint> c1();
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - c_width, p -> y - c_height, c_width, c_height, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset_x, p -> y - offset_y , offset_x, offset_y, c_level)));
         //boost::shared_ptr<QuadPoint> c2(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level));
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - c_width, p -> y + c_height, c_width, c_height, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset_x, p -> y + offset_y , offset_x, offset_y, c_level)));
         //boost::shared_ptr<QuadPoint> c3();
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + c_width, p -> y + c_height, c_width, c_height, c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset_x, p -> y + offset_y , offset_x, offset_y, c_level)));
        // boost::shared_ptr<QuadPoint> c4();
-        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + c_width, p -> y - c_height, c_width,  c_height,c_level)));
+        p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset_x, p -> y - offset_y , offset_x, offset_y, c_level)));
         if (p -> children.size() > 4)
         {
             throw std::invalid_argument( "What do I do with all these children?" );
@@ -3054,7 +3059,7 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
 
             p -> children[i] -> weight = cppn.Output()[0];
 
-            p -> children[i] -> leo = cppn.Output()[1];
+            p -> children[i] -> leo = cppn.Output()[cppn.Output().size() - 1];
 
             cppn.Flush();
         }

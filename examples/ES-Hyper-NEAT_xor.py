@@ -12,7 +12,7 @@ import multiprocessing as mpc
 import utilities
 
 params = NEAT.Parameters()
-params.PopulationSize = 15
+params.PopulationSize = 200
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -49,7 +49,7 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 0.25
 
 
-params.DivisionThreshold = 0.5
+params.DivisionThreshold = 0.03
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
 params.InitialDepth = 4
@@ -61,8 +61,9 @@ params.LeoThreshold = 0.3
 params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.0
-params.Width = 1.0
-params.Height = 1.0
+params.Width = 1.
+params.Height = 1.
+params.Elitism = 0.1
 
 rng = NEAT.RNG()
 rng.TimeSeed()
@@ -152,7 +153,7 @@ def getbest(run, filename):
 
     pop = NEAT.Population(g, params, True, 1.0)
     results = []
-    for generation in range(2000):
+    for generation in range(250):
         print "---------------------------"
         print "Generation: ", generation
         genome_list = NEAT.GetGenomeList(pop)

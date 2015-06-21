@@ -388,7 +388,7 @@ void Parameters::Reset()
     // The range of the tree. Typically set to 2,
     Width = 2.0;
 
-    Height = Width;
+    Height = 2.0;
 
     // The (x, y) coordinates of the tree
     Qtree_X = 0.0;

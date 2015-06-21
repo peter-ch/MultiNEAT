@@ -39,6 +39,7 @@ params.MutateNeuronActivationTypeProb = 0.03
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
 params.TournamentSize = 2;
+params.MaxActivationA = 0.5
 
 # Probabilities for a particular activation function appearance
 params.ActivationFunction_SignedSigmoid_Prob = 0.16
@@ -58,17 +59,18 @@ params.ActivationFunction_Linear_Prob = 0.16
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = .03
 params.BandThreshold = 0.3
-params.InitialDepth = 4
+params.InitialDepth = 3
 params.MaxDepth = 5
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
-params.LeoThreshold = 0.3
+params.LeoThreshold = 0.1
 params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.5
 params.Width = 1.0
-params.Height = 0.5
+params.Height = .5
+
 params.Elitism = 0.1
 rng = NEAT.RNG()
 rng.TimeSeed()
@@ -220,7 +222,7 @@ def getbest(run, filename):
 
     pop = NEAT.Population(g, params, True, 1.0)
     results = []
-    for generation in range(2500):
+    for generation in range(10000):
         
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
@@ -262,11 +264,12 @@ def getbest(run, filename):
         
         if generation %250 ==0:
             utilities.dump_to_file(results, filename)
-            pop.Save("pop_gen_%d" %(generation))
+            results = []
+            #pop.Save("pop_gen_%d" %(generation))
     return generations
 
 
 
 #runs = 5
 #for i in range(runs):
-getbest(1, "retina_GS_966.csv")
+getbest(1, "test_gen.csv")

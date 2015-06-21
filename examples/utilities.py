@@ -125,19 +125,21 @@ def plot_nn(nn):
 
 def plot_pattern(node, genome):
 
-    cppn = genome.CppnNetwork()
-
+    net = NEAT.NeuralNetwork()
+    genome.BuildPhenotype(net)
     #points = genome.GetPoints(node, params.InitialDepth, params.MaxDepth, params.DivisionThreshold, True, banding, params.BandThreshold, params.VarianceThreshold)
     pattern = []
     i = 0
     for y in np.arange(-1.0, 1.0, 0.2):
         pattern.append([])
         for x in np.arange(-1.0, 1.0, 0.2):
-            cppn.Input([node[0], node[1], node[2],x,y,0.0])
-            for j in range(3):
-                cppn.Activate()
-            pattern[i].append(cppn.Output()[0])
-            cppn.Flush()
+            net.Flush()
+            net.Input([node[0], node[1], node[2],x,y,0.0])
+            
+            [net.Activate() for _ in range(5)]
+
+            pattern[i].append(net.Output()[0])
+           
         i += 1
 
 
@@ -260,7 +262,7 @@ def DrawPhenotype(image, rect, nn, neuron_radius=5,
             thickness = Clamp(thickness, 1, max_line_thickness)
 
             w = Scale(abs(conn.weight), 0.0, max_weight, 0.0, 1.0)
-            w = Clamp(w, 0.75, 1.0)
+            w = Clamp(w, 1.0, 1.0)
 
             if conn.recur_flag:
                 if conn.weight < 0:

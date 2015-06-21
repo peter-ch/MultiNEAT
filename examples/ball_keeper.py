@@ -129,7 +129,7 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
 
     # The agents - the brain and the ball
     net = NEAT.NeuralNetwork()
-    genome.BuildPhenotype(net)
+    genome.BuildESPhenotype(net)
 
 
     agent = NN_agent(space, net, bot_startx)

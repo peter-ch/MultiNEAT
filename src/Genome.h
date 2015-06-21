@@ -482,7 +482,7 @@ struct QuadPoint
         children.reserve(4);
     }
     // Mind the Z
-    QuadPoint(double t_x, double t_y, double t_z, double t_width,double t_height,
+    QuadPoint(double t_x, double t_y, double t_z, double t_width, double t_height,
         int t_level)
     {
         x = t_x;

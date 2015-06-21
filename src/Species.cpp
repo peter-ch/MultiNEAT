@@ -143,6 +143,7 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
         
         
         int t_num_parents = static_cast<int>( floor((a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size())))+1.0));
+       
         ASSERT(t_num_parents>0);
         t_chosen_one = a_RNG.RandInt(0, t_num_parents);
         for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
@@ -351,8 +352,6 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
     int t_offspring_count = Rounded(GetOffspringRqd());
     int elite_offspring = Rounded(a_Parameters.Elitism*m_Individuals.size());
     //ensure we have a champ
-    if (elite_offspring == 0)
-        elite_offspring = 1;
     int elite_count = 0;
     // no offspring?! yikes.. dead species!
     if (t_offspring_count == 0)
@@ -370,12 +369,17 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
     while(t_offspring_count--)
     {
         // if the champ was not chosen, do it now..
-        if (elite_count < elite_offspring)
+        
+        if (!t_champ_chosen)
+        { 
+            t_champ_chosen = true;
+            t_baby = m_Individuals[0];
+        }
+
+        else if (elite_count < elite_offspring)
         {
-            t_baby = m_Individuals[elite_count];
+            t_baby = m_Individuals[elite_count+1];
             elite_count++;
-            if (!t_champ_chosen)
-                t_champ_chosen = true;
         }
 
         else

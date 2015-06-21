@@ -78,6 +78,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
     }
     // Speciate
     Speciate();
+
     // initial mutation
     for (unsigned int i = 0; i < m_Species.size(); i++)
     {
@@ -91,8 +92,6 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, boo
     
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
-
-
 
     m_BestGenome = m_Species[0].GetLeader();
 
@@ -449,7 +448,7 @@ void Population::UpdateSpecies()
 
 // the epoch method - the heart of the GA
 void Population::Epoch()
-{   cout << "Innovation database size : " << m_InnovationDatabase.m_Innovations.size() << endl;
+{   
     // So, all genomes are evaluated..
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
