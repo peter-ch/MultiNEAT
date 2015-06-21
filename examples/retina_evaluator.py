@@ -17,7 +17,7 @@ import scipy.stats as ss
 # NEAT parameters
 
 params = NEAT.Parameters()
-params.PopulationSize = 125
+params.PopulationSize = 150
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -39,7 +39,6 @@ params.MutateNeuronActivationTypeProb = 0.03
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
 params.TournamentSize = 2;
-params.MaxActivationA = 0.5
 
 # Probabilities for a particular activation function appearance
 params.ActivationFunction_SignedSigmoid_Prob = 0.16
@@ -65,7 +64,7 @@ params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
 params.LeoThreshold = 0.1
-params.CPPN_Bias = -1.0
+params.CPPN_Bias = -3.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.5
 params.Width = 1.0
@@ -145,7 +144,7 @@ substrate = NEAT.Substrate(
         [(-1.,1,0),(1,1,0)]
         )
 #'''
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_GAUSS
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
 substrate.m_output_nodes_activation = NEAT.ActivationFunction.TANH
 
 # when to output a link and max weight
@@ -217,7 +216,7 @@ def evaluate_retina(genome):
         return (0.0, 0.0, 0.0)
 
 def getbest(run, filename):
-    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_GAUSS, NEAT.ActivationFunction.SIGNED_SIGMOID,
+    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
@@ -272,4 +271,4 @@ def getbest(run, filename):
 
 #runs = 5
 #for i in range(runs):
-getbest(1, "test_gen_next.csv")
+getbest(1, "leka_nosht.csv")

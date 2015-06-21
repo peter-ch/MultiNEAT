@@ -339,10 +339,10 @@ Genome::Genome(unsigned int a_ID,
             t_nnum++;
 
             //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
-            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum, -0.5, false) );
+            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum, 0.5, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, 0.5 , false) );
+            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, -0.5 , false) );
             t_innovnum++;
 
             //connect gaussian node to LEO
@@ -370,10 +370,10 @@ Genome::Genome(unsigned int a_ID,
             m_NeuronGenes.push_back( t_ngene );
             t_nnum++;
             // y1 and y2 coords
-            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, -0.5, false) );
+            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, 0.5, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, 0.5 , false) );
+            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, -0.5 , false) );
             t_innovnum++;
 
             //connect gaussian node to LEO
@@ -2822,7 +2822,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             net.AddNeuron(t_n);
         // Get the Quadtree and express the connections in it for this input
         root = DivideInitialize(subst.m_input_coords[i], t_temp_phenotype,  params, true, 0.0);
-        
+        TempConnections.clear();      
         PruneExpress( subst.m_input_coords[i], root, t_temp_phenotype, params, TempConnections, true);
         
         // See which connections are worth keeping.
@@ -2853,8 +2853,9 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             }
         }
 
-        TempConnections.clear();
     }
+    TempConnections.clear();
+
     // Hidden to hidden.
     // Basically the same procedure as above repeated IterationLevel times (see the params)
 
@@ -2865,7 +2866,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         for(itr_hid = unexplored_nodes.begin(); itr_hid != unexplored_nodes.end(); itr_hid++){
 
             root = DivideInitialize(itr_hid -> first, t_temp_phenotype, params, true, 0.0);
-
+            TempConnections.clear();
             PruneExpress(itr_hid -> first , root, t_temp_phenotype, params, TempConnections, true);
 
             for (unsigned int k = 0; k < TempConnections.size(); k++){
@@ -2896,7 +2897,6 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                 }
             }
 
-            TempConnections.clear();
         }
         // Now get the newly discovered hidden nodes
         temp = hidden_nodes;
@@ -2914,6 +2914,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         unexplored_nodes = temp;
         temp.clear();
     }
+    TempConnections.clear();
 
     // Finally Output to Hidden. Note that unlike before, here we connect the outputs to
     // existing hidden nodes and no new nodes are added.
@@ -2930,7 +2931,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         net.AddNeuron(t_n);
 
         root = DivideInitialize(subst.m_output_coords[i], t_temp_phenotype, params, false, 0.0);
-
+        TempConnections.clear(); 
         PruneExpress(subst.m_output_coords[i], root, t_temp_phenotype, params, TempConnections, false);
 
         for(unsigned int j = 0; j < TempConnections.size(); j++){
@@ -2954,8 +2955,9 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             }
         }
 
-        TempConnections.clear();
+       
     }
+    TempConnections.clear();
     // Now that we got everything add the neurons for the hidden nodes
     boost::unordered_map< std::vector<double>, int >::iterator itr;
     for (itr = hidden_nodes.begin(); itr!=hidden_nodes.end(); itr++)
@@ -3093,14 +3095,14 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
         inputs.reserve(7); // 3d + bias 
             
         for (unsigned int i = 0; i < 4; i++)
-        {   if (Variance(root -> children[i], params.MaxDepth) > params.VarianceThreshold)
+        {   if (Variance(root -> children[i], params.MaxDepth) >= params.VarianceThreshold)
             {    
                 PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
             }
             // Band Pruning phase.
             // If LEO is turned off this should always happen.
             // If it is not it should only happen if the LEO output is greater than a specified threshold
-            else if ((params.Leo == false) || (params.Leo == true && root -> children[i] -> leo > params.LeoThreshold))
+            else if ((!params.Leo) || (params.Leo == true && root -> children[i] -> leo > params.LeoThreshold))
             {   // Band Pruning Phase
                 inputs.clear();
                 
@@ -3182,7 +3184,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
 
                 // Normalize between -3 and 3.
                 // TODO: Put in Parameters
-                double weight =  ((root -> children[i] -> weight  +  1)/2.)*6 - 3;
+                double weight =  root -> children[i] -> weight * 3;
                 //Yeah its ugly
                 if (outgoing)
                 {
@@ -3207,8 +3209,12 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
                 }
 
                 tc.weight = weight;
-                connections.push_back(tc);
-            }
+                std::vector<Genome::TempConnection>::iterator itr = std::find(connections.begin(), connections.end(), tc);
+                if (itr == connections.end())
+                
+                {   connections.push_back(tc);            
+                }
+            }   
         }
     }
 }
