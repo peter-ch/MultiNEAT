@@ -11,14 +11,14 @@ params.YoungAgeTreshold = 15
 params.SpeciesMaxStagnation = 30
 params.OldAgeTreshold = 35
 params.MinSpecies = 1
-params.MaxSpecies = 15
+params.MaxSpecies = 20
 params.RouletteWheelSelection = False
-params.MutateRemLinkProb = 0.01
-params.RecurrentProb = 0.001
+params.MutateRemLinkProb = 0.0
+params.RecurrentProb = 0.0
 params.OverallMutationRate = 0.
 params.MutateAddLinkProb = 0.03
 params.MutateAddNeuronProb = 0.01
-params.MutateWeightsProb = 0.90
+params.MutateWeightsProb = 0.94
 params.MaxWeight = 5.0
 params.WeightMutationMaxPower = 0.8
 params.WeightReplacementMaxPower = 1.0
@@ -26,7 +26,6 @@ params.MutateNeuronActivationTypeProb = 0.03
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
 params.TournamentSize = 2;
-
 
 # Probabilities for a particular activation function appearance
 params.ActivationFunction_SignedSigmoid_Prob = 0.16
@@ -43,20 +42,22 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 0.16
 
 
-params.DivisionThreshold = 0.5
+params.DivisionThreshold = 0.03
 params.VarianceThreshold = .03
 params.BandThreshold = 0.3
-params.InitialDepth = 5
+params.InitialDepth = 4
 params.MaxDepth = 5
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
+params.GeometrySeed = True
 params.LeoThreshold = 0.1
-params.CPPN_Bias = -3.0
+params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.5
 params.Width = 1.0
 params.Height = .5
+
 
 params.Elitism = 0.1
 rng = NEAT.RNG()
@@ -79,57 +80,73 @@ def get_neuron_indices(connections):
     return indices
 
 
-def plot_nn(nn , ax):
-
-    if len(nn.connections) == 0:
-        return "No connections"
+def plot_nn(genome,substrate, params , ax):
+    
+    nn = NEAT.NeuralNetwork()
+    genome.Build_ES_Phenotype(nn, substrate, params)
     indices = get_neuron_indices(nn.connections)
-
+    
     for connection in nn.connections:
-        n1 = nn.neurons[connection.source_neuron_idx]
-        n2 = nn.neurons[connection.target_neuron_idx]
+        n1 = nn.neurons[connection.source_neuron_idx].substrate_coords
+        n2 = nn.neurons[connection.target_neuron_idx].substrate_coords
 
-        offsetx =  n2.substrate_coords[0] -n1.substrate_coords[0]
-
-        offsety = n2.substrate_coords[1] - n1.substrate_coords[1]
-        offsetz = n2.substrate_coords[2] - n1.substrate_coords[2]
-        if offsetx == 0 or offsety == 0:
+        if n1 == n2:
             continue
+        
+        offsetx =  n2[0] - n1[0]
+
+        offsety = n2[1] - n2[1]
+                
         if connection.weight < 0.0:
-            ax.arrow(n1.substrate_coords[0], n1.substrate_coords[1], offsetx, offsety, head_width=0.04,
+            ax.arrow(n1[0], n1[1], offsetx, offsety, head_width=0.04,
                 head_length=0.05, fc='red', ec='red', length_includes_head=True)
         else:
-            ax.arrow(n1.substrate_coords[0], n1.substrate_coords[1], offsetx, offsety, head_width=0.04,
+            ax.arrow(n1[0], n1[1], offsetx, offsety, head_width=0.04,
                 head_length=0.05, fc='blue', ec='blue', length_includes_head=True)
 
-    for index in indices:
-        n = nn.neurons[index]
-        if n.substrate_coords[2] == 0:
-            ax.add_patch(plt.Circle((n.substrate_coords[0], n.substrate_coords[1]), 0.05, fc='grey'))
-        elif n.substrate_coords[2] > 0:
-            ax.add_patch(plt.Circle((n.substrate_coords[0], n.substrate_coords[1]), 0.05, fc='red'))
+    for index in nn.neurons:
+        n = index.substrate_coords
+        if n[2] == 0:
+            ax.add_patch(plt.Circle((n[0], n[1]), 0.03, fc='grey'))
+        elif n[2] > 0:
+            ax.add_patch(plt.Circle((n[0], n[1]), 0.03, fc='red'))
         else:
-            ax.add_patch(plt.Circle((n.substrate_coords[0], n.substrate_coords[1]), 0.05, fc='green'))
+            ax.add_patch(plt.Circle((n[0], n[1]), 0.03, fc='green'))
     return
 
-def plot_cppn_pattern(node, net, ax):
+def plot_cppn_pattern(node, net,depth,  ax):
     pattern = []
     i = 0
-    for y in np.arange(-1.0, 1.0, 0.2):
+    for y in np.arange(-.2, 1.2, 0.2):
         pattern.append([])
-        for x in np.arange(-1.0, 1.0, 0.2):
+        for x in np.arange(-1.2, 1.2, 0.2):
             net.Flush()
             inp = [node[0], node[1], node[2],x,y,0.0]
             net.Input(inp)
-            [ net.Activate() for _ in range(5)]
+            [ net.Activate() for _ in range(depth)]
             pattern[i].append(net.Output()[0])
            
         i += 1
 
     cm = ax.contourf(pattern, 200, cmap='gray',
-                     origin='lower',extent=[-1, 1, -1, 1])
+                     origin='lower',extent=[-1.2, 1.2, -.2, 1.2])
     #for point in points:
     #    ax.add_patch(plt.Circle((point[0], point[1]), 0.04, fc='red'))
+    return
+
+def get_points(node, genome, params, outgoing, ax, arrows = True):
+    net = NEAT.NeuralNetwork()
+    points = genome.GetPoints( node,params, outgoing)
+    ax.add_patch( plt.Circle( (node[0], node[1]), 0.05, fc='green'))
+    for point in points:
+        ax.add_patch(plt.Circle((point[0], point[1]), 0.03, fc = 'red'))
+
+    if arrows:
+        for point in points:
+            offsetx = point[0] - node[0]
+            offsety = point[1] - node[1]
+            ax.arrow(node[0], node[1], offsetx, offsety, head_width=0.04,
+                head_length=0.05, fc='black', ec='black', length_includes_head=True)
     return
 
 def visualize(node, genome, substrate = None, params = None, save_to_file = False, filename = ''  ):
@@ -149,14 +166,13 @@ def visualize(node, genome, substrate = None, params = None, save_to_file = Fals
 
 
 ################################################################
-
-substrate = NEAT.Substrate([(-1, -1, -1.0),
-                            ( -0.66, -1.0, -1.0),
-                            (0.66, -1.0, 1.0 ),
-                            (1.,-1.0,1.0),
-                            (0., -1., 0.) ],
-                            [],
-                           [(-0.5, 1, 0.), (0.5,1,0.0)])
+substrate = NEAT.Substrate(
+        [(-1.0,0.0, 1.0),(-.33,0.0,1.0),(0.33,0.0,1.0),(1.0,0.0,1.0),
+        (-1.0,0.0,-1.0), (-0.33,0.0,-1.0),(0.33,0.0,-1.0),(1.0,0.0,-1.0),
+        (0.0,0.0,0.0)],
+        [],
+        [(-1.,1,0),(1,1,0)]
+        )
 
 '''
 substrate = NEAT.Substrate([(-1., -1., 0.0), (-1., 1., 0.0), (-1., 0., 0.0)],
@@ -300,22 +316,27 @@ def DrawPhenotype(image, rect, nn, neuron_radius=5,
 
 if __name__ == "__main__":
 
-    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
-            params)
-   # g = NEAT.Genome("1")
+   # g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
+    #       params)
+    g = NEAT.Genome("Best_1000")
 #g.Save("unevolved")
     ax = plt.gca()
-    ax.set_xlim(-1.5, 1.5)
-    ax.set_ylim(-1.5, 1.5)
+    ax.set_xlim(-1.2, 1.2)
+    ax.set_ylim(-.2, 1.2)
     node = (0.0, 0.0, 0.0)
+    #node = (-1, -1, -1.0)
+    #node = ( -0.66, -1.0, -1.0)
     net = NEAT.NeuralNetwork()
     g.BuildPhenotype(net)
-    plot_cppn_pattern(node, net, ax)
+    g.CalculateDepth();
+    print g.GetDepth()
+    plot_cppn_pattern(node, net,g.GetDepth(), ax)
 
-    nn = NEAT.NeuralNetwork()
-    
-    g.Build_ES_Phenotype(nn, substrate, params)
-    plot_nn(net,ax)
+    #nn = NEAT.NeuralNetwork()
+    #get_points(node, g, params, True, ax, arrows = True)
+    #g.Build_ES_Phenotype(nn, substrate, params)
+    plot_nn(g,substrate,params, ax)
    # visualize(node, g, substrate, params)
+   # ax.figsize=(8, 6)
     plt.show()
     #plot_nn(net)

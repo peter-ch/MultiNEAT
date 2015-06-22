@@ -339,10 +339,10 @@ Genome::Genome(unsigned int a_ID,
             t_nnum++;
 
             //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
-            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum, 0.5, false) );
+            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum,1, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, -0.5 , false) );
+            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, -1 , false) );
             t_innovnum++;
 
             //connect gaussian node to LEO
@@ -370,10 +370,10 @@ Genome::Genome(unsigned int a_ID,
             m_NeuronGenes.push_back( t_ngene );
             t_nnum++;
             // y1 and y2 coords
-            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, 0.5, false) );
+            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, 1, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, -0.5 , false) );
+            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, -1 , false) );
             t_innovnum++;
 
             //connect gaussian node to LEO
@@ -2860,6 +2860,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     // Basically the same procedure as above repeated IterationLevel times (see the params)
 
     unexplored_nodes = hidden_nodes;
+    
     for (unsigned int i = 0; i < params.IterationLevel; i++){
 
         boost::unordered_map< std::vector<double>, int >::iterator itr_hid;
@@ -2915,7 +2916,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         temp.clear();
     }
     TempConnections.clear();
-
+    
     // Finally Output to Hidden. Note that unlike before, here we connect the outputs to
     // existing hidden nodes and no new nodes are added.
     for(unsigned int i = 0; i < output_count; i++){
@@ -2967,6 +2968,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         t_n.m_a = 1;
         t_n.m_b = 0;
         t_n.m_substrate_coords = itr -> first;
+        
         ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
         t_n.m_activation_function_type = subst.m_hidden_nodes_activation;
         t_n.m_type = NEAT::HIDDEN;
@@ -3006,20 +3008,12 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
         int c_level = p -> level + 1;
         
         // Add children
-        //boost::shared_ptr<QuadPoint> c1();
+
         p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset_x, p -> y - offset_y , offset_x, offset_y, c_level)));
-        //boost::shared_ptr<QuadPoint> c2(new QuadPoint(p -> x - offset, p -> y + offset, c_width, c_level));
         p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - offset_x, p -> y + offset_y , offset_x, offset_y, c_level)));
-        //boost::shared_ptr<QuadPoint> c3();
         p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset_x, p -> y + offset_y , offset_x, offset_y, c_level)));
-       // boost::shared_ptr<QuadPoint> c4();
         p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + offset_x, p -> y - offset_y , offset_x, offset_y, c_level)));
-        if (p -> children.size() > 4)
-        {
-            throw std::invalid_argument( "What do I do with all these children?" );
-
-        }
-
+       
         for(unsigned int i = 0; i < 4; i++)
         {
             t_inputs.clear();
@@ -3102,7 +3096,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
             // Band Pruning phase.
             // If LEO is turned off this should always happen.
             // If it is not it should only happen if the LEO output is greater than a specified threshold
-            else if ((!params.Leo) || (params.Leo == true && root -> children[i] -> leo > params.LeoThreshold))
+            else if ((!params.Leo) || (params.Leo && root -> children[i] -> leo > params.LeoThreshold))
             {   // Band Pruning Phase
                 inputs.clear();
                 
@@ -3287,7 +3281,7 @@ py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 
     for (unsigned int i = 0; i < validpoints.size(); i++)
     {
-        return_values.append(validpoints[i]);
+        return_values.append(validpoints[i].target);
     }
 
     return return_values;
