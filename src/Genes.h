@@ -82,7 +82,8 @@ enum ActivationFunction
     UNSIGNED_SINE,
     SIGNED_SQUARE,        // Square wave        (pulse repetition)
     UNSIGNED_SQUARE,
-    LINEAR               // Linear f(x)=x      (combining coordinate frames only)
+    LINEAR,               // Linear f(x)=x      (combining coordinate frames only)
+    BIPOLAR_SIGMOID
 };
 
 

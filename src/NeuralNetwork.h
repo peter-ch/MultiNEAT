@@ -66,9 +66,9 @@ public:
     bool operator==(Connection const& other) const
     {
         if ((m_source_neuron_idx == other.m_source_neuron_idx) &&
-            (m_target_neuron_idx == other.m_target_neuron_idx) &&
+            (m_target_neuron_idx == other.m_target_neuron_idx)) /*&&
             (m_weight == other.m_weight) &&
-            (m_recur_flag == other.m_recur_flag))
+            (m_recur_flag == other.m_recur_flag))*/
             return true;
         else
             return false;

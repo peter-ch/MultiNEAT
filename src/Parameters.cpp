@@ -404,6 +404,8 @@ void Parameters::Reset()
     // Use geometric seeding. Currently only along the X axis. 1
     LeoSeed = false;
 
+    GeometrySeed = false;
+
     // Binary tournament selection
     TournamentSize = 2; 
 
@@ -801,6 +803,13 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 Leo = false;
         }
+        if (s == "GeometrySeed")
+        {  a_DataFile >> tf;
+           if (tf == "true" || tf == "1" || tf == "1.0")
+                GeometrySeed = true;
+            else
+                GeometrySeed = false;
+        }
 
         if (s == "LeoThreshold")
             a_DataFile >> LeoThreshold;
@@ -956,6 +965,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "Leo %s\n", Leo==true?"true":"false");
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
+       fprintf(a_fstream, "GeometrySeed %s\n", GeometrySeed==true?"true":"false");
     fprintf(a_fstream, "TournamentSize%d\n", TournamentSize );
     fprintf(a_fstream, "Elitism%f\n", Elitism);
 

@@ -458,6 +458,7 @@ struct QuadPoint
     double width;
     double weight;
     double height;
+    double variance;
     int level;
     // Do I use this?
     double leo;
@@ -479,6 +480,7 @@ struct QuadPoint
         level = t_level;
         weight = 0.0;
         leo = 0.0;
+        variance = 0.0;
         children.reserve(4);
     }
     // Mind the Z
@@ -492,6 +494,7 @@ struct QuadPoint
         height = t_height;
         level = t_level;
         weight = 0.0;
+        variance = 0.0;
         leo = 0.0;
         children.reserve(4);
     }
@@ -514,13 +517,12 @@ void PruneExpress(const std::vector<double>& node,
 
 void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point);
 
-double Variance( boost::shared_ptr<QuadPoint> &point, int maxDepth);
+void Variance( boost::shared_ptr<QuadPoint> &point, int maxDepth);
 
 void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);
 
 py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
-
 
 #ifdef USE_BOOST_PYTHON
 

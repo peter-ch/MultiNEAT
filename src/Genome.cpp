@@ -288,7 +288,8 @@ Genome::Genome(unsigned int a_ID,
     m_ID = a_ID;
     int t_innovnum = 1, t_nnum = 1;
     double weight = 0.0;
-    bool GeometrySeed = true;
+    int hid = 0;
+ 
     //Add the inputs
     for(unsigned int i=0; i < (a_NumInputs-1); i++)
     {   m_NeuronGenes.push_back( NeuronGene(INPUT, t_nnum, 0.0) );
@@ -322,9 +323,43 @@ Genome::Genome(unsigned int a_ID,
         m_NeuronGenes.push_back( t_ngene );
         t_nnum++;
         a_NumOutputs++;
+    }
+     if (a_Parameters.GeometrySeed)
+        {   hid++;
+            // -----------------------------------------------------------------//
+             // Geometry seed
+            NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
+            // Initialize the neuron gene's properties
+            t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
+                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
+                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
+                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
+                        SIGNED_GAUSS );
 
-        if (a_Parameters.LeoSeed == true)
-        {
+            t_ngene.m_SplitY = 0.5;
+            m_NeuronGenes.push_back( t_ngene );
+            t_nnum++;
+            // y1 and y2 coords
+            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + hid, t_innovnum, 1, false) );
+            t_innovnum++;
+
+            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + hid, t_innovnum, -1 , false) );
+            t_innovnum++;
+
+                       
+
+            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + hid, a_NumInputs + hid, t_innovnum, 1.0, false) );
+            t_innovnum++;
+
+
+            // connect bias to GeoSeed
+            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+a_NumOutputs + hid , t_innovnum, 0.33 , false) );
+            t_innovnum++;
+           
+        }
+        if (a_Parameters.LeoSeed)
+        {   hid++;
+            
             NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
             // Initialize the neuron gene's properties
             
@@ -339,57 +374,20 @@ Genome::Genome(unsigned int a_ID,
             t_nnum++;
 
             //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
-            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + 1, t_innovnum,1, false) );
+            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + hid, t_innovnum, 1, false) );
             t_innovnum++;
 
-            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + 1, t_innovnum, -1 , false) );
+            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + hid, t_innovnum, -1 , false) );
             t_innovnum++;
 
-            //connect gaussian node to LEO
+            //connect gaussian node
             //weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 1, a_NumInputs+a_NumOutputs, t_innovnum, 1.0, false) );
+            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + hid, a_NumInputs+a_NumOutputs, t_innovnum, 1.0, false) );
             t_innovnum++;
 
-            // -----------------------------------------------------------------//
             
-           
-        }
-
-        if (GeometrySeed == true)
-        {
-             // Geometry seed
-            NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
-            // Initialize the neuron gene's properties
-            t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                        SIGNED_GAUSS );
-
-            t_ngene.m_SplitY = 0.5;
-            m_NeuronGenes.push_back( t_ngene );
-            t_nnum++;
-            // y1 and y2 coords
-            m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + 2, t_innovnum, 1, false) );
-            t_innovnum++;
-
-            m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + 2, t_innovnum, -1 , false) );
-            t_innovnum++;
-
-            //connect gaussian node to LEO
-            
-
-            m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + 2, a_NumInputs+1, t_innovnum, 1.0, false) );
-            t_innovnum++;
-
-
-            // connect bias to GeoSeed
-            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+a_NumOutputs + 2 , t_innovnum, 0.33 , false) );
-            t_innovnum++;
             
         }
-
-    }
     //Genome with only bias connected
     if (empty)
     {   if (a_Parameters.Leo && a_Parameters.LeoSeed) // Connect bias to LEO.
@@ -414,18 +412,12 @@ Genome::Genome(unsigned int a_ID,
     // Or just buld a fully connected minimal genome, eh?
     else
     {
-        for(unsigned int i=0; i < (a_NumOutputs); i++)
-        {
-            for(unsigned int j= 0; j < a_NumInputs - 1; j++)
-            {
-                weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-                m_LinkGenes.push_back( LinkGene(j+1, i+a_NumInputs+1, t_innovnum, weight, false));
-                t_innovnum++;
-            }
-
-            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, 0.5 , false) );
+        //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
+            m_LinkGenes.push_back( LinkGene(1, a_NumInputs+1, t_innovnum, 1, false) );
             t_innovnum++;
-        }
+
+            m_LinkGenes.push_back( LinkGene(4, a_NumInputs+1, t_innovnum, -1 , false) );
+            t_innovnum++;
     }
 
     // setup final properties
@@ -2762,33 +2754,30 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     t_temp_phenotype.Flush();
     
     // Various stuff we need.
-    // hidden nodes vector and temp vector that is used to copy the hidden one
-    
-    // since max number of nodes is 4**MaxDepth
-    
+        
     boost::unordered_map< std::vector<double>, int > hidden_nodes;
     int hidden_counter = 0;
-    //hidden_nodes.reserve(maxNodes);
+    hidden_nodes.reserve(maxNodes);
     
     boost::unordered_map< std::vector<double>, int > temp;
-  //  temp.reserve(maxNodes);
+    temp.reserve(maxNodes);
     
     boost::unordered_map< std::vector<double>, int > unexplored_nodes;
     // its not like it can get to that much right? 
-    //unexplored_nodes.reserve(maxNodes);
+    unexplored_nodes.reserve(maxNodes);
     
     std::vector<Connection> connections;
-    connections.reserve(maxNodes/2);
+    connections.reserve((maxNodes*(maxNodes -1))/2);
     
     std::vector<TempConnection> TempConnections;
-    TempConnections.reserve(maxNodes/2);
+    TempConnections.reserve((maxNodes*(maxNodes -1))/2);
 
     net.m_neurons.reserve(maxNodes);
-    net.m_connections.reserve(maxNodes/2);
+    net.m_connections.reserve((maxNodes*(maxNodes -1))/2);
 
     unsigned int input_count, output_count, hidden_index,counter;
-    unsigned int source_index;
-    unsigned int target_index;
+    unsigned int source_index = 0;
+    unsigned int target_index = 0;
 
 
     std::vector<double> point;
@@ -2847,14 +2836,12 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                 tc.m_weight = TempConnections[j].weight;
                 tc.m_recur_flag = false;
 
-            if ( tc.m_source_neuron_idx != tc.m_target_neuron_idx)
-            {   connections.push_back(tc);
-                counter++;
-            }
+            connections.push_back(tc);
+            counter++;
+            
         }
 
     }
-    TempConnections.clear();
 
     // Hidden to hidden.
     // Basically the same procedure as above repeated IterationLevel times (see the params)
@@ -2864,7 +2851,8 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     for (unsigned int i = 0; i < params.IterationLevel; i++){
 
         boost::unordered_map< std::vector<double>, int >::iterator itr_hid;
-        for(itr_hid = unexplored_nodes.begin(); itr_hid != unexplored_nodes.end(); itr_hid++){
+        for(itr_hid = unexplored_nodes.begin(); itr_hid != unexplored_nodes.end(); itr_hid++)
+        {
 
             root = DivideInitialize(itr_hid -> first, t_temp_phenotype, params, true, 0.0);
             TempConnections.clear();
@@ -2891,31 +2879,25 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                 tc.m_weight = TempConnections[k].weight;
                 tc.m_recur_flag = false;
 
-                if ( tc.m_source_neuron_idx != tc.m_target_neuron_idx);
-                {
-                    connections.push_back(tc);
-                    counter++;
-                }
+                connections.push_back(tc);
+                counter++;
             }
-
+                
         }
+
+    
         // Now get the newly discovered hidden nodes
         temp = hidden_nodes;
         boost::unordered_map< std::vector<double>, int >::iterator itr1;
 
         for(itr1 = unexplored_nodes.begin(); itr1 != unexplored_nodes.end(); itr1++)
         {
-            boost::unordered_map< std::vector<double>, int >::iterator itr = temp.find(itr1 -> first);
-            if (itr != temp.end())
-            {   
-                temp.erase(itr);
-            }
+            temp.erase(itr1 -> first);
         }
 
         unexplored_nodes = temp;
-        temp.clear();
     }
-    TempConnections.clear();
+
     
     // Finally Output to Hidden. Note that unlike before, here we connect the outputs to
     // existing hidden nodes and no new nodes are added.
@@ -2939,8 +2921,8 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
 
             boost::unordered_map< std::vector<double>, int >::iterator itr = hidden_nodes.find(TempConnections[j].source);
 
-            if (itr != hidden_nodes.end()){
-
+            if (itr != hidden_nodes.end())
+            { 
                 source_index = itr -> second;
 
                 Connection tc;
@@ -2949,16 +2931,13 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                 tc.m_weight = TempConnections[j].weight;
                 tc.m_recur_flag = false;
 
-                if ( tc.m_source_neuron_idx != tc.m_target_neuron_idx)
-                {   connections.push_back(tc);
-                    counter++;
-                }
+                connections.push_back(tc);
+                counter++;
             }
         }
-
-       
     }
-    TempConnections.clear();
+
+
     // Now that we got everything add the neurons for the hidden nodes
     boost::unordered_map< std::vector<double>, int >::iterator itr;
     for (itr = hidden_nodes.begin(); itr!=hidden_nodes.end(); itr++)
@@ -3057,8 +3036,9 @@ boost::shared_ptr<Genome::QuadPoint> Genome::DivideInitialize( const std::vector
 
             cppn.Flush();
         }
+        Variance(p, params.MaxDepth);
 
-        if ((c_level < params.InitialDepth) || ((c_level < params.MaxDepth) && (Variance(p, params.MaxDepth) > params.DivisionThreshold)))
+        if ((p->level <= params.InitialDepth) || ((p->level <= params.MaxDepth) && p-> variance > params.DivisionThreshold))
         {
             q.push(p -> children[0]);
             q.push(p -> children[1]);
@@ -3074,7 +3054,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
 {   //double weight;
     
     
-    if(root == NULL || root -> children.size() == 0)
+    if(root -> children[0] == NULL)
     {
         return;
     }
@@ -3089,14 +3069,14 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
         inputs.reserve(7); // 3d + bias 
             
         for (unsigned int i = 0; i < 4; i++)
-        {   if (Variance(root -> children[i], params.MaxDepth) >= params.VarianceThreshold)
+        {   if (root -> children[i] -> variance >= params.VarianceThreshold)
             {    
                 PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
             }
             // Band Pruning phase.
             // If LEO is turned off this should always happen.
             // If it is not it should only happen if the LEO output is greater than a specified threshold
-            else if ((!params.Leo) || (params.Leo && root -> children[i] -> leo > params.LeoThreshold))
+            else if (!params.Leo || (params.Leo && root -> children[i] -> leo > params.LeoThreshold))
             {   // Band Pruning Phase
                 inputs.clear();
                 
@@ -3203,11 +3183,8 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
                 }
 
                 tc.weight = weight;
-                std::vector<Genome::TempConnection>::iterator itr = std::find(connections.begin(), connections.end(), tc);
-                if (itr == connections.end())
+                connections.push_back(tc);            
                 
-                {   connections.push_back(tc);            
-                }
             }   
         }
     }
@@ -3215,12 +3192,13 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
 
 // Calculates the variance of a given Quadpoint.
 // Maybe an alternative solution would be to add this in the Quadpoint const.
-double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
+void Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
 {   if(point == NULL)
-    {   return 0.0;
+    {   return;
     }
     if (point -> children.size()  == 0)
-    {   return point -> weight;
+    {   point -> variance =  0.0;
+        return;
     }
 
     std::vector<double> var;
@@ -3240,10 +3218,10 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
     {   variance += (var[i] - mean) * (var[i] - mean);
     }
 
-    variance = variance/var.size();
+    point -> variance = variance/var.size();
 
 
-    return variance;
+    return;
 }
 // Helper method for Variance
 void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point)
@@ -3254,12 +3232,14 @@ void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoin
 
     if (point -> children.size() >0 )
     {   for (unsigned int i = 0; i < 4; i++)
-        {   CollectValues(vals, point -> children[i]);
+        {   
+            CollectValues(vals, point -> children[i]);
         }
     }
 
     else
-    {   vals.push_back(point-> weight);
+    {   
+        vals.push_back(point-> weight);
     }
 }
 
@@ -3289,10 +3269,15 @@ py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 
 // Removes all the dangling connections. This still leaves the nodes though,
 void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_count,unsigned int output_count,unsigned int hidden_count)
-{   
+{    //std::set<Connection> s;
+    //for( unsigned int i = 0; i < connections.size(); ++i ) 
+      //  { 
+        //    s.insert( connections[i] );
+        //}
+    //connections.assign( s.begin(), s.end() );
+
     bool loose_connections = true;
     int node_count = input_count + output_count + hidden_count;
-    //loose_conections = true;
     std::vector<Connection> temp;
     temp.reserve(connections.size());
     int counter = 0;
@@ -3308,9 +3293,10 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
 
         // Move on to the nodes. 
         for (unsigned int i = 0; i < connections.size(); i++)
-        {   
-            hasOutgoing[connections[i].m_source_neuron_idx] = true;
-            hasIncoming[connections[i].m_target_neuron_idx] = true;
+        {   if (connections[i].m_source_neuron_idx != connections[i].m_target_neuron_idx)
+                {    hasOutgoing[connections[i].m_source_neuron_idx] = true;
+                     hasIncoming[connections[i].m_target_neuron_idx] = true;
+                }
 
         }
 
@@ -3328,6 +3314,28 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
                 itr++;
         }
     }
+
+   /* bool inp = false;
+    bool outp = false;
+    std::vector<Connection>::iterator itr;
+    for (itr = connections.begin(); itr<connections.end(); itr++)
+    {
+        if (itr -> m_source_neuron_idx < input_count && !inp)
+        {
+            inp = true;
+        }
+        if (itr -> m_target_neuron_idx < input_count + output_count && itr -> m_target_neuron_idx > input_count && !outp)
+        {
+            outp = true;
+        }
+
+    }
+    if (!inp && !outp)
+    {
+        throw "No link between input and output";
+    }*/
+        
+    // Now check if t
     
 }
 

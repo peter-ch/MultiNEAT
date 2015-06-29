@@ -383,6 +383,7 @@ public:
 
     // Use geometric seeding. Currently only along the X axis. 1
     bool LeoSeed;
+    bool GeometrySeed;
 
     double Elitism;
 
