@@ -442,35 +442,7 @@ enome*
 // If a successful behavior was encountered, returns true
 // and the genome a_SuccessfulGenome is overwritten with the
 // genome generating the successful behavior
-void NSGAPopulation::PrimaryRanking(std::vector<std::vector<Genome*> > &fronts)
-{
-    for(unsigned int p = 0;  p < Genomes.size(); p++)
-    {
-        Genomes[p].dominated.clear();
-        Genomes[p].dominated.reserve(Genomes.size());
-        int dom = 0
-        for(unsigned int q = 0; q < Genomes.size()l q++)
-        {
-            if (p!=q)
-            {
-                if (Dominate(p, q))
-                {
-                    Genomes[p].dominated.push_back(q);
-                }
-                else if (Dominate(q,p))
-                {
-                    dom++;
-                }
-            }
-        }
-        if (dom == 0)
-        {
-            Genomes[p].tempRank = 0;
-            fronts[0].push_back(Genomes[p])
-        }
-    }
 
-}
 
 void NSGAPopulation::NSGASort()
 {
@@ -485,11 +457,54 @@ void NSGAPopulation::NSGASort()
     //4. Sort
     std::sort(m_Genomes, CrowdComparison);
 }
+
+/*n particular, the genomic
+diversity of a given genome is quantied as the average distance to its k-nearest
+neighbors in genotype space as measured by NEAT's genomic distance measure.*/
 void NSGAPopulation::GenomeDiversity(Genome g)
-{
+{   double dist = 0.0;
+    
+    for (unsigned int i = 0; i < NearestNeighbourCount; i++)
+    {
+        dist += neighbours[i];
+    }
+    g.multifitness.push_back(dist/NearestNeighbourCount)
 
 }
-void NSGAPopulation::SecondaryRanking(std::vector<std::vector<Genome*> > fronts)
+
+void NSGAPopulation::PrimaryRanking(std::vector<std::vector<Genome*> > &fronts)
+{
+    for(unsigned int p = 0;  p < Genomes.size(); p++)
+    {
+        Genomes[p].dominated.clear();
+        Genomes[p].dominated.reserve(Genomes.size());
+        int dom = 0
+        
+        for(unsigned int q = 0; q < Genomes.size()l q++)
+        {
+            if (p!=q)
+            {
+                if (Dominate(p, q))
+                {
+                    Genomes[p].dominated.push_back(&q);
+                }
+                else if (Dominate(q,p))
+                {
+                    dom++;
+                }
+            }
+        }
+
+        if (dom == 0)
+        {
+            Genomes[p].tempRank = 0;
+            fronts[0].push_back(&Genomes[p])
+        }
+    }
+
+}
+
+void NSGAPopulation::SecondaryRanking(std::vector<std::vector<Genome*> >& fronts)
 {
     int counter = 0;
     std::vector<*Genome> current = fronts[counter];
@@ -500,15 +515,13 @@ void NSGAPopulation::SecondaryRanking(std::vector<std::vector<Genome*> > fronts)
         {
             for(unsigned int q = 0; q < current[p] -> dominated.size();q++)
             {   //chck chcks
-                if (p!=q)
+                current[p] -> dominated[q] -> tempRank--;
+                if( current[p] -> dominated[q] -> tempRank == 0)
                 {
-                    Genomes[q].tempRank--;
-                    if( Genomes[q] -> tempRank ==0)
-                    {
-                        Genomes[q] -> rank = counter +1;
-                        fronts[counter+1].push_back(Genomes[q]);
-                    }
+                    current[p] -> dominated[q] -> rank = counter + 1;
+                    fronts[counter+1].push_back(current[p] -> dominated[q]);
                 }
+                
             }
         }
         counter++;
@@ -549,6 +562,7 @@ bool NSGAPopulation::Dominate(Genome ls, Genome rs)
         {
             return false;
         }
+
         else if (ls.multifitness[i] > rs.multifitness[i])
         {
             bigger = true
@@ -566,7 +580,7 @@ void NSGAPopulation::mepsd(Genome ls, Genome rs)
     double max = 0.0;
     for(unsigned int i = 0; i < genome.multifitness.size(); i++)
     {
-        if (ls.multifitness[j] > rs.multifitness[i])
+        if (ls.multifitness[i] > rs.multifitness[i])
         {
             max = max(ls.fitness[i] - rs.multifitness[i], max);
         }
@@ -584,7 +598,8 @@ void NSGAPopulation::Reproduce(std::vector<Genome> &tempPop)
 {
     Genome t_baby; // temp genome for reproduction
 
-    int t_offspring_count = m_Parameters.PopulationSize;
+    int t_offspring_count = m_Parameters.PopulationSize; // We need to replace the entire population
+
     int elite_offspring = Rounded(m_Parameters.Elitism*m_Parameters.PopulationSize);
 
     if (elite_offspring == 0)
@@ -715,8 +730,8 @@ void NSGAPopulation::Reproduce(std::vector<Genome> &tempPop)
         t_baby.SortGenes();
 
         // clear the baby's fitness
-        t_baby.SetFitness(0);
-        t_baby.SetAdjFitness(0);
+        t_baby.SetMultiFitness(0);
+        t_baby.SetAdjMultiFitness(0);
         t_baby.SetOffspringAmount(0);
 
         t_baby.ResetEvaluated();
@@ -794,7 +809,7 @@ void NSGAPopulation::AdjustFitness()
     ASSERT(m_Genomes.size() > 0);
 
     // iterate through the members
-    for(unsigned int i=0; i<m_Individuals.size(); i++)
+    for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
         std::vector<dounle> t_fitness = m_Genomes[i].GetMultiFitness();
 
@@ -807,12 +822,6 @@ void NSGAPopulation::AdjustFitness()
         // this prevents the fitness to be below zero
             if (t_fitness[j] <= 0) t_fitness[j] = 0.0001;
 
-            // boost the fitness up to some young age
-        
-        // extreme penalty if this species is stagnating for too long time
-        // one exception if this is the best species found so far
-        
-        // Compute the adjusted fitness for this member
         m_Genomes[i].SetAdjMultiFitness(t_fitness / m_Genomes.size());
     }
 }

@@ -221,7 +221,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("Save", Genome_Save)
 
 	    .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
-	    .def("GetPoints", &Genome::GetPoints)
+	    //.def("GetPoints", &Genome::GetPoints)
         .def("SetPerformance", &Genome::SetPerformance)
         .def("GetPerformance", &Genome::GetPerformance)
         .def("SetLength", &Genome::SetLength)

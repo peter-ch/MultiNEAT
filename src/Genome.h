@@ -36,6 +36,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+//#include <boost/shared_ptr.hpp>
 
 #endif
 
@@ -506,7 +507,8 @@ struct QuadPoint
 void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
     Parameters& params);
 
-boost::shared_ptr<Genome::QuadPoint> DivideInitialize(
+//boost::shared_ptr<Genome::QuadPoint> 
+void DivideInitialize( boost::shared_ptr<QuadPoint>& root,
     const std::vector<double>& node, NeuralNetwork& cppn, Parameters& params,
     const bool& outgoing, const double& z_coord);
 
@@ -517,12 +519,12 @@ void PruneExpress(const std::vector<double>& node,
 
 void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point);
 
-void Variance( boost::shared_ptr<QuadPoint> &point, int maxDepth);
+double Variance( boost::shared_ptr<QuadPoint> &point, int maxDepth);
 
 void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);
 
-py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
+//py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
 
 #ifdef USE_BOOST_PYTHON
 

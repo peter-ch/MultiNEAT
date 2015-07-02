@@ -55,6 +55,8 @@ except Exception as ex:
                                  extra_compile_args=['-O3', '-march=native',
                                                      '-DUSE_BOOST_PYTHON',
                                                      '-DUSE_BOOST_RANDOM', 
-                                                    '-std=gnu++11'
+                                                    '-std=gnu++11',
+                                                    '-g',
+                                                    '-Wall'
                                                      ])
                        ])

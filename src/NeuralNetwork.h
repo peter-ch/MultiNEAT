@@ -35,6 +35,8 @@
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
 #include <boost/python/tuple.hpp>
+#include <math.h>
+#include <cmath>
 
 namespace py = boost::python;
 
@@ -199,7 +201,7 @@ public:
     {   double dist = 0.0;
         for (unsigned int i = 0; i < source.m_substrate_coords.size(); i++)
             dist += (target.m_substrate_coords[i] - source.m_substrate_coords[i])*(target.m_substrate_coords[i]- source.m_substrate_coords[i] );
-        return std::sqrt(dist);
+        return dist;
     }
 
     double GetTotalConnectionLength()

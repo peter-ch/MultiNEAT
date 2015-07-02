@@ -1,18 +1,13 @@
 #!/usr/bin/python
 import os
 import sys
-import time
-import random as rnd
 import commands as comm
-import cv2
-import numpy as np
-import cPickle as pickle
 import MultiNEAT as NEAT
 import multiprocessing as mpc
-import utilities
+
 
 params = NEAT.Parameters()
-params.PopulationSize = 150
+params.PopulationSize = 10
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -134,14 +129,9 @@ def evaluate_xor(genome):
         if o[0] < 0.25:
             correct +=1.
 
-
-
         return [(4 - error)**2, correct/4., net.GetTotalConnectionLength()]
 
     except Exception as ex:
-       # print "Alert"
-       # print 'Exception:', ex
-
         return [1.0, 0.0, 0.0]
 
 
@@ -151,45 +141,15 @@ def getbest(run, filename):
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
-    results = []
-    for generation in range(250):
+    for generation in range(10):
         print "---------------------------"
         print "Generation: ", generation
         genome_list = NEAT.GetGenomeList(pop)
-    #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
-        fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_xor, display = False, cores= 4)
+        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display = False)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
-        [genome.SetPerformance(fitness[1]) for genome, fitness in zip(genome_list, fitnesses)]
-        [genome.SetLength(fitness[2]) for genome, fitness in zip(genome_list, fitnesses)]
-       
-        best = pop.GetBestGenome()
-        results.append([run,generation, best.GetFitness(), best.Length, best.GetPerformance()])
-        print "Best ", best.GetFitness(), " Connecions: ",  best.Length, " Performance: ", best.GetPerformance()
-        net = NEAT.NeuralNetwork()
-        #
-        pop.Species[0].GetLeader().BuildPhenotype(net)
-        img = np.zeros((500, 500, 3), dtype=np.uint8)
-        img += 10
-        NEAT.DrawPhenotype(img, (0, 0, 500, 500), net )
-        cv2.imshow("CPPN", img)
-
-        net = NEAT.NeuralNetwork()
-        pop.Species[0].GetLeader().Build_ES_Phenotype(net, substrate, params)
-        img = np.zeros((500, 500, 3), dtype=np.uint8)
-        img += 10
-
-        utilities.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
-        cv2.imshow("NN", img)
-        cv2.waitKey(1)
-
+      
         generations = generation
-
-        #if best > 15.0:
-         #   break
-
         pop.Epoch()
-
-    utilities.dump_to_file(results, filename)
     return generations
 
 

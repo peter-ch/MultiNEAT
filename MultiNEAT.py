@@ -84,7 +84,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
                 AnimatedMarker()]
         progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
 
-    for i, fitness in enumerate(pool.imap(evaluator, genome_list, chunksize = 30)):
+    for i, fitness in enumerate(pool.imap(evaluator, genome_list, chunksize = 40)):
         if prbar_installed and display:
             progress.update(i)
         else:

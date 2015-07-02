@@ -525,6 +525,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         t_baby.SetFitness(0);
         t_baby.SetAdjFitness(0);
         t_baby.SetOffspringAmount(0);
+        t_baby.SetPerformance(0.0);
+        t_baby.SetLength(0.0);
 
         t_baby.ResetEvaluated();
 
