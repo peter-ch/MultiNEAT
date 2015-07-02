@@ -1,5 +1,5 @@
 build/
-datadump/
+datadump/*
 *.test
 *.csv
 *.png
