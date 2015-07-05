@@ -19,18 +19,18 @@ import time
 # NEAT parameters
 
 params = NEAT.Parameters()
-params.PopulationSize = 10
+params.PopulationSize = 125
 params.DynamicCompatibility = True
-params.CompatTreshold = 1.0
+params.CompatTreshold = 0.2
 params.YoungAgeTreshold = 15
 params.SpeciesMaxStagnation = 30
 params.OldAgeTreshold = 35
-params.MinSpecies = 1
-params.MaxSpecies = 20
+params.MinSpecies = 5
+params.MaxSpecies = 15
 params.RouletteWheelSelection = False
 params.MutateRemLinkProb = 0.0
 params.RecurrentProb = 0.0
-params.OverallMutationRate = 0.02
+params.OverallMutationRate = 0.0
 params.MutateAddLinkProb = 0.03
 params.MutateAddNeuronProb = 0.01
 params.MutateWeightsProb = 0.94
@@ -54,11 +54,11 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 0.16
 
 
-params.DivisionThreshold = 0.5
-params.VarianceThreshold = .03
-params.BandThreshold = 0.3
-params.InitialDepth = 2
-params.MaxDepth = 3
+params.DivisionThreshold = 0.00001
+params.VarianceThreshold = .000001
+params.BandThreshold = 0.00001
+params.InitialDepth = 3
+params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
@@ -304,7 +304,7 @@ def getbest(run, filename):
 
     pop = NEAT.Population(g, params, True, 1.0)
     results = []
-    for generation in range(20):
+    for generation in range(2000):
         
         genome_list = NEAT.GetGenomeList(pop)
         #fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_retina_and, display = False)
@@ -345,9 +345,9 @@ def getbest(run, filename):
         generations = generation
         if generation %100 == 0:
             
-            utilities.dump_to_file(results, filename)
+            #utilities.dump_to_file(results, filename)
             results = []
-            best.Save("datadump/retina_and_%d_%d.gen" % (generation, run))
+            #best.Save("datadump/retina_11_and_%d_%d.gen" % (generation, run))
 
         #if best > 15.0:
          #   break
@@ -361,4 +361,4 @@ def getbest(run, filename):
 
 #runs = 5
 #for i in range(runs):
-getbest(2, "datadump/retina_and.csv")
+getbest(2, "datadump/retina_11_and.csv")

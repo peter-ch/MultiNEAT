@@ -61,17 +61,13 @@ private:
     // next genome ID
     unsigned int m_NextGenomeID;
    // best fitness ever achieved
-    double m_BestFitnessEver;
 
-    // Keep a local copy of the best ever genome found in the run
-    Genome m_BestGenome;
-    Genome m_BestGenomeEver;
 
     // Number of generations since the best fitness changed
     unsigned int m_GensSinceBestFitnessLastChanged;
 
     // The initial list of genomes
-    std::vector<Genome> m_Genomes;
+   
 
     // Adjusts each species's fitness
     void AdjustFitness();
@@ -81,7 +77,14 @@ private:
 
 
 public:
+    double m_BestFitnessEver;
 
+    // Keep a local copy of the best ever genome found in the run
+    Genome m_BestGenome;
+    Genome m_BestGenomeEver;
+    double m_BestFitness;
+    std::vector<Genome> m_Genomes;
+    std::vector<Genome> TempPop;
     // Random number generator
     RNG m_RNG;
 
@@ -165,7 +168,6 @@ public:
 
     void CalculateAverageFitness();
 
-    void RemoveIndividual(unsigned int a_idx);
 
     //////////////////////
     // NEW STUFF
@@ -223,8 +225,14 @@ public:
     void AssignDistance(std::vector<std::vector<Genome*> > &fronts);
     bool CrowdComparison(Genome ls, Genome rs);
     bool Dominate(Genome ls, Genome rs);
-    void mepsd(Genome ls, Genome rs);
+    void mepsd(std::vector<double> ls, std::vector<double> rs);
+    void Sort();
 
+void RemoveIndividual(unsigned int a_idx)
+{
+    ASSERT(a_idx < m_Genomes.size());
+    m_Genomes.erase(m_Genomes.begin() + a_idx);
+}
 
 
 };

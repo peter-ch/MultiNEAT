@@ -39,6 +39,7 @@
 #include "Species.h"
 #include "Parameters.h"
 #include "Random.h"
+#include "NSGAPopulation.h"
 
 namespace py = boost::python;
 using namespace NEAT;
@@ -319,6 +320,25 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             ;
 
+///////////////////////////////////////////////////////////////////
+// NSGAPopulation class
+///////////////////////////////////////////////////////////////////
+/*
+    class_<NSGAPopulation>("NSGAPopulation", init<Genome, Parameters, bool, double>())
+            .def(init<char*>())
+            .def("Epoch", &NSGAPopulation::Epoch)
+            .def("Tick", &NSGAPopulation::Tick, return_value_policy<reference_existing_object>())
+            .def("InitPhenotypeBehaviorData", &NSGAPopulation::InitPhenotypeBehaviorData)
+            .def("Save", &NSGAPopulation::Save)
+            .def("GetBestFitnessEver", &NSGAPopulation::GetBestFitnessEver)
+            .def("GetBestGenome", &NSGAPopulation::GetBestGenome)
+            .def("GetStagnation", &NSGAPopulation::GetStagnation)
+            .def("NumGenomes", &NSGAPopulation::NumGenomes)
+            .def_readwrite("Genomes", &NSGAPopulation::m_Genomes)
+            .def_readwrite("Parameters", &NSGAPopulation::m_Parameters)
+
+            ;
+*/
 ///////////////////////////////////////////////////////////////////
 // Parameters class
 ///////////////////////////////////////////////////////////////////

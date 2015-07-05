@@ -43,6 +43,10 @@
 //#include <unordered_map>
 #import <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
 
 namespace NEAT
 {
@@ -2772,11 +2776,8 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     boost::unordered_map< std::vector<double>, int > unexplored_nodes;
     unexplored_nodes.reserve(maxNodes);
 
-    //std::vector<Connection> connections;
-    //connections.reserve((maxNodes*(maxNodes -1))/2);
-
     std::vector<TempConnection> TempConnections;
-    TempConnections.reserve((maxNodes*(maxNodes -1))/2);
+    TempConnections.reserve(maxNodes + 1);
 
     net.m_neurons.reserve(maxNodes);
     net.m_connections.reserve((maxNodes*(maxNodes -1))/2);
@@ -3075,7 +3076,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
     else
         {
             for (unsigned int i = 0; i < 4; i++)
-                {
+                {  // cout << Variance(root -> children[i], params.MaxDepth)
                     if (Variance(root -> children[i], params.MaxDepth) >= params.VarianceThreshold)
                         {
                             PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
@@ -3088,6 +3089,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
                         {
                             CalculateDepth();
                             int cppn_depth = GetDepth();
+
                             double d_left, d_right, d_top, d_bottom;
                             std::vector<double> inputs;
                             inputs.reserve(7); // 3d + bias
@@ -3208,17 +3210,14 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
             return 0.0;
         }
 
-    std::vector<double> var;
-    var.reserve(std::pow( 4, maxDepth - point -> level +1));
+    boost::accumulators::accumulator_set<double,  boost::accumulators::stats< boost::accumulators::tag::variance> > acc;
 
     std::queue<boost::shared_ptr<QuadPoint> > q;
-    //q.reserve(std::pow(4, maxDepth +1));
     q.push(point);
     while(!q.empty())
         {
             boost::shared_ptr<QuadPoint> c = q.front();
             q.pop();
-
             if (c -> children.size() > 0)
                 {
                     for (unsigned int i =0; i < c -> children.size(); i++)
@@ -3228,28 +3227,12 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
                 }
             else
                 {
-                    var.push_back(c -> weight);
+                    acc(c -> weight);
+     
                 }
         }
 
-    //CollectValues(var, point);
-
-    double variance = 0.0;
-    double mean = 0.0;
-
-    for (unsigned int i = 0; i < var.size(); i ++)
-        {
-            mean += var[i];
-        }
-
-    mean = (double) mean/var.size();
-
-    for (unsigned int i = 0; i < var.size(); ++i)
-        {
-            variance += (var[i] - mean) * (var[i] - mean);
-        }
-
-    return variance/var.size();
+    return boost::accumulators::variance(acc);
 }
 // Helper method for Variance
 void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point)
@@ -3301,13 +3284,6 @@ py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
 // Removes all the dangling connections. This still leaves the nodes though,
 void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_count,unsigned int output_count,unsigned int hidden_count)
 {
-    //std::set<Connection> s;
-    //for( unsigned int i = 0; i < connections.size(); ++i )
-    //  {
-    //    s.insert( connections[i] );
-    //}
-    //connections.assign( s.begin(), s.end() );
-
     bool loose_connections = true;
     int node_count = input_count + output_count + hidden_count;
     std::vector<Connection> temp;

@@ -31,7 +31,7 @@
 
 #include <algorithm>
 #include <fstream>
-
+#include <limits>       // std::numeric_limits
 #include "Genome.h"
 #include "Random.h"
 #include "Parameters.h"
@@ -59,7 +59,7 @@ NSGAPopulation::NSGAPopulation(const Genome& a_Seed, const Parameters& a_Paramet
     
     m_NextGenomeID = m_Parameters.PopulationSize;
     m_GensSinceBestFitnessLastChanged = 0;
-    m_GensSinceMPCLastChanged = 0;
+    // m_GensSinceMPCLastChanged = 0;
 
     // Spawn the population
     for(unsigned int i=0; i<m_Parameters.PopulationSize; i++)
@@ -68,32 +68,26 @@ NSGAPopulation::NSGAPopulation(const Genome& a_Seed, const Parameters& a_Paramet
         t_clone.SetID(i);
         m_Genomes.push_back( t_clone );
     }
-
-    // Now now initialize each genome's weights
-    for(unsigned int i=0; i<m_Genomes.size(); i++)
-    {
-        MutateGenome( true, m_Genomes[i], m_Parameters, m_RNG );
-    }
     
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
 
-
-
-    m_BestGenome = GetLeader();
-
     NSGASort();
+
+
+    m_BestGenome = m_Genomes[0];
+
 }
 
 
 NSGAPopulation::NSGAPopulation(const char *a_FileName)
 {
     m_BestFitnessEver = 0.0;
-
+    m_BestFitness = 0.0;
     m_Generation = 0;
     m_NumEvaluations = 0;
     m_GensSinceBestFitnessLastChanged = 0;
-    m_GensSinceMPCLastChanged = 0;
+   // m_GensSinceMPCLastChanged = 0;
 
     std::ifstream t_DataFile(a_FileName);
     
@@ -127,10 +121,10 @@ NSGAPopulation::NSGAPopulation(const char *a_FileName)
     m_NextGenomeID++;
 
     // Initialize
-    Speciate();
-    m_BestGenome = GetLeader();
+    NSGASort();
+    m_BestGenome = m_Genomes[0];
 
-    Sort();
+   
 
     // Set up the phased search variables    
 }
@@ -150,7 +144,7 @@ void NSGAPopulation::Save(const char* a_FileName)
     // Save each genome
     for(unsigned i=0; i<m_Genomes.size(); i++)
     {
-        m_Genomes[i]Save(t_file);
+        m_Genomes[i].Save(t_file);
         
     }
 
@@ -161,20 +155,10 @@ void NSGAPopulation::Save(const char* a_FileName)
 // also adjusts the compatibility treshold if this feature is enabled
 
 // Adjust the fitness of all species
-void NSGAPopulation::AdjustFitness()
-{
-    ASSERT(m_Genomes.size() > 0);
-    ASSERT(m_Species.size() > 0);
-
-    for(unsigned int i=0; i<m_Species.size(); i++)
-    {
-        m_Species[i].AdjustFitness(m_Parameters);
-    }
-}
-
 
 
 // Calculates how many offspring each genome should have
+/*
 void NSGAPopulation::CountOffspring()
 {
     ASSERT(m_Genomes.size() > 0);
@@ -194,7 +178,7 @@ void NSGAPopulation::CountOffspring()
     // must be above 0
     ASSERT(t_total_adjusted_fitness > 0);
 
-    t_average_adjusted_fitness = t_total_adjusted_fitness / static_cast<double>(m_Parameters.PopulationSize);
+    //t_average_adjusted_fitness = t_total_adjusted_fitness / static_cast<double>(m_Parameters.PopulationSize);
 
     // Calculate how much offspring each individual should have
     for(unsigned int i=0; i<m_Genomes.size(); i++)
@@ -202,14 +186,19 @@ void NSGAPopulation::CountOffspring()
         m_Genomes[i].SetOffspringAmount( m_Genomes[i].GetAdjFitness() / t_average_adjusted_fitness);
     }
 }
-
+*/
 
 // This little tool function helps ordering the genomes by fitness
+bool NSGAPopulation::CrowdComparison(Genome ls, Genome rs)
+{
+    return (ls.rank < rs.rank || (ls.rank == rs.rank && ls.distance < rs.distance));
+}
+
 void NSGAPopulation::Sort()
 {
     ASSERT(m_Species.size() > 0);
     // Now sort the species by fitness (best first)
-    std::sort(m_Genomes.begin(), m_Genomes.end(), species_greater);
+    std::sort(m_Genomes.begin(), m_Genomes.end(), NSGAPopulation::CrowdComparison);
 }
 
 
@@ -231,18 +220,18 @@ void NSGAPopulation::Epoch()
     // Preparation
     ///////////////////
     AdjustFitness();
-    // Count the offspring of each individual and species
-    CountOffspring();
+
     // Incrementing the global stagnation counter, we can check later for global stagnation
     m_GensSinceBestFitnessLastChanged++;
 
     // Find and save the best genome and fitness
+    // since the pop is sorted
     m_BestGenome = m_Genomes[0];
-
-    if (Dominate(m_BestGenome, m_BestGenomeEver))
+    m_BestFitness = m_BestGenome.GetMultiFitness()[0];
+    if (m_BestFitness > m_BestFitnessEver)
     {
         m_BestGenomeEver = m_BestGenome;
-        m_BestFitnessEver = m_BestGenomeEver.GetMultiFitness();
+        m_BestFitnessEver = m_BestGenomeEver.GetMultiFitness()[0];
         m_GensSinceBestFitnessLastChanged = 0;
            
     }
@@ -257,8 +246,8 @@ void NSGAPopulation::Epoch()
         if (m_GensSinceBestFitnessLastChanged > (m_Parameters.SpeciesMaxStagnation + 10))
         {
             // The first two will reproduce
-            m_Species[0].SetOffspringRqd( m_Parameters.PopulationSize/2 );
-            m_Species[1].SetOffspringRqd( m_Parameters.PopulationSize/2 );
+            //m_Species[0].SetOffspringRqd( m_Parameters.PopulationSize/2 );
+           // m_Species[1].SetOffspringRqd( m_Parameters.PopulationSize/2 );
 
                 // The rest will not
         
@@ -272,14 +261,10 @@ void NSGAPopulation::Epoch()
 
 
     // Kill all bad performing individuals
-    // Todo: this baby/adult/killworst scheme is complicated and basically sucks,
-    // I should remove it completely.
-   // for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillWorst(m_Parameters);
-
-    // Perform reproduction for each species
-    m_TempPop.clear();
-    Reproduce();
-    m_Genomes = m_TempSpecies;
+  // Perform reproduction for each species
+    TempPop.clear();
+    Reproduce(TempPop);
+    m_Genomes = TempPop;
 
 
     // Now we kill off the old parents
@@ -290,13 +275,13 @@ void NSGAPopulation::Epoch()
     // Here we kill off any empty species too
     // Remove all empty species (cleanup routine for every case..)
         // Now reassign the representatives for each species
-    SetRepresentative( m_Genomes[0] );
+    //SetRepresentative( m_Genomes[0]);
     
     // If the total amount of genomes reproduced is less than the population size,
     // due to some floating point rounding error,
     // we will add some bonus clones of the first species's leader to it
 
-    unsigned int t_total_genomes  = m_Genomes.size());
+    unsigned int t_total_genomes  = m_Genomes.size();
 
     if (t_total_genomes < m_Parameters.PopulationSize)
     {
@@ -339,12 +324,12 @@ Genome& NSGAPopulation::AccessGenomeByIndex(unsigned int const a_idx)
 // Main realtime loop. We assume that the whole population was evaluated once before calling this.
 // Returns a pointer to the baby in the population. It will be the only individual that was not evaluated.
 // Set the m_Evaluated flag of the baby to true after evaluation! 
-Genome* NSGAPopulation::Tick(Genome& a_deleted_genome)
+/*Genome* NSGAPopulation::Tick(Genome& a_deleted_genome)
 {
     // Make sure all individuals are evaluated
     /*for(unsigned int i=0; i<m_Species.size(); i++)
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
-            ASSERT(m_Species[i].m_Individuals[j].m_Evaluated);*/
+            ASSERT(m_Species[i].m_Individuals[j].m_Evaluated);/
 
     m_NumEvaluations++;
 
@@ -404,25 +389,25 @@ Genome* NSGAPopulation::Tick(Genome& a_deleted_genome)
 
     return t_to_return;
 }
-
+*/
 
 
 Genome NSGAPopulation::RemoveWorstIndividual()
 {
     unsigned int t_worst_idx=0; // within the species
     //unsigned int t_worst_absolute_idx=0; // within the population
-    std::vector<double>    t_worst_fitness = std::numeric_limits<double>::max();
+    double   t_worst_fitness = std::numeric_limits<double>::max();
 
     Genome t_genome;
 
     for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
-        std::vector<double> t_adjusted_fitness = m_Genomes[i].GetMultiFitness();
+       double t_adjusted_fitness = m_Genomes[i].GetMultiFitness()[0];
         // only only evaluated individuals can be removed
         if ((t_adjusted_fitness < t_worst_fitness) && (m_Genomes[i].IsEvaluated()))
         {
             t_worst_fitness = t_adjusted_fitness;
-            t_worst_idx = j;
+            t_worst_idx = i;
             t_genome = m_Genomes[i];
         }
             t_abs_counter++;
@@ -430,12 +415,11 @@ Genome NSGAPopulation::RemoveWorstIndividual()
     }
 
     // The individual is now removed
-    m_Genomes.RemoveIndividual(t_worst_idx);
+    RemoveIndividual(t_worst_idx);
 
     return t_genome;
 }
 
-enome*
 // This is the main method performing novelty search.
 // Performs one reproduction and assigns novelty scores
 // based on the current population and the archive.
@@ -446,7 +430,7 @@ enome*
 
 void NSGAPopulation::NSGASort()
 {
-    std::vector<std::vector<Genomes*> > fronts;
+    std::vector<std::vector<Genome*> > fronts;
     fronts.reserve(m_Parameters.PopulationSize);
     // 1. Primary ranking:
     PrimaryRanking(fronts);
@@ -455,13 +439,14 @@ void NSGAPopulation::NSGASort()
     //3. Assign Distance
     AssignDistance(fronts);
     //4. Sort
-    std::sort(m_Genomes, CrowdComparison);
+    std::sort(m_Genomes.begin(), m_Genomes.end(), CrowdComparison);
 }
 
 /*n particular, the genomic
 diversity of a given genome is quantied as the average distance to its k-nearest
 neighbors in genotype space as measured by NEAT's genomic distance measure.*/
-void NSGAPopulation::GenomeDiversity(Genome g)
+
+/*void NSGAPopulation::GenomeDiversity(Genome g)
 {   double dist = 0.0;
     
     for (unsigned int i = 0; i < NearestNeighbourCount; i++)
@@ -470,35 +455,35 @@ void NSGAPopulation::GenomeDiversity(Genome g)
     }
     g.multifitness.push_back(dist/NearestNeighbourCount)
 
-}
+}*/
 
 void NSGAPopulation::PrimaryRanking(std::vector<std::vector<Genome*> > &fronts)
 {
-    for(unsigned int p = 0;  p < Genomes.size(); p++)
+    for(unsigned int p = 0;  p < m_Genomes.size(); p++)
     {
-        Genomes[p].dominated.clear();
-        Genomes[p].dominated.reserve(Genomes.size());
-        int dom = 0
+        m_Genomes[p].dominated.clear();
+        m_Genomes[p].dominated.reserve(m_Genomes.size());
+       
         
-        for(unsigned int q = 0; q < Genomes.size()l q++)
+        for(unsigned int q = 0; q < m_Genomes.size(); q++)
         {
             if (p!=q)
             {
                 if (Dominate(p, q))
                 {
-                    Genomes[p].dominated.push_back(&q);
+                    m_Genomes[p].dominated.push_back(q*);
                 }
                 else if (Dominate(q,p))
                 {
-                    dom++;
+                    m_Genomes[p].tempRank++;
                 }
             }
         }
 
-        if (dom == 0)
+        if (m_Genomes[p].tempRank == 0)
         {
-            Genomes[p].tempRank = 0;
-            fronts[0].push_back(&Genomes[p])
+            m_Genomes[p].rank = 0;
+            fronts[0].push_back(&m_Genomes[p]);
         }
     }
 
@@ -507,7 +492,7 @@ void NSGAPopulation::PrimaryRanking(std::vector<std::vector<Genome*> > &fronts)
 void NSGAPopulation::SecondaryRanking(std::vector<std::vector<Genome*> >& fronts)
 {
     int counter = 0;
-    std::vector<*Genome> current = fronts[counter];
+    std::vector<Genome*> current = fronts[counter];
     
     while(current.size() > 0)
     {
@@ -529,18 +514,18 @@ void NSGAPopulation::SecondaryRanking(std::vector<std::vector<Genome*> >& fronts
     }
 }
 
-void NSGAPopulation::AssignDistance(std::vector<std::vector<*Genome> > &fronts)
+void NSGAPopulation::AssignDistance(std::vector<std::vector<Genome*> > &fronts)
 {   
     for (unsigned int i = 0; i < fronts.size(); i++)
     {   
         for (unsigned int j =0; j < fronts[i].size(); j++)
         { 
-            fronts[i][j] -> distance = std::infinity()
+            fronts[i][j] -> distance = std::numeric_limits<int>::infinity();
             
-            for(unsigned int k = 0; k < fronts[i].size(); k++ )
+            for (unsigned int k = 0; k < fronts[i].size(); k++ )
             {   if (j != k)
                 { 
-                    double v = mepsd(fronts[i][j],fronts[i][k])
+                    double v = mepsd(fronts[i][j] -> multifitness, fronts[i][k] -> multifitness)
                     if (fronts[i][j] -> distance > v)
                         fronts[i][j] -> distance = v;
                 }   
@@ -549,40 +534,34 @@ void NSGAPopulation::AssignDistance(std::vector<std::vector<*Genome> > &fronts)
     }
 }
 
-bool NSGAPopulation::CrowdComparison(Genome ls, Genome rs)
-{
-    return (ls.rank > rs.rank || (ls.rank == rs.rank && ls.distance>rs.distance));
-}
 
-bool NSGAPopulation::Dominate(Genome ls, Genome rs)
+
+bool NSGAPopulation::Dominate(unsigned int ls, unsigned int rs)
 {
-    for(unsigned int i = 0; i < ls.multifitness.size(); i++)
+    for(unsigned int i = 0; i < m_Genomes[ls].multifitness.size(); i++)
     {   bool bigger = false
-        if(ls.multifitness[i] < rs.multifitness[i])
+        if(m_Genomes[ls].multifitness[i] < m_Genomes[rs].multifitness[i])
         {
             return false;
         }
 
-        else if (ls.multifitness[i] > rs.multifitness[i])
+        else if (m_Genomes[ls].multifitness[i] > m_Genomes[rs].multifitness[i])
         {
             bigger = true
         }
     }
     
-    if (bigger)
-        return true;
-
-    return false;
+    return bigger;
 }       
 
-void NSGAPopulation::mepsd(Genome ls, Genome rs)
+void NSGAPopulation::mepsd(std::vector<double> ls, std::vector<double> rs)
 { 
     double max = 0.0;
-    for(unsigned int i = 0; i < genome.multifitness.size(); i++)
+    for(unsigned int i = 0; i < ls.size(); i++)
     {
         if (ls.multifitness[i] > rs.multifitness[i])
         {
-            max = max(ls.fitness[i] - rs.multifitness[i], max);
+            max = max(ls[i] - rs[i], max);
         }
     }
     return max;
@@ -626,7 +605,7 @@ void NSGAPopulation::Reproduce(std::vector<Genome> &tempPop)
         // Copy the elite offspring
         if (elite_count < elite_offspring)
         {
-            t_baby = m_Individuals[elite_count];
+            t_baby = m_Genomes[elite_count];
             elite_count++;
             // if the champ was not chosen, do it now..
             if (!t_champ_chosen)
@@ -643,17 +622,8 @@ void NSGAPopulation::Reproduce(std::vector<Genome> &tempPop)
                 // There must be individuals there..
                 ASSERT(NumIndividuals() > 0);
 
-                // for a species of size 1 we can only mutate
-                // NOTE: but does it make sense since we know this is the champ?
-                if (NumIndividuals() == 1)
-                {
-                    t_baby = GetIndividual(a_Parameters, a_RNG);
-                    t_mated = false;
-                }
                 // else we can mate
-                else
-                {
-                    do // keep trying to mate until a good offspring is produced
+                 do // keep trying to mate until a good offspring is produced
                     {
                         Genome t_mom = GetIndividual(a_Parameters, a_RNG);
 
@@ -700,13 +670,13 @@ void NSGAPopulation::Reproduce(std::vector<Genome> &tempPop)
                     } while (t_baby.HasDeadEnds() || (t_baby.NumLinks() == 0));
                     // in case of dead ends after crossover we will repeat crossover
                     // until it works
-                }
+                
 
 
                 // Mutate the baby
                 if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
                 {
-                    MutateGenome(t_baby_exists_in_pop, t_baby, m_Parameters, m_RNG);
+                    MutateGenome(t_baby_exists_in_pop, t_baby);
                 }
 
                 
@@ -730,17 +700,11 @@ void NSGAPopulation::Reproduce(std::vector<Genome> &tempPop)
         t_baby.SortGenes();
 
         // clear the baby's fitness
-        t_baby.SetMultiFitness(0);
-        t_baby.SetAdjMultiFitness(0);
+        t_baby.MultiFitness.clear();
+        //t_baby.SetAdjMultiFitness(0);
         t_baby.SetOffspringAmount(0);
 
         t_baby.ResetEvaluated();
-
-
-        // before Reproduce() is invoked, it is assumed that a
-        // clone of the population exists with the name of m_TempSpecies
-        // we will store results there.
-        // after all reproduction completes, the original species will be replaced back
 
         tempPop.push_back(t_baby);
     }
@@ -766,7 +730,7 @@ Genome NSGAPopulation::GetIndividual() const
     }
     else if (t_Evaluated.size() == 2)
     {
-        return (t_Evaluated[ Rounded(a_RNG.RandFloat()) ]);
+        return (t_Evaluated[ Rounded(m_RNG.RandFloat()) ]);
     }
 
     // Warning!!!! The individuals must be sorted by best fitness for this to work
@@ -781,11 +745,11 @@ Genome NSGAPopulation::GetIndividual() const
         int t_num_parents = static_cast<int>( floor((m_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size())))+1.0));
         ASSERT(t_num_parents>0);
         
-        for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
+        for (unsigned int i = 0; i < m_Parameters.TournamentSize; i++)
         {
-            temp_genome = a_RNG.RandInt(0, t_num_parents);
+            temp_genome = m_RNG.RandInt(0, t_num_parents);
             
-            if (Dominate( m_Genomes[temp_genome], m_Genomes[t_chosen_one])
+            if (CrowdComparison( m_Genomes[temp_genome], m_Genomes[t_chosen_one]))
             {
                 t_chosen_one = temp_genome;
             }
@@ -797,8 +761,8 @@ Genome NSGAPopulation::GetIndividual() const
         // roulette wheel selection
         std::vector<double> t_probs;
         for(unsigned int i=0; i<t_Evaluated.size(); i++)
-            t_probs.push_back( t_Evaluated[i].GetMultiFitness() );
-        t_chosen_one = a_RNG.Roulette(t_probs);
+            t_probs.push_back( t_Evaluated[i].GetMultiFitness()[0] );
+        t_chosen_one = m_RNG.Roulette(t_probs);
     }
 
     return (t_Evaluated[t_chosen_one]);
@@ -811,7 +775,7 @@ void NSGAPopulation::AdjustFitness()
     // iterate through the members
     for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
-        std::vector<dounle> t_fitness = m_Genomes[i].GetMultiFitness();
+        std::vector<double> t_fitness = m_Genomes[i].GetMultiFitness();
 
         // the fitness must be positive
         //DBG(t_fitness);
@@ -822,10 +786,154 @@ void NSGAPopulation::AdjustFitness()
         // this prevents the fitness to be below zero
             if (t_fitness[j] <= 0) t_fitness[j] = 0.0001;
 
-        m_Genomes[i].SetAdjMultiFitness(t_fitness / m_Genomes.size());
+       // m_Genomes[i].SetAdjMultiFitness(t_fitness / m_Genomes.size());
+    }
     }
 }
+// Mutates a genome
+void NSGAPopulation::MutateGenome( bool t_baby_is_clone, Genome &t_baby)
+{   enum MutationTypes {ADD_NODE = 0, ADD_LINK, REMOVE_NODE, REMOVE_LINK, CHANGE_ACTIVATION_FUNCTION,
+                        MUTATE_WEIGHTS, MUTATE_ACTIVATION_A, MUTATE_ACTIVATION_B, MUTATE_TIMECONSTS, MUTATE_BIASES
+                       };
+    std::vector<int> t_muts;
+    std::vector<double> t_mut_probs;
 
+    // ADD_NODE;
+    t_mut_probs.push_back( m_Parameters.MutateAddNeuronProb );
+
+    // ADD_LINK;
+    t_mut_probs.push_back( m_Parameters.MutateAddLinkProb );
+
+    // REMOVE_NODE;
+    t_mut_probs.push_back( m_Parameters.MutateRemSimpleNeuronProb );
+
+    // REMOVE_LINK;
+    t_mut_probs.push_back( m_Parameters.MutateRemLinkProb );
+
+    // CHANGE_ACTIVATION_FUNCTION;
+    t_mut_probs.push_back( m_Parameters.MutateNeuronActivationTypeProb );
+
+    // MUTATE_WEIGHTS;
+    t_mut_probs.push_back( m_Parameters.MutateWeightsProb );
+
+    // MUTATE_ACTIVATION_A;
+    t_mut_probs.push_back( m_Parameters.MutateActivationAProb );
+
+    // MUTATE_ACTIVATION_B;
+    t_mut_probs.push_back( m_Parameters.MutateActivationBProb );
+
+    // MUTATE_TIMECONSTS;
+    t_mut_probs.push_back( m_Parameters.MutateNeuronTimeConstantsProb );
+
+    // MUTATE_BIASES;
+    t_mut_probs.push_back( m_Parameters.MutateNeuronBiasesProb );
+
+    // Special consideration for phased searching - do not allow certain mutations depending on the search mode
+    // also don't use additive mutations if we just want to get rid of the clones
+    bool t_mutation_success = false;
+
+    // repeat until successful
+    while (t_mutation_success == false)
+    {
+        int ChosenMutation = m_RNG.Roulette(t_mut_probs);
+
+        // Now mutate based on the choice
+        switch(ChosenMutation)
+        {
+        case ADD_NODE:
+            t_mutation_success = t_baby.Mutate_AddNeuron(AccessInnovationDatabase(), a_Parameters, a_RNG);
+            break;
+
+        case ADD_LINK:
+            t_mutation_success = t_baby.Mutate_AddLink(AccessInnovationDatabase(), a_Parameters, a_RNG);
+            break;
+
+        case REMOVE_NODE:
+            t_mutation_success = t_baby.Mutate_RemoveSimpleNeuron(AccessInnovationDatabase(), a_RNG);
+            break;
+
+        case REMOVE_LINK:
+        {
+            // Keep doing this mutation until it is sure that the baby will not
+            // end up having dead ends or no links
+            Genome t_saved_baby = t_baby;
+            bool t_no_links = false, t_has_dead_ends = false;
+
+            int t_tries = 128;
+            do
+            {
+                t_tries--;
+                if (t_tries <= 0)
+                {
+                    t_saved_baby = t_baby;
+                    break; // give up
+                }
+
+                t_saved_baby = t_baby;
+                t_mutation_success = t_saved_baby.Mutate_RemoveLink(a_RNG);
+
+                t_no_links = t_has_dead_ends = false;
+
+                if (t_saved_baby.NumLinks() == 0)
+                    t_no_links = true;
+
+                t_has_dead_ends = t_saved_baby.HasDeadEnds();
+
+            }
+            while(t_no_links || t_has_dead_ends);
+
+            t_baby = t_saved_baby;
+
+            // debugger trap
+            if (t_baby.NumLinks() == 0)
+            {
+                std::cerr << "No links in baby after mutation" << std::endl;
+            }
+            if (t_baby.HasDeadEnds())
+            {
+                std::cerr << "Dead ends in baby after mutation" << std::endl;
+            }
+        }
+        break;
+
+        case CHANGE_ACTIVATION_FUNCTION:
+            t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
+            t_mutation_success = true;
+            break;
+
+        case MUTATE_WEIGHTS:
+            t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
+            t_mutation_success = true;
+            break;
+
+        case MUTATE_ACTIVATION_A:
+            t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
+            t_mutation_success = true;
+            break;
+
+        case MUTATE_ACTIVATION_B:
+            t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
+            t_mutation_success = true;
+            break;
+
+        case MUTATE_TIMECONSTS:
+            t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
+            t_mutation_success = true;
+            break;
+
+        case MUTATE_BIASES:
+            t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
+            t_mutation_success = true;
+            break;
+
+        default:
+            t_mutation_success = false;
+            break;
+        }
+    }
+
+}
+}
 
 
 

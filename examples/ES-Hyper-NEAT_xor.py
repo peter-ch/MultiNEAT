@@ -4,10 +4,12 @@ import sys
 import commands as comm
 import MultiNEAT as NEAT
 import multiprocessing as mpc
-
+import numpy as np
+import cv2
+import utilities
 
 params = NEAT.Parameters()
-params.PopulationSize = 10
+params.PopulationSize = 100
 params.DynamicCompatibility = True
 params.CompatTreshold = 1.0
 params.YoungAgeTreshold = 15
@@ -141,13 +143,29 @@ def getbest(run, filename):
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
-    for generation in range(10):
+    for generation in range(1000):
+
         print "---------------------------"
         print "Generation: ", generation
         genome_list = NEAT.GetGenomeList(pop)
         fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display = False)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
-      
+        net = NEAT.NeuralNetwork()
+        pop.Species[0].GetLeader().BuildPhenotype(net)
+        img = np.zeros((500, 500, 3), dtype=np.uint8)
+        img += 10
+        NEAT.DrawPhenotype(img, (0, 0, 500, 500), net )
+        cv2.imshow("CPPN", img)
+
+        net = NEAT.NeuralNetwork()
+        pop.Species[0].GetLeader().Build_ES_Phenotype(net, substrate, params)
+        img = np.zeros((500, 500, 3), dtype=np.uint8)
+        img += 10
+
+        utilities.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
+        cv2.imshow("NN", img)
+        cv2.waitKey(1)
+        print "max ", max([x.GetLeader().GetFitness() for x in pop.Species])
         generations = generation
         pop.Epoch()
     return generations

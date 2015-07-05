@@ -36,11 +36,12 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
-//#include <boost/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 #endif
 
 #include <vector>
+#include <queue>
 
 #include "NeuralNetwork.h"
 #include "Substrate.h"
@@ -126,8 +127,12 @@ private:
     bool IsDeadEndNeuron(unsigned int a_id) const;
 
 public:
-
-    // tells whether this genome was evaluated already
+    std::vector<double> multifitness;
+    /*std::vector<Genome*> dominated;
+    unsigned int rank;
+    unsigned int temp_rank;
+    double distance; 
+    */// tells whether this genome was evaluated already
     // used in steady state evolution
     bool m_Evaluated;
 
@@ -203,7 +208,18 @@ public:
     ////////////////////////////
     // Methods
     ////////////////////////////
+    void SetMultiFitness(std::vector<double> fitness_scores)
+    {           
+        for(int j=0; j< fitness_scores.size(); j++)
+        {   
+            multifitness.push_back(fitness_scores[j]);
+        }
+    }
 
+    std::vector<double> GetMultiFitness()
+    {
+        return multifitness;
+    }
     ////////////////////
     // Accessor methods
 
