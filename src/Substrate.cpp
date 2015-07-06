@@ -44,15 +44,14 @@ Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
     m_hidden_nodes_activation = NEAT::UNSIGNED_SIGMOID;
     m_output_nodes_activation = NEAT::UNSIGNED_SIGMOID;
     m_allow_input_hidden_links = true;
-    m_allow_input_output_links = true;
-    m_allow_hidden_hidden_links = true;
+    m_allow_input_output_links = false;
+    m_allow_hidden_hidden_links = false;
     m_allow_hidden_output_links = true;
     m_allow_output_hidden_links = false;
     m_allow_output_output_links = false;
     m_allow_looped_hidden_links = false;
     m_allow_looped_output_links = false;
 
-    m_link_threshold = 0.2;
     m_max_weight_and_bias = 5.0;
     m_min_time_const = 0.1;
     m_max_time_const = 1.0;
@@ -72,15 +71,14 @@ Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
     m_hidden_nodes_activation = NEAT::UNSIGNED_SIGMOID;
     m_output_nodes_activation = NEAT::UNSIGNED_SIGMOID;
     m_allow_input_hidden_links = true;
-    m_allow_input_output_links = true;
-    m_allow_hidden_hidden_links = true;
+    m_allow_input_output_links = false;
+    m_allow_hidden_hidden_links = false;
     m_allow_hidden_output_links = true;
     m_allow_output_hidden_links = false;
     m_allow_output_output_links = false;
     m_allow_looped_hidden_links = false;
     m_allow_looped_output_links = false;
 
-    m_link_threshold = 0.2;
     m_max_weight_and_bias = 5.0;
     m_min_time_const = 0.1;
     m_max_time_const = 1.0;
@@ -127,9 +125,9 @@ int Substrate::GetMinCPPNInputs()
 int Substrate::GetMinCPPNOutputs()
 {
     if (m_leaky)
-        return 3;
+        return 2+2; // + time_const and bias
     else
-        return 1;
+        return 2; // link on/off, weight
 }
 
 int Substrate::GetMaxDims()

@@ -280,10 +280,13 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("m_allow_looped_hidden_links", &Substrate::m_allow_looped_hidden_links)
             .def_readwrite("m_allow_looped_output_links", &Substrate::m_allow_looped_output_links)
 
-            .def_readwrite("m_link_threshold", &Substrate::m_link_threshold)
             .def_readwrite("m_max_weight_and_bias", &Substrate::m_max_weight_and_bias)
             .def_readwrite("m_min_time_const", &Substrate::m_min_time_const)
             .def_readwrite("m_max_time_const", &Substrate::m_max_time_const)
+            
+            .def_readwrite("m_input_coords", &Substrate::m_input_coords )
+            .def_readwrite("m_hidden_coords", &Substrate::m_hidden_coords)
+            .def_readwrite("m_output_coords", &Substrate::m_output_coords)
 
             .def_pickle(Substrate_pickle_suite())
             ;

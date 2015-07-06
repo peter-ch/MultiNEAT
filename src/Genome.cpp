@@ -582,6 +582,7 @@ void Genome::BuildPhenotype(NeuralNetwork& a_Net) const
 // substrate
 
 // The procedure uses the [0] CPPN output for creating nodes, and if the substrate is leaky, [1] and [2] for time constants and biases
+// Also assumes the CPPN uses signed activation outputs
 void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 {
     // We need a substrate with at least one input and output
@@ -786,22 +787,15 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
             }
 
             // the output is a weight
-            double t_weight = t_temp_phenotype.Output()[0];
+            double t_link = t_temp_phenotype.Output()[0];
+            double t_weight = t_temp_phenotype.Output()[1];
 
             Clamp(t_weight, -1, 1);
 
-            double t_abs_weight = (t_weight < 0)? -t_weight : t_weight;
-            if (t_abs_weight > subst.m_link_threshold)
+            if (t_link > 0)
             {
                 // now this weight will be scaled
-                if (t_weight < 0)
-                {
-                    Scale(t_weight, -1, -subst.m_link_threshold, -subst.m_max_weight_and_bias, 0);
-                }
-                else
-                {
-                    Scale(t_weight, subst.m_link_threshold, 1, 0, subst.m_max_weight_and_bias);
-                }
+                t_weight *= subst.m_max_weight_and_bias;
 
                 // build the connection
                 Connection t_c;

@@ -90,7 +90,7 @@ inline double af_step_signed(double aX, double aShift)
 
 inline double af_step_unsigned(double aX, double aShift)
 {
-    if (aX > aShift)
+    if (aX > (0.5+aShift))
     {
         return 1.0;
     }
@@ -102,13 +102,13 @@ inline double af_step_unsigned(double aX, double aShift)
 
 inline double af_gauss_signed(double aX, double aSlope, double aShift)
 {
-    double tY = exp( - 3*aSlope * aX * aX + aShift); // TODO: Need separate a, b per activation function
+    double tY = exp( - aSlope * aX * aX + aShift); // TODO: Need separate a, b per activation function
     return (tY-0.5)*2.0;
 }
 
 inline double af_gauss_unsigned(double aX, double aSlope, double aShift)
 {
-    return exp( - 3*aSlope * aX * aX + aShift);
+    return exp( - aSlope * aX * aX + aShift);
 }
 
 inline double af_abs(double aX, double aShift)

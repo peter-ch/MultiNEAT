@@ -74,7 +74,7 @@ public:
     ActivationFunction m_output_nodes_activation;
 
     // additional parameters
-    double m_link_threshold;
+    //double m_link_threshold; - obsolete parameter
     double m_max_weight_and_bias;
     double m_min_time_const;
     double m_max_time_const;
@@ -86,7 +86,7 @@ public:
         m_with_distance = false;
         m_allow_input_hidden_links = true;
         m_allow_input_output_links = true;
-        m_allow_hidden_hidden_links = true;
+        m_allow_hidden_hidden_links = false;
         m_allow_hidden_output_links = true;
         m_allow_output_hidden_links = false;
         m_allow_output_output_links = false;
@@ -94,7 +94,6 @@ public:
         m_allow_looped_output_links = false;
         m_hidden_nodes_activation = UNSIGNED_SIGMOID;
         m_output_nodes_activation = UNSIGNED_SIGMOID;
-        m_link_threshold = 0.2;
         m_max_weight_and_bias = 5.0;
         m_min_time_const = 0.1;
         m_max_time_const = 1.0;
@@ -146,7 +145,6 @@ public:
         ar & m_hidden_nodes_activation;
         ar & m_output_nodes_activation;        
 
-        ar & m_link_threshold;
         ar & m_max_weight_and_bias;
         ar & m_min_time_const;
         ar & m_max_time_const;

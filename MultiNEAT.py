@@ -42,6 +42,7 @@ FetchGenomeList = GetGenomeList
 def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
     fitnesses = []
     count = 0
+    curtime = time.time()
 
     for g in genome_list:
         f = evaluator(g)
@@ -51,6 +52,11 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
             if ipython_installed: clear_output(wait=True)
             print('Individuals: (%s/%s)' % (count, len(genome_list)))
         count += 1
+        
+    elapsed = time.time() - curtime
+
+    if display:
+        print('seconds elapsed: %s' % elapsed)
 
     return fitnesses
 
@@ -214,11 +220,11 @@ else:
             else:
                 if conn.weight < 0:
                     # blue weight
-                    color = (int(255.0 * w), 0, 0)
+                    color = (0, 0, int(255.0 * w))
 
                 else:
                     # red weight
-                    color = (0, 0, int(255.0 * w))
+                    color = (int(255.0 * w), 0, 0)
 
             # if the link is looping back on the same neuron, draw it with
             # ellipse
