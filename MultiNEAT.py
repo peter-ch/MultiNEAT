@@ -1,18 +1,6 @@
-from __future__ import division
-from __future__ import print_function
-import multiprocessing as mpc
 import time
 from _MultiNEAT import *
-
-
-try:
-    from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
-    prbar_installed = True
-except:
-    print ('Tip: install the progressbar Python package through pip or '
-           'easy_install')
-    print ('     to get good looking evolution progress bar with ETA')
-    prbar_installed = False
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 try:
@@ -25,6 +13,12 @@ except:
     print ('     to get convenient neural network visualization to NumPy '
            'arrays')
     cvnumpy_installed = False
+    
+try:
+    from IPython.display import clear_output
+    ipython_installed = True
+except:
+    ipython_installed = False
 
 
 
@@ -49,71 +43,49 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
     fitnesses = []
     count = 0
 
-    if prbar_installed and display:
-        widg = ['Individuals: ', Counter(), ' of ' + str(len(genome_list)),
-                ' ', ETA(), ' ', AnimatedMarker()]
-        progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
-
     for g in genome_list:
         f = evaluator(g)
         fitnesses.append(f)
 
         if display:
-            if prbar_installed:
-                progress.update(count+1)
-            else:
-                print('Individuals: (%s/%s)' % (count, len(genome_list)))
+            if ipython_installed: clear_output(wait=True)
+            print('Individuals: (%s/%s)' % (count, len(genome_list)))
         count += 1
-
-    if prbar_installed and display:
-        progress.finish()
 
     return fitnesses
 
 # Evaluates all genomes in parallel manner (many processes) and returns a
 # list of corresponding fitness values.
 # evaluator is a callable that is supposed to take Genome as argument and return a double
-def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
+def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=8, display=True):
     fitnesses = []
-    pool = mpc.Pool(processes=cores)
     curtime = time.time()
 
-    if prbar_installed and display:
-        widg = ['Individuals: ', Counter(),
-                ' of ' + str(len(genome_list)), ' ', ETA(), ' ',
-                AnimatedMarker()]
-        progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
-
-    for i, fitness in enumerate(pool.imap(evaluator, genome_list)):
-        if prbar_installed and display:
-            progress.update(i)
-        else:
+    with ProcessPoolExecutor(max_workers=cores) as executor:
+        fs = [executor.submit(evaluator, genome) for genome in genome_list]
+        for i,f in enumerate(as_completed(fs)):
+            fitness = f.result()
+            fitnesses += [fitness]
+            
             if display:
+                if ipython_installed: clear_output(wait=True)
                 print('Individuals: (%s/%s)' % (i, len(genome_list)))
-
-        if cvnumpy_installed:
-            cv2.waitKey(1)
-        fitnesses.append(fitness)
-
-    if prbar_installed and display:
-        progress.finish()
+                    
+            if cvnumpy_installed:
+                cv2.waitKey(1)        
 
     elapsed = time.time() - curtime
 
     if display:
         print('seconds elapsed: %s' % elapsed)
 
-    pool.close()
-    pool.join()
-
     return fitnesses
 
 
 # Just set the fitness values to the genomes
 def ZipFitness(genome_list, fitness_list):
-    for g, f in zip(genome_list, fitness_list):
-        g.SetFitness(f)
-        g.SetEvaluated()
+    [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
+    [genome.SetEvaluated() for genome in genome_list]
 
 
 def Scale(a, a_min, a_max, a_tr_min, a_tr_max):

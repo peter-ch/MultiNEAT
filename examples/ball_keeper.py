@@ -1,16 +1,16 @@
-#!/usr/bin/python
-from __future__ import division
+#!/usr/bin/python3
+
 import os
 import sys
 import time
 import random as rnd
-import commands as comm
+import subprocess as comm
 import cv2
 import numpy as np
 import scipy as sp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import cPickle as pickle
+import pickle as pickle
 import math
 import MultiNEAT as NEAT
 
@@ -267,7 +267,7 @@ def main():
     best_genome_ever = None
     fast_mode = False
     for generation in range(1000):
-        print "Generation:", generation
+        print("Generation:", generation)
 
         now = time.time()
         genome_list = []
@@ -275,7 +275,7 @@ def main():
             for i in s.Individuals:
                 genome_list.append(i)
 
-        print 'All individuals:', len(genome_list)
+        print('All individuals:', len(genome_list))
 
         for i, g in enumerate(genome_list):
             total_fitness = 0
@@ -283,10 +283,10 @@ def main():
                 f, fast_mode = evaluate(g, space, screen, fast_mode, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
                 total_fitness += f
             g.SetFitness(total_fitness / 20)
-        print
+        print()
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
-        print 'Best fitness:', best, 'Species:', len(pop.Species)
+        print('Best fitness:', best, 'Species:', len(pop.Species))
 
 
         # Draw the best genome's phenotype
@@ -304,11 +304,11 @@ def main():
         #if pop.GetStagnation() > 500:
         #    break
 
-        print "Evaluation took", time.time() - now, "seconds."
-        print "Reproducing.."
+        print("Evaluation took", time.time() - now, "seconds.")
+        print("Reproducing..")
         now = time.time()
         pop.Epoch()
-        print "Reproduction took", time.time() - now, "seconds."
+        print("Reproduction took", time.time() - now, "seconds.")
 
     # Show the best genome's performance forever
     pygame.display.set_caption("Best genome ever")

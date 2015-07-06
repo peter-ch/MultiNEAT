@@ -934,7 +934,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
     fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
     fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
-    fprintf(a_fstream, "CPPN_Bias %d\n", CPPN_Bias);
+    fprintf(a_fstream, "CPPN_Bias %3.20f\n", CPPN_Bias);
     fprintf(a_fstream, "Width %3.20f\n", Width);
     fprintf(a_fstream, "Qtree_X %3.20f\n", Qtree_X);
     fprintf(a_fstream, "Qtree_Y %3.20f\n", Qtree_Y);

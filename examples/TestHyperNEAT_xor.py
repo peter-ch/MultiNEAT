@@ -1,14 +1,15 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import os
 import sys
 import time
 import random as rnd
-import commands as comm
+import subprocess as comm
 import cv2
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 import MultiNEAT as NEAT
-import multiprocessing as mpc
+
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # the simple 2D substrate with 3 input points, 2 hidden and 1 output for XOR
 
@@ -42,7 +43,7 @@ substrate.m_max_weight_and_bias = 8.0
 try:
     x = pickle.dumps(substrate)
 except:
-    print 'You have mistyped a substrate member name upon setup. Please fix it.'
+    print('You have mistyped a substrate member name upon setup. Please fix it.')
     sys.exit(1)
 
 # code
@@ -86,7 +87,7 @@ def evaluate(genome):
         return (4 - error)**2
 
     except Exception as ex:
-        print 'Exception:', ex
+        print('Exception:', ex)
         return 1.0
 
 params = NEAT.Parameters()
@@ -133,10 +134,7 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0;
 params.ActivationFunction_Linear_Prob = 1.0;
 
 
-rng = NEAT.RNG()
-rng.TimeSeed()
-
-def getbest():
+def getbest(i):
     g = NEAT.Genome(0,
                     substrate.GetMinCPPNInputs(),
                     0,
@@ -148,6 +146,7 @@ def getbest():
                     params)
 
     pop = NEAT.Population(g, params, True, 1.0)
+    pop.RNG.Seed(i)
 
     for generation in range(2000):
         genome_list = NEAT.GetGenomeList(pop)
@@ -158,7 +157,14 @@ def getbest():
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
 #        print 'Best fitness:', best
 
+        pop.Epoch()
+#        print "Generation:", generation
+        generations = generation
+        if best > 15.0:
+            break
+
         # test
+        """
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
@@ -174,24 +180,28 @@ def getbest():
         cv2.imshow("NN", img)
 
         cv2.waitKey(1)
-
-        pop.Epoch()
-#        print "Generation:", generation
-        generations = generation
-        if best > 15.0:
-            break
+        """
 
     return generations
 
 gens = []
+"""
 for run in range(100):
     gen = getbest()
-    print 'Run:', run, 'Generations to solve XOR:', gen
+    print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
+"""
+
+with ProcessPoolExecutor(max_workers=8) as executor:
+    fs = [executor.submit(getbest, x) for x in range(100)]
+    for i,f in enumerate(as_completed(fs)):
+        gen = f.result()
+        print('Run:', i, 'Generations to solve XOR:', gen)
+        gens += [gen]
 
 avg_gens = sum(gens) / len(gens)
 
-print 'All:', gens
-print 'Average:', avg_gens
+print('All:', gens)
+print('Average:', avg_gens)
 
 

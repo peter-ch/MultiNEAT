@@ -1,16 +1,15 @@
-#!/usr/bin/python2
-from __future__ import division
-from __future__ import print_function
+#!/usr/bin/python3
+
+
 import os
 import sys
 import time
 import random as rnd
 import cv2
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 import MultiNEAT as NEAT
-import multiprocessing as mpc
-
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # code
 cv2.namedWindow('nn_win', 0)
@@ -92,14 +91,12 @@ params.CrossoverRate = 0.75  # mutate only 0.25
 params.MultipointCrossoverRate = 0.4
 params.SurvivalRate = 0.2
 
-rng = NEAT.RNG()
-#rng.TimeSeed()
-rng.Seed(0)
 
-def getbest():
+def getbest(i):
 
     g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
     pop = NEAT.Population(g, params, True, 1.0)
+    pop.RNG.Seed(i)
 
     generations = 0
     for generation in range(1000):
@@ -110,7 +107,14 @@ def getbest():
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
 #        print('Best fitness:', best, 'Species:', len(pop.Species))
 
+        pop.Epoch()
+#        print "Generation:", generation
+        generations = generation
+        if best > 15.0:
+            break
+
         # test
+        """
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
@@ -119,20 +123,27 @@ def getbest():
 
         cv2.imshow("nn_win", img)
         cv2.waitKey(1)
-
-        pop.Epoch()
-#        print "Generation:", generation
-        generations = generation
-        if best > 15.0:
-            break
+        """
 
     return generations
 
+
+
 gens = []
+
+"""
 for run in range(250):
-    gen = getbest()
+    gen = getbest(run)
     print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
+"""
+
+with ProcessPoolExecutor(max_workers=8) as executor:
+    fs = [executor.submit(getbest, x) for x in range(1000)]
+    for i,f in enumerate(as_completed(fs)):
+        gen = f.result()
+        print('Run:', i, 'Generations to solve XOR:', gen)
+        gens += [gen]
 
 avg_gens = sum(gens) / len(gens)
 

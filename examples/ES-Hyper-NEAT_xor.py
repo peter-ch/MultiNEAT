@@ -1,12 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import os
 import sys
 import time
 import random as rnd
-import commands as comm
+import subprocess as comm
 import cv2
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 import MultiNEAT as NEAT
 import multiprocessing as mpc
 import utilities
@@ -134,7 +134,7 @@ def evaluate_xor(genome):
 
     except Exception as ex:
 
-        print 'Exception:', ex
+        print('Exception:', ex)
 
         return 1.0
 
@@ -150,7 +150,7 @@ def getbest():
 
         genome_list = NEAT.GetGenomeList(pop)
     #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
-        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=True)
+        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
@@ -184,11 +184,11 @@ def getbest():
 gens = []
 for run in range(100):
     gen = getbest()
-    print 'Run:', run, 'Generations to solve XOR:', gen
+    print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
 
 avg_gens = sum(gens) / len(gens)
 
-print 'All:', gens
-print 'Average:', avg_gens
+print('All:', gens)
+print('Average:', avg_gens)
 

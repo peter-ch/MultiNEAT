@@ -580,6 +580,8 @@ void Genome::BuildPhenotype(NeuralNetwork& a_Net) const
 // dimensions in the substrate
 // The output dimensionality is determined according to flags set in the
 // substrate
+
+// The procedure uses the [0] CPPN output for creating nodes, and if the substrate is leaky, [1] and [2] for time constants and biases
 void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 {
     // We need a substrate with at least one input and output
@@ -591,7 +593,8 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 
     // Make sure the CPPN dimensionality is right
     ASSERT(CPPN_numinputs > 0);
-    ASSERT(NumInputs() == CPPN_numinputs);
+    ASSERT(NumInputs() >= CPPN_numinputs);
+    ASSERT(NumOutputs() >= subst.GetMinCPPNOutputs());
     if (subst.m_leaky)
     {
         ASSERT(NumOutputs() >= subst.GetMinCPPNOutputs());

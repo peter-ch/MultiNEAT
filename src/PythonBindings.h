@@ -105,17 +105,23 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 ///////////////////////////////////////////////////////////////////
 
     class_<Connection>("Connection", init<>())
-            .def_readonly("source_neuron_idx", &Connection::m_source_neuron_idx)
-            .def_readonly("target_neuron_idx", &Connection::m_target_neuron_idx)
-            .def_readonly("weight", &Connection::m_weight)
-            .def_readonly("recur_flag", &Connection::m_recur_flag)
+            .def_readwrite("source_neuron_idx", &Connection::m_source_neuron_idx)
+            .def_readwrite("target_neuron_idx", &Connection::m_target_neuron_idx)
+            .def_readwrite("weight", &Connection::m_weight)
+            .def_readwrite("recur_flag", &Connection::m_recur_flag)
+            .def_readwrite("hebb_rate", &Connection::m_hebb_rate)
+            .def_readwrite("hebb_pre_rate", &Connection::m_hebb_pre_rate)
             ;
 
     class_<Neuron>("Neuron", init<>())
-            .def_readonly("activation", &Neuron::m_activation)
-            .def_readonly("activation_function_type", &Neuron::m_activation_function_type)
-            .def_readonly("split_y", &Neuron::m_split_y)
-            .def_readonly("type", &Neuron::m_type)
+            .def_readwrite("a", &Neuron::m_a)
+            .def_readwrite("b", &Neuron::m_b)
+            .def_readwrite("time_const", &Neuron::m_timeconst)
+            .def_readwrite("bias", &Neuron::m_bias)
+            .def_readwrite("activation", &Neuron::m_activation)
+            .def_readwrite("activation_function_type", &Neuron::m_activation_function_type)
+            .def_readwrite("split_y", &Neuron::m_split_y)
+            .def_readwrite("type", &Neuron::m_type)
             .def_readwrite("x", &Neuron::m_x)
             .def_readwrite("y", &Neuron::m_y)
             .def_readwrite("z", &Neuron::m_z)
@@ -178,9 +184,16 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             NN_Input_numpy)
             .def("Output",
             &NeuralNetwork::Output)
+            
+            .def("AddNeuron",
+            &NeuralNetwork::AddNeuron)
+            .def("AddConnection",
+            &NeuralNetwork::AddConnection)
+            .def("SetInputOutputDimentions",
+            &NeuralNetwork::SetInputOutputDimentions)
 
             .def_readwrite("neurons", &NeuralNetwork::m_neurons)
-            .def_readonly("connections", &NeuralNetwork::m_connections)
+            .def_readwrite("connections", &NeuralNetwork::m_connections)
             ;
 
 
@@ -211,6 +224,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
+            
+             .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
 
             .def("IsEvaluated", &Genome::IsEvaluated)
             .def("SetEvaluated", &Genome::SetEvaluated)
@@ -309,6 +324,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetMPCStagnation", &Population::GetMPCStagnation)
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
+            .def_readwrite("RNG", &Population::m_RNG)
             ;
 
 ///////////////////////////////////////////////////////////////////

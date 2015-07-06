@@ -117,7 +117,7 @@ int main()
     params.ActivationFunction_UnsignedSine_Prob = 0.0;
     params.ActivationFunction_Linear_Prob = 1.0;
 
-    RNG rng;
+    //RNG rng;
     std::vector< std::vector<double> > inputs;
     std::vector< std::vector<double> > hidden;
     std::vector< std::vector<double> > outputs;

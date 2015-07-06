@@ -161,7 +161,7 @@ public:
     // This creates a standart minimal genome - perceptron-like structure
     Genome(unsigned int a_ID,
            unsigned int a_NumInputs,
-           unsigned int a_NumHidden, // ignored for type == 1, specifies number of hidden units if type == 0
+           unsigned int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
            unsigned int a_NumOutputs,
            bool a_FS_NEAT, ActivationFunction a_OutputActType,
            ActivationFunction a_HiddenActType,
