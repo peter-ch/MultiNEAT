@@ -499,6 +499,7 @@ struct QuadPoint
         leo = 0.0;
         variance = 0.0;
         children.reserve(4);
+	children.clear();
     }
     // Mind the Z
     QuadPoint(double t_x, double t_y, double t_z, double t_width, double t_height,
@@ -514,6 +515,7 @@ struct QuadPoint
         variance = 0.0;
         leo = 0.0;
         children.reserve(4);
+	children.clear();
     }
 
     ~QuadPoint()

@@ -10,7 +10,7 @@ import numpy as np
 import MultiNEAT as NEAT
 import multiprocessing as mpc
 import os.path
-import cv2
+#import cv2
 import utilities
 import traceback
 import scipy.stats as ss
@@ -19,7 +19,7 @@ import time
 # NEAT parameters
 
 params = NEAT.Parameters()
-params.PopulationSize = 125
+params.PopulationSize = 100
 params.DynamicCompatibility = True
 params.CompatTreshold = 0.2
 params.YoungAgeTreshold = 15
@@ -54,17 +54,17 @@ params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 0.16
 
 
-params.DivisionThreshold = 0.00001
-params.VarianceThreshold = .000001
-params.BandThreshold = 0.00001
+params.DivisionThreshold = 0.0
+params.VarianceThreshold = .0
+params.BandThreshold = 0.0
 params.InitialDepth = 3
-params.MaxDepth = 4
+params.MaxDepth = 3
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
 params.GeometrySeed = True
-params.LeoThreshold = 0.1
-params.CPPN_Bias = -3.0
+params.LeoThreshold = 0.0
+params.CPPN_Bias = -1.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.0
 params.Width = 1.0
@@ -307,8 +307,8 @@ def getbest(run, filename):
     for generation in range(2000):
         
         genome_list = NEAT.GetGenomeList(pop)
-        #fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_retina_and, display = False)
-        fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_retina_and, display = False, cores= 4)
+        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_retina_and, display = False)
+        #fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_retina_and, display = False, cores= 4)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
         [genome.SetPerformance(fitness[1]) for genome, fitness in zip(genome_list, fitnesses)]
         [genome.SetLength(fitness[2]) for genome, fitness in zip(genome_list, fitnesses)]

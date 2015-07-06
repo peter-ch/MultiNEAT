@@ -2993,13 +2993,13 @@ void Genome::DivideInitialize(boost::shared_ptr<QuadPoint>& root, const std::vec
     // and if they have higher variance add them to their parent. Repeat with the children
     // until maxDepth has been reached or if the variance isn't high enough.
    
-    boost::shared_ptr<QuadPoint> p(new QuadPoint());
+    
     std::queue<boost::shared_ptr<QuadPoint> > q;
     q.push(root);
     while (!q.empty())
         {   
-           p = q.front();
-           q.pop();
+            //p = q.front();
+            boost::shared_ptr<QuadPoint> p(q.front());
             // Add children
             p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - p -> width/2, p -> y - p -> height/2 , p -> width/2, p -> height/2, p -> level + 1)));
             p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - p -> width/2, p -> y + p ->height/2 , p -> width/2, p -> height/2, p -> level + 1)));
@@ -3057,7 +3057,9 @@ void Genome::DivideInitialize(boost::shared_ptr<QuadPoint>& root, const std::vec
                             q.push( p->children[i]);
                         }
                 }
-             }
+          q.pop();   
+	  
+	}
   
 
     return;//r;
@@ -3216,13 +3218,17 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
     q.push(point);
     while(!q.empty())
         {
-            boost::shared_ptr<QuadPoint> c = q.front();
+            boost::shared_ptr<QuadPoint> c(q.front());
             q.pop();
+	    cout << "Depth " << c -> level << endl;
             if (c -> children.size() > 0)
                 {
                     for (unsigned int i =0; i < c -> children.size(); i++)
-                        {
-                            q.push(c -> children[i]);
+                        {   //error is here
+			  cout << "pushed" << endl;
+			  
+			   q.push(c -> children[i]);
+			   cout << "yep" << endl;
                         }
                 }
             else
@@ -3231,7 +3237,7 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
      
                 }
         }
-
+   
     return boost::accumulators::variance(acc);
 }
 // Helper method for Variance
@@ -3252,10 +3258,10 @@ void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoin
         }
 
     else
-        {
-            vals.push_back(point-> weight);
-        }
-}
+        {  // Here, Apparently it treats the point a if it is not initialized
+	    vals.push_back(point-> weight); 
+	}
+   }
 /*
 // Returns all the nodes found by a query for a single point. Useful for visualisation and things like that.
 py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
