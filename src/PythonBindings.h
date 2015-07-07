@@ -447,6 +447,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("Leo", &Parameters::Leo)
             .def_readwrite("LeoThreshold", &Parameters::LeoThreshold)
             .def_readwrite("LeoSeed", &Parameters::LeoSeed)
+            
+            .def_pickle(Parameters_pickle_suite())
         ;
 
 
