@@ -129,7 +129,7 @@ substrate.m_allow_input_output_links = False
 substrate.m_allow_hidden_output_links = True
 substrate.m_allow_hidden_hidden_links = True
 # when to output a link and max weight
-substrate.m_link_threshold = 0.2
+substrate.m_link_threshold = 0.1
 substrate.m_max_weight_and_bias = 8.0
 # when to output a link and max weight
 
@@ -338,5 +338,5 @@ def getbest(run, generations, filename):
 
 
 #runs = 5
-for i in range(2):
-    getbest(i+2, 2500, "datadump/retina_or_release.csv")
+for i in range(5):
+    getbest(i, 2500, "datadump/retina_or_release.csv")
