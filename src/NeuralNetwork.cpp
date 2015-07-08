@@ -62,7 +62,7 @@ inline double af_sigmoid_signed(double aX, double aSlope, double aShift)
     return (tY - 0.5) * 2.0;
 }
 
-inline double af_bipolar_sigmoid(double ax, double aSlope, double aShift) 
+inline double af_bipolar_sigmoid(double ax, double aSlope, double aShift)
 {    return  2/ (1 + exp(- aSlope * ax - aShift));
 }
 

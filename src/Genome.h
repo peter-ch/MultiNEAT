@@ -131,14 +131,14 @@ public:
     /*std::vector<Genome*> dominated;
     unsigned int rank;
     unsigned int temp_rank;
-    double distance; 
+    double distance;
     */// tells whether this genome was evaluated already
     // used in steady state evolution
     bool m_Evaluated;
 
     double Length;
 
-    // Sometimes fitness and performance on a task differ. 
+    // Sometimes fitness and performance on a task differ.
     double Performance;
 
     // A pointer to a class representing the phenotype's behavior
@@ -209,9 +209,9 @@ public:
     // Methods
     ////////////////////////////
     void SetMultiFitness(std::vector<double> fitness_scores)
-    {           
+    {
         for(int j=0; j< fitness_scores.size(); j++)
-        {   
+        {
             multifitness.push_back(fitness_scores[j]);
         }
     }
@@ -452,7 +452,7 @@ struct TempConnection
         weight = t_weight;
         source.reserve(3);
         target.reserve(3);
-    
+
     }
 
     ~TempConnection(){};
@@ -525,7 +525,7 @@ struct QuadPoint
 void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
     Parameters& params);
 
-//boost::shared_ptr<Genome::QuadPoint> 
+//boost::shared_ptr<Genome::QuadPoint>
 void DivideInitialize( boost::shared_ptr<QuadPoint>& root,
     const std::vector<double>& node, NeuralNetwork& cppn, Parameters& params,
     const bool& outgoing, const double& z_coord);
@@ -537,7 +537,7 @@ void PruneExpress(const std::vector<double>& node,
 
 void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point);
 
-double Variance( boost::shared_ptr<QuadPoint> &point, int maxDepth);
+double Variance( boost::shared_ptr<QuadPoint> &point);
 
 void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
         unsigned int output_count, unsigned int hidden_count);
@@ -600,4 +600,3 @@ struct Genome_pickle_suite : py::pickle_suite
 } // namespace NEAT
 
 #endif
-

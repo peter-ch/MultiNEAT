@@ -4,12 +4,12 @@
  *  Created on: Sep 20, 2012
  *      Author: peter
  */
- 
+
  /*
   * Ignore this file. I use it to test stuff.
-  * 
+  *
   */
- 
+
 #include "Genome.h"
 #include "Population.h"
 #include "NeuralNetwork.h"
@@ -34,19 +34,19 @@ double abs(double x)
     return x;
 }
 
-//std::vector<double> 
+//std::vector<double>
 double xortest(Genome& g, Substrate& subst, Parameters& params)
-{	
+{
 
     NeuralNetwork net;
     //g.BuildHyperNEATPhenotype(net, subst);
     g.Build_ES_Phenotype(net, subst, params);
-    
-    int depth = 2;
+
+    int depth = 5;
     double error = 0;
     std::vector<double> inputs;
     inputs.resize(3);
-    
+
     net.Flush();
     inputs[0] = 1;
     inputs[1] = 0;
@@ -54,7 +54,7 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
     net.Input(inputs);
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += abs(net.Output()[0] - 1.0);
-    
+
     net.Flush();
     inputs[0] = 0;
     inputs[1] = 1;
@@ -62,7 +62,7 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
     net.Input(inputs);
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += abs(net.Output()[0] - 1.0);
-    
+
     net.Flush();
     inputs[0] = 0;
     inputs[1] = 0;
@@ -70,7 +70,7 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
     net.Input(inputs);
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += abs(net.Output()[0] - 0.0);
-    
+
     net.Flush();
     inputs[0] = 1;
     inputs[1] = 1;
@@ -78,11 +78,11 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
     net.Input(inputs);
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += abs(net.Output()[0] - 0.0);
-    
+
     //std::vector<double> f;
     //f.push_back((4.0 - error)*(4.0 - error));
     //f.push_back(g.Length);
-    
+
     return (4.0 - error)*(4.0 - error);
 
 }
@@ -90,7 +90,7 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
 int main()
 {
     Parameters params;
-    params.PopulationSize = 50;
+    params.PopulationSize = 2;
 
     params.DynamicCompatibility = true;
     params.CompatTreshold = 2.0;
@@ -131,11 +131,11 @@ int main()
     params.ActivationFunction_UnsignedSine_Prob = 0.0;
     params.ActivationFunction_Linear_Prob = 1.0;
 
-    params.DivisionThreshold = 0.01;
-	params.VarianceThreshold = 0.01;
-	params.BandThreshold = 0.01;
-	params.InitialDepth = 3;
-	params.MaxDepth = 4;
+    params.DivisionThreshold = 0.5;
+	params.VarianceThreshold = 0.03;
+	params.BandThreshold = 0.3;
+	params.InitialDepth = 2;
+	params.MaxDepth = 3;
 	params.IterationLevel = 1;
 	params.Leo = false;
 	params.GeometrySeed = false;
@@ -192,7 +192,7 @@ int main()
     outputs.push_back(p);
 
     Substrate substrate(inputs, hidden, outputs);
-    
+
     substrate.m_allow_input_hidden_links = false;
     substrate.m_allow_input_output_links = false;
     substrate.m_allow_hidden_hidden_links = false;
@@ -218,7 +218,7 @@ int main()
     //NSGA
     Population pop(s, params, true, 1.0);
 
-    for(int k=0; k<50; k++)
+    for(int k=0; k<5000; k++)
     {
         //std::vector<double> bestf(2,-999999);
         double bestf = -999999;
@@ -229,7 +229,7 @@ int main()
                 double f = xortest(pop.m_Species[i].m_Individuals[j], substrate, params);
                 pop.m_Species[i].m_Individuals[j].SetFitness(f);
                 pop.m_Species[i].m_Individuals[j].SetEvaluated();
-                
+
                 if (f > bestf)
                 {
                     bestf = f;
@@ -242,15 +242,15 @@ int main()
             std::vector<double> f = xortest(pop.m_Genomes[i], substrate, params);
                 pop.m_Genomes[i].SetMultiFitness(f);
                 pop.m_Genomes[i].SetEvaluated();
-                
+
                 if (f > bestf)
                 {
                     bestf = f;
                 }
         }*/
-        
 
-        
+
+
         //printf("Generation: %d, best fitness: %3.5f\n", k, bestf[0]);
          printf("Generation: %d, best fitness: %3.5f\n", k, bestf);
         pop.Epoch();

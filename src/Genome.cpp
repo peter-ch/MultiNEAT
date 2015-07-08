@@ -2760,12 +2760,23 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     ASSERT(subst.m_input_coords.size() > 0);
     ASSERT(subst.m_output_coords.size() > 0);
 
+    unsigned int input_count = subst.m_input_coords.size();
+    unsigned int output_count = subst.m_output_coords.size();
+    unsigned int hidden_index = input_count + output_count;
+    unsigned int counter = 0;
+    unsigned int source_index = 0;
+    unsigned int target_index = 0;
+    unsigned int hidden_counter = 0;
+    unsigned int maxNodes = std::pow(4, params.MaxDepth);
 
-    int maxNodes = std::pow(4, params.MaxDepth);
+    std::vector<TempConnection> TempConnections;
+    TempConnections.reserve(maxNodes + 1);
 
-    // Build the cppn
-    NeuralNetwork t_temp_phenotype(true);
-    BuildPhenotype(t_temp_phenotype);
+    net.m_neurons.reserve(maxNodes);
+    net.m_connections.reserve((maxNodes*(maxNodes -1))/2);
+
+    std::vector<double> point;
+    point.reserve(3);
 
     boost::unordered_map< std::vector<double>, int > hidden_nodes;
     hidden_nodes.reserve(maxNodes);
@@ -2776,51 +2787,31 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     boost::unordered_map< std::vector<double>, int > unexplored_nodes;
     unexplored_nodes.reserve(maxNodes);
 
-    std::vector<TempConnection> TempConnections;
-    TempConnections.reserve(maxNodes + 1);
-
-    net.m_neurons.reserve(maxNodes);
-    net.m_connections.reserve((maxNodes*(maxNodes -1))/2);
-
-    unsigned int input_count, output_count, hidden_index,counter;
-    unsigned int source_index = 0;
-    unsigned int target_index = 0;
-    unsigned int hidden_counter = 0;
-
-
-    std::vector<double> point;
-    point.reserve(3);
-
-    //boost::shared_ptr<QuadPoint> root;
-
-    input_count = subst.m_input_coords.size();
-    output_count = subst.m_output_coords.size();
-    hidden_index = input_count + output_count;
-
     net.SetInputOutputDimentions(static_cast<unsigned short>(input_count),
                                  static_cast<unsigned short>(output_count));
 
-    counter = 0;
-   
+    boost::shared_ptr<QuadPoint> root;
+
+    NeuralNetwork t_temp_phenotype(true);
+    BuildPhenotype(t_temp_phenotype);
+
     // Find Inputs to Hidden connections.
     for(unsigned int i = 0; i < input_count; i++)
-        {
-
-            // Get the Quadtree and express the connections in it for this input
-            boost::shared_ptr<QuadPoint> root(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
+        {   // Get the Quadtree and express the connections in it for this input
+            root = boost::shared_ptr<QuadPoint>(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
             DivideInitialize(root, subst.m_input_coords[i], t_temp_phenotype,  params, true, 0.0);
-         
             TempConnections.clear();
             PruneExpress( subst.m_input_coords[i], root, t_temp_phenotype, params, TempConnections, true);
+            root.reset();    // release root
 
-            // See which connections are worth keeping.
             for(unsigned int j = 0; j < TempConnections.size(); j++)
-                {
+                {   if (std::abs(TempConnections[j].weight*subst.m_max_weight_and_bias) < subst.m_link_threshold)
+                          continue;
+
                     // Find the hidden node in the hidden nodes. If it is not there add it.
                     if ( hidden_nodes.find(TempConnections[j].target) == hidden_nodes.end())
                         {
                             target_index = hidden_counter++;
-                            //hidden_counter++;
                             hidden_nodes.insert(std::make_pair(TempConnections[j].target, target_index));
                         }
                     // Add connection
@@ -2832,41 +2823,37 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                     Connection tc;
                     tc.m_source_neuron_idx = i;
                     tc.m_target_neuron_idx = target_index + hidden_index ;
-                    tc.m_weight = TempConnections[j].weight;
+                    tc.m_weight = TempConnections[j].weight*subst.m_max_weight_and_bias;
                     tc.m_recur_flag = false;
 
                     net.m_connections.push_back(tc);
                     counter++;
                 }
         }
-  
-    
     // Hidden to hidden.
     // Basically the same procedure as above repeated IterationLevel times (see the params)
     unexplored_nodes = hidden_nodes;
     for (unsigned int i = 0; i < params.IterationLevel; i++)
         {
-
             boost::unordered_map< std::vector<double>, int >::iterator itr_hid;
             for(itr_hid = unexplored_nodes.begin(); itr_hid != unexplored_nodes.end(); itr_hid++)
                 {
-                    boost::shared_ptr<QuadPoint> root(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
-                    //boost::shared_ptr<QuadPoint> root = 
+                    root = boost::shared_ptr<QuadPoint>(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
                     DivideInitialize(root, itr_hid -> first, t_temp_phenotype, params, true, 0.0);
                     TempConnections.clear();
                     PruneExpress(itr_hid -> first , root, t_temp_phenotype, params, TempConnections, true);
+                    root.reset();
 
                     for (unsigned int k = 0; k < TempConnections.size(); k++)
-                        {
+                        {  if (std::abs(TempConnections[k].weight*subst.m_max_weight_and_bias) < subst.m_link_threshold)
+                                  continue;
 
-                            if (hidden_nodes.find(TempConnections[k].target) == hidden_nodes.end())
+                           if (hidden_nodes.find(TempConnections[k].target) == hidden_nodes.end())
                                 {
                                     target_index = hidden_counter++;
-                                    //hidden_counter++;
                                     hidden_nodes.insert(std::make_pair(TempConnections[k].target, target_index));
                                 }
-
-                            else
+                            else // TODO: This can be skipped if building a feed forwad network.
                                 {
                                     target_index= hidden_nodes.find(TempConnections[k].target) -> second;
                                 }
@@ -2874,15 +2861,13 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                             Connection tc;
                             tc.m_source_neuron_idx = itr_hid->second + hidden_index;  // NO!!!
                             tc.m_target_neuron_idx = target_index + hidden_index;
-                            tc.m_weight = TempConnections[k].weight;
+                            tc.m_weight = TempConnections[k].weight*subst.m_max_weight_and_bias;
                             tc.m_recur_flag = false;
 
                             net.m_connections.push_back(tc);
                             counter++;
                         }
-
                 }
-
             // Now get the newly discovered hidden nodes
             boost::unordered_map< std::vector<double>, int >::iterator itr1;
             for(itr1 = hidden_nodes.begin(); itr1 != hidden_nodes.end(); itr1++)
@@ -2895,30 +2880,28 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             unexplored_nodes = temp;
         }
 
-
     // Finally Output to Hidden. Note that unlike before, here we connect the outputs to
     // existing hidden nodes and no new nodes are added.
     for(unsigned int i = 0; i < output_count; i++)
         {
-            // Shameless reuse
-            boost::shared_ptr<QuadPoint> root(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
-            //boost::shared_ptr<QuadPoint> root = 
+            root = boost::shared_ptr<QuadPoint>(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
             DivideInitialize(root, subst.m_output_coords[i], t_temp_phenotype, params, false, 0.0);
             TempConnections.clear();
             PruneExpress(subst.m_output_coords[i], root, t_temp_phenotype, params, TempConnections, false);
 
             for(unsigned int j = 0; j < TempConnections.size(); j++)
                 {
+                  if (std::abs(TempConnections[j].weight*subst.m_max_weight_and_bias) < subst.m_link_threshold)
+                          continue;
 
-
-                    if (hidden_nodes.find(TempConnections[j].source) != hidden_nodes.end())
+                  if (hidden_nodes.find(TempConnections[j].source) != hidden_nodes.end())
                         {
                             source_index = hidden_nodes.find(TempConnections[j].source) -> second;
 
                             Connection tc;
                             tc.m_source_neuron_idx = source_index + hidden_index;
                             tc.m_target_neuron_idx = i + input_count;
-                            tc.m_weight = TempConnections[j].weight;
+                            tc.m_weight = TempConnections[j].weight*subst.m_max_weight_and_bias;
                             tc.m_recur_flag = false;
 
                             net.m_connections.push_back(tc);
@@ -2976,12 +2959,10 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     // Clean the generated network from dangling connections and we're good to go.
     // Easy as 1,2,4 ...
     Clean_Net(net.m_connections, input_count, output_count, hidden_nodes.size());
-    //net.m_connections = connections;
-    //Length = net.GetTotalConnectionLength();
 }
 
 // Used to determine the placement of hidden neurons in the Evolvable Substrate.
-//boost::shared_ptr<Genome::QuadPoint> 
+//boost::shared_ptr<Genome::QuadPoint>
 void Genome::DivideInitialize(boost::shared_ptr<QuadPoint>& root, const std::vector<double>& node, NeuralNetwork& cppn, Parameters& params, const bool& outgoing, const double& z_coord)
 {   // Have to check if this actually does something useful here
     CalculateDepth();
@@ -2992,31 +2973,28 @@ void Genome::DivideInitialize(boost::shared_ptr<QuadPoint>& root, const std::vec
     // Standard Tree stuff. Create children, check their output with the cppn
     // and if they have higher variance add them to their parent. Repeat with the children
     // until maxDepth has been reached or if the variance isn't high enough.
-   
-    
+   boost::shared_ptr<QuadPoint> p;
+
     std::queue<boost::shared_ptr<QuadPoint> > q;
     q.push(root);
     while (!q.empty())
-        {   
-            //p = q.front();
-            boost::shared_ptr<QuadPoint> p(q.front());
+        {
+            p = q.front();
             // Add children
             p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - p -> width/2, p -> y - p -> height/2 , p -> width/2, p -> height/2, p -> level + 1)));
             p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x - p -> width/2, p -> y + p ->height/2 , p -> width/2, p -> height/2, p -> level + 1)));
             p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + p -> width/2, p -> y + p ->height/2 , p -> width/2, p -> height/2, p -> level + 1)));
             p -> children.push_back(boost::shared_ptr<QuadPoint>(new QuadPoint(p -> x + p -> width/2, p -> y - p ->height/2 , p -> width/2, p -> height/2, p -> level + 1)));
-            
-            
+
             for(unsigned int i = 0; i < p-> children.size(); i++)
-                {    
-    
+                {
                     t_inputs.clear();
 
                     if (outgoing)
                         {
                             //node goes here
                             t_inputs = node;
-                   
+
                             t_inputs.push_back(p -> children[i] -> x);
                             t_inputs.push_back(p -> children[i] -> y);
                             t_inputs.push_back(p -> children[i] -> z);
@@ -3037,39 +3015,37 @@ void Genome::DivideInitialize(boost::shared_ptr<QuadPoint>& root, const std::vec
                     t_inputs.push_back(params.CPPN_Bias);
                     cppn.Flush();
                     cppn.Input(t_inputs);
-                    
 
                     for(int d=0; d<cppn_depth; d++)
-                        {   
+                        {
                             cppn.Activate();
                         }
                     p -> children[i] -> weight = cppn.Output()[0];
                     if (params.Leo)
                         p -> children[i] -> leo = cppn.Output()[cppn.Output().size() - 1];
                     cppn.Flush();
-                      
-                   
+
                 }
-                
-            if ((p->level < params.InitialDepth) || ((p->level < params.MaxDepth) && Variance(p, params.MaxDepth) > params.DivisionThreshold))
+
+            if ((p->level < params.InitialDepth) || ((p->level < params.MaxDepth) && Variance(p) > params.DivisionThreshold))
                 {   for (unsigned int i = 0; i < 4; i++)
                         {
                             q.push( p->children[i]);
                         }
                 }
-          q.pop();   
-	  
+          q.pop();
+
 	}
-  
+
 
     return;//r;
-  
+
 
 }
 
 // We take the tree generated above and see which connections can be expressed on the basis of Variance threshold, Band threshold and LEO.
 void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<QuadPoint> &root, NeuralNetwork& cppn, Parameters& params, std::vector<Genome::TempConnection>& connections, const bool& outgoing)
-{   
+{
     if(root -> children[0] == NULL)
         {
             return;
@@ -3078,8 +3054,8 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
     else
         {
             for (unsigned int i = 0; i < 4; i++)
-                {  // cout << Variance(root -> children[i], params.MaxDepth)
-                    if (Variance(root -> children[i], params.MaxDepth) >= params.VarianceThreshold)
+                {
+                    if (Variance(root -> children[i]) > params.VarianceThreshold)
                         {
                             PruneExpress(node, root -> children[i], cppn, params, connections, outgoing);
                         }
@@ -3155,7 +3131,6 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
 
                             d_top = std::abs (root -> children[i] -> weight - cppn.Output()[0]);
                             cppn.Flush();
-
                             // Bottom
                             inputs[root_index+1] += 2*root -> width;
                             cppn.Input(inputs);
@@ -3168,11 +3143,9 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
                             d_bottom = std::abs (root -> children[i] -> weight - cppn.Output()[0]);
                             cppn.Flush();
 
-
                             if (std::max(std::min(d_top, d_bottom), std::min(d_left, d_right)) > params.BandThreshold)
                                 {
-                                    Genome::TempConnection tc;
-
+                                  Genome::TempConnection tc;
                                     //Yeah its ugly
                                     if (outgoing)
                                         {
@@ -3191,21 +3164,19 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
 
                                             tc.target = node;
                                         }
-                                    // Normalize between -3 and 3.
+                                    // Normalize
                                     // TODO: Put in Parameters
-
-                                    tc.weight = root -> children[i] -> weight * 3;
+                                    tc.weight = root -> children[i] -> weight;
                                     connections.push_back(tc);
                                 }
                         }
                 }
         }
-    
     return;
 }
 // Calculates the variance of a given Quadpoint.
 // Maybe an alternative solution would be to add this in the Quadpoint const.
-double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
+double Genome::Variance(boost::shared_ptr<QuadPoint> &point)
 {
     if (point -> children.size()  == 0)
         {
@@ -3213,7 +3184,11 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
         }
 
     boost::accumulators::accumulator_set<double,  boost::accumulators::stats< boost::accumulators::tag::variance> > acc;
-
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        acc(point -> children[i] -> weight);
+    }
+    /*
     std::queue<boost::shared_ptr<QuadPoint> > q;
     q.push(point);
     while(!q.empty())
@@ -3226,7 +3201,7 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
                     for (unsigned int i =0; i < c -> children.size(); i++)
                         {   //error is here
 			  cout << "pushed" << endl;
-			  
+
 			   q.push(c -> children[i]);
 			   cout << "yep" << endl;
                         }
@@ -3234,10 +3209,10 @@ double Genome::Variance(boost::shared_ptr<QuadPoint> &point, int maxDepth)
             else
                 {
                     acc(c -> weight);
-     
+
                 }
-        }
-   
+        }*/
+
     return boost::accumulators::variance(acc);
 }
 // Helper method for Variance
@@ -3259,7 +3234,7 @@ void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoin
 
     else
         {  // Here, Apparently it treats the point a if it is not initialized
-	    vals.push_back(point-> weight); 
+	    vals.push_back(point-> weight);
 	}
    }
 /*
@@ -3361,4 +3336,3 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
 }
 
 } // namespace NEAT
-

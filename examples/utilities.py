@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-#import cv2
+import cv2
 import MultiNEAT as NEAT
 import csv
 params = NEAT.Parameters()

@@ -54,7 +54,7 @@ params.Leo = True
 params.GeometrySeed = True
 params.LeoSeed = True
 params.LeoThreshold = 0.3
-params.CPPN_Bias = -1.0
+params.CPPN_Bias = -3.0
 params.Qtree_X = 0.0
 params.Qtree_Y = 0.0
 params.Width = 1.
@@ -95,7 +95,7 @@ def evaluate_xor(genome):
 
         genome.Build_ES_Phenotype(net, substrate, params)
         error = 0
-        depth = 5
+        depth = 3
         correct = 0.0
 
         net.Flush()
@@ -139,7 +139,7 @@ def evaluate_xor(genome):
 
 
 def getbest(run, filename):
-    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_GAUSS, NEAT.ActivationFunction.SIGNED_SIGMOID,
+    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
@@ -147,6 +147,7 @@ def getbest(run, filename):
 
         print "---------------------------"
         print "Generation: ", generation
+
         genome_list = NEAT.GetGenomeList(pop)
         fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display = False)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
@@ -181,4 +182,3 @@ avg_gens = sum(gens) / len(gens)
 
 print 'All:', gens
 print 'Average:', avg_gens
-

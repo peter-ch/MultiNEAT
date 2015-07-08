@@ -153,12 +153,12 @@ public:
     void FlushCube(); // clears the sensitivity cube
 
     void Input(std::vector<double>& a_Inputs);
-    
+
 #ifdef USE_BOOST_PYTHON
 
     void Input_python_list(py::list& a_Inputs);
     void Input_numpy(py::numeric::array& a_Inputs);
-    
+
 #endif
 
     std::vector<double> Output();
@@ -208,9 +208,9 @@ public:
     {   //return m_connections.size(); //The alternative approach
        /* double total = 0;
         for (unsigned int i = 0; i < m_connections.size(); i++)
-        {   
+        {
             //std:: cout << GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx])<< std::endl;
-            
+
             total += std::pow(GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx]),2);
         }
         //std::cout <<  total << std::endl;
@@ -233,4 +233,3 @@ public:
 
 
 #endif
-

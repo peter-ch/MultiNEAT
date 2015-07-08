@@ -10,7 +10,7 @@ import numpy as np
 import MultiNEAT as NEAT
 import multiprocessing as mpc
 import os.path
-#import cv2
+import cv2
 import utilities
 import traceback
 import scipy.stats as ss
@@ -21,10 +21,6 @@ import time
 params = NEAT.Parameters()
 params.PopulationSize = 100
 params.DynamicCompatibility = True
-params.CompatTreshold = 0.2
-params.YoungAgeTreshold = 15
-params.SpeciesMaxStagnation = 30
-params.OldAgeTreshold = 35
 params.MinSpecies = 5
 params.MaxSpecies = 15
 params.RouletteWheelSelection = False
@@ -33,32 +29,32 @@ params.RecurrentProb = 0.0
 params.OverallMutationRate = 0.0
 params.MutateAddLinkProb = 0.03
 params.MutateAddNeuronProb = 0.01
-params.MutateWeightsProb = 0.94
-params.MaxWeight = 7.0
-params.CrossoverRate = 0.5
+params.MutateWeightsProb = 0.9
+params.MaxWeight = 5.0
+params.CrossoverRate = 0.25
 params.MutateWeightsSevereProb = 0.01
 params.TournamentSize = 2;
 
-# Probabilities for a particular activation function appearance
-params.ActivationFunction_SignedSigmoid_Prob = 0.16
+# Probabilities for a particular activation functiothinner waistn appearance
+params.ActivationFunction_SignedSigmoid_Prob = 1
 params.ActivationFunction_UnsignedSigmoid_Prob = 0.0
 params.ActivationFunction_Tanh_Prob = 0.0
 params.ActivationFunction_TanhCubic_Prob = 0.0
 params.ActivationFunction_SignedStep_Prob = 0.0
 params.ActivationFunction_UnsignedStep_Prob = 0.0
-params.ActivationFunction_SignedGauss_Prob = 0.16
+params.ActivationFunction_SignedGauss_Prob = 1
 params.ActivationFunction_UnsignedGauss_Prob = 0.0
-params.ActivationFunction_Abs_Prob = 0.16
-params.ActivationFunction_SignedSine_Prob = 0.16
+params.ActivationFunction_Abs_Prob = 1
+params.ActivationFunction_SignedSine_Prob = 1
 params.ActivationFunction_UnsignedSine_Prob = 0.0
-params.ActivationFunction_Linear_Prob = 0.16
+params.ActivationFunction_Linear_Prob = 1
 
 
-params.DivisionThreshold = 0.0
-params.VarianceThreshold = .0
-params.BandThreshold = 0.0
-params.InitialDepth = 3
-params.MaxDepth = 3
+params.DivisionThreshold = 0.5
+params.VarianceThreshold = .03
+params.BandThreshold = 0.03
+params.InitialDepth = 2
+params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
 params.LeoSeed = True
@@ -133,14 +129,14 @@ substrate.m_allow_input_output_links = False
 substrate.m_allow_hidden_output_links = True
 substrate.m_allow_hidden_hidden_links = True
 # when to output a link and max weight
-substrate.m_link_threshold = 0.03
-substrate.m_max_weight_and_bias = 5.0
+substrate.m_link_threshold = 0.2
+substrate.m_max_weight_and_bias = 8.0
 # when to output a link and max weight
 
 def evaluate_retina_and(genome):
     error = 0
     correct = 0.
-   
+
     try:
         net = NEAT.NeuralNetwork();
         start_time = time.time()
@@ -151,21 +147,21 @@ def evaluate_retina_and(genome):
         right = False
 
         for i in possible_inputs:
-            
+
             left = i[0:4] in left_patterns
             right = i[4:] in right_patterns
             inp = i[:]
             inp.append(-3)
-           
+
             net.Flush()
             net.Input(inp)
             [net.Activate() for _ in range(5)]
-           # net.ActivateFast()   
+           # net.ActivateFast()
             output = net.Output()
-         
+
             if (left and right):
                 error += abs(1.0 - output[0])
-         
+
                 if output[0] > 0.5: #and output[1] > 0):
                     correct +=1.
 
@@ -173,9 +169,9 @@ def evaluate_retina_and(genome):
                 error += abs(0.0 - output[0])
                 if output[0] < 0.5  and output[0] > 0.000000001:
                     correct +=1.
-                
+
         return [1000/(1+ error*error), correct/256.,net.GetTotalConnectionLength(), end_time ]
-        
+
     except Exception as ex:
         print "nn ",ex
         return (0.0, 0.0, 0.0, 0.0)
@@ -185,55 +181,48 @@ def evaluate_retina_and(genome):
 def evaluate_retina_or(genome):
     error = 0
     correct = 0.
-   
+
     try:
-        net = NEAT.NeuralNetwork()
+        net = NEAT.NeuralNetwork();
+        start_time = time.time()
         genome.Build_ES_Phenotype(net, substrate, params)
+        end_time = time.time() - start_time
         #genome.BuildHyperNEATPhenotype(net,substrate)
         left = False
         right = False
 
         for i in possible_inputs:
-            for j in possible_inputs:
 
-                left = i in left_patterns
-                right = j in right_patterns
+            left = i[0:4] in left_patterns
+            right = i[4:] in right_patterns
+            inp = i[:]
+            inp.append(-3)
 
-                inp = i[:]
-                inp.extend(j)
-                inp.append(-3)
-                #print "Here: ", inp
-            
-                net.Flush()
-                net.Input(inp)
-                [net.Activate() for _ in range(5)]
-                
-                output = net.Output()
-                output[0] = max(output[0], -1.0)
-                output[0] = min(output[0], 1.0)
+            net.Flush()
+            net.Input(inp)
+            [net.Activate() for _ in range(3)]
+            output = net.Output()
 
-                if (left or right):
-                    error += abs(1.0 - output[0])
-                   
-                    if output[0] > 0.5:
-                        correct +=1.
+            if (left or right):
+                error += abs(1.0 - output[0])
+                if output[0] > 0.5:
+                    correct +=1.
 
-                else:
-                    error += abs(output[0])
-                
-                    if output[0] < 0.5 and output[0] > 0.001:
-                        correct +=1.
+            else:
+                error += abs(0.0 - output[0])
+                if output[0] < 0.5  and output[0] > 0.000000001:
+                    correct +=1.
 
-        return [1000/(1+ error*error), correct/256., net.GetTotalConnectionLength() ]
-        
+        return [1000/(1+ error*error), correct/256.,net.GetTotalConnectionLength(), end_time ]
+
     except Exception as ex:
-       # print "nn ",ex
+        print "nn ",ex
         return (0.0, 0.0, 0.0, 0.0)
 
 def evaluate_retina_risi(genome):
     error = 0
     correct = 0.
-   
+
     try:
         net = NEAT.NeuralNetwork()
         genome.Build_ES_Phenotype(net, substrate, params)
@@ -242,35 +231,29 @@ def evaluate_retina_risi(genome):
         right = False
 
         for i in possible_inputs:
-            for j in possible_inputs:
 
-                left = i in left_patterns
-                right = j in right_patterns
+            left = i in left_patterns
+            right = j in right_patterns
 
-                inp = i[:]
-                inp.extend(j)
-                inp.append(-3)
-                
-                net.Flush()
-                net.Input(inp)
-                [net.Activate() for _ in range(5)]
-                
-                output = net.Output()
-                output[0] = max(output[0], -1.0)
-                output[0] = min(output[0], 1.0)
-                output[1] = max(output[1], -1.0)
-                output[1] = min(output[1], 1.0)
+            inp = i[:]
+            inp.extend(j)
+            inp.append(-3)
 
-                if (left and right):
-                    error += abs(1.0 - output[0])
-                    error += abs(1.0 - output[1])
+            net.Flush()
+            net.Input(inp)
+            [net.Activate() for _ in range(5)]
 
-                    if output[0] > 0.0 and output[1] > 0.0:
-                        correct +=1.
+            output = net.Output()
+            if (left and right):
+                error += abs(1.0 - output[0])
+                error += abs(1.0 - output[1])
+
+                if output[0] > 0.0 and output[1] > 0.0:
+                    correct +=1.
                 else: # if (left and not right):
                     error += abs(-1.0 - output[0])
                     error += abs(-1.0 - output[1])
-                
+
                 ''''
                 elif (left and not right):
                     error += abs(1.0 - output[0])
@@ -290,25 +273,24 @@ def evaluate_retina_risi(genome):
                     error += abs(-1.0 -output[1])
                     if output[0] < 0 and output[1] < 0):
                         correct +=1.
-                '''            
+                '''
 
         return [1000/(1+ error*error), correct/256.,net.GetTotalConnectionLength() ]
-        
+
     except Exception as ex:
        # print "nn ",ex
         return (0.0, 0.0, 0.0)
 
-def getbest(run, filename):
+def getbest(run, generations, filename):
     g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
     results = []
-    for generation in range(2000):
-        
+    for generation in range(generations):
+
         genome_list = NEAT.GetGenomeList(pop)
-        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_retina_and, display = False)
-        #fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_retina_and, display = False, cores= 4)
+        fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_retina_or, display = False, cores= 4)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
         [genome.SetPerformance(fitness[1]) for genome, fitness in zip(genome_list, fitnesses)]
         [genome.SetLength(fitness[2]) for genome, fitness in zip(genome_list, fitnesses)]
@@ -319,7 +301,6 @@ def getbest(run, filename):
         results.append([run,generation, best.GetFitness(), best.GetPerformance(),best.Length])
         '''
         net = NEAT.NeuralNetwork()
-        
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
@@ -341,24 +322,21 @@ def getbest(run, filename):
         print "Average connection count: ", cons
         print "Build time: ", time
         print "Max time ", max_time
-        
+
         generations = generation
         if generation %100 == 0:
-            
-            #utilities.dump_to_file(results, filename)
-            results = []
-            #best.Save("datadump/retina_11_and_%d_%d.gen" % (generation, run))
 
-        #if best > 15.0:
-         #   break
+
+            utilities.dump_to_file(results, filename)
+            results = []
+            best.Save("datadump/retina_or_release_%d_%d.gen" % ( generation, run))
+
         pop.Epoch()
-        
-        
         gc.collect()
-    return generations
+    return
 
 
 
 #runs = 5
-#for i in range(runs):
-getbest(2, "datadump/retina_11_and.csv")
+for i in range(2):
+    getbest(i+2, 2500, "datadump/retina_or_release.csv")
