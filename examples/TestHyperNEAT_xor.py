@@ -37,7 +37,7 @@ substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
 # when to output a link and max weight
-substrate.m_link_threshold = 0.2
+substrate.m_with_distance = True
 substrate.m_max_weight_and_bias = 8.0
 
 try:
@@ -47,8 +47,8 @@ except:
     sys.exit(1)
 
 # code
-cv2.namedWindow('CPPN', 0)
-cv2.namedWindow('NN', 0)
+#cv2.namedWindow('CPPN', 0)
+#cv2.namedWindow('NN', 0)
 
 def evaluate(genome):
     net = NEAT.NeuralNetwork()
@@ -140,8 +140,8 @@ def getbest(i):
                     0,
                     substrate.GetMinCPPNOutputs(),
                     False,
-                    NEAT.ActivationFunction.SIGNED_GAUSS,
-                    NEAT.ActivationFunction.SIGNED_GAUSS,
+                    NEAT.ActivationFunction.TANH,
+                    NEAT.ActivationFunction.TANH,
                     0,
                     params)
 

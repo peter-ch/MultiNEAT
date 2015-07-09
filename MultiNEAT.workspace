@@ -2,10 +2,10 @@
 <CodeLite_Workspace Name="MultiNEAT" Database="">
   <Project Name="MultiNEAT" Path="MultiNEAT.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="no">
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Project Name="MultiNEAT" ConfigName="Debug"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Release" Selected="yes">
+    <WorkspaceConfiguration Name="Release" Selected="no">
       <Project Name="MultiNEAT" ConfigName="Release"/>
     </WorkspaceConfiguration>
   </BuildMatrix>

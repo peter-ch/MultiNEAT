@@ -128,20 +128,23 @@ inline double af_sine_unsigned(double aX, double aFreq, double aShift)
     return (tY + 1.0) / 2.0;
 }
 
-inline double af_square_signed(double aX, double aHighPulseSize, double aLowPulseSize)
-{
-    return 0.0;    // TODO
-}
-inline double af_square_unsigned(double aX, double aHighPulseSize, double aLowPulseSize)
-{
-    return 0.0;    // TODO
-}
 
 inline double af_linear(double aX, double aShift)
 {
     return (aX + aShift);
 }
 
+
+inline double af_relu(double aX)
+{
+    return (aX > 0)?aX:0;
+}
+
+
+inline double af_softplus(double aX)
+{
+    return log(1 + exp(aX));
+}
 
 
 double unsigned_sigmoid_derivative(double x)
@@ -385,14 +388,14 @@ void NeuralNetwork::Activate()
         case UNSIGNED_SINE:
             y = af_sine_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
-        case SIGNED_SQUARE:
-            y = af_square_signed(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
-        case UNSIGNED_SQUARE:
-            y = af_square_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
         case LINEAR:
             y = af_linear(x, m_neurons[i].m_b);
+            break;
+        case RELU:
+            y = af_relu(x);
+            break;
+        case SOFTPLUS:
+            y = af_softplus(x);
             break;
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
@@ -464,14 +467,14 @@ void NeuralNetwork::ActivateUseInternalBias()
         case UNSIGNED_SINE:
             y = af_sine_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
-        case SIGNED_SQUARE:
-            y = af_square_signed(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
-        case UNSIGNED_SQUARE:
-            y = af_square_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
         case LINEAR:
             y = af_linear(x, m_neurons[i].m_b);
+            break;
+        case RELU:
+            y = af_relu(x);
+            break;
+        case SOFTPLUS:
+            y = af_softplus(x);
             break;
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
@@ -551,14 +554,14 @@ void NeuralNetwork::ActivateLeaky(double a_dtime)
         case UNSIGNED_SINE:
             y = af_sine_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
-        case SIGNED_SQUARE:
-            y = af_square_signed(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
-        case UNSIGNED_SQUARE:
-            y = af_square_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
         case LINEAR:
             y = af_linear(x, m_neurons[i].m_b);
+            break;
+        case RELU:
+            y = af_relu(x);
+            break;
+        case SOFTPLUS:
+            y = af_softplus(x);
             break;
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);

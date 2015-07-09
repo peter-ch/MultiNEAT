@@ -172,6 +172,8 @@ int main()
     substrate.m_hidden_nodes_activation = UNSIGNED_SIGMOID;
     substrate.m_output_nodes_activation = UNSIGNED_SIGMOID;
 
+    substrate.m_with_distance = true;
+
     substrate.m_max_weight_and_bias = 8.0;
 
     Genome s(0, substrate.GetMinCPPNInputs(), 0, substrate.GetMinCPPNOutputs(), false, TANH, TANH, 0, params);

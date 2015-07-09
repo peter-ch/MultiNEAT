@@ -294,6 +294,8 @@ public:
     double ActivationFunction_SignedSquare_Prob;
     double ActivationFunction_UnsignedSquare_Prob;
     double ActivationFunction_Linear_Prob;
+    double ActivationFunction_Relu_Prob;
+    double ActivationFunction_Softplus_Prob;
 
     // Probability for a baby's neuron time constant values to be mutated
     double MutateNeuronTimeConstantsProb;

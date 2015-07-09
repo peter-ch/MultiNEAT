@@ -73,9 +73,9 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
         .value("ABS", ABS)
         .value("SIGNED_SINE", SIGNED_SINE)
         .value("UNSIGNED_SINE", UNSIGNED_SINE)
-        .value("SIGNED_SQUARE", SIGNED_SQUARE)
-        .value("UNSIGNED_SQUARE", UNSIGNED_SQUARE)
         .value("LINEAR", LINEAR)
+        .value("RELU", RELU)
+        .value("SOFTPLUS", SOFTPLUS)
         ;
 
     enum_<SearchMode>("SearchMode")
@@ -209,7 +209,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, int, Parameters>())
-	    .def(init<unsigned int, unsigned int, unsigned int,
+	        .def(init<unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, Parameters>())
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)
@@ -260,14 +260,19 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 // Substrate class
 ///////////////////////////////////////////////////////////////////
 
+    void (Substrate::*SetCustomConnectivity_Py)(py::list) = &Substrate::SetCustomConnectivity;
+
     class_<Substrate>("Substrate", init<>())
             .def(init<list, list, list>())
             .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs)
             .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs)
             .def("PrintInfo", &Substrate::PrintInfo)
+            .def("SetCustomConnectivity", SetCustomConnectivity_Py)
+			.def("ClearCustomConnectivity", &Substrate::ClearCustomConnectivity)
 
             .def_readwrite("m_leaky", &Substrate::m_leaky)
             .def_readwrite("m_with_distance", &Substrate::m_with_distance)
+			.def_readwrite("m_custom_conn_obeys_flags", &Substrate::m_custom_conn_obeys_flags)
             .def_readwrite("m_hidden_nodes_activation", &Substrate::m_hidden_nodes_activation)
             .def_readwrite("m_output_nodes_activation", &Substrate::m_output_nodes_activation)
 
@@ -467,9 +472,17 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     class_< std::vector<float> >("FloatsList")
             .def(vector_indexing_suite< std::vector<float> >() )
             ;
+            
+    class_< std::vector< std::vector<float> > >("FloatsList2D")
+            .def(vector_indexing_suite< std::vector< std::vector<float> > >() )
+            ;
 
     class_< std::vector<int> >("IntsList")
             .def(vector_indexing_suite< std::vector<int> >() )
+            ;
+            
+    class_< std::vector< std::vector<int> > >("IntsList2D")
+            .def(vector_indexing_suite< std::vector< std::vector<int> > >() )
             ;
 
     // These are necessary to let us iterate through the vectors of species, genomes and genes

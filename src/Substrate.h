@@ -68,13 +68,21 @@ public:
     bool m_allow_output_output_links;
     bool m_allow_looped_hidden_links;
     bool m_allow_looped_output_links;
+    
+    // custom connectivity
+    // if this is not empty, the phenotype builder will use this
+    // to query all connections
+    // it's a list of [src_code, src_idx, dst_code, dst_idx]
+    // where code is NeuronType (int, the enum)
+    // and idx is the index in the m_input_coords, m_hidden_coords and m_output_coords respectively
+    std::vector< std::vector<int> > m_custom_connectivity;
+    bool m_custom_conn_obeys_flags; // if this is true, the flags restricting the topology above will still apply
 
     // the activation functions of hidden/output neurons
     ActivationFunction m_hidden_nodes_activation;
     ActivationFunction m_output_nodes_activation;
 
     // additional parameters
-    //double m_link_threshold; - obsolete parameter
     double m_max_weight_and_bias;
     double m_min_time_const;
     double m_max_time_const;
@@ -107,7 +115,20 @@ public:
     // Construct from 3 Python lists of tuples
     Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
     
+    // Same as the constructor, except it doesn't set any flags
+    void SetNeurons(py::list a_inputs, py::list a_hidden, py::list a_outputs);
+    
+    // Sets a custom connectivity scheme
+    // The neurons must be set before calling this 
+    void SetCustomConnectivity(py::list a_conns);
 #endif
+
+    // Sets a custom connectivity scheme
+    // The neurons must be set before calling this
+    void SetCustomConnectivity(std::vector< std::vector<int> >& a_conns);
+
+    // Clears it
+    void ClearCustomConnectivity();
 
     int GetMaxDims();
 
@@ -148,6 +169,9 @@ public:
         ar & m_max_weight_and_bias;
         ar & m_min_time_const;
         ar & m_max_time_const;
+
+        ar & m_custom_connectivity;
+        ar & m_custom_conn_obeys_flags;
     }
     
 #endif

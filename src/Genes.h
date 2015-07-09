@@ -80,9 +80,10 @@ enum ActivationFunction
     ABS,                  // Absolute value |x| (another symettry)
     SIGNED_SINE,          // Sine wave          (smooth repetition)
     UNSIGNED_SINE,
-    SIGNED_SQUARE,        // Square wave        (pulse repetition)
-    UNSIGNED_SQUARE,
-    LINEAR               // Linear f(x)=x      (combining coordinate frames only)
+    LINEAR,               // Linear f(x)=x      (combining coordinate frames only)
+
+    RELU,                 // Rectifiers
+    SOFTPLUS
 };
 
 
