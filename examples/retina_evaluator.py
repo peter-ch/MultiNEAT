@@ -53,7 +53,7 @@ params.ActivationFunction_Linear_Prob = 1
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = .03
 params.BandThreshold = 0.03
-params.InitialDepth = 2
+params.InitialDepth = 3
 params.MaxDepth = 4
 params.IterationLevel = 1
 params.Leo = True
@@ -129,7 +129,7 @@ substrate.m_allow_input_output_links = False
 substrate.m_allow_hidden_output_links = True
 substrate.m_allow_hidden_hidden_links = True
 # when to output a link and max weight
-substrate.m_link_threshold = 0.1
+substrate.m_link_threshold = 0.2
 substrate.m_max_weight_and_bias = 8.0
 # when to output a link and max weight
 
@@ -265,7 +265,7 @@ def evaluate_retina_risi(genome):
                 elif right:
                     error += abs(-1.0 - output[0])
                     error += abs(1.0 - output[1])
-
+100
                     if output[0] < 0.0 and output[1] > 0.0 ):
                         correct +=1.
                 else:
@@ -324,7 +324,7 @@ def getbest(run, generations, filename):
         print "Max time ", max_time
 
         generations = generation
-        if generation %100 == 0:
+        if generation % 200 == 0:
 
 
             utilities.dump_to_file(results, filename)
@@ -339,4 +339,4 @@ def getbest(run, generations, filename):
 
 #runs = 5
 for i in range(5):
-    getbest(i, 2500, "datadump/retina_or_release.csv")
+    getbest(i,5000, "datadump/retina_or_release.csv")
