@@ -62,10 +62,6 @@ inline double af_sigmoid_signed(double aX, double aSlope, double aShift)
     return (tY - 0.5) * 2.0;
 }
 
-inline double af_bipolar_sigmoid(double ax, double aSlope, double aShift)
-{    return  2/ (1 + exp(- aSlope * ax - aShift));
-}
-
 inline double af_tanh(double aX, double aSlope, double aShift)
 {
     return tanh(aX * aSlope);
@@ -397,9 +393,6 @@ void NeuralNetwork::Activate()
         case LINEAR:
             y = af_linear(x, m_neurons[i].m_b);
             break;
-        case BIPOLAR_SIGMOID:
-            y = af_bipolar_sigmoid(x, m_neurons[i].m_a, m_neurons[i].m_b);
-            break;
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
@@ -479,9 +472,6 @@ void NeuralNetwork::ActivateUseInternalBias()
             break;
         case LINEAR:
             y = af_linear(x, m_neurons[i].m_b);
-            break;
-            case BIPOLAR_SIGMOID:
-            y = af_bipolar_sigmoid(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
@@ -569,9 +559,6 @@ void NeuralNetwork::ActivateLeaky(double a_dtime)
             break;
         case LINEAR:
             y = af_linear(x, m_neurons[i].m_b);
-            break;
-        case BIPOLAR_SIGMOID:
-            y = af_bipolar_sigmoid(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);

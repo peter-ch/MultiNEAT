@@ -155,9 +155,7 @@ public:
 
     // comparison operator (nessesary for boost::python)
     // todo: implement a better comparison technique
-    bool operator==(Genome const& other) const {
-        return m_ID == other.m_ID;
-    }
+    bool operator==(Genome const& other) const { return m_ID == other.m_ID; }
 
     // Builds this genome from a file
     Genome(const char* a_filename);
@@ -183,12 +181,12 @@ public:
     // Alternative constructor for dealing with LEO, Gaussian seed etc.
     // empty means only bias is connected to outputs
     Genome(unsigned int a_ID,
-           unsigned int a_NumInputs,
-           unsigned int a_NumOutputs,
-           bool empty,
-           ActivationFunction a_OutputActType,
-           ActivationFunction a_HiddenActType,
-           const Parameters& a_Parameters);
+               unsigned int a_NumInputs,
+               unsigned int a_NumOutputs,
+               bool empty,
+               ActivationFunction a_OutputActType,
+               ActivationFunction a_HiddenActType,
+               const Parameters& a_Parameters);
     ////////////////////////////
     // Destructor
     ////////////////////////////
@@ -196,7 +194,7 @@ public:
     {
         Performance = perf;
     }
-    void SetLength(double len) {
+    void SetLength(double len){
         Length = len;
     }
     double GetPerformance()
@@ -247,18 +245,10 @@ public:
     // A little helper function to find the index of a link, given its innovation ID
     int GetLinkIndex(unsigned int a_innovid) const;
 
-    unsigned int NumNeurons() const {
-        return static_cast<unsigned int>(m_NeuronGenes.size());
-    }
-    unsigned int NumLinks() const {
-        return static_cast<unsigned int>(m_LinkGenes.size());
-    }
-    unsigned int NumInputs() const {
-        return m_NumInputs;
-    }
-    unsigned int NumOutputs() const {
-        return m_NumOutputs;
-    }
+    unsigned int NumNeurons() const { return static_cast<unsigned int>(m_NeuronGenes.size()); }
+    unsigned int NumLinks() const { return static_cast<unsigned int>(m_LinkGenes.size()); }
+    unsigned int NumInputs() const { return m_NumInputs; }
+    unsigned int NumOutputs() const { return m_NumOutputs; }
 
     void SetNeuronXY(unsigned int a_idx, int a_x, int a_y)
     {
@@ -278,42 +268,22 @@ public:
     }
 
 
-    double GetFitness() const {
-        return m_Fitness;
-    }
-    double GetAdjFitness() const {
-        return m_AdjustedFitness;
-    }
-    void SetFitness(double a_f) {
-        m_Fitness = a_f;
-    }
-    void SetAdjFitness(double a_af) {
-        m_AdjustedFitness = a_af;
-    }
+    double GetFitness() const { return m_Fitness; }
+    double GetAdjFitness() const { return m_AdjustedFitness; }
+    void SetFitness(double a_f) { m_Fitness = a_f; }
+    void SetAdjFitness(double a_af) { m_AdjustedFitness = a_af; }
 
-    unsigned int GetID() const {
-        return m_ID;
-    }
-    void SetID(int a_id) {
-        m_ID = a_id;
-    }
+    unsigned int GetID() const { return m_ID; }
+    void SetID(int a_id) { m_ID = a_id; }
 
-    unsigned int GetDepth() const {
-        return m_Depth;
-    }
-    void SetDepth(int a_d) {
-        m_Depth = a_d;
-    }
+    unsigned int GetDepth() const { return m_Depth; }
+    void SetDepth(int a_d) { m_Depth = a_d; }
 
     // Returns true if there is any dead end in the network
     bool HasDeadEnds() const;
 
-    double GetOffspringAmount() const {
-        return m_OffspringAmount;
-    }
-    void SetOffspringAmount(double a_oa) {
-        m_OffspringAmount = a_oa;
-    }
+    double GetOffspringAmount() const { return m_OffspringAmount; }
+    void SetOffspringAmount(double a_oa) { m_OffspringAmount = a_oa; }
 
     // This builds a fastnetwork structure out from the genome
     void BuildPhenotype(NeuralNetwork& net) const;
@@ -437,15 +407,9 @@ public:
     ////////////////////
     // new stuff
 
-    bool IsEvaluated() const {
-        return m_Evaluated;
-    }
-    void SetEvaluated() {
-        m_Evaluated = true;
-    }
-    void ResetEvaluated() {
-        m_Evaluated = false;
-    }
+    bool IsEvaluated() const { return m_Evaluated; }
+    void SetEvaluated() { m_Evaluated = true; }
+    void ResetEvaluated() { m_Evaluated = false; }
 
 
 /////////////////////////////////////////////
@@ -453,116 +417,116 @@ public:
 ////////////////////////////////////////////
 
 // A connection between two points. Stores weight and the coordinates of the points
-    struct TempConnection
+struct TempConnection
+{
+    std::vector<double> source;
+    std::vector<double> target;
+    double weight;
+
+    TempConnection()
     {
-        std::vector<double> source;
-        std::vector<double> target;
-        double weight;
+        source.reserve(3);
+        target.reserve(3);
+    }
 
-        TempConnection()
-        {
-            source.reserve(3);
-            target.reserve(3);
-        }
+    TempConnection( std::vector<double> t_source, std::vector<double> t_target,
+        double t_weight)
+    {
+        source = t_source;
+        target = t_target;
+        weight = t_weight;
+        source.reserve(3);
+        target.reserve(3);
 
-        TempConnection( std::vector<double> t_source, std::vector<double> t_target,
-                        double t_weight)
-        {
-            source = t_source;
-            target = t_target;
-            weight = t_weight;
-            source.reserve(3);
-            target.reserve(3);
+    }
 
-        }
+    ~TempConnection(){};
 
-        ~TempConnection() {};
+    bool operator==(const TempConnection& rhs) const
+    {   return (source == rhs.source && target == rhs.target);
+    }
 
-        bool operator==(const TempConnection& rhs) const
-        {   return (source == rhs.source && target == rhs.target);
-        }
-
-        bool operator!=(const TempConnection& rhs) const
-        {   return (source != rhs.source && target != rhs.target);
-        }
-    };
+    bool operator!=(const TempConnection& rhs) const
+    {   return (source != rhs.source && target != rhs.target);
+    }
+};
 
 // A quadpoint in the HyperCube.
-    struct QuadPoint
+struct QuadPoint
+{
+    double x;
+    double y;
+    double z;
+    double width;
+    double weight;
+    double height;
+    double variance;
+    unsigned int level;
+    // Do I use this?
+    double leo;
+
+
+    std::vector<boost::shared_ptr<QuadPoint> > children;
+
+    QuadPoint()
     {
-        double x;
-        double y;
-        double z;
-        double width;
-        double weight;
-        double height;
-        double variance;
-        unsigned int level;
-        // Do I use this?
-        double leo;
+        children.reserve(4);
+    }
 
+    QuadPoint(double t_x, double t_y, double t_width, double t_height, int t_level)
+    {   x = t_x;
+        y = t_y;
+        z = 0.0;
+        width = t_width;
+        height = t_height;
+        level = t_level;
+        weight = 0.0;
+        leo = 0.0;
+        variance = 0.0;
+        children.reserve(4);
+	children.clear();
+    }
+    // Mind the Z
+    QuadPoint(double t_x, double t_y, double t_z, double t_width, double t_height,
+        int t_level)
+    {
+        x = t_x;
+        y = t_y;
+        z = t_z;
+        width = t_width;
+        height = t_height;
+        level = t_level;
+        weight = 0.0;
+        variance = 0.0;
+        leo = 0.0;
+        children.reserve(4);
+	children.clear();
+    }
 
-        std::vector<boost::shared_ptr<QuadPoint> > children;
-
-        QuadPoint()
-        {
-            children.reserve(4);
-        }
-
-        QuadPoint(double t_x, double t_y, double t_width, double t_height, int t_level)
-        {   x = t_x;
-            y = t_y;
-            z = 0.0;
-            width = t_width;
-            height = t_height;
-            level = t_level;
-            weight = 0.0;
-            leo = 0.0;
-            variance = 0.0;
-            children.reserve(4);
-            children.clear();
-        }
-        // Mind the Z
-        QuadPoint(double t_x, double t_y, double t_z, double t_width, double t_height,
-                  int t_level)
-        {
-            x = t_x;
-            y = t_y;
-            z = t_z;
-            width = t_width;
-            height = t_height;
-            level = t_level;
-            weight = 0.0;
-            variance = 0.0;
-            leo = 0.0;
-            children.reserve(4);
-            children.clear();
-        }
-
-        ~QuadPoint()
-        {
-        };
+    ~QuadPoint()
+    {
     };
-    void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
-                            Parameters& params);
+};
+void Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst,
+    Parameters& params);
 
-    void DivideInitialize(
-        const std::vector<double>& node,boost::shared_ptr<QuadPoint>& root, NeuralNetwork& cppn, Parameters& params,
-        const bool& outgoing, const double& z_coord);
+void DivideInitialize(
+    const std::vector<double>& node,boost::shared_ptr<QuadPoint>& root, NeuralNetwork& cppn, Parameters& params,
+    const bool& outgoing, const double& z_coord);
 
-    void PruneExpress(const std::vector<double>& node,
-                      boost::shared_ptr<QuadPoint>& root, NeuralNetwork& cppn,
-                      Parameters& params, std::vector<Genome::TempConnection>& connections,
-                      const bool& outgoing);
+void PruneExpress(const std::vector<double>& node,
+    boost::shared_ptr<QuadPoint>& root, NeuralNetwork& cppn,
+    Parameters& params, std::vector<Genome::TempConnection>& connections,
+    const bool& outgoing);
 
-    void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point);
+void CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoint>& point);
 
-    double Variance( boost::shared_ptr<QuadPoint> &point);
+double Variance( boost::shared_ptr<QuadPoint> &point);
 
-    void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
-                    unsigned int output_count, unsigned int hidden_count);
+void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
+        unsigned int output_count, unsigned int hidden_count);
 
-    py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
+py::list GetPoints(py::tuple& node,Parameters& params, bool outgoing);
 
 #ifdef USE_BOOST_PYTHON
 

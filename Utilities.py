@@ -3,31 +3,8 @@ import numpy as np
 import cv2
 import MultiNEAT as NEAT
 import csv
-params = NEAT.Parameters()
 
-# Probabilities for a particular activation function appearance
-
-params.DivisionThreshold = 0.5
-params.VarianceThreshold = .03
-params.BandThreshold = 0.3
-params.InitialDepth = 5
-params.MaxDepth = 5
-params.IterationLevel = 1
-params.Leo = True
-params.LeoSeed = True
-params.GeometrySeed = True
-params.LeoThreshold = 0.1
-params.CPPN_Bias = -1.0
-params.Qtree_X = 0.0
-params.Qtree_Y = 0.5
-params.Width = 1.0
-params.Height = .5
-
-
-params.Elitism = 0.1
-rng = NEAT.RNG()
-rng.TimeSeed()
-
+# Saves data (in the form of a list) to a file.
 def dump_to_file(data, filename):
     with open(filename,"a") as output:
         writer = csv.writer(output, lineterminator='\n')
@@ -35,6 +12,7 @@ def dump_to_file(data, filename):
             writer.writerow(val)
     return
 
+#Helper method for plotting a neural network with matplotlib
 def get_neuron_indices(connections):
     indices = []
     for connection in connections:
@@ -44,24 +22,22 @@ def get_neuron_indices(connections):
             indices.append(connection.target_neuron_idx)
     return indices
 
+#Saves a picture of the Neural Network
+def plot_nn(genome,substrate, params , ax, filename = "Network.png"):
 
-def plot_nn(genome,substrate, params , ax):
-    
     nn = NEAT.NeuralNetwork()
     genome.Build_ES_Phenotype(nn, substrate, params)
     indices = get_neuron_indices(nn.connections)
-    
+
     for connection in nn.connections:
         print len(nn.connections)
         n1 = nn.neurons[connection.source_neuron_idx].substrate_coords
         n2 = nn.neurons[connection.target_neuron_idx].substrate_coords
 
-        
-        
         offsetx =  n2[0] - n1[0]
 
         offsety = n2[1] - n1[1]
-                
+
         if connection.weight < 0.0:
             ax.arrow(n1[0], n1[1], offsetx, offsety, head_width=0.04,
                 head_length=0.05, fc='red', ec='red', length_includes_head=True)
@@ -77,8 +53,10 @@ def plot_nn(genome,substrate, params , ax):
             ax.add_patch(plt.Circle((n[0], n[1]), 0.03, fc='red'))
         else:
             ax.add_patch(plt.Circle((n[0], n[1]), 0.03, fc='green'))
-    return
 
+    savefig(filename, bbox_inches='tight')
+    return
+#shows the pattern drawn by a cppn.
 def plot_cppn_pattern(node, net,depth,  ax, leo = False):
     pattern = []
     i = 0
@@ -93,13 +71,12 @@ def plot_cppn_pattern(node, net,depth,  ax, leo = False):
             net.Input(inp)
             [ net.Activate() for _ in range(depth)]
             pattern[i].append(net.Output()[o])
-           
+
         i += 1
 
     cm = ax.contourf(pattern, 200, cmap='gray',
                      origin='lower',extent=[-1.2, 1.2, -1.2, 1.2])
-    #for point in points:
-    #    ax.add_patch(plt.Circle((point[0], point[1]), 0.04, fc='red'))
+
     return
 
 def get_points(node, genome, params, outgoing, ax, arrows = True):
@@ -125,7 +102,7 @@ def visualize(node, genome, substrate = None, params = None, save_to_file = Fals
     nn = NEAT.NeuralNetwork()
     genome.BuildPhenotype(nn)
     plot_cppn_pattern(node,nn, ax)
-    
+
     net = NEAT.NeuralNetwork()
     genome.Build_ES_Phenotype(net, substrate,params)
     plot_nn(net, ax)
@@ -133,6 +110,7 @@ def visualize(node, genome, substrate = None, params = None, save_to_file = Fals
         if filename == '':
             filename = "Visualization.png"
 
+# Taken from the corresponding methods in MultiNEAT.py
 def AlmostEqual(a, b, margin):
     if abs(a-b) > margin:
         return False
@@ -140,7 +118,7 @@ def AlmostEqual(a, b, margin):
         return True
 
 def draw_genome(genome, ax):
-    
+
     nn = NEAT.NeuralNetwork()
     genome.BuildPhenotype(nn)
     depth = 0
@@ -167,19 +145,19 @@ def draw_genome(genome, ax):
     # calculate y positions of nodes
     for neuron in nn.neurons:
         base_y = 1 + neuron.split_y
-            
+
         if neuron.split_y == 0.0:
-            neuron.y = base_y 
+            neuron.y = base_y
         else:
-            neuron.y = base_y 
+            neuron.y = base_y
     '''for connection in nn.connections:
-        n1 = nn.neurons[connection.source_neuron_idx] 
+        n1 = nn.neurons[connection.source_neuron_idx]
         n2 = nn.neurons[connection.target_neuron_idx]
-        
+
         offsetx =  n2.x - n1.x
 
         offsety = n2.y - n1.y
-                
+
         if connection.weight < 0.0:
             ax.arrow(n1.x, n1.y, offsetx, offsety, head_width=0.04,
                 head_length=0.05, fc='red', ec='red', length_includes_head=True)
@@ -192,19 +170,6 @@ def draw_genome(genome, ax):
     return
 
 
-################################################################
-substrate = NEAT.Substrate(
-        [(-1.0,0.0, 1.0),(-.33,0.0,1.0),(0.33,0.0,1.0),(1.0,0.0,1.0),
-        (-1.0,0.0,-1.0), (-0.33,0.0,-1.0),(0.33,0.0,-1.0),(1.0,0.0,-1.0),
-        (0.0,0.0,0.0)],
-        [],
-        [(-1.,1,0),(1,1,0)]
-        )
-
-'''
-substrate = NEAT.Substrate([(-1., -1., 0.0), (-1., 1., 0.0), (-1., 0., 0.0)],
-                           [],
-                           [(1., 0., 0.0)])'''
 def Scale(a, a_min, a_max, a_tr_min, a_tr_max):
     t_a_r = a_max - a_min
     if t_a_r == 0:
@@ -336,38 +301,3 @@ def DrawPhenotype(image, rect, nn, neuron_radius=5,
         for neuron in nn.neurons:
             pt = (int(neuron.x), int(neuron.y))
             cv2.circle(image, pt, neuron_radius, (255, 255, 255), -1)
-
-
-
-
-
-if __name__ == "__main__":
-
-    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
-          params)
-   #1 g = NEAT.Genome("Best_1000")
-    fig = plt.figure(figsize = (18,6))
-    ax = fig.add_subplot(1, 2, 1)
-    ax.set_title("CPPN Output")
-    ax.set_xlim(-1.2,1.2)
-    ax.set_ylim(-1.2, 1.2)
-    #node = (0.33,0.0,1.0)
-    node = (0.0, -1.0, 0.0)
-    #node = (-1, -1, -1.0)
-    #node = (-.33,0.0,1.0)
-    net = NEAT.NeuralNetwork()
-    g.BuildPhenotype(net)
-    g.CalculateDepth();
-    plot_cppn_pattern(node, net,g.GetDepth(), ax, leo = False)
-    get_points(node, g, params, True, ax, arrows = False)
-    #plot_nn(g,substrate,params, ax)
-       
-    ax = fig.add_subplot(1, 2, 2)
-    ax.set_title("LEO Output")
-    ax.set_xlim(-1.2,1.2)
-    ax.set_ylim(-1.2, 1.2)
-    plot_cppn_pattern(node, net,g.GetDepth(), ax, leo = True)
-    get_points(node, g, params, True, ax, arrows = False)
-    #plot_nn(g,substrate,params, ax)
-    plt.show()
-    #plot_nn(net)

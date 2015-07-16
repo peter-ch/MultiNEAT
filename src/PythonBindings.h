@@ -77,7 +77,6 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
         .value("SIGNED_SQUARE", SIGNED_SQUARE)
         .value("UNSIGNED_SQUARE", UNSIGNED_SQUARE)
         .value("LINEAR", LINEAR)
-        .value("BIPOLAR_SIGMOID", BIPOLAR_SIGMOID)
         ;
 
     enum_<SearchMode>("SearchMode")
@@ -221,12 +220,12 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             .def("Save", Genome_Save)
 
-	    .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
-	    //.def("GetPoints", &Genome::GetPoints)
-        .def("SetPerformance", &Genome::SetPerformance)
-        .def("GetPerformance", &Genome::GetPerformance)
-        .def("SetLength", &Genome::SetLength)
-        .def_readwrite("Length", &Genome::Length)
+	          .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
+	          .def("GetPoints", &Genome::GetPoints)
+            .def("SetPerformance", &Genome::SetPerformance)
+            .def("GetPerformance", &Genome::GetPerformance)
+            .def("SetLength", &Genome::SetLength)
+            .def_readwrite("Length", &Genome::Length)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -320,25 +319,6 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             ;
 
-///////////////////////////////////////////////////////////////////
-// NSGAPopulation class
-///////////////////////////////////////////////////////////////////
-/*
-    class_<NSGAPopulation>("NSGAPopulation", init<Genome, Parameters, bool, double>())
-            .def(init<char*>())
-            .def("Epoch", &NSGAPopulation::Epoch)
-            .def("Tick", &NSGAPopulation::Tick, return_value_policy<reference_existing_object>())
-            .def("InitPhenotypeBehaviorData", &NSGAPopulation::InitPhenotypeBehaviorData)
-            .def("Save", &NSGAPopulation::Save)
-            .def("GetBestFitnessEver", &NSGAPopulation::GetBestFitnessEver)
-            .def("GetBestGenome", &NSGAPopulation::GetBestGenome)
-            .def("GetStagnation", &NSGAPopulation::GetStagnation)
-            .def("NumGenomes", &NSGAPopulation::NumGenomes)
-            .def_readwrite("Genomes", &NSGAPopulation::m_Genomes)
-            .def_readwrite("Parameters", &NSGAPopulation::m_Parameters)
-
-            ;
-*/
 ///////////////////////////////////////////////////////////////////
 // Parameters class
 ///////////////////////////////////////////////////////////////////

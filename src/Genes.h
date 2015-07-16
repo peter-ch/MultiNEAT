@@ -82,8 +82,8 @@ enum ActivationFunction
     UNSIGNED_SINE,
     SIGNED_SQUARE,        // Square wave        (pulse repetition)
     UNSIGNED_SQUARE,
-    LINEAR,               // Linear f(x)=x      (combining coordinate frames only)
-    BIPOLAR_SIGMOID
+    LINEAR               // Linear f(x)=x      (combining coordinate frames only)
+
 };
 
 
@@ -115,7 +115,7 @@ private:
 
     // Is it recurrent?
     bool m_IsRecurrent;
-	
+
 public:
 
 #ifdef USE_BOOST_PYTHON
@@ -131,7 +131,7 @@ public:
         ar & m_IsRecurrent;
         ar & m_Weight;
     }
-    
+
 #endif
 
     double GetWeight() const

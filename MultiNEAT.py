@@ -3,7 +3,7 @@ from __future__ import print_function
 import multiprocessing as mpc
 import time
 from _MultiNEAT import *
-
+import utilities
 
 try:
     from progressbar import ProgressBar, Counter, ETA, AnimatedMarker

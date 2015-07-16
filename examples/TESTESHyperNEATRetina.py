@@ -11,10 +11,8 @@ import MultiNEAT as NEAT
 import multiprocessing as mpc
 import os.path
 import cv2
-import utilities
+import Utilities
 import traceback
-import scipy.stats as ss
-import gc
 import time
 # NEAT parameters
 
@@ -93,6 +91,7 @@ right_patterns = [
 ]
 possible_inputs = [list(x) for x in itertools.product([3, -3], repeat = 8)]
 print len(possible_inputs)
+# Substrate for Huzinga et al. (2014)
 #'''
 substrate = NEAT.Substrate(
         [(-1.0,-1.0, 1.0),(-.33,-1.0,1.0),(0.33,-1.0,1.0),(1.0,-1.0,1.0),
@@ -102,7 +101,8 @@ substrate = NEAT.Substrate(
         (-1.0,0.61,-1.0), (-0.33,0.61,-1.0),(0.33,0.61,-1.0),(1.0,0.61,-1.0)],
         [(0.0,1.0,0.0)] #(-1.,1,0),(1,1,0)]
         )
-#,(0.0,1.0,0.0)] #
+
+# Substrate for Risi & Stanley (2012)
 '''
 substrate = NEAT.Substrate(
         [(-1.0,-1.0, 1.0),(-1.,1.0, 1.0),(-0.33,-1,1.0),(-0.33,1,1.0),
@@ -133,6 +133,7 @@ substrate.m_link_threshold = 0.2
 substrate.m_max_weight_and_bias = 8.0
 # when to output a link and max weight
 
+# Use with single output
 def evaluate_retina_and(genome):
     error = 0
     correct = 0.
@@ -177,7 +178,7 @@ def evaluate_retina_and(genome):
         return (0.0, 0.0, 0.0, 0.0)
 
 
-
+#Use with single output
 def evaluate_retina_or(genome):
     error = 0
     correct = 0.
@@ -187,7 +188,6 @@ def evaluate_retina_or(genome):
         start_time = time.time()
         genome.Build_ES_Phenotype(net, substrate, params)
         end_time = time.time() - start_time
-        #genome.BuildHyperNEATPhenotype(net,substrate)
         left = False
         right = False
 
@@ -218,8 +218,8 @@ def evaluate_retina_or(genome):
     except Exception as ex:
         print "nn ",ex
         return (0.0, 0.0, 0.0, 0.0)
-
-def evaluate_retina_risi(genome):
+# Use with two outputs
+def evaluate_retina_double(genome):
     error = 0
     correct = 0.
 
@@ -250,30 +250,25 @@ def evaluate_retina_risi(genome):
 
                 if output[0] > 0.0 and output[1] > 0.0:
                     correct +=1.
-                else: # if (left and not right):
-                    error += abs(-1.0 - output[0])
-                    error += abs(-1.0 - output[1])
 
-                ''''
-                elif (left and not right):
-                    error += abs(1.0 - output[0])
-                    error += abs(-1.0 - output[1])
+            elif (left):
+                error += abs(1.0 - output[0])
+                error += abs(-1.0 - output[1])
 
-                    if output[0] > 0.0 and output[1] <= 0.0:
-                        correct +=1.
+                if output[0] > 0.0 and output[1] <= 0.0:
+                    correct +=1.
 
-                elif right:
-                    error += abs(-1.0 - output[0])
-                    error += abs(1.0 - output[1])
-100
-                    if output[0] < 0.0 and output[1] > 0.0 ):
-                        correct +=1.
-                else:
-                    error += abs(-1.0 - output[0])
-                    error += abs(-1.0 -output[1])
-                    if output[0] < 0 and output[1] < 0):
-                        correct +=1.
-                '''
+            elif right:
+                error += abs(-1.0 - output[0])
+                error += abs(1.0 - output[1])
+
+                if output[0] < 0.0 and output[1] > 0.0 ):
+                    correct +=1.
+            else:
+                error += abs(-1.0 - output[0])
+                error += abs(-1.0 -output[1])
+                if output[0] < 0 and output[1] < 0):
+                    correct +=1.
 
         return [1000/(1+ error*error), correct/256.,net.GetTotalConnectionLength() ]
 
@@ -281,25 +276,19 @@ def evaluate_retina_risi(genome):
        # print "nn ",ex
         return (0.0, 0.0, 0.0)
 
-def getbest(run, generations, filename):
+def getbest(run, generations):
     g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
             params)
 
     pop = NEAT.Population(g, params, True, 1.0)
-    results = []
     for generation in range(generations):
 
         genome_list = NEAT.GetGenomeList(pop)
         fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate_retina_or, display = False, cores= 4)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
-        [genome.SetPerformance(fitness[1]) for genome, fitness in zip(genome_list, fitnesses)]
-        [genome.SetLength(fitness[2]) for genome, fitness in zip(genome_list, fitnesses)]
-        time = np.mean([fitness[3] for fitness in fitnesses])
-        max_time = max([fitness[3] for fitness in fitnesses])
-        cons = np.mean([x.Length for x in genome_list])
+
         best = pop.GetBestGenome()
-        results.append([run,generation, best.GetFitness(), best.GetPerformance(),best.Length])
-        '''
+
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
@@ -315,28 +304,16 @@ def getbest(run, generations, filename):
         utilities.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
         cv2.imshow("NN", img)
         cv2.waitKey(1)
-        '''
+
         print "---------------------------"
         print "Generation: ", generation
-        print "Best ", max([x.GetLeader().GetFitness() for x in pop.Species]), " Connections: ",  best.Length, " ", best.GetPerformance()
-        print "Average connection count: ", cons
-        print "Build time: ", time
-        print "Max time ", max_time
-
+        print "Best ", max([x.GetLeader().GetFitness() for x in pop.Species])
         generations = generation
-        if generation % 200 == 0:
-
-
-            utilities.dump_to_file(results, filename)
-            results = []
-            best.Save("datadump/retina_or_release_%d_%d.gen" % ( generation, run))
-
         pop.Epoch()
-        gc.collect()
     return
 
 
 
 #runs = 5
 for i in range(5):
-    getbest(i,5000, "datadump/retina_or_release.csv")
+    getbest(i,5000)

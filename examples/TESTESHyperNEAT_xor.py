@@ -6,7 +6,7 @@ import MultiNEAT as NEAT
 import multiprocessing as mpc
 import numpy as np
 import cv2
-import utilities
+import Utilities
 
 params = NEAT.Parameters()
 params.PopulationSize = 100
@@ -79,13 +79,11 @@ substrate.m_allow_looped_output_links = False
 
 # let's set the activation functions
 substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
 # when to output a link and max weight
 substrate.m_link_threshold = 0.2
 substrate.m_max_weight_and_bias = 8.0
-
-
 
 def evaluate_xor(genome):
 
@@ -144,31 +142,37 @@ def getbest(run, filename):
 
     pop = NEAT.Population(g, params, True, 1.0)
     for generation in range(1000):
-
-        print "---------------------------"
-        print "Generation: ", generation
-
+        #Evaluate genomes
         genome_list = NEAT.GetGenomeList(pop)
         fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate_xor, display = False)
         [genome.SetFitness(fitness[0]) for genome, fitness in zip(genome_list, fitnesses)]
+        # Visualize best network's Genome
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
         NEAT.DrawPhenotype(img, (0, 0, 500, 500), net )
         cv2.imshow("CPPN", img)
-
+        # Visualize best network's Pheotype
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().Build_ES_Phenotype(net, substrate, params)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
 
-        utilities.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
+        Utilities.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
         cv2.imshow("NN", img)
         cv2.waitKey(1)
+        # Print best fitness
+        print "---------------------------"
+        print "Generation: ", generation
         print "max ", max([x.GetLeader().GetFitness() for x in pop.Species])
+        if max([x.GetLeader().GetFitness() for x in pop.Species]) > 15.5:
+            break
+        #Epoch
         generations = generation
         pop.Epoch()
+
+
     return generations
 
 
