@@ -142,7 +142,7 @@ private:
     /////////////////////
 
     // The list of innovations
-    std::vector<Innovation> m_Innovations;
+
 
     int m_NextNeuronID;
     int m_NextInnovationNum;
@@ -152,7 +152,7 @@ public:
     ////////////////////////////
     // Constructors
     ////////////////////////////
-
+    std::vector<Innovation> m_Innovations;
     // Creates an empty database
     InnovationDatabase();
 

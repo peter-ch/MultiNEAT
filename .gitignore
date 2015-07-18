@@ -1,0 +1,8 @@
+build/
+datadump/*
+*.test
+*.csv
+*.png
+*.gen
+*.xml
+*core*

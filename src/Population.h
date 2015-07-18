@@ -199,7 +199,12 @@ public:
         }
 
         return m_Species[idx_species].m_Individuals[idx_genome];
+
     }
+
+
+    
+
     unsigned int GetStagnation() const { return m_GensSinceBestFitnessLastChanged; }
     unsigned int GetMPCStagnation() const { return m_GensSinceMPCLastChanged; }
 

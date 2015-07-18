@@ -62,7 +62,6 @@ inline double af_sigmoid_signed(double aX, double aSlope, double aShift)
     return (tY - 0.5) * 2.0;
 }
 
-
 inline double af_tanh(double aX, double aSlope, double aShift)
 {
     return tanh(aX * aSlope);
@@ -397,6 +396,7 @@ void NeuralNetwork::Activate()
         default:
             y = af_sigmoid_unsigned(x, m_neurons[i].m_a, m_neurons[i].m_b);
             break;
+
         }
         m_neurons[i].m_activation = y;
     }
@@ -934,5 +934,6 @@ bool NeuralNetwork::Load(const char *a_filename)
     std::ifstream t_DataFile(a_filename);
     return Load(t_DataFile);
 }
+
 
 }; // namespace NEAT

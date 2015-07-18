@@ -388,6 +388,8 @@ void Parameters::Reset()
     // The range of the tree. Typically set to 2,
     Width = 2.0;
 
+    Height = 2.0;
+
     // The (x, y) coordinates of the tree
     Qtree_X = 0.0;
 
@@ -401,6 +403,13 @@ void Parameters::Reset()
 
     // Use geometric seeding. Currently only along the X axis. 1
     LeoSeed = false;
+
+    GeometrySeed = false;
+
+    // Binary tournament selection
+    TournamentSize = 2; 
+
+    Elitism = 0.1;
 
 }
 Parameters::Parameters()
@@ -778,6 +787,9 @@ int Parameters::Load(std::ifstream& a_DataFile)
         if (s == "Width")
             a_DataFile >> Width;
 
+        if (s == "Height")
+            a_DataFile >> Height;
+
         if (s == "Qtree_X")
             a_DataFile >> Qtree_X;
 
@@ -791,6 +803,13 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 Leo = false;
         }
+        if (s == "GeometrySeed")
+        {  a_DataFile >> tf;
+           if (tf == "true" || tf == "1" || tf == "1.0")
+                GeometrySeed = true;
+            else
+                GeometrySeed = false;
+        }
 
         if (s == "LeoThreshold")
             a_DataFile >> LeoThreshold;
@@ -803,6 +822,10 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 LeoSeed = false;
         }
+        if (s == "TournamentSize")
+            a_DataFile >> TournamentSize;
+        if (s == "Elitism")
+            a_DataFile >> Elitism;
     }
 
     return 0;
@@ -934,13 +957,17 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
     fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
     fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
-    fprintf(a_fstream, "CPPN_Bias %d\n", CPPN_Bias);
+    fprintf(a_fstream, "CPPN_Bias %f\n", CPPN_Bias);
     fprintf(a_fstream, "Width %3.20f\n", Width);
+    fprintf(a_fstream, "Height %3.20f\n", Height);
     fprintf(a_fstream, "Qtree_X %3.20f\n", Qtree_X);
     fprintf(a_fstream, "Qtree_Y %3.20f\n", Qtree_Y);
     fprintf(a_fstream, "Leo %s\n", Leo==true?"true":"false");
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
+       fprintf(a_fstream, "GeometrySeed %s\n", GeometrySeed==true?"true":"false");
+    fprintf(a_fstream, "TournamentSize%d\n", TournamentSize );
+    fprintf(a_fstream, "Elitism%f\n", Elitism);
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }

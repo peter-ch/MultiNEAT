@@ -35,6 +35,8 @@
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
 #include <boost/python/tuple.hpp>
+#include <math.h>
+#include <cmath>
 
 namespace py = boost::python;
 
@@ -66,9 +68,9 @@ public:
     bool operator==(Connection const& other) const
     {
         if ((m_source_neuron_idx == other.m_source_neuron_idx) &&
-            (m_target_neuron_idx == other.m_target_neuron_idx) &&
+            (m_target_neuron_idx == other.m_target_neuron_idx)) /*&&
             (m_weight == other.m_weight) &&
-            (m_recur_flag == other.m_recur_flag))
+            (m_recur_flag == other.m_recur_flag))*/
             return true;
         else
             return false;
@@ -151,12 +153,12 @@ public:
     void FlushCube(); // clears the sensitivity cube
 
     void Input(std::vector<double>& a_Inputs);
-    
+
 #ifdef USE_BOOST_PYTHON
 
     void Input_python_list(py::list& a_Inputs);
     void Input_numpy(py::numeric::array& a_Inputs);
-    
+
 #endif
 
     std::vector<double> Output();
@@ -195,6 +197,27 @@ public:
         SetInputOutputDimentions(0, 0);
     }
 
+    double GetConnectionLenght(Neuron source, Neuron target)
+    {   double dist = 0.0;
+        for (unsigned int i = 0; i < source.m_substrate_coords.size(); i++)
+            dist += (target.m_substrate_coords[i] - source.m_substrate_coords[i])*(target.m_substrate_coords[i]- source.m_substrate_coords[i] );
+        return dist;
+    }
+
+    double GetTotalConnectionLength()
+    {   //return m_connections.size(); //The alternative approach
+       /* double total = 0;
+        for (unsigned int i = 0; i < m_connections.size(); i++)
+        {
+            //std:: cout << GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx])<< std::endl;
+
+            total += std::pow(GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx]),2);
+        }
+        //std::cout <<  total << std::endl;
+        */
+        return m_connections.size();
+    }
+
     // one-shot save/load
     void Save(const char* a_filename);
     bool Load(const char* a_filename);
@@ -210,4 +233,3 @@ public:
 
 
 #endif
-

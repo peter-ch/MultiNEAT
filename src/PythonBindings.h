@@ -39,6 +39,7 @@
 #include "Species.h"
 #include "Parameters.h"
 #include "Random.h"
+#include "NSGAPopulation.h"
 
 namespace py = boost::python;
 using namespace NEAT;
@@ -178,6 +179,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             NN_Input_numpy)
             .def("Output",
             &NeuralNetwork::Output)
+            .def("GetTotalConnectionLength", &NeuralNetwork::GetTotalConnectionLength)
 
             .def_readwrite("neurons", &NeuralNetwork::m_neurons)
             .def_readonly("connections", &NeuralNetwork::m_connections)
@@ -207,7 +209,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("SetFitness", &Genome::SetFitness)
             .def("GetID", &Genome::GetID)
             .def("GetDepth", &Genome::GetDepth)
-
+            .def("CalculateDepth", &Genome::CalculateDepth)
             .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
@@ -218,8 +220,12 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             .def("Save", Genome_Save)
 
-	    .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
-	    .def("GetPoints", &Genome::GetPoints)
+	          .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
+	          .def("GetPoints", &Genome::GetPoints)
+            .def("SetPerformance", &Genome::SetPerformance)
+            .def("GetPerformance", &Genome::GetPerformance)
+            .def("SetLength", &Genome::SetLength)
+            .def_readwrite("Length", &Genome::Length)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -307,8 +313,10 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetBaseMPC", &Population::GetBaseMPC)
             .def("GetStagnation", &Population::GetStagnation)
             .def("GetMPCStagnation", &Population::GetMPCStagnation)
+            .def("NumGenomes", &Population::NumGenomes)
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
+
             ;
 
 ///////////////////////////////////////////////////////////////////
@@ -423,11 +431,15 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("MaxDepth", &Parameters::MaxDepth)
             .def_readwrite("CPPN_Bias", &Parameters::CPPN_Bias)
             .def_readwrite("Width", &Parameters::Width)
+            .def_readwrite("Height", &Parameters::Height)
             .def_readwrite("Qtree_Y", &Parameters::Qtree_Y)
             .def_readwrite("Qtree_X", &Parameters::Qtree_X)
             .def_readwrite("Leo", &Parameters::Leo)
             .def_readwrite("LeoThreshold", &Parameters::LeoThreshold)
             .def_readwrite("LeoSeed", &Parameters::LeoSeed)
+            .def_readwrite("GeometrySeed", &Parameters::GeometrySeed)
+            .def_readwrite("TournamentSize", &Parameters::TournamentSize)
+            .def_readwrite("Elitism", &Parameters::Elitism)
         ;
 
 

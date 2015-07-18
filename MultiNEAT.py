@@ -4,7 +4,6 @@ import multiprocessing as mpc
 import time
 from _MultiNEAT import *
 
-
 try:
     from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
     prbar_installed = True
@@ -84,7 +83,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator, cores=4, display=True):
                 AnimatedMarker()]
         progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
 
-    for i, fitness in enumerate(pool.imap(evaluator, genome_list)):
+    for i, fitness in enumerate(pool.imap(evaluator, genome_list, chunksize = 40)):
         if prbar_installed and display:
             progress.update(i)
         else:

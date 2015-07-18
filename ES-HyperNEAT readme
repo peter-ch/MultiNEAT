@@ -1,4 +1,17 @@
-Changelog
+Changelog:
+-----------------------------------------
+
+v2-16-07-2015: Revised the ES Hyper NEAT to improve performance
+- Substrate link threshold and max weight are now useful 
+- Replaced most vectors with unordered map to improve all the searches
+- Made use of .reserve to further improve speed
+- Changed the way variance is calculated for a node - instead of traversing the whole tree, 
+  the variance now checks only the direct children of the node. It seems to work fine. 
+- Finalized the retina task example.
+- In utilities - added a method to save data from an experiment to a file. and another one to save a .png
+  of a neural network or a pattern drawn by a CPPN. 
+  
+  
 -----------------------------------------
 Overview:
 The current extension introduces Evovlable Substrate HyperNEAT and

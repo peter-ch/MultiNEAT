@@ -368,6 +368,7 @@ public:
     // Quadtree Dimensions
     // The range of the tree. Typically set to 2,
     double Width;
+    double Height;
 
     // The (x, y) coordinates of the tree
     double Qtree_X;
@@ -382,6 +383,9 @@ public:
 
     // Use geometric seeding. Currently only along the X axis. 1
     bool LeoSeed;
+    bool GeometrySeed;
+
+    double Elitism;
 
     /////////////////////////////////////
     // Constructors
@@ -407,6 +411,8 @@ public:
 
     // resets the parameters to built-in defaults
     void Reset();
+
+    unsigned int TournamentSize;
 };
 
 } // namespace NEAT
