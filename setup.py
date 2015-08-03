@@ -52,7 +52,13 @@ except Exception as ex:
                                                 'src/Utils.cpp'],
                                  libraries=[lb,
                                             'boost_serialization'],
-                                 extra_compile_args=['-O3', '-march=native',
+                                            
+                                 # for Windows                                 
+                                 #libraries=[],
+                                 #include_dirs = ['C:/Users/Peter/Desktop/boost_1_58_0'],
+                                 #library_dirs = ['C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
+
+                                 extra_compile_args=['-O3', '-march=native', #'/EHsc', # for Windows
                                                      '-DUSE_BOOST_PYTHON',
                                                      '-DUSE_BOOST_RANDOM'
                                                      ])

@@ -705,8 +705,8 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 				t_temp_phenotype.Activate();
 			}
 
-			double t_tc   = t_temp_phenotype.Output()[1];
-			double t_bias = t_temp_phenotype.Output()[2];
+			double t_tc   = t_temp_phenotype.Output()[NumOutputs()-2];
+			double t_bias = t_temp_phenotype.Output()[NumOutputs()-1];
 
 			Clamp(t_tc, -1, 1);
 			Clamp(t_bias, -1, 1);
@@ -918,12 +918,22 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 		}
 
 		// the output is a weight
-		double t_link = t_temp_phenotype.Output()[0];
-		double t_weight = t_temp_phenotype.Output()[1];
+		double t_link = 0; ;
+		double t_weight = 0;
 
-		Clamp(t_weight, -1, 1);
+		if (subst.m_query_weights_only)
+		{
+			t_weight = t_temp_phenotype.Output()[0];
+		}
+		else
+		{
+			t_link = t_temp_phenotype.Output()[0];
+			t_weight = t_temp_phenotype.Output()[1];
+		}
 
-		if (t_link > 0)
+//		Clamp(t_weight, -1, 1);
+
+		if (((t_link > 0) && (!subst.m_query_weights_only)) || (subst.m_query_weights_only))
 		{
 			// now this weight will be scaled
 			t_weight *= subst.m_max_weight_and_bias;

@@ -78,6 +78,10 @@ public:
     std::vector< std::vector<int> > m_custom_connectivity;
     bool m_custom_conn_obeys_flags; // if this is true, the flags restricting the topology above will still apply
 
+    // this enforces custom or full connectivity
+    // if it is true, connections are always made and the weights will be queried only
+    bool m_query_weights_only;
+
     // the activation functions of hidden/output neurons
     ActivationFunction m_hidden_nodes_activation;
     ActivationFunction m_output_nodes_activation;
@@ -88,24 +92,7 @@ public:
     double m_max_time_const;
 
 
-    Substrate()
-    {
-        m_leaky = false;
-        m_with_distance = false;
-        m_allow_input_hidden_links = true;
-        m_allow_input_output_links = true;
-        m_allow_hidden_hidden_links = false;
-        m_allow_hidden_output_links = true;
-        m_allow_output_hidden_links = false;
-        m_allow_output_output_links = false;
-        m_allow_looped_hidden_links = false;
-        m_allow_looped_output_links = false;
-        m_hidden_nodes_activation = UNSIGNED_SIGMOID;
-        m_output_nodes_activation = UNSIGNED_SIGMOID;
-        m_max_weight_and_bias = 5.0;
-        m_min_time_const = 0.1;
-        m_max_time_const = 1.0;
-    };
+    Substrate();
     Substrate(std::vector< std::vector<double> >& a_inputs,
               std::vector< std::vector<double> >& a_hidden,
               std::vector< std::vector<double> >& a_outputs );
@@ -172,6 +159,7 @@ public:
 
         ar & m_custom_connectivity;
         ar & m_custom_conn_obeys_flags;
+        ar & m_query_weights_only;
     }
     
 #endif

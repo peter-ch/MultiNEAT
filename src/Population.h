@@ -146,7 +146,8 @@ public:
     // Initializes a population from a seed genome G. Then it initializes all weights
     // To small numbers between -R and R.
     // The population size is determined by GlobalParameters.PopulationSize
-    Population(const Genome& a_G, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomRange);
+    Population(const Genome& a_G, const Parameters& a_Parameters,
+    		   bool a_RandomizeWeights, double a_RandomRange, int a_RNG_seed);
 
 
     // Loads a population from a file.

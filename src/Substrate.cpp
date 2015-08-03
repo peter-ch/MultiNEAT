@@ -35,12 +35,35 @@ using namespace std;
 namespace NEAT
 {
 
+Substrate::Substrate()
+{
+    m_leaky = false;
+    m_with_distance = false;
+    m_custom_conn_obeys_flags = true;
+    m_query_weights_only = false;
+    m_allow_input_hidden_links = true;
+    m_allow_input_output_links = true;
+    m_allow_hidden_hidden_links = false;
+    m_allow_hidden_output_links = true;
+    m_allow_output_hidden_links = false;
+    m_allow_output_output_links = false;
+    m_allow_looped_hidden_links = false;
+    m_allow_looped_output_links = false;
+    m_hidden_nodes_activation = UNSIGNED_SIGMOID;
+    m_output_nodes_activation = UNSIGNED_SIGMOID;
+    m_max_weight_and_bias = 5.0;
+    m_min_time_const = 0.1;
+    m_max_time_const = 1.0;
+};
+
+
 Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
         std::vector<std::vector<double> >& a_hidden,
         std::vector<std::vector<double> >& a_outputs)
 {
     m_leaky = false;
     m_with_distance = false;
+    m_query_weights_only = false;
     m_hidden_nodes_activation = NEAT::UNSIGNED_SIGMOID;
     m_output_nodes_activation = NEAT::UNSIGNED_SIGMOID;
     m_allow_input_hidden_links = true;
@@ -85,6 +108,7 @@ Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
     m_min_time_const = 0.1;
     m_max_time_const = 1.0;
     m_custom_conn_obeys_flags = false;
+    m_query_weights_only = false;
 
     // Make room for the data
     int inp = py::len(a_inputs);
@@ -214,10 +238,23 @@ int Substrate::GetMinCPPNInputs()
 
 int Substrate::GetMinCPPNOutputs()
 {
+	int outs = 0;
+	if (m_query_weights_only)
+	{
+		outs = 1;
+	}
+	else
+	{
+		outs = 2; // (link on/off, weight)
+	}
     if (m_leaky)
-        return 2+2; // + time_const and bias
+    {
+        return outs+2; // + time_const and bias
+    }
     else
-        return 2; // link on/off, weight
+    {
+        return outs;
+    }
 }
 
 int Substrate::GetMaxDims()

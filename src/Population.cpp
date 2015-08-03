@@ -46,10 +46,10 @@ namespace NEAT
 {
 
 // The constructor
-Population::Population(const Genome& a_Seed, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomizationRange)
+Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
+		               bool a_RandomizeWeights, double a_RandomizationRange, int a_RNG_seed)
 {
-    //m_RNG.TimeSeed();
-    m_RNG.Seed(0);
+    m_RNG.Seed(a_RNG_seed);
     m_BestFitnessEver = 0.0;
     m_Parameters = a_Parameters;
 

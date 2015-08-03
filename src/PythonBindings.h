@@ -273,6 +273,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("m_leaky", &Substrate::m_leaky)
             .def_readwrite("m_with_distance", &Substrate::m_with_distance)
 			.def_readwrite("m_custom_conn_obeys_flags", &Substrate::m_custom_conn_obeys_flags)
+			.def_readwrite("m_query_weights_only", &Substrate::m_query_weights_only)
             .def_readwrite("m_hidden_nodes_activation", &Substrate::m_hidden_nodes_activation)
             .def_readwrite("m_output_nodes_activation", &Substrate::m_output_nodes_activation)
 
@@ -316,7 +317,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 // Population class
 ///////////////////////////////////////////////////////////////////
 
-    class_<Population>("Population", init<Genome, Parameters, bool, double>())
+    class_<Population>("Population", init<Genome, Parameters, bool, double, int>())
             .def(init<char*>())
             .def("Epoch", &Population::Epoch)
             .def("Tick", &Population::Tick, return_value_policy<reference_existing_object>())

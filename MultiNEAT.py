@@ -52,7 +52,7 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
 
         if display:
             if ipython_installed: clear_output(wait=True)
-            print('Individuals: (%s/%s)' % (count, len(genome_list)))
+            print('Individuals: (%s/%s) Fitness: %3.4f' % (count, len(genome_list), f))
         count += 1
         
     elapsed = time.time() - curtime
@@ -108,7 +108,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator,
 
 # Just set the fitness values to the genomes
 def ZipFitness(genome_list, fitness_list):
-    [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
+    [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitness_list)]
     [genome.SetEvaluated() for genome in genome_list]
 
 
@@ -303,25 +303,18 @@ def plot_nn(nn, ax=None,
 
 
 
-
-
-
-# The code below is deprecated
-
-
-'''
-
-# Neural Network display code
+# Faster Neural Network display code
+# image is a NumPy array
 # rect is a tuple in the form (x, y, size_x, size_y)
 if not cvnumpy_installed:
-    def DrawPhenotype(image, rect, nn, neuron_radius=10,
+    def DrawPhenotype(image, rect, nn, neuron_radius=15,
                       max_line_thickness=3, substrate=False):
         print("OpenCV/NumPy don't appear to be installed")
         raise NotImplementedError
 else:
     MAX_DEPTH = 64
 
-    def DrawPhenotype(image, rect, nn, neuron_radius=10,
+    def DrawPhenotype(image, rect, nn, neuron_radius=15,
                       max_line_thickness=3, substrate=False):
         for i, n in enumerate(nn.neurons):
             nn.neurons[i].x = 0
@@ -386,36 +379,46 @@ else:
 
         # the positions of neurons is computed, now we draw
         # connections first
-        if nn.connections:
+        if len(nn.connections) > 0:
             max_weight = max([abs(x.weight) for x in nn.connections])
         else:
             max_weight = 1.0
 
+        if image.dtype in [np.uint8, np.uint16, np.uint32, np.uint, 
+                               np.int, np.int8, np.int16, np.int32]:
+            magn = 255.0
+        else:
+            magn = 1.0
+            
         for conn in nn.connections:
             thickness = conn.weight
             thickness = Scale(thickness, 0, max_weight, 1, max_line_thickness)
             thickness = Clamp(thickness, 1, max_line_thickness)
+            
 
             w = Scale(abs(conn.weight), 0.0, max_weight, 0.0, 1.0)
             w = Clamp(w, 0.75, 1.0)
-
+            
             if conn.recur_flag:
                 if conn.weight < 0:
                     # green weight
-                    color = (0, int(255.0 * w), 0)
+                    color = (0, magn * w, 0)
 
                 else:
                     # white weight
-                    color = (int(255.0 * w), int(255.0 * w), int(255.0 * w))
+                    color = (magn * w, magn * w, magn * w)
 
             else:
                 if conn.weight < 0:
                     # blue weight
-                    color = (0, 0, int(255.0 * w))
+                    color = (0, 0, magn * w)
 
                 else:
                     # red weight
-                    color = (int(255.0 * w), 0, 0)
+                    color = (magn * w, 0, 0)
+                    
+            if magn == 255:
+                color = tuple(int(x) for x in color)
 
             # if the link is looping back on the same neuron, draw it with
             # ellipse
@@ -433,5 +436,43 @@ else:
          # draw all neurons
         for neuron in nn.neurons:
             pt = (int(neuron.x), int(neuron.y))
-            cv2.circle(image, pt, neuron_radius, (255, 255, 255), -1)
-'''
+
+            a = neuron.activation
+            if a < 0:
+                clr = array([0.3,0.3,0.3]) + array([0, 0, .7]) * (-a)
+            else:
+                clr = array([0.3,0.3,0.3]) + array([.7, .7, .7]) * (a)
+            clr = clip(clr, 0, 1)
+            if image.dtype in [np.uint8, np.uint16, np.uint32, np.uint, 
+                               np.int, np.int8, np.int16, np.int32]: 
+                clr = (clr*255).astype(np.uint8)
+            clr = tuple(int(x) for x in clr)
+            a = Clamp(a, 0.3, 2.0)
+            
+            if neuron.type == NeuronType.INPUT:
+                cv2.circle(image, pt, int(neuron_radius*a), clr, thickness=-1) # filled 
+                cv2.circle(image, pt, neuron_radius, (0,255,0), thickness=2) # outline
+            elif neuron.type == NeuronType.BIAS:
+                cv2.circle(image, pt, int(neuron_radius*a), clr, thickness=-1) # filled 
+                cv2.circle(image, pt, neuron_radius, (0,0,0), thickness=2) # outline 
+            elif neuron.type == NeuronType.HIDDEN:
+                cv2.circle(image, pt, int(neuron_radius*a), clr, thickness=-1) # filled 
+                cv2.circle(image, pt, neuron_radius, (127,127,127), thickness=2) # outline 
+            elif neuron.type == NeuronType.OUTPUT:
+                cv2.circle(image, pt, int(neuron_radius*a), clr, thickness=-1) # filled first
+                cv2.circle(image, pt, neuron_radius, (255,255,0), thickness=2) # outline 
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
