@@ -299,10 +299,6 @@ def plot_nn(nn, ax=None,
     
 
 
-
-
-
-
 # Faster Neural Network display code
 # image is a NumPy array
 # rect is a tuple in the form (x, y, size_x, size_y)

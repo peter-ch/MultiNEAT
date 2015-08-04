@@ -17,28 +17,26 @@ substrate = NEAT.Substrate([(-1, -1), (-1, 0), (-1, 1)],
                            [(0, -1), (0, 0), (0, 1)],
                            [(1, 0)])
 
-substrate.m_allow_input_hidden_links = False
-substrate.m_allow_input_output_links = False
-substrate.m_allow_hidden_hidden_links = False
-substrate.m_allow_hidden_output_links = False
-substrate.m_allow_output_hidden_links = False
-substrate.m_allow_output_output_links = False
-substrate.m_allow_looped_hidden_links = False
-substrate.m_allow_looped_output_links = False
+substrate.m_allow_input_hidden_links = False;
+substrate.m_allow_input_output_links = False;
+substrate.m_allow_hidden_hidden_links = False;
+substrate.m_allow_hidden_output_links = False;
+substrate.m_allow_output_hidden_links = False;
+substrate.m_allow_output_output_links = False;
+substrate.m_allow_looped_hidden_links = False;
+substrate.m_allow_looped_output_links = False;
 
-# let's configure it a bit to avoid recurrence in the substrate
-substrate.m_allow_input_hidden_links = True
-substrate.m_allow_input_output_links = False
-substrate.m_allow_hidden_output_links = True
-substrate.m_allow_hidden_hidden_links = False
+substrate.m_allow_input_hidden_links = True;
+substrate.m_allow_input_output_links = False;
+substrate.m_allow_hidden_output_links = True;
+substrate.m_allow_hidden_hidden_links = False;
 
-# let's set the activation functions
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID;
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID;
 
-# when to output a link and max weight
-substrate.m_with_distance = True
-substrate.m_max_weight_and_bias = 8.0
+substrate.m_with_distance = True;
+
+substrate.m_max_weight_and_bias = 8.0;
 
 try:
     x = pickle.dumps(substrate)
@@ -46,9 +44,6 @@ except:
     print('You have mistyped a substrate member name upon setup. Please fix it.')
     sys.exit(1)
 
-# code
-#cv2.namedWindow('CPPN', 0)
-#cv2.namedWindow('NN', 0)
 
 def evaluate(genome):
     net = NEAT.NeuralNetwork()
@@ -90,36 +85,38 @@ def evaluate(genome):
         print('Exception:', ex)
         return 1.0
 
+
+
 params = NEAT.Parameters()
-params.PopulationSize = 150
 
-params.DynamicCompatibility = True
-params.CompatTreshold = 3.0
-params.YoungAgeTreshold = 15
-params.SpeciesMaxStagnation = 15
-params.OldAgeTreshold = 35
-params.MinSpecies = 5
-params.MaxSpecies = 25
-params.RouletteWheelSelection = True
+params.PopulationSize = 200;
 
-params.MutateRemLinkProb = 0.0
-params.RecurrentProb = 0
-params.OverallMutationRate = 0.25
-params.MutateAddLinkProb = 0.05
-params.MutateAddNeuronProb = 0.01
-params.MutateWeightsProb = 0.90
-params.MaxWeight = 8.0
-params.WeightMutationMaxPower = 0.5
-params.WeightReplacementMaxPower = 2.0
+params.DynamicCompatibility = True;
+params.CompatTreshold = 2.0;
+params.YoungAgeTreshold = 15;
+params.SpeciesMaxStagnation = 100;
+params.OldAgeTreshold = 35;
+params.MinSpecies = 5;
+params.MaxSpecies = 25;
+params.RouletteWheelSelection = False;
 
-params.MutateActivationAProb = 0.0
-params.ActivationAMutationMaxPower = 0.5
-params.MinActivationA = 0.05
-params.MaxActivationA = 6.0
+params.MutateRemLinkProb = 0.02;
+params.RecurrentProb = 0;
+params.OverallMutationRate = 0.15;
+params.MutateAddLinkProb = 0.08;
+params.MutateAddNeuronProb = 0.01;
+params.MutateWeightsProb = 0.90;
+params.MaxWeight = 8.0;
+params.WeightMutationMaxPower = 0.2;
+params.WeightReplacementMaxPower = 1.0;
 
-params.MutateNeuronActivationTypeProb = 0.01;
+params.MutateActivationAProb = 0.0;
+params.ActivationAMutationMaxPower = 0.5;
+params.MinActivationA = 0.05;
+params.MaxActivationA = 6.0;
 
-# Probabilities for a particular activation function appearance
+params.MutateNeuronActivationTypeProb = 0.03;
+
 params.ActivationFunction_SignedSigmoid_Prob = 0.0;
 params.ActivationFunction_UnsignedSigmoid_Prob = 0.0;
 params.ActivationFunction_Tanh_Prob = 1.0;
@@ -145,42 +142,20 @@ def getbest(i):
                     0,
                     params)
 
-    pop = NEAT.Population(g, params, True, 1.0)
+    pop = NEAT.Population(g, params, True, 1.0, i)
     pop.RNG.Seed(i)
 
     for generation in range(2000):
         genome_list = NEAT.GetGenomeList(pop)
-    #    fitnesses = NEAT.EvaluateGenomeList_Parallel(genome_list, evaluate)
         fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
-#        print 'Best fitness:', best
 
         pop.Epoch()
-#        print "Generation:", generation
         generations = generation
         if best > 15.0:
             break
-
-        # test
-        """
-        net = NEAT.NeuralNetwork()
-        pop.Species[0].GetLeader().BuildPhenotype(net)
-        img = np.zeros((250, 250, 3), dtype=np.uint8)
-        img += 10
-        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
-        cv2.imshow("CPPN", img)
-
-        net = NEAT.NeuralNetwork()
-        pop.Species[0].GetLeader().BuildHyperNEATPhenotype(net, substrate)
-        img = np.zeros((250, 250, 3), dtype=np.uint8)
-        img += 10
-        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net, substrate=True )
-        cv2.imshow("NN", img)
-
-        cv2.waitKey(1)
-        """
 
     return generations
 

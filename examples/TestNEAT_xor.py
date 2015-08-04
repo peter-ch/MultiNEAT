@@ -11,8 +11,6 @@ import pickle as pickle
 import MultiNEAT as NEAT
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-# code
-cv2.namedWindow('nn_win', 0)
 
 def evaluate(genome):
     net = NEAT.NeuralNetwork()
@@ -51,6 +49,8 @@ def evaluate(genome):
     error += abs(o[0])
 
     return (4 - error)**2
+    
+    
 
 params = NEAT.Parameters()
 params.PopulationSize = 150
@@ -95,7 +95,7 @@ params.SurvivalRate = 0.2
 def getbest(i):
 
     g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
-    pop = NEAT.Population(g, params, True, 1.0)
+    pop = NEAT.Population(g, params, True, 1.0, i)
     pop.RNG.Seed(i)
 
     generations = 0
@@ -105,25 +105,12 @@ def getbest(i):
         NEAT.ZipFitness(genome_list, fitness_list)
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
-#        print('Best fitness:', best, 'Species:', len(pop.Species))
 
         pop.Epoch()
-#        print "Generation:", generation
+
         generations = generation
         if best > 15.0:
             break
-
-        # test
-        """
-        net = NEAT.NeuralNetwork()
-        pop.Species[0].GetLeader().BuildPhenotype(net)
-        img = np.zeros((250, 250, 3), dtype=np.uint8)
-        img += 10
-        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
-
-        cv2.imshow("nn_win", img)
-        cv2.waitKey(1)
-        """
 
     return generations
 
@@ -150,6 +137,4 @@ avg_gens = sum(gens) / len(gens)
 print('All:', gens)
 print('Average:', avg_gens)
 
-
-#cv2.waitKey(10000)
 
