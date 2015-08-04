@@ -291,8 +291,6 @@ public:
     double ActivationFunction_Abs_Prob;
     double ActivationFunction_SignedSine_Prob;
     double ActivationFunction_UnsignedSine_Prob;
-    double ActivationFunction_SignedSquare_Prob;
-    double ActivationFunction_UnsignedSquare_Prob;
     double ActivationFunction_Linear_Prob;
     double ActivationFunction_Relu_Prob;
     double ActivationFunction_Softplus_Prob;
@@ -373,6 +371,7 @@ public:
     // How many hidden layers before connecting nodes to output. At 0 there is
     // one hidden layer. At 1, there are two and so on.
     unsigned int IterationLevel;
+    unsigned int TournamentSize;
 
     // The Bias value for the CPPN queries.
     double CPPN_Bias;
@@ -380,6 +379,7 @@ public:
     // Quadtree Dimensions
     // The range of the tree. Typically set to 2,
     double Width;
+    double Height;
 
     // The (x, y) coordinates of the tree
     double Qtree_X;
@@ -394,6 +394,9 @@ public:
 
     // Use geometric seeding. Currently only along the X axis. 1
     bool LeoSeed;
+    bool GeometrySeed;
+
+    double Elitism;
 
     /////////////////////////////////////
     // Constructors
@@ -501,9 +504,10 @@ public:
         ar & ActivationFunction_Abs_Prob;
         ar & ActivationFunction_SignedSine_Prob;
         ar & ActivationFunction_UnsignedSine_Prob;
-        ar & ActivationFunction_SignedSquare_Prob;
-        ar & ActivationFunction_UnsignedSquare_Prob;
         ar & ActivationFunction_Linear_Prob;
+        ar & ActivationFunction_Relu_Prob;
+        ar & ActivationFunction_Softplus_Prob;
+
         ar & MutateNeuronTimeConstantsProb;
         ar & MutateNeuronBiasesProb;
         ar & MinNeuronTimeConstant;
@@ -537,12 +541,13 @@ public:
         ar & Leo;
         ar & LeoThreshold;
         ar & LeoSeed;
+        ar & GeometrySeed;
+        ar & TournamentSize;
+        ar & Elitism;
     }
     
 #endif
-    
-    
-    
+
 };
 
 

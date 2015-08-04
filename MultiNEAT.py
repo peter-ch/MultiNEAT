@@ -1,8 +1,21 @@
 import time
 from _MultiNEAT import *
+<<<<<<< HEAD
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import matplotlib.pyplot as plt
 from numpy import array, clip
+=======
+
+try:
+    from progressbar import ProgressBar, Counter, ETA, AnimatedMarker
+    prbar_installed = True
+except:
+    print ('Tip: install the progressbar Python package through pip or '
+           'easy_install')
+    print ('     to get good looking evolution progress bar with ETA')
+    prbar_installed = False
+
+>>>>>>> origin/master
 
 try:
     import cv2
@@ -71,6 +84,7 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator,
     Pass an instance of Client() in order to use an IPython cluster '''
     fitnesses = []
     curtime = time.time()
+<<<<<<< HEAD
     
     if ipython_client is None or not ipython_installed:    
         with ProcessPoolExecutor(max_workers=cores) as executor:
@@ -94,6 +108,18 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator,
                 if cvnumpy_installed:
                     cv2.waitKey(1)
                 fitnesses.append(fitness)
+=======
+
+    if prbar_installed and display:
+        widg = ['Individuals: ', Counter(),
+                ' of ' + str(len(genome_list)), ' ', ETA(), ' ',
+                AnimatedMarker()]
+        progress = ProgressBar(maxval=len(genome_list), widgets=widg).start()
+
+    for i, fitness in enumerate(pool.imap(evaluator, genome_list, chunksize = 40)):
+        if prbar_installed and display:
+            progress.update(i)
+>>>>>>> origin/master
         else:
             raise ValueError('Please provide valid IPython.parallel Client() as ipython_client')
                 

@@ -47,6 +47,7 @@
 									<listOptionValue builtIn="false" value="python2.7"/>
 									<listOptionValue builtIn="false" value="boost_python"/>
 									<listOptionValue builtIn="false" value="boost_serialization"/>
+									<listOptionValue builtIn="false" value="boost_system"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.807774472" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -89,7 +90,7 @@
 									<listOptionValue builtIn="false" value="/usr/include/c++/"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.8"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.preprocessor.def.98148659" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+								<option id="gnu.cpp.compiler.option.preprocessor.def.98148659" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_BOOST_PYTHON"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1909587831" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -106,6 +107,7 @@
 									<listOptionValue builtIn="false" value="python3.4m"/>
 									<listOptionValue builtIn="false" value="boost_python3"/>
 									<listOptionValue builtIn="false" value="boost_serialization"/>
+									<listOptionValue builtIn="false" value="boost_system"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1794597203" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

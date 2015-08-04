@@ -60,6 +60,9 @@ except Exception as ex:
 
                                  extra_compile_args=['-O3', '-march=native', #'/EHsc', # for Windows
                                                      '-DUSE_BOOST_PYTHON',
-                                                     '-DUSE_BOOST_RANDOM'
+                                                     '-DUSE_BOOST_RANDOM', 
+                                                    '-std=gnu++11',
+                                                    '-g',
+                                                    '-Wall'
                                                      ])
                        ])

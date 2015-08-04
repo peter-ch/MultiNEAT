@@ -192,6 +192,9 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("SetInputOutputDimentions",
             &NeuralNetwork::SetInputOutputDimentions)
 
+            .def("GetTotalConnectionLength", &NeuralNetwork::GetTotalConnectionLength)
+
+
             .def_readwrite("neurons", &NeuralNetwork::m_neurons)
             .def_readwrite("connections", &NeuralNetwork::m_connections)
             ;
@@ -220,7 +223,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("SetFitness", &Genome::SetFitness)
             .def("GetID", &Genome::GetID)
             .def("GetDepth", &Genome::GetDepth)
-
+            .def("CalculateDepth", &Genome::CalculateDepth)
             .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
@@ -233,8 +236,12 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             .def("Save", Genome_Save)
 
-	    .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
-	    .def("GetPoints", &Genome::GetPoints)
+	          .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
+	          .def("GetPoints", &Genome::GetPoints)
+            .def("SetPerformance", &Genome::SetPerformance)
+            .def("GetPerformance", &Genome::GetPerformance)
+            .def("SetLength", &Genome::SetLength)
+            .def_readwrite("Length", &Genome::Length)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -331,6 +338,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetBaseMPC", &Population::GetBaseMPC)
             .def("GetStagnation", &Population::GetStagnation)
             .def("GetMPCStagnation", &Population::GetMPCStagnation)
+            .def("NumGenomes", &Population::NumGenomes)
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
             .def_readwrite("RNG", &Population::m_RNG)
@@ -424,8 +432,6 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("ActivationFunction_Abs_Prob", &Parameters::ActivationFunction_Abs_Prob)
             .def_readwrite("ActivationFunction_SignedSine_Prob", &Parameters::ActivationFunction_SignedSine_Prob)
             .def_readwrite("ActivationFunction_UnsignedSine_Prob", &Parameters::ActivationFunction_UnsignedSine_Prob)
-            .def_readwrite("ActivationFunction_SignedSquare_Prob", &Parameters::ActivationFunction_SignedSquare_Prob)
-            .def_readwrite("ActivationFunction_UnsignedSquare_Prob", &Parameters::ActivationFunction_UnsignedSquare_Prob)
             .def_readwrite("ActivationFunction_Linear_Prob", &Parameters::ActivationFunction_Linear_Prob)
             .def_readwrite("DisjointCoeff", &Parameters::DisjointCoeff)
             .def_readwrite("ExcessCoeff", &Parameters::ExcessCoeff)
@@ -448,13 +454,18 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("MaxDepth", &Parameters::MaxDepth)
             .def_readwrite("CPPN_Bias", &Parameters::CPPN_Bias)
             .def_readwrite("Width", &Parameters::Width)
+            .def_readwrite("Height", &Parameters::Height)
             .def_readwrite("Qtree_Y", &Parameters::Qtree_Y)
             .def_readwrite("Qtree_X", &Parameters::Qtree_X)
             .def_readwrite("Leo", &Parameters::Leo)
             .def_readwrite("LeoThreshold", &Parameters::LeoThreshold)
             .def_readwrite("LeoSeed", &Parameters::LeoSeed)
-            
-            .def_pickle(Parameters_pickle_suite())
+
+            .def_readwrite("GeometrySeed", &Parameters::GeometrySeed)
+            .def_readwrite("TournamentSize", &Parameters::TournamentSize)
+            .def_readwrite("Elitism", &Parameters::Elitism)
+
+			.def_pickle(Parameters_pickle_suite())
         ;
 
 

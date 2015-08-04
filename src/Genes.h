@@ -84,6 +84,7 @@ enum ActivationFunction
 
     RELU,                 // Rectifiers
     SOFTPLUS
+
 };
 
 
@@ -115,7 +116,7 @@ private:
 
     // Is it recurrent?
     bool m_IsRecurrent;
-	
+
 public:
 
 #ifdef USE_BOOST_PYTHON
@@ -131,7 +132,7 @@ public:
         ar & m_IsRecurrent;
         ar & m_Weight;
     }
-    
+
 #endif
 
     double GetWeight() const

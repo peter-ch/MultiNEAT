@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import pickle as pickle
 import math
 import MultiNEAT as NEAT
-
+import utilities
 import pygame
 from pygame.locals import *
 from pygame.color import *
@@ -26,6 +26,74 @@ collision_type_wall = 0
 collision_type_nn = 1
 collision_type_ball = 2
 collision_type_floor = 3
+
+params = NEAT.Parameters()
+params.PopulationSize = 150
+params.DynamicCompatibility = True
+params.AllowClones = True
+params.CompatTreshold = 5.0
+params.CompatTresholdModifier = 0.3
+params.YoungAgeTreshold = 15
+params.SpeciesMaxStagnation = 100
+params.OldAgeTreshold = 35
+params.MinSpecies = 3
+params.MaxSpecies = 10
+params.RouletteWheelSelection = True
+params.RecurrentProb = 0.0
+params.OverallMutationRate = 0.02
+params.MutateWeightsProb = 0.90
+params.WeightMutationMaxPower = 1.0
+params.WeightReplacementMaxPower = 5.0
+params.MutateWeightsSevereProb = 0.5
+params.WeightMutationRate = 0.75
+params.MaxWeight = 20
+params.MutateAddNeuronProb = 0.01
+params.MutateAddLinkProb = 0.02
+params.MutateRemLinkProb = 0.00
+params.DivisionThreshold = 0.5
+params.VarianceThreshold = 0.03
+params.BandThreshold = 0.3
+params.InitialDepth = 3
+params.MaxDepth = 4
+params.IterationLevel = 1
+params.Leo = True
+params.GeometrySeed = True
+params.LeoSeed = True
+params.LeoThreshold = 0.3
+params.CPPN_Bias = -3.0
+params.Qtree_X = 0.0
+params.Qtree_Y = 0.0
+params.Width = 1.
+params.Height = 1.
+params.Elitism = 0.1
+params.CrossoverRate = 0.5
+params.MutateWeightsSevereProb = 0.01
+rng = NEAT.RNG()
+rng.TimeSeed()
+
+
+substrate = NEAT.Substrate([(-1., -1., 0.0), (-.5, -1., 0.0), (0.0, -1., 0.0),
+                            (.5, -1., 0.0), (1.0, -1., 0.0), (0.0, -1.0, -1.0),
+    ],
+                           [],
+                           [(-1., 1., 0.0), (1.0,1.0,0.0)])
+
+substrate.m_allow_input_hidden_links = False
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_hidden_links = False
+substrate.m_allow_hidden_output_links = False
+substrate.m_allow_output_hidden_links = False
+substrate.m_allow_output_output_links = False
+substrate.m_allow_looped_hidden_links = False
+substrate.m_allow_looped_output_links = False
+
+# let's set the activation functions
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+
+# when to output a link and max weight
+substrate.m_link_threshold = 0.2
+substrate.m_max_weight_and_bias = 8.0
 
 class NN_agent:
     def __init__(self, space, brain, start_x):
@@ -129,7 +197,8 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
 
     # The agents - the brain and the ball
     net = NEAT.NeuralNetwork()
-    genome.BuildPhenotype(net)
+    #genome.BuildPhenotype(net)
+    genome.Build_ES_Phenotype(net, substrate, params)
 
 
     agent = NN_agent(space, net, bot_startx)
@@ -234,38 +303,14 @@ def main():
 
 
 
-    params = NEAT.Parameters()
-    params.PopulationSize = 250
-    params.DynamicCompatibility = True
-    params.AllowClones = True
-    params.CompatTreshold = 5.0
-    params.CompatTresholdModifier = 0.3
-    params.YoungAgeTreshold = 15
-    params.SpeciesMaxStagnation = 100
-    params.OldAgeTreshold = 35
-    params.MinSpecies = 3
-    params.MaxSpecies = 10
-    params.RouletteWheelSelection = True
-    params.RecurrentProb = 0.25
-    params.OverallMutationRate = 0.33
-    params.MutateWeightsProb = 0.90
-    params.WeightMutationMaxPower = 1.0
-    params.WeightReplacementMaxPower = 5.0
-    params.MutateWeightsSevereProb = 0.5
-    params.WeightMutationRate = 0.75
-    params.MaxWeight = 20
-    params.MutateAddNeuronProb = 0.01
-    params.MutateAddLinkProb = 0.05
-    params.MutateRemLinkProb = 0.00
 
-    rng = NEAT.RNG()
-    rng.TimeSeed()
-    #rng.Seed(0)
-    g = NEAT.Genome(0, 6, 0, 2, False, NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+    #g = NEAT.Genome(0, 6, 0, 2, False, NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+    g = NEAT.Genome(0, 7, 1, True, NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
+            params)
     pop = NEAT.Population(g, params, True, 1.0)
 
     best_genome_ever = None
-    fast_mode = False
+    fast_mode = True
     for generation in range(1000):
         print("Generation:", generation)
 
@@ -290,15 +335,16 @@ def main():
 
 
         # Draw the best genome's phenotype
-        net = NEAT.NeuralNetwork()
+        '''net = NEAT.NeuralNetwork()
         best_genome_ever = pop.Species[0].GetLeader()
-        best_genome_ever.BuildPhenotype(net)
+        best_genome_ever.Build_ES_Phenotype(net, substrate, params)
         img = np.zeros((250, 250, 3), dtype=np.uint8)
         img += 10
-        NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+
+        utilities.DrawPhenotype(img, (0, 0, 250, 250), net )
         cv2.imshow("current best", img)
         cv2.waitKey(1)
-
+        '''
         if best >= 10000:
             break # evolution is complete if an individual keeps the ball up for that many timesteps
         #if pop.GetStagnation() > 500:
@@ -313,7 +359,7 @@ def main():
     # Show the best genome's performance forever
     pygame.display.set_caption("Best genome ever")
     while True:
-        evaluate(best_genome_ever, space, screen, False, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
+        evaluate(best_genome_ever, space, screen, True, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
 
 main()
 

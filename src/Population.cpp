@@ -76,12 +76,23 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
 
         //m_Genomes[i].CalculateDepth();
     }
+    // Speciate
+    Speciate();
 
+    // initial mutation
+    for (unsigned int i = 0; i < m_Species.size(); i++)
+    {
+        for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
+        {
+            m_Species[i].MutateGenome( true, *this, m_Species[i].m_Individuals[j], m_Parameters, m_RNG );
+        }
+    }
+
+    Speciate();
+    
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
 
-    // Speciate
-    Speciate();
     m_BestGenome = m_Species[0].GetLeader();
 
     Sort();
@@ -99,6 +110,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     {
         m_SearchMode = BLENDED;
     }
+    m_InnovationDatabase.m_Innovations.reserve(50000);
 }
 
 
@@ -436,7 +448,7 @@ void Population::UpdateSpecies()
 
 // the epoch method - the heart of the GA
 void Population::Epoch()
-{
+{   
     // So, all genomes are evaluated..
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
@@ -464,7 +476,6 @@ void Population::Epoch()
 
     // Incrementing the global stagnation counter, we can check later for global stagnation
     m_GensSinceBestFitnessLastChanged++;
-
     // Find and save the best genome and fitness
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
@@ -504,7 +515,6 @@ void Population::Epoch()
             }
         }
     }
-
 
     // adjust the compatibility threshold
     if (m_Parameters.DynamicCompatibility == true)
@@ -669,8 +679,6 @@ void Population::Epoch()
     }
 
     m_Species = m_TempSpecies;
-
-
 
 
     // Now we kill off the old parents
