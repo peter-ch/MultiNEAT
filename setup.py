@@ -16,7 +16,7 @@ try:
     1/0
 
     setup(name='MultiNEAT',
-          version='0.2',
+          version='0.3',
           py_modules=['MultiNEAT'],
           ext_modules = cythonize([Extension('_MultiNEAT',
                                              ['_MultiNEAT.pyx',
@@ -42,7 +42,7 @@ except Exception as ex:
     print('Cython is not present, trying boost::python (with boost::random and boost::serialization)')
 
     setup(name='MultiNEAT',
-          version='0.2',
+          version='0.3',
           py_modules=['MultiNEAT'],
           ext_modules=[Extension('_MultiNEAT', ['src/Genome.cpp',
                                                 'src/Innovation.cpp',

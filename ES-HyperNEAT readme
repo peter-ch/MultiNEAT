@@ -1,3 +1,6 @@
+WARNING: This ES-HyperNEAT implementation is highly experimental and has not been validated yet by independent researchers. Any problems or failed experiments should not be blamed on the algorithm, but the particular implementation here. 
+
+
 Changelog:
 -----------------------------------------
 
