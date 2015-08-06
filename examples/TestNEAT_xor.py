@@ -118,20 +118,20 @@ def getbest(i):
 
 gens = []
 
-"""
+#"""
 for run in range(250):
     gen = getbest(run)
     print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
-"""
-
+#"""
+'''
 with ProcessPoolExecutor(max_workers=8) as executor:
     fs = [executor.submit(getbest, x) for x in range(1000)]
     for i,f in enumerate(as_completed(fs)):
         gen = f.result()
         print('Run:', i, 'Generations to solve XOR:', gen)
         gens += [gen]
-
+'''
 avg_gens = sum(gens) / len(gens)
 
 print('All:', gens)
