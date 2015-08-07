@@ -37,7 +37,6 @@
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/accumulators/accumulators.hpp>
-//#include <boost/accumulators/statistics.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 
@@ -695,8 +694,8 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
     t_temp_phenotype.Flush();
 
     // now loop over every potential connection in the substrate and take its weight
-    CalculateDepth();
-    int dp = GetDepth();
+    //CalculateDepth();
+    int dp = 8;//GetDepth();
 
     // For leaky substrates, first loop over the neurons and set their properties
     if (subst.m_leaky)
@@ -3205,8 +3204,8 @@ void Genome::PruneExpress( const std::vector<double>& node,
             // If it is not it should only happen if the LEO output is greater than a specified threshold
             else if (!params.Leo || (params.Leo && root -> children[i] -> leo > params.LeoThreshold))
             {
-                CalculateDepth();
-                int cppn_depth = GetDepth();
+                //CalculateDepth();
+                int cppn_depth = 8;//GetDepth();
 
                 double d_left, d_right, d_top, d_bottom;
                 std::vector<double> inputs;

@@ -64,7 +64,7 @@ params.YoungAgeTreshold = 15
 params.SpeciesMaxStagnation = 15
 params.OldAgeTreshold = 35
 params.MinSpecies = 5
-params.MaxSpecies = 25
+params.MaxSpecies = 10
 params.RouletteWheelSelection = False
 params.RecurrentProb = 0.0
 params.OverallMutationRate = 0.8
@@ -107,9 +107,13 @@ def getbest(i):
         fitness_list = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         NEAT.ZipFitness(genome_list, fitness_list)
 
-        best = max([x.GetLeader().GetFitness() for x in pop.Species])
-
+        print('Gen: %d Best: %3.5f' % (generation, max(fitness_list)))        
+        
+        best = max(fitness_list)
+        
+        now = time.time()
         pop.Epoch()
+        print('Epoch time: %3.5f s' % (time.time() - now))
 
         generations = generation
         if best > 15.0:
@@ -120,21 +124,10 @@ def getbest(i):
 
 
 gens = []
-
-#"""
-for run in range(250):
+for run in range(100):
     gen = getbest(run)
-    print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
-#"""
-'''
-with ProcessPoolExecutor(max_workers=8) as executor:
-    fs = [executor.submit(getbest, x) for x in range(1000)]
-    for i,f in enumerate(as_completed(fs)):
-        gen = f.result()
-        print('Run:', i, 'Generations to solve XOR:', gen)
-        gens += [gen]
-'''
+    print('Run:', run, 'Generations to solve XOR:', gen)
 avg_gens = sum(gens) / len(gens)
 
 print('All:', gens)

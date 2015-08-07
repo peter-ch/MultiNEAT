@@ -9,7 +9,7 @@ import numpy as np
 import pickle as pickle
 import MultiNEAT as NEAT
 from MultiNEAT import GetGenomeList, ZipFitness
-from MultiNEAT.tools import EvaluateGenomeList_Serial
+from MultiNEAT.tools import EvaluateGenomeList_Serial, EvaluateGenomeList_Parallel
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -91,7 +91,7 @@ def evaluate(genome):
 
 params = NEAT.Parameters()
 
-params.PopulationSize = 200;
+params.PopulationSize = 150;
 
 params.DynamicCompatibility = True;
 params.CompatTreshold = 2.0;
@@ -99,7 +99,7 @@ params.YoungAgeTreshold = 15;
 params.SpeciesMaxStagnation = 100;
 params.OldAgeTreshold = 35;
 params.MinSpecies = 5;
-params.MaxSpecies = 25;
+params.MaxSpecies = 10;
 params.RouletteWheelSelection = False;
 
 params.MutateRemLinkProb = 0.02;
@@ -149,33 +149,29 @@ def getbest(i):
 
     for generation in range(2000):
         genome_list = NEAT.GetGenomeList(pop)
+        #if sys.platform == 'linux':
+        #    fitnesses = EvaluateGenomeList_Parallel(genome_list, evaluate, display=False)
+        #else:
         fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
+        
+        print('Gen: %d Best: %3.5f' % (generation, max(fitnesses)))
 
-        best = max([x.GetLeader().GetFitness() for x in pop.Species])
+        best = max(fitnesses)
 
         pop.Epoch()
         generations = generation
+        
         if best > 15.0:
             break
 
     return generations
 
 gens = []
-#"""
 for run in range(100):
     gen = getbest(run)
-    print('Run:', run, 'Generations to solve XOR:', gen)
     gens += [gen]
-#"""
-'''
-with ProcessPoolExecutor(max_workers=8) as executor:
-    fs = [executor.submit(getbest, x) for x in range(100)]
-    for i,f in enumerate(as_completed(fs)):
-        gen = f.result()
-        print('Run:', i, 'Generations to solve XOR:', gen)
-        gens += [gen]
-'''
+    print('Run:', run, 'Generations to solve XOR:', gen)
 avg_gens = sum(gens) / len(gens)
 
 print('All:', gens)

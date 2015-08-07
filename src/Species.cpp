@@ -348,10 +348,9 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         
         if (!t_champ_chosen)
         { 
-            t_champ_chosen = true;
             t_baby = m_Individuals[0];
+            t_champ_chosen = true;
         }
-
         else
         {
             //do // - while the baby already exists somewhere in the new population
@@ -399,7 +398,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
                                 // The other parent should be a different one
                                 // number of tries to find different parent
-                                int t_tries = 32;
+                                int t_tries = 3;
                                 if (!a_Parameters.AllowClones)
                                 {
                                     while(((t_mom.GetID() == t_dad.GetID()) /*|| (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)*/ ) && (t_tries--))
@@ -437,8 +436,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                             t_mated = false;
                         }
 
-                    } while (t_baby.HasDeadEnds() || (t_baby.NumLinks() == 0));
-                    // in case of dead ends after crossover we will repeat crossover
+                    } while (/*t_baby.HasDeadEnds() || */(t_baby.NumLinks() == 0));
+                    // in case of dead ends after crossover we will try to repeat crossover
                     // until it works
                 }
 
@@ -477,7 +476,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         // Final place to test for problems
         // If there is anything wrong here, we will just
         // pick a random individual and leave him unchanged
-        if ((t_baby.NumLinks() == 0) || t_baby.HasDeadEnds())
+        if ((t_baby.NumLinks() == 0) /*|| t_baby.HasDeadEnds()*/)
         {
             t_baby = GetIndividual(a_Parameters, a_RNG);
         }
@@ -674,18 +673,13 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
         }
     }
 
-/*    if (t_baby.HasDeadEnds())
-    {
-        std::cout << "Dead ends in baby after crossover" << std::endl;
-//        int p;
-//        std::cin >> p;
-    }*/
-
     // OK we have the baby, so let's mutate it.
     bool t_baby_is_clone = false;
 
     if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
+    {
         MutateGenome(t_baby_is_clone, a_Pop, t_baby, a_Parameters, a_RNG);
+    }
 
     // We have a new offspring now
     // give the offspring a new ID
@@ -702,21 +696,6 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 
     t_baby.ResetEvaluated();
 
-    // debug trap
-/*    if (t_baby.NumLinks() == 0)
-    {
-        std::cout << "No links in baby after reproduction" << std::endl;
-//        int p;
-//        std::cin >> p;
-    }
-
-    if (t_baby.HasDeadEnds())
-    {
-        std::cout << "Dead ends in baby after reproduction" << std::endl;
-//        int p;
-//        std::cin >> p;
-    }
-*/
     return t_baby;
 }
 

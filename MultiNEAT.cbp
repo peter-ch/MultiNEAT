@@ -12,13 +12,16 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-pg" />
 					<Add option="-g" />
-					<Add directory="/usr/include/python2.7" />
+					<Add directory="/usr/include/python3.4" />
 				</Compiler>
 				<Linker>
-					<Add library="python2.7" />
+					<Add option="-pg" />
+					<Add library="python3.4m" />
 					<Add library="boost_python" />
 					<Add library="boost_serialization" />
+					<Add library="boost_system" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -27,10 +30,17 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-march=corei7-avx" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add directory="/usr/include/python3.4" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="python3.4m" />
+					<Add library="boost_python" />
+					<Add library="boost_system" />
+					<Add library="boost_serialization" />
 				</Linker>
 			</Target>
 		</Build>
@@ -38,31 +48,31 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="lib/Assert.h" />
-		<Unit filename="lib/Genes.h" />
-		<Unit filename="lib/Genome.cpp" />
-		<Unit filename="lib/Genome.h" />
-		<Unit filename="lib/Innovation.cpp" />
-		<Unit filename="lib/Innovation.h" />
-		<Unit filename="lib/Main.cpp" />
-		<Unit filename="lib/NeuralNetwork.cpp" />
-		<Unit filename="lib/NeuralNetwork.h" />
-		<Unit filename="lib/Parameters.cpp" />
-		<Unit filename="lib/Parameters.h" />
-		<Unit filename="lib/PhenotypeBehavior.cpp" />
-		<Unit filename="lib/PhenotypeBehavior.h" />
-		<Unit filename="lib/Population.cpp" />
-		<Unit filename="lib/Population.h" />
-		<Unit filename="lib/PythonBindings.cpp" />
-		<Unit filename="lib/PythonBindings.h" />
-		<Unit filename="lib/Random.cpp" />
-		<Unit filename="lib/Random.h" />
-		<Unit filename="lib/Species.cpp" />
-		<Unit filename="lib/Species.h" />
-		<Unit filename="lib/Substrate.cpp" />
-		<Unit filename="lib/Substrate.h" />
-		<Unit filename="lib/Utils.cpp" />
-		<Unit filename="lib/Utils.h" />
+		<Unit filename="src/Assert.h" />
+		<Unit filename="src/Genes.h" />
+		<Unit filename="src/Genome.cpp" />
+		<Unit filename="src/Genome.h" />
+		<Unit filename="src/Innovation.cpp" />
+		<Unit filename="src/Innovation.h" />
+		<Unit filename="src/Main.cpp" />
+		<Unit filename="src/NeuralNetwork.cpp" />
+		<Unit filename="src/NeuralNetwork.h" />
+		<Unit filename="src/Parameters.cpp" />
+		<Unit filename="src/Parameters.h" />
+		<Unit filename="src/PhenotypeBehavior.cpp" />
+		<Unit filename="src/PhenotypeBehavior.h" />
+		<Unit filename="src/Population.cpp" />
+		<Unit filename="src/Population.h" />
+		<Unit filename="src/PythonBindings.cpp" />
+		<Unit filename="src/PythonBindings.h" />
+		<Unit filename="src/Random.cpp" />
+		<Unit filename="src/Random.h" />
+		<Unit filename="src/Species.cpp" />
+		<Unit filename="src/Species.h" />
+		<Unit filename="src/Substrate.cpp" />
+		<Unit filename="src/Substrate.h" />
+		<Unit filename="src/Utils.cpp" />
+		<Unit filename="src/Utils.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

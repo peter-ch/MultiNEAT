@@ -23,7 +23,7 @@ params.YoungAgeTreshold = 15;
 params.SpeciesMaxStagnation = 100;
 params.OldAgeTreshold = 35;
 params.MinSpecies = 5;
-params.MaxSpecies = 25;
+params.MaxSpecies = 10;
 params.RouletteWheelSelection = False;
 
 params.MutateRemLinkProb = 0.02;
@@ -97,7 +97,7 @@ substrate.m_allow_hidden_hidden_links = False;
 substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID;
 substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID;
 
-substrate.m_with_distance = True;
+substrate.m_with_distance = False;
 
 substrate.m_max_weight_and_bias = 8.0;
 
@@ -163,7 +163,7 @@ def getbest(run):
         #Evaluate genomes
         genome_list = NEAT.GetGenomeList(pop)
 
-        fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=False)
+        fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
         # Print best fitness
@@ -201,20 +201,10 @@ def getbest(run):
 
 
 gens = []
-#'''
 for run in range(100):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)
-#'''
-'''
-with ProcessPoolExecutor(max_workers=8) as executor:
-    fs = [executor.submit(getbest, x) for x in range(100)]
-    for i,f in enumerate(as_completed(fs)):
-        gen = f.result()
-        print('Run:', i, 'Generations to solve XOR:', gen)
-        gens += [gen]
-'''
 avg_gens = sum(gens) / len(gens)
 
 print('All:', gens)

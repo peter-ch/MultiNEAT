@@ -69,6 +69,7 @@ except Exception as ex:
                                                 'src/Substrate.cpp',
                                                 'src/Utils.cpp'],
                                  libraries=[lb,
+                                            'boost_system',
                                             'boost_serialization'],
                                             
                                  # for Windows                                 
@@ -77,7 +78,8 @@ except Exception as ex:
                                  #include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
                                  #library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
 
-                                 extra_compile_args=['-O3', '-march=native', 
+                                 extra_compile_args=[#'-O3', 
+                                                     '-march=native', 
                                                      '-DUSE_BOOST_PYTHON',
                                                      '-DUSE_BOOST_RANDOM', 
                                                     '-std=gnu++11',

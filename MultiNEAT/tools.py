@@ -8,19 +8,6 @@ try:
 except:
     ipython_installed = False
 
-try:
-    import cv2
-    import numpy as np
-    from numpy import array, clip
-    cvnumpy_installed = True
-except:
-    print ('Tip: install the OpenCV computer vision library (2.0+) with '
-           'Python bindings')
-    print ('     to get convenient neural network visualization to NumPy '
-           'arrays')
-    cvnumpy_installed = False
-
-
 # Evaluates all genomes in sequential manner (using only 1 process) and
 # returns a list of corresponding fitness values.
 # evaluator is a callable that is supposed to take Genome as argument and
@@ -64,9 +51,6 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator,
                 if display:
                     if ipython_installed: clear_output(wait=True)
                     print('Individuals: (%s/%s) Fitness: %3.4f' % (i, len(genome_list), fitness))
-                        
-                if cvnumpy_installed:
-                    cv2.waitKey(1)
     else:
         if type(ipython_client) == Client:
             lbview = ipython_client.load_balanced_view()
@@ -75,8 +59,6 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator,
                 if display:
                     if ipython_installed: clear_output(wait=True)
                     print('Individual:', i, 'Fitness:', fitness)
-                if cvnumpy_installed:
-                    cv2.waitKey(1)
                 fitnesses.append(fitness)
         else:
             raise ValueError('Please provide valid IPython.parallel Client() as ipython_client')

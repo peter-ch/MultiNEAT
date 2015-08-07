@@ -90,12 +90,12 @@ int main()
     params.PopulationSize = 200;
 
     params.DynamicCompatibility = true;
-    params.CompatTreshold = 2.0;
+    params.CompatTreshold = 10.0;
     params.YoungAgeTreshold = 15;
     params.SpeciesMaxStagnation = 100;
     params.OldAgeTreshold = 35;
     params.MinSpecies = 5;
-    params.MaxSpecies = 25;
+    params.MaxSpecies = 8;
     params.RouletteWheelSelection = false;
 
     params.MutateRemLinkProb = 0.02;

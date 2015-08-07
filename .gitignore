@@ -8,3 +8,4 @@ datadump/*
 *core*
 /Release/
 /Debug/
+/dist/

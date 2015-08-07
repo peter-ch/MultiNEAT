@@ -671,13 +671,14 @@ void Population::Epoch()
     m_TempSpecies.clear();
     m_TempSpecies = m_Species;
     for(unsigned int i=0; i<m_TempSpecies.size(); i++)
+    {
         m_TempSpecies[i].Clear();
+    }
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         m_Species[i].Reproduce(*this, m_Parameters, m_RNG);
     }
-
     m_Species = m_TempSpecies;
 
 
@@ -735,7 +736,9 @@ void Population::Epoch()
     // This is the place where we control whether we want to
     // keep innovation numbers forever or not.
     if (!m_Parameters.InnovationsForever)
+    {
         m_InnovationDatabase.Flush();
+    }
 }
 
 
@@ -753,7 +756,9 @@ Genome& Population::AccessGenomeByIndex(unsigned int const a_idx)
         for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
         {
             if (t_counter == a_idx)// reached the index?
+            {
                 return m_Species[i].m_Individuals[j];
+            }
 
             t_counter++;
         }
