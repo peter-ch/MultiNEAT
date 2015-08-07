@@ -1,3 +1,4 @@
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 try:
@@ -7,32 +8,6 @@ try:
 except:
     ipython_installed = False
 
-
-
-def Scale(a, a_min, a_max, a_tr_min, a_tr_max):
-    t_a_r = a_max - a_min
-    if t_a_r == 0:
-        return a_max
-
-    t_r = a_tr_max - a_tr_min
-    rel_a = (a - a_min) / t_a_r
-    return a_tr_min + t_r * rel_a
-
-
-def Clamp(a, min, max):
-    if a < min:
-        return min
-    elif a > max:
-        return max
-    else:
-        return a
-
-
-def AlmostEqual(a, b, margin):
-    if abs(a-b) > margin:
-        return False
-    else:
-        return True
 
 
 # Evaluates all genomes in sequential manner (using only 1 process) and

@@ -1,17 +1,12 @@
 #!/usr/bin/python3
 
-import os
-import sys
 import time
 import random as rnd
-import subprocess as comm
 import cv2
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import pickle as pickle
 import math
 import MultiNEAT as NEAT
+from MultiNEAT.viz import DrawPhenotype
 import pygame
 from pygame.locals import *
 from pygame.color import *
@@ -242,7 +237,7 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
             # draw the phenotype
             img = np.zeros((250, 250, 3), dtype=np.uint8)
             img += 10
-            NEAT.DrawPhenotype(img, (0, 0, 250, 250), net )
+            DrawPhenotype(img, (0, 0, 250, 250), net )
             cv2.imshow("current best", img)
             cv2.waitKey(1)
 

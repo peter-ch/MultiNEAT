@@ -8,6 +8,8 @@ import cv2
 import numpy as np
 import pickle as pickle
 import MultiNEAT as NEAT
+from MultiNEAT import GetGenomeList, ZipFitness
+from MultiNEAT.tools import EvaluateGenomeList_Serial
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -147,7 +149,7 @@ def getbest(i):
 
     for generation in range(2000):
         genome_list = NEAT.GetGenomeList(pop)
-        fitnesses = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
+        fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
 
         best = max([x.GetLeader().GetFitness() for x in pop.Species])
