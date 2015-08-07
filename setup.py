@@ -30,7 +30,7 @@ try:
 
     setup(name='MultiNEAT',
           version='0.3',
-          py_modules=['MultiNEAT'],
+          packages=['MultiNEAT'] ,
           ext_modules = cythonize([Extension('_MultiNEAT',
                                              ['_MultiNEAT.pyx',
                                               'src/Genome.cpp',
@@ -56,7 +56,7 @@ except Exception as ex:
 
     setup(name='MultiNEAT',
           version='0.3',
-          py_modules=['MultiNEAT'],
+          packages=['MultiNEAT'] ,
           ext_modules=[Extension('_MultiNEAT', ['src/Genome.cpp',
                                                 'src/Innovation.cpp',
                                                 'src/NeuralNetwork.cpp',

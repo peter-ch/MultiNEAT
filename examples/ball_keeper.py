@@ -341,7 +341,7 @@ def main():
     # Show the best genome's performance forever
     pygame.display.set_caption("Best genome ever")
     while True:
-        evaluate(best_genome_ever, space, screen, True, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
+        evaluate(pop.Species[0].GetLeader(), space, screen, False, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
 
 main()
 

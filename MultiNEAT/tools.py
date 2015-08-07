@@ -1,0 +1,106 @@
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+try:
+    from IPython.display import clear_output
+    from IPython.parallel import Client
+    ipython_installed = True
+except:
+    ipython_installed = False
+
+
+
+def Scale(a, a_min, a_max, a_tr_min, a_tr_max):
+    t_a_r = a_max - a_min
+    if t_a_r == 0:
+        return a_max
+
+    t_r = a_tr_max - a_tr_min
+    rel_a = (a - a_min) / t_a_r
+    return a_tr_min + t_r * rel_a
+
+
+def Clamp(a, min, max):
+    if a < min:
+        return min
+    elif a > max:
+        return max
+    else:
+        return a
+
+
+def AlmostEqual(a, b, margin):
+    if abs(a-b) > margin:
+        return False
+    else:
+        return True
+
+
+# Evaluates all genomes in sequential manner (using only 1 process) and
+# returns a list of corresponding fitness values.
+# evaluator is a callable that is supposed to take Genome as argument and
+# return a double
+def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
+    fitnesses = []
+    count = 0
+    curtime = time.time()
+
+    for g in genome_list:
+        f = evaluator(g)
+        fitnesses.append(f)
+
+        if display:
+            if ipython_installed: clear_output(wait=True)
+            print('Individuals: (%s/%s) Fitness: %3.4f' % (count, len(genome_list), f))
+        count += 1
+        
+    elapsed = time.time() - curtime
+
+    if display:
+        print('seconds elapsed: %s' % elapsed)
+
+    return fitnesses
+
+# Evaluates all genomes in parallel manner (many processes) and returns a
+# list of corresponding fitness values.
+# evaluator is a callable that is supposed to take Genome as argument and return a double
+def EvaluateGenomeList_Parallel(genome_list, evaluator, 
+                                cores=8, display=True, ipython_client=None):
+    ''' If ipython_client is None, will use concurrent.futures. 
+    Pass an instance of Client() in order to use an IPython cluster '''
+    fitnesses = []
+    curtime = time.time()
+    
+    if ipython_client is None or not ipython_installed:    
+        with ProcessPoolExecutor(max_workers=cores) as executor:
+            for i, fitness in enumerate(executor.map(evaluator, genome_list)):
+                fitnesses += [fitness]
+                
+                if display:
+                    if ipython_installed: clear_output(wait=True)
+                    print('Individuals: (%s/%s) Fitness: %3.4f' % (i, len(genome_list), fitness))
+                        
+                if cvnumpy_installed:
+                    cv2.waitKey(1)
+    else:
+        if type(ipython_client) == Client:
+            lbview = ipython_client.load_balanced_view()
+            amr = lbview.map(evaluator, genome_list, ordered=True, block=False)
+            for i, fitness in enumerate(amr):
+                if display:
+                    if ipython_installed: clear_output(wait=True)
+                    print('Individual:', i, 'Fitness:', fitness)
+                if cvnumpy_installed:
+                    cv2.waitKey(1)
+                fitnesses.append(fitness)
+        else:
+            raise ValueError('Please provide valid IPython.parallel Client() as ipython_client')
+
+    elapsed = time.time() - curtime
+
+    if display:
+        print('seconds elapsed: %3.4f' % elapsed)
+
+    return fitnesses
+
+
+ 

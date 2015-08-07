@@ -80,7 +80,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     Speciate();
 
     // initial mutation
-    for (unsigned int i = 0; i < m_Species.size(); i++)
+    /*for (unsigned int i = 0; i < m_Species.size(); i++)
     {
         for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
         {
@@ -88,7 +88,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
         }
     }
 
-    Speciate();
+    Speciate();*/
     
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
