@@ -106,16 +106,9 @@ def getbest(i):
         genome_list = NEAT.GetGenomeList(pop)
         fitness_list = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         NEAT.ZipFitness(genome_list, fitness_list)
-
-        print('Gen: %d Best: %3.5f' % (generation, max(fitness_list)))        
-        
-        best = max(fitness_list)
-        
-        now = time.time()
         pop.Epoch()
-        print('Epoch time: %3.5f s' % (time.time() - now))
-
         generations = generation
+        best = max(fitness_list)
         if best > 15.0:
             break
 

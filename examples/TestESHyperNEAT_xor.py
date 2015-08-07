@@ -107,7 +107,7 @@ def evaluate_xor(genome):
 
     try:
 
-        genome.Build_ES_Phenotype(net, substrate, params)
+        genome.BuildESHyperNEATPhenotype(net, substrate, params)
         error = 0
         depth = 3
         correct = 0.0
@@ -154,8 +154,14 @@ def evaluate_xor(genome):
 
 
 def getbest(run):
-    g = NEAT.Genome(0, 7, 1, True, 
-                    NEAT.ActivationFunction.SIGNED_SIGMOID, NEAT.ActivationFunction.SIGNED_SIGMOID,
+    g = NEAT.Genome(0,
+                    substrate.GetMinCPPNInputs(),
+                    0,
+                    substrate.GetMinCPPNOutputs(),
+                    False,
+                    NEAT.ActivationFunction.TANH,
+                    NEAT.ActivationFunction.TANH,
+                    0,
                     params)
 
     pop = NEAT.Population(g, params, True, 1.0, run)
@@ -163,8 +169,10 @@ def getbest(run):
         #Evaluate genomes
         genome_list = NEAT.GetGenomeList(pop)
 
-        fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
+        fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate_xor, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
+        
+        print('Gen: %d Best: %3.5f' % (generation, max(fitnesses)))
 
         # Print best fitness
         #print("---------------------------")
@@ -190,7 +198,7 @@ def getbest(run):
         cv2.imshow("NN", img)
         cv2.waitKey(1)
         '''
-        if max([x.GetLeader().GetFitness() for x in pop.Species]) > 15.0:
+        if max(fitnesses) > 15.0:
             break
         
         # Epoch
