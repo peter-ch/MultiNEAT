@@ -127,7 +127,7 @@ class NeuralNetwork
 
 public:
 
-    unsigned short m_num_inputs, m_num_outputs;
+    unsigned int m_num_inputs, m_num_outputs;
     std::vector<Connection> m_connections; // array size - number of connections
     std::vector<Neuron>     m_neurons;
 
@@ -179,11 +179,11 @@ public:
         m_num_inputs = a_i;
         m_num_outputs = a_o;
     }
-    unsigned short NumInputs() const
+    unsigned int NumInputs() const
     {
         return m_num_inputs;
     }
-    unsigned short NumOutputs() const
+    unsigned int NumOutputs() const
     {
         return m_num_outputs;
     }
@@ -200,21 +200,15 @@ public:
     double GetConnectionLenght(Neuron source, Neuron target)
     {   double dist = 0.0;
         for (unsigned int i = 0; i < source.m_substrate_coords.size(); i++)
-            dist += (target.m_substrate_coords[i] - source.m_substrate_coords[i])*(target.m_substrate_coords[i]- source.m_substrate_coords[i] );
+        {
+            dist += (target.m_substrate_coords[i] - source.m_substrate_coords[i]) *
+            		(target.m_substrate_coords[i] - source.m_substrate_coords[i] );
+        }
         return dist;
     }
 
     double GetTotalConnectionLength()
-    {   //return m_connections.size(); //The alternative approach
-       /* double total = 0;
-        for (unsigned int i = 0; i < m_connections.size(); i++)
-        {
-            //std:: cout << GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx])<< std::endl;
-
-            total += std::pow(GetConnectionLenght(m_neurons[m_connections[i].m_source_neuron_idx], m_neurons[m_connections[i].m_target_neuron_idx]),2);
-        }
-        //std::cout <<  total << std::endl;
-        */
+    {
         return m_connections.size();
     }
 

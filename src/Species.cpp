@@ -119,7 +119,9 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
     for(unsigned int i=0; i<m_Individuals.size(); i++)
     {
         if (m_Individuals[i].IsEvaluated())
+        {
             t_Evaluated.push_back( m_Individuals[i] );
+        }
     }
 
     ASSERT(t_Evaluated.size() > 0);
@@ -162,7 +164,9 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
         // roulette wheel selection
         std::vector<double> t_probs;
         for(unsigned int i=0; i<t_Evaluated.size(); i++)
+        {
             t_probs.push_back( t_Evaluated[i].GetFitness() );
+        }
         t_chosen_one = a_RNG.Roulette(t_probs);
     }
 
@@ -315,44 +319,16 @@ void Species::RemoveIndividual(unsigned int a_idx)
 }
 
 
-// New stuff
-
-/*
-
-SUMMARY OF THE EPOCH MECHANISM
---------------------------------------------------------------------------------------------------
-- Adjust all species's fitness
-- Count offspring per species
-
-. Kill worst individuals for all species (delete them, not skip them!)
-. Reproduce all species
-. Kill the old parents
-
-  1. Every individual in the population is a BABY before evaluation.
-  2. After evaluation (i.e. lifetime), the worst individuals are killed and the others become ADULTS.
-  3. Reproduction mates adults and mutates offspring.
-     A mixture of BABIES and ADULTS emerges in each species.
-     New species may appear in the population during the process.
-  4. Then the individuals marked as ADULT are killed off.
-  5. What remains is a species with the new offspring (only babies)
---------------------------------------------------------------------------------------------------
-
-*/
-
-
 // Reproduce mates & mutates the individuals of the species
 // It may access the global species list in the population
 // because some babies may turn out to belong in another species
 // that have to be created.
-// Also calls Birth() for every new baby
 void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 {
     Genome t_baby; // temp genome for reproduction
 
     int t_offspring_count = Rounded(GetOffspringRqd());
-    int elite_offspring = Rounded(a_Parameters.Elitism*m_Individuals.size());
-    //ensure we have a champ
-    int elite_count = 0;
+
     // no offspring?! yikes.. dead species!
     if (t_offspring_count == 0)
     {
@@ -374,12 +350,6 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         { 
             t_champ_chosen = true;
             t_baby = m_Individuals[0];
-        }
-
-        else if (elite_count < elite_offspring)
-        {
-            t_baby = m_Individuals[elite_count+1];
-            elite_count++;
         }
 
         else
@@ -525,8 +495,6 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         t_baby.SetFitness(0);
         t_baby.SetAdjFitness(0);
         t_baby.SetOffspringAmount(0);
-        t_baby.SetPerformance(0.0);
-        t_baby.SetLength(0.0);
 
         t_baby.ResetEvaluated();
 

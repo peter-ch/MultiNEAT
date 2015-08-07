@@ -39,10 +39,10 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
 {
 
     NeuralNetwork net;
-    //g.BuildHyperNEATPhenotype(net, subst);
-    g.Build_ES_Phenotype(net, subst, params);
+    g.BuildHyperNEATPhenotype(net, subst);
+    //g.BuildESHyperNEATPhenotype(net, subst, params);
 
-    int depth = 5;
+    int depth = 2;
     double error = 0;
     std::vector<double> inputs;
     inputs.resize(3);
@@ -79,9 +79,6 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += abs(net.Output()[0] - 0.0);
 
-    //std::vector<double> f;
-    //f.push_back((4.0 - error)*(4.0 - error));
-    //f.push_back(g.Length);
 
     return (4.0 - error)*(4.0 - error);
 
@@ -146,7 +143,6 @@ int main()
 	params.Qtree_Y = 0.0;
 	params.Width = 1.;
 	params.Height = 1.;
-	params.Elitism = 0.1;
 
     RNG rng;
 
@@ -211,19 +207,18 @@ int main()
     substrate.m_hidden_nodes_activation = SIGNED_SIGMOID;
     substrate.m_output_nodes_activation = UNSIGNED_SIGMOID;
 
-    substrate.m_with_distance = true;
+    substrate.m_with_distance = false;
 
     substrate.m_max_weight_and_bias = 8.0;
 
-    Genome s(0, 7, 1, false, SIGNED_SIGMOID, SIGNED_SIGMOID, params);
-    /*Genome s(0, substrate.GetMinCPPNInputs(),
+    Genome s(0, substrate.GetMinCPPNInputs(),
 				0,
 				substrate.GetMinCPPNOutputs(),
 				false,
-				TANH,
-				TANH,
+				SIGNED_SIGMOID,
+				SIGNED_SIGMOID,
 				0,
-				params);*/
+				params);
     Population pop(s, params, true, 1.0, 0);
 
     for(int k=0; k<5000; k++)

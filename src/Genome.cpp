@@ -74,8 +74,6 @@ Genome::Genome()
     m_OffspringAmount = 0;
     m_Evaluated = false;
     m_PhenotypeBehavior = NULL;
-    Performance = 0.0;
-    Length = 0.0;
 }
 
 
@@ -93,8 +91,6 @@ Genome::Genome(const Genome& a_G)
     m_OffspringAmount = a_G.m_OffspringAmount;
     m_Evaluated = a_G.m_Evaluated;
     m_PhenotypeBehavior = a_G.m_PhenotypeBehavior;
-    Performance = a_G.Performance;
-    Length = a_G.Length;
 }
 
 // assignment operator
@@ -114,8 +110,6 @@ Genome& Genome::operator =(const Genome& a_G)
         m_OffspringAmount = a_G.m_OffspringAmount;
         m_Evaluated = a_G.m_Evaluated;
         m_PhenotypeBehavior = a_G.m_PhenotypeBehavior;
-        Performance = a_G.Performance;
-        Length = a_G.Length;
     }
 
     return *this;
@@ -277,13 +271,11 @@ Genome::Genome(unsigned int a_ID,
     m_OffspringAmount = 0.0;
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
-    Performance = 0.0;
-    Length = 0.0;
 }
 
 
 // Alternative constructor that creates a minimum genome with a leo output and if needed a gaussian seed.
-
+/*
 Genome::Genome(unsigned int a_ID,
                unsigned int a_NumInputs,
                unsigned int a_NumOutputs,
@@ -447,7 +439,7 @@ Genome::Genome(unsigned int a_ID,
     Length = 0.0;
 
 }
-
+*/
 
 // A little helper function to find the index of a neuron, given its ID
 // returns -1 if not found
@@ -2891,7 +2883,7 @@ You can use any subsstrate, but the hidden nodes in it will not be used for the 
 Relies on the Divide Initialize, PruneExpress and CleanNet methods.
 */
 
-void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters& params)
+void Genome::BuildESHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst, Parameters& params)
 {
     ASSERT(subst.m_input_coords.size() > 0);
     ASSERT(subst.m_output_coords.size() > 0);
@@ -2938,7 +2930,6 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         DivideInitialize( subst.m_input_coords[i], root,t_temp_phenotype,  params, true, 0.0);
         TempConnections.clear();
         PruneExpress( subst.m_input_coords[i], root, t_temp_phenotype, params, TempConnections, true);
-        //root.reset();    // release root
 
         for(unsigned int j = 0; j < TempConnections.size(); j++)
         {
@@ -2960,7 +2951,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
             Connection tc;
             tc.m_source_neuron_idx = i;
             tc.m_target_neuron_idx = target_index + hidden_index ;
-            tc.m_weight = TempConnections[j].weight*subst.m_max_weight_and_bias;
+            tc.m_weight = TempConnections[j].weight * subst.m_max_weight_and_bias;
             tc.m_recur_flag = false;
 
             net.m_connections.push_back(tc);
@@ -2999,7 +2990,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
                 Connection tc;
                 tc.m_source_neuron_idx = itr_hid->second + hidden_index;  // NO!!!
                 tc.m_target_neuron_idx = target_index + hidden_index;
-                tc.m_weight = TempConnections[k].weight*subst.m_max_weight_and_bias;
+                tc.m_weight = TempConnections[k].weight * subst.m_max_weight_and_bias;
                 tc.m_recur_flag = false;
 
                 net.m_connections.push_back(tc);
@@ -3010,7 +3001,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         boost::unordered_map< std::vector<double>, int >::iterator itr1;
         for(itr1 = hidden_nodes.begin(); itr1 != hidden_nodes.end(); itr1++)
         {
-            if(unexplored_nodes.find(itr1 -> first) == unexplored_nodes.end());
+            if(unexplored_nodes.find(itr1 -> first) == unexplored_nodes.end())
             {
                 temp.insert(std::make_pair(itr1 -> first, itr1 -> second));
             }
@@ -3052,7 +3043,6 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
 
     for (unsigned int i = 0; i < input_count -1; i++)
     {
-        // Shameless reuse
         Neuron t_n;
         t_n.m_a = 1;
         t_n.m_b = 0;
@@ -3061,7 +3051,7 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
         t_n.m_type = NEAT::INPUT;
         net.m_neurons.push_back(t_n);
     }
-    //Bias n.
+    // Bias n.
     Neuron t_n;
     t_n.m_a = 1;
     t_n.m_b = 0;
@@ -3096,17 +3086,21 @@ void Genome::Build_ES_Phenotype(NeuralNetwork& net, Substrate& subst, Parameters
     }
 
     // Clean the generated network from dangling connections and we're good to go.
-    // Easy as 1,2,4 ...
     Clean_Net(net.m_connections, input_count, output_count, hidden_nodes.size());
 }
 
 // Used to determine the placement of hidden neurons in the Evolvable Substrate.
-void Genome::DivideInitialize(const std::vector<double>& node, boost::shared_ptr<QuadPoint>& root,  NeuralNetwork& cppn, Parameters& params, const bool& outgoing, const double& z_coord)
+void Genome::DivideInitialize(const std::vector<double>& node,
+		                      boost::shared_ptr<QuadPoint>& root,
+							  NeuralNetwork& cppn,
+							  Parameters& params,
+							  const bool& outgoing,
+							  const double& z_coord)
 {   // Have to check if this actually does something useful here
-    CalculateDepth();
-    int cppn_depth = GetDepth();
+    //CalculateDepth();
+    int cppn_depth = 8;//GetDepth();
+
     std::vector<double> t_inputs;
-    t_inputs.reserve(7); // 3 dimensions + bias. // TODO: get rid of the hardcoded value, make it support 2D/3D substrates
 
     // Standard Tree stuff. Create children, check their output with the CPPN
     // and if they have higher variance add them to their parent. Repeat with the children
@@ -3127,10 +3121,11 @@ void Genome::DivideInitialize(const std::vector<double>& node, boost::shared_ptr
         for(unsigned int i = 0; i < p-> children.size(); i++)
         {
             t_inputs.clear();
+            t_inputs.reserve(cppn.NumInputs());
 
             if (outgoing)
             {
-                //node goes here
+                // node goes here
                 t_inputs = node;
 
                 t_inputs.push_back(p -> children[i] -> x);
@@ -3150,8 +3145,9 @@ void Genome::DivideInitialize(const std::vector<double>& node, boost::shared_ptr
                 t_inputs.push_back(node[2]);
             }
 
-            //Bias
-            t_inputs.push_back(params.CPPN_Bias);
+            // Bias
+            t_inputs[t_inputs.size()-1] = (params.CPPN_Bias);
+
             cppn.Flush();
             cppn.Input(t_inputs);
 
@@ -3183,7 +3179,12 @@ void Genome::DivideInitialize(const std::vector<double>& node, boost::shared_ptr
 
 // We take the tree generated above and see which connections can be expressed on the basis of Variance threshold,
 // Band threshold and LEO.
-void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<QuadPoint> &root, NeuralNetwork& cppn, Parameters& params, std::vector<Genome::TempConnection>& connections, const bool& outgoing)
+void Genome::PruneExpress( const std::vector<double>& node,
+		                   boost::shared_ptr<QuadPoint> &root,
+						   NeuralNetwork& cppn,
+						   Parameters& params,
+						   std::vector<Genome::TempConnection>& connections,
+						   const bool& outgoing)
 {
     if(root -> children[0] == NULL)
     {
@@ -3209,7 +3210,6 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
 
                 double d_left, d_right, d_top, d_bottom;
                 std::vector<double> inputs;
-                inputs.reserve(7); // 3d + bias
 
                 int root_index = 0;
 
@@ -3236,6 +3236,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
                 // Left
                 inputs.push_back(params.CPPN_Bias);
                 inputs[root_index] -= root -> width;
+
                 cppn.Input(inputs);
 
                 for(int d=0; d<cppn_depth; d++)
@@ -3247,7 +3248,7 @@ void Genome::PruneExpress( const std::vector<double>& node, boost::shared_ptr<Qu
                 cppn.Flush();
 
                 // Right
-                inputs[root_index] += 2* root -> width;
+                inputs[root_index] += 2 * ( root -> width );
                 cppn.Input(inputs);
 
                 for(int d=0; d<cppn_depth; d++)
@@ -3380,35 +3381,6 @@ void Genome::CollectValues(std::vector<double>& vals, boost::shared_ptr<QuadPoin
     }
 }
 
-#ifdef USE_BOOST_PYTHON
-
-// Returns all the nodes found by a query for a single point. Useful for visualisation and things like that.
-py::list Genome::GetPoints(py::tuple& t_node,Parameters& params, bool outgoing )
-{   std::vector<double> node;
-    std::vector<TempConnection> validpoints;
-    for(int j=0; j<py::len(t_node); j++)
-    {   node.push_back(py::extract<double>(t_node[j]));
-    }
-
-    NeuralNetwork cppn(true);
-    BuildPhenotype(cppn);
-    cppn.Flush();
-
-    boost::shared_ptr<QuadPoint> root  = boost::shared_ptr<QuadPoint>(new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
-
-    DivideInitialize(node, root, cppn, params, outgoing, 0.0);
-    PruneExpress(node, root, cppn, params, validpoints, outgoing);
-    py::list return_values;
-
-    for (unsigned int i = 0; i < validpoints.size(); i++)
-    {
-        return_values.append(validpoints[i].target);
-    }
-
-    return return_values;
-}
-
-#endif
 
 // Removes all the dangling connections. This still leaves the nodes though,
 void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_count,
@@ -3455,7 +3427,9 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
 
             }
             else
+            {
                 itr++;
+            }
         }
     }
 }

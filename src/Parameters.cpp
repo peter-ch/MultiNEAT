@@ -365,6 +365,18 @@ void Parameters::Reset()
     CompatTreshChangeInterval_Evaluations = 10;
 
 
+
+
+
+
+
+
+
+    ////////////////////
+    // ES-HyperNEAT
+    ////////////////////
+
+
     DivisionThreshold = 0.03;
 
     VarianceThreshold = 0.03;
@@ -406,12 +418,8 @@ void Parameters::Reset()
 
     GeometrySeed = false;
 
-    // Binary tournament selection
-    TournamentSize = 2; 
-
-    Elitism = 0.1;
-
 }
+
 Parameters::Parameters()
 {
     Reset();
@@ -825,10 +833,6 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 LeoSeed = false;
         }
-        if (s == "TournamentSize")
-            a_DataFile >> TournamentSize;
-        if (s == "Elitism")
-            a_DataFile >> Elitism;
     }
 
     return 0;
@@ -960,7 +964,6 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
     fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
     fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
-    fprintf(a_fstream, "TournamentSize %d\n", TournamentSize);
     fprintf(a_fstream, "CPPN_Bias %3.20f\n", CPPN_Bias);
     fprintf(a_fstream, "Width %3.20f\n", Width);
     fprintf(a_fstream, "Height %3.20f\n", Height);
@@ -970,8 +973,6 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
     fprintf(a_fstream, "GeometrySeed %s\n", GeometrySeed==true?"true":"false");
-
-    fprintf(a_fstream, "Elitism %3.20f\n", Elitism);
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }

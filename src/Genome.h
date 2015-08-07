@@ -134,11 +134,6 @@ public:
     // used in steady state evolution
     bool m_Evaluated;
 
-    double Length;
-
-    // Sometimes fitness and performance on a task differ.
-    double Performance;
-
     // A pointer to a class representing the phenotype's behavior
     // Used in novelty searches
     PhenotypeBehavior* m_PhenotypeBehavior;
@@ -184,30 +179,19 @@ public:
     /////////////
     // Alternative constructor for dealing with LEO, Gaussian seed etc.
     // empty means only bias is connected to outputs
-    Genome(unsigned int a_ID,
+    /*Genome(unsigned int a_ID,
            unsigned int a_NumInputs,
            unsigned int a_NumOutputs,
            bool empty,
            ActivationFunction a_OutputActType,
            ActivationFunction a_HiddenActType,
-           const Parameters& a_Parameters);
+           const Parameters& a_Parameters);*/
 
 
     ////////////////////////////
     // Destructor
     ////////////////////////////
-    void SetPerformance(double perf)
-    {
-        Performance = perf;
-    }
-    void SetLength(double len)
-    {
-        Length = len;
-    }
-    double GetPerformance()
-    {
-        return Performance;
-    }
+
     ////////////////////////////
     // Methods
     ////////////////////////////
@@ -569,7 +553,7 @@ public:
     	};
     };
 
-    void Build_ES_Phenotype(NeuralNetwork& a_net, Substrate& subst, Parameters& params);
+    void BuildESHyperNEATPhenotype(NeuralNetwork& a_net, Substrate& subst, Parameters& params);
     void DivideInitialize(const std::vector<double>& node,
     		              boost::shared_ptr<QuadPoint>& root,
 						  NeuralNetwork& cppn, Parameters& params,
@@ -585,10 +569,6 @@ public:
     double Variance( boost::shared_ptr<QuadPoint> &point);
     void Clean_Net( std::vector<Connection>& connections, unsigned int input_count,
                     unsigned int output_count, unsigned int hidden_count);
-
-#ifdef USE_BOOST_PYTHON
-    py::list GetPoints(py::tuple& node, Parameters& params, bool outgoing);
-#endif
 
 #ifdef USE_BOOST_PYTHON
 

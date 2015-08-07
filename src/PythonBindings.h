@@ -212,8 +212,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, int, Parameters>())
-	        .def(init<unsigned int, unsigned int, unsigned int,
-                    bool, ActivationFunction, ActivationFunction, Parameters>())
+
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)
             .def("NumInputs", &Genome::NumInputs)
@@ -225,23 +224,17 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetDepth", &Genome::GetDepth)
             .def("CalculateDepth", &Genome::CalculateDepth)
             .def("BuildPhenotype", &Genome::BuildPhenotype)
-            .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
+            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
+            .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
             
-             .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
+            .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
 
             .def("IsEvaluated", &Genome::IsEvaluated)
             .def("SetEvaluated", &Genome::SetEvaluated)
             .def("ResetEvaluated", &Genome::ResetEvaluated)
 
             .def("Save", Genome_Save)
-
-	          .def("Build_ES_Phenotype", &Genome::Build_ES_Phenotype)
-	          .def("GetPoints", &Genome::GetPoints)
-            .def("SetPerformance", &Genome::SetPerformance)
-            .def("GetPerformance", &Genome::GetPerformance)
-            .def("SetLength", &Genome::SetLength)
-            .def_readwrite("Length", &Genome::Length)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -462,8 +455,6 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("LeoSeed", &Parameters::LeoSeed)
 
             .def_readwrite("GeometrySeed", &Parameters::GeometrySeed)
-            .def_readwrite("TournamentSize", &Parameters::TournamentSize)
-            .def_readwrite("Elitism", &Parameters::Elitism)
 
 			.def_pickle(Parameters_pickle_suite())
         ;

@@ -8,6 +8,17 @@ try:
 except:
     ipython_installed = False
 
+try:
+    import cv2
+    import numpy as np
+    from numpy import array, clip
+    cvnumpy_installed = True
+except:
+    print ('Tip: install the OpenCV computer vision library (2.0+) with '
+           'Python bindings')
+    print ('     to get convenient neural network visualization to NumPy '
+           'arrays')
+    cvnumpy_installed = False
 
 
 # Evaluates all genomes in sequential manner (using only 1 process) and

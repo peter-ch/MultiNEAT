@@ -592,10 +592,13 @@ void NeuralNetwork::FlushCube()
 }
 void NeuralNetwork::Input(std::vector<double>& a_Inputs)
 {
-    if (a_Inputs.size() != m_num_inputs)
-        throw std::exception();
+	unsigned mx = a_Inputs.size();
+	if (mx > m_num_inputs)
+	{
+		mx = m_num_inputs;
+	}
 
-    for (unsigned int i = 0; i < a_Inputs.size(); i++)
+    for (unsigned int i = 0; i < mx; i++)
     {
         m_neurons[i].m_activation = a_Inputs[i];
     }
@@ -609,12 +612,16 @@ void NeuralNetwork::Input_python_list(py::list& a_Inputs)
     std::vector<double> inp;
     inp.resize(len);
     for(int i=0; i<len; i++)
+    {
         inp[i] = py::extract<double>(a_Inputs[i]);
+    }
 
     // if the number of passed inputs differs from the actual number of inputs,
     // clip them to fit.
     if (inp.size() != m_num_inputs)
+    {
         inp.resize(m_num_inputs);
+    }
 
     Input(inp);
 }
@@ -625,12 +632,16 @@ void NeuralNetwork::Input_numpy(py::numeric::array& a_Inputs)
     std::vector<double> inp;
     inp.resize(len);
     for(int i=0; i<len; i++)
+    {
         inp[i] = py::extract<double>(a_Inputs[i]);
+    }
 
     // if the number of passed inputs differs from the actual number of inputs,
     // clip them to fit.
     if (inp.size() != m_num_inputs)
+    {
         inp.resize(m_num_inputs);
+    }
 
     Input(inp);
 }

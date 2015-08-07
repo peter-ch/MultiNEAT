@@ -353,8 +353,9 @@ public:
     unsigned int CompatTreshChangeInterval_Evaluations;
 
 
-    // ES HyperNEAT params
-
+    //////////////////////////////
+    // ES HyperNEAT parameters
+    //////////////////////////////
 
     double DivisionThreshold;
 
@@ -395,8 +396,6 @@ public:
     // Use geometric seeding. Currently only along the X axis. 1
     bool LeoSeed;
     bool GeometrySeed;
-
-    double Elitism;
 
     /////////////////////////////////////
     // Constructors
@@ -542,8 +541,6 @@ public:
         ar & LeoThreshold;
         ar & LeoSeed;
         ar & GeometrySeed;
-        ar & TournamentSize;
-        ar & Elitism;
     }
     
 #endif
