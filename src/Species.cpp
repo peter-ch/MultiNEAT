@@ -61,6 +61,8 @@ Species::Species(const Genome& a_Genome, int a_ID)
     m_OffspringRqd = 0;
     m_BestFitness = a_Genome.GetFitness();
     m_BestSpecies = true;
+    m_WorstSpecies = false;
+    m_AverageFitness = 0;
 
     // Choose a random color
     RNG rng;
@@ -119,9 +121,7 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
     for(unsigned int i=0; i<m_Individuals.size(); i++)
     {
         if (m_Individuals[i].IsEvaluated())
-        {
             t_Evaluated.push_back( m_Individuals[i] );
-        }
     }
 
     ASSERT(t_Evaluated.size() > 0);
@@ -164,9 +164,7 @@ Genome Species::GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const
         // roulette wheel selection
         std::vector<double> t_probs;
         for(unsigned int i=0; i<t_Evaluated.size(); i++)
-        {
             t_probs.push_back( t_Evaluated[i].GetFitness() );
-        }
         t_chosen_one = a_RNG.Roulette(t_probs);
     }
 
@@ -319,16 +317,48 @@ void Species::RemoveIndividual(unsigned int a_idx)
 }
 
 
+// New stuff
+
+/*
+
+SUMMARY OF THE EPOCH MECHANISM
+--------------------------------------------------------------------------------------------------
+- Adjust all species's fitness
+- Count offspring per species
+
+. Kill worst individuals for all species (delete them, not skip them!)
+. Reproduce all species
+. Kill the old parents
+
+  1. Every individual in the population is a BABY before evaluation.
+  2. After evaluation (i.e. lifetime), the worst individuals are killed and the others become ADULTS.
+  3. Reproduction mates adults and mutates offspring.
+     A mixture of BABIES and ADULTS emerges in each species.
+     New species may appear in the population during the process.
+  4. Then the individuals marked as ADULT are killed off.
+  5. What remains is a species with the new offspring (only babies)
+--------------------------------------------------------------------------------------------------
+
+*/
+
+
 // Reproduce mates & mutates the individuals of the species
 // It may access the global species list in the population
 // because some babies may turn out to belong in another species
 // that have to be created.
+// Also calls Birth() for every new baby
 void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 {
     Genome t_baby; // temp genome for reproduction
 
     int t_offspring_count = Rounded(GetOffspringRqd());
-
+    int elite_offspring = Rounded(a_Parameters.EliteFraction * m_Individuals.size());
+    if (elite_offspring < 1) // can't be 0
+    {
+    	elite_offspring = 1;
+    }
+    // ensure we have a champ
+    int elite_count = 0;
     // no offspring?! yikes.. dead species!
     if (t_offspring_count == 0)
     {
@@ -340,17 +370,18 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
     // Reproduction
 
     // Spawn t_offspring_count babies
-    bool t_champ_chosen = false;
+    //bool t_champ_chosen = false;
     bool t_baby_exists_in_pop = false;
     while(t_offspring_count--)
     {
-        // if the champ was not chosen, do it now..
+        // Select the elite first..
         
-        if (!t_champ_chosen)
-        { 
-            t_baby = m_Individuals[0];
-            t_champ_chosen = true;
+        if (elite_count < elite_offspring)
+        {
+            t_baby = m_Individuals[elite_count];
+            elite_count++;
         }
+
         else
         {
             //do // - while the baby already exists somewhere in the new population
@@ -436,8 +467,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                             t_mated = false;
                         }
 
-                    } while (/*t_baby.HasDeadEnds() || */(t_baby.NumLinks() == 0));
-                    // in case of dead ends after crossover we will try to repeat crossover
+                    } while (t_baby.HasDeadEnds() || (t_baby.NumLinks() == 0));
+                    // in case of dead ends after crossover we will repeat crossover
                     // until it works
                 }
 
@@ -476,7 +507,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         // Final place to test for problems
         // If there is anything wrong here, we will just
         // pick a random individual and leave him unchanged
-        if ((t_baby.NumLinks() == 0) /*|| t_baby.HasDeadEnds()*/)
+        if ((t_baby.NumLinks() == 0) || t_baby.HasDeadEnds())
         {
             t_baby = GetIndividual(a_Parameters, a_RNG);
         }
@@ -673,13 +704,18 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
         }
     }
 
+/*    if (t_baby.HasDeadEnds())
+    {
+        std::cout << "Dead ends in baby after crossover" << std::endl;
+//        int p;
+//        std::cin >> p;
+    }*/
+
     // OK we have the baby, so let's mutate it.
     bool t_baby_is_clone = false;
 
     if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
-    {
         MutateGenome(t_baby_is_clone, a_Pop, t_baby, a_Parameters, a_RNG);
-    }
 
     // We have a new offspring now
     // give the offspring a new ID
@@ -696,6 +732,21 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
 
     t_baby.ResetEvaluated();
 
+    // debug trap
+/*    if (t_baby.NumLinks() == 0)
+    {
+        std::cout << "No links in baby after reproduction" << std::endl;
+//        int p;
+//        std::cin >> p;
+    }
+
+    if (t_baby.HasDeadEnds())
+    {
+        std::cout << "Dead ends in baby after reproduction" << std::endl;
+//        int p;
+//        std::cin >> p;
+    }
+*/
     return t_baby;
 }
 

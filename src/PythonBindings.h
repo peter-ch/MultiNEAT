@@ -212,7 +212,6 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, int, Parameters>())
-
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)
             .def("NumInputs", &Genome::NumInputs)
@@ -224,17 +223,18 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetDepth", &Genome::GetDepth)
             .def("CalculateDepth", &Genome::CalculateDepth)
             .def("BuildPhenotype", &Genome::BuildPhenotype)
-            .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
-            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
+            .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
             
-            .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
+             .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
 
             .def("IsEvaluated", &Genome::IsEvaluated)
             .def("SetEvaluated", &Genome::SetEvaluated)
             .def("ResetEvaluated", &Genome::ResetEvaluated)
 
             .def("Save", Genome_Save)
+
+	         .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -455,6 +455,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("LeoSeed", &Parameters::LeoSeed)
 
             .def_readwrite("GeometrySeed", &Parameters::GeometrySeed)
+            .def_readwrite("TournamentSize", &Parameters::TournamentSize)
+            .def_readwrite("EliteFraction", &Parameters::EliteFraction)
 
 			.def_pickle(Parameters_pickle_suite())
         ;

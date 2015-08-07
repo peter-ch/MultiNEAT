@@ -107,7 +107,7 @@ void Parameters::Reset()
     KillWorstAge = 10;
 
     // Percent of best individuals that are allowed to reproduce. 1.0 = 100%
-    SurvivalRate = 0.2;
+    SurvivalRate = 0.25;
 
     // Probability for a baby to result from sexual reproduction (crossover/mating). 1.0 = 100%
     // If asexual reprodiction is chosen, the baby will be mutated 100%
@@ -126,6 +126,12 @@ void Parameters::Reset()
 
     // Performing roulette wheel selection or not?
     RouletteWheelSelection = false;
+
+    // For tournament selection
+    TournamentSize = 4;
+
+    // Fraction of individuals to be copied unchanged
+    EliteFraction = 0.01;
 
 
 
@@ -365,18 +371,6 @@ void Parameters::Reset()
     CompatTreshChangeInterval_Evaluations = 10;
 
 
-
-
-
-
-
-
-
-    ////////////////////
-    // ES-HyperNEAT
-    ////////////////////
-
-
     DivisionThreshold = 0.03;
 
     VarianceThreshold = 0.03;
@@ -386,7 +380,6 @@ void Parameters::Reset()
 
     // Max and Min Depths of the quadtree
     InitialDepth = 3;
-
     MaxDepth = 3;
 
     // How many hidden layers before connecting nodes to output. At 0 there is
@@ -394,7 +387,7 @@ void Parameters::Reset()
     IterationLevel = 1;
 
     // The Bias value for the CPPN queries.
-    CPPN_Bias = -1;
+    CPPN_Bias = 1.0;
 
     // Quadtree Dimensions
     // The range of the tree. Typically set to 2,
@@ -417,7 +410,6 @@ void Parameters::Reset()
     LeoSeed = false;
 
     GeometrySeed = false;
-
 }
 
 Parameters::Parameters()
@@ -833,6 +825,10 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 LeoSeed = false;
         }
+        if (s == "TournamentSize")
+            a_DataFile >> TournamentSize;
+        if (s == "Elitism")
+            a_DataFile >> EliteFraction;
     }
 
     return 0;
@@ -964,6 +960,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
     fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
     fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
+    fprintf(a_fstream, "TournamentSize %d\n", TournamentSize);
     fprintf(a_fstream, "CPPN_Bias %3.20f\n", CPPN_Bias);
     fprintf(a_fstream, "Width %3.20f\n", Width);
     fprintf(a_fstream, "Height %3.20f\n", Height);
@@ -973,6 +970,8 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
     fprintf(a_fstream, "GeometrySeed %s\n", GeometrySeed==true?"true":"false");
+
+    fprintf(a_fstream, "Elitism %3.20f\n", EliteFraction);
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
 }

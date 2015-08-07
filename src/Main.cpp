@@ -39,8 +39,8 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
 {
 
     NeuralNetwork net;
-    g.BuildHyperNEATPhenotype(net, subst);
-    //g.BuildESHyperNEATPhenotype(net, subst, params);
+    //g.BuildHyperNEATPhenotype(net, subst);
+    g.BuildESHyperNEATPhenotype(net, subst, params);
 
     int depth = 2;
     double error = 0;

@@ -139,6 +139,14 @@ public:
     // Performing roulette wheel selection or not?
     bool RouletteWheelSelection;
 
+    // For tournament selection
+    unsigned int TournamentSize;
+
+    // Fraction of individuals to be copied unchanged
+    double EliteFraction;
+
+
+
     ///////////////////////////////////
     // Phased Search parameters   //
     ///////////////////////////////////
@@ -353,9 +361,9 @@ public:
     unsigned int CompatTreshChangeInterval_Evaluations;
 
 
-    //////////////////////////////
-    // ES HyperNEAT parameters
-    //////////////////////////////
+    /////////////////////////////
+    // ES HyperNEAT params
+    /////////////////////////////
 
     double DivisionThreshold;
 
@@ -372,7 +380,6 @@ public:
     // How many hidden layers before connecting nodes to output. At 0 there is
     // one hidden layer. At 1, there are two and so on.
     unsigned int IterationLevel;
-    unsigned int TournamentSize;
 
     // The Bias value for the CPPN queries.
     double CPPN_Bias;
@@ -541,6 +548,8 @@ public:
         ar & LeoThreshold;
         ar & LeoSeed;
         ar & GeometrySeed;
+        ar & TournamentSize;
+        ar & EliteFraction;
     }
     
 #endif
