@@ -79,7 +79,6 @@ double xortest(Genome& g, Substrate& subst, Parameters& params)
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += abs(net.Output()[0] - 0.0);
 
-
     return (4.0 - error)*(4.0 - error);
 
 }
