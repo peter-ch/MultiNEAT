@@ -221,6 +221,10 @@ void Population::Speciate()
     // at least 1 genome must be present
     ASSERT(m_Genomes.size() > 0);
 
+    // first clear out the species
+    m_Species.clear();
+
+
     bool t_added = false;
 
     // NOTE: we are comparing the new generation's genomes to the representatives from the previous generation!
