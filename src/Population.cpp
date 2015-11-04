@@ -79,6 +79,16 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     // Speciate
     Speciate();
 
+    // set these phased search variables now since used in MutateGenome
+    if (m_Parameters.PhasedSearching)
+    {
+        m_SearchMode = COMPLEXIFYING;
+    }
+    else
+    {
+        m_SearchMode = BLENDED;
+    }
+
     // initial mutation
     for (unsigned int i = 0; i < m_Species.size(); i++)
     {
@@ -98,18 +108,11 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     Sort();
 
 
-    // Set up the phased search variables
+    // Set up the rest of the phased search variables
     CalculateMPC();
     m_BaseMPC = m_CurrentMPC;
     m_OldMPC = m_BaseMPC;
-    if (m_Parameters.PhasedSearching)
-    {
-        m_SearchMode = COMPLEXIFYING;
-    }
-    else
-    {
-        m_SearchMode = BLENDED;
-    }
+
     m_InnovationDatabase.m_Innovations.reserve(50000);
 }
 
