@@ -87,7 +87,7 @@ double RNG::RandFloat()
     boost::random::uniform_01<> dist;
     return dist(gen);
 #else 
-    return (double)(rand() % 10000000) / 10000000.0;
+    return (double)(rand() % RAND_MAX) / RAND_MAX;
 #endif
 }
 
