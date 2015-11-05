@@ -664,9 +664,9 @@ void NeuralNetwork::Adapt(Parameters& a_Parameters)
     double t_max_weight = -999999999;
     for (unsigned int i = 0; i < m_connections.size(); i++)
     {
-        if (abs(m_connections[i].m_weight) > t_max_weight)
+        if (fabs(m_connections[i].m_weight) > t_max_weight)
         {
-            t_max_weight = abs(m_connections[i].m_weight);
+            t_max_weight = fabs(m_connections[i].m_weight);
         }
     }
 
