@@ -825,10 +825,10 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 LeoSeed = false;
         }
-        if (s == "TournamentSize")
-            a_DataFile >> TournamentSize;
         if (s == "Elitism")
+        {
             a_DataFile >> EliteFraction;
+        }
     }
 
     return 0;
@@ -954,6 +954,8 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "CompatTresholdModifier %3.20f\n", CompatTresholdModifier);
     fprintf(a_fstream, "CompatTreshChangeInterval_Generations %d\n", CompatTreshChangeInterval_Generations);
     fprintf(a_fstream, "CompatTreshChangeInterval_Evaluations %d\n", CompatTreshChangeInterval_Evaluations);
+
+
     fprintf(a_fstream, "DivisionThreshold %3.20f\n", DivisionThreshold);
     fprintf(a_fstream, "VarianceThreshold %3.20f\n", VarianceThreshold);
     fprintf(a_fstream, "BandThreshold %3.20f\n", BandThreshold);
@@ -970,7 +972,6 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "LeoThreshold %3.20f\n", LeoThreshold);
     fprintf(a_fstream, "LeoSeed %s\n", LeoSeed==true?"true":"false");
     fprintf(a_fstream, "GeometrySeed %s\n", GeometrySeed==true?"true":"false");
-
     fprintf(a_fstream, "Elitism %3.20f\n", EliteFraction);
 
     fprintf(a_fstream, "NEAT_ParametersEnd\n");
