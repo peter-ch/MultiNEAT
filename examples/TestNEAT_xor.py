@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 import pickle as pickle
 import MultiNEAT as NEAT
-from MultiNEAT.tools import EvaluateGenomeList_Serial
+from MultiNEAT import EvaluateGenomeList_Serial
 from MultiNEAT import GetGenomeList, ZipFitness
 
 from concurrent.futures import ProcessPoolExecutor, as_completed

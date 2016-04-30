@@ -68,11 +68,14 @@
     <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g;-O0;-Wall;" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
-        <IncludePath Value="/usr/include/python2.7"/>
+        <IncludePath Value="/usr/include/python3.4"/>
       </Compiler>
       <Linker Options="" Required="yes">
-        <Library Value="python2.7"/>
+        <Library Value="python3.4m"/>
+        <Library Value="boost_date_time"/>
+        <Library Value="boost_system"/>
         <Library Value="boost_python"/>
+        <Library Value="boost_filesystem"/>
         <Library Value="boost_serialization"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
