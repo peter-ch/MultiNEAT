@@ -9,3 +9,7 @@ datadump/*
 /Release/
 /Debug/
 /dist/
+.idea/
+**.so
+**.pyd
+_MultiNEAT.cpp
