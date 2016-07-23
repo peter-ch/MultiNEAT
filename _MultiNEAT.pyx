@@ -429,6 +429,9 @@ cdef class Parameters:
         def __get__(self): return self.thisptr.CompatTreshChangeInterval_Evaluations
         def __set__(self, CompatTreshChangeInterval_Evaluations): self.thisptr.CompatTreshChangeInterval_Evaluations = CompatTreshChangeInterval_Evaluations
 
+    property DivisionThreshold:
+        def __get__(self): return self.thisptr.DivisionThreshold
+        def __set__(self, DivisionThreshold): self.thisptr.DivisionThreshold = DivisionThreshold
 
 cdef class Connection:
     cdef cmn.Connection *thisptr      # hold a C++ instance which we're wrapping

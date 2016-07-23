@@ -173,6 +173,49 @@ cdef extern from "src/Parameters.h" namespace "NEAT":
         void Save(const char* filename)
         void Reset()
 
+        ##############
+        # ES HyperNEAT params
+        ##############
+
+        double DivisionThreshold
+
+        double VarianceThreshold
+
+        # Used for Band prunning.
+        double BandThreshold
+
+        # Max and Min Depths of the quadtree
+        unsigned int InitialDepth
+
+        unsigned int MaxDepth
+
+        # How many hidden layers before connecting nodes to output. At 0 there is
+        # one hidden layer. At 1, there are two and so on.
+        unsigned int IterationLevel
+
+        # The Bias value for the CPPN queries.
+        double CPPN_Bias
+
+        # Quadtree Dimensions
+        # The range of the tree. Typically set to 2,
+        double Width
+        double Height
+
+        # The (x, y) coordinates of the tree
+        double Qtree_X
+
+        double Qtree_Y
+
+        # Use Link Expression output
+        bool Leo
+
+        # Threshold above which a connection is expressed
+        double LeoThreshold
+
+        # Use geometric seeding. Currently only along the X axis. 1
+        bool LeoSeed
+        bool GeometrySeed
+
 
 """
 #############################################
