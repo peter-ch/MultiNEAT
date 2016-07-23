@@ -1,6 +1,7 @@
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from _MultiNEAT import *
+from ._MultiNEAT import *
+from .viz import *
 
 
 # Get all genomes from the population
