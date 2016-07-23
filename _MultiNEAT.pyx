@@ -3,71 +3,15 @@
 from libcpp.vector cimport vector
 from libcpp cimport bool
 from cython.operator cimport dereference as deref, preincrement as preinc
-
-"""
-#############################################
-
-Enums
-
-#############################################
-"""
-cdef extern from "src/Genes.h" namespace "NEAT":
-    cpdef enum NeuronType:
-        NONE
-        INPUT
-        BIAS
-        HIDDEN
-        OUTPUT
-
-    cpdef enum ActivationFunction:
-        SIGNED_SIGMOID
-        UNSIGNED_SIGMOID
-        TANH
-        TANH_CUBIC
-        SIGNED_STEP
-        UNSIGNED_STEP
-        SIGNED_GAUSS
-        UNSIGNED_GAUSS
-        ABS
-        SIGNED_SINE
-        UNSIGNED_SINE
-        SIGNED_SQUARE
-        UNSIGNED_SQUARE
-        LINEAR
-
-cdef extern from "src/Population.h" namespace "NEAT":
-    cpdef enum SearchMode:
-        COMPLEXIFYING
-        SIMPLIFYING
-        BLENDED
+cimport cMultiNeat as cmn
 
 
-"""
-#############################################
-
-RNG class
-
-#############################################
-"""
-
-cdef extern from "src/Random.h" namespace "NEAT":
-    cdef cppclass RNG:
-        RNG() except +
-        void Seed(int seed)
-        void TimeSeed()
-        int RandPosNeg()
-        int RandInt(int x, int y)
-        double RandFloat()
-        double RandFloatClamped()
-        double RandGaussClamped()
-        int Roulette(vector[double]& a_probs)
-
-cdef class pyRNG:
-    cdef RNG *thisptr      # hold a C++ instance which we're wrapping
+cdef class RNG:
+    cdef cmn.RNG thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = new RNG()
-    def __dealloc__(self):
-        del self.thisptr
+        self.thisptr = cmn.RNG()
+    # def __dealloc__(self):
+    #     del self.thisptr
 
     def Seed(self, int a_seed):
         self.thisptr.Seed(a_seed)
@@ -86,126 +30,13 @@ cdef class pyRNG:
     def Roulette(self, a_probs):
         return self.thisptr.Roulette(a_probs)
 
-"""
-#############################################
 
-Parameters class
-
-#############################################
-"""
-
-cdef extern from "src/Parameters.h" namespace "NEAT":
-    cdef cppclass Parameters:
-        unsigned int PopulationSize;
-        bool DynamicCompatibility;
-        unsigned int MinSpecies;
-        unsigned int MaxSpecies;
-        bool InnovationsForever;
-        bool AllowClones;
-        unsigned int YoungAgeTreshold;
-        double YoungAgeFitnessBoost;
-        unsigned int SpeciesMaxStagnation;
-        double StagnationDelta;
-        unsigned int OldAgeTreshold;
-        double OldAgePenalty;
-        bool DetectCompetetiveCoevolutionStagnation;
-        int KillWorstSpeciesEach;
-        int KillWorstAge;
-        double SurvivalRate;
-        double CrossoverRate;
-        double OverallMutationRate;
-        double InterspeciesCrossoverRate;
-        double MultipointCrossoverRate;
-        bool RouletteWheelSelection;
-        bool PhasedSearching;
-        bool DeltaCoding;
-        unsigned int SimplifyingPhaseMPCTreshold;
-        unsigned int SimplifyingPhaseStagnationTreshold;
-        unsigned int ComplexityFloorGenerations;
-        unsigned int NoveltySearch_K;
-        double NoveltySearch_P_min;
-        bool NoveltySearch_Dynamic_Pmin;
-        unsigned int NoveltySearch_No_Archiving_Stagnation_Treshold;
-        double NoveltySearch_Pmin_lowering_multiplier;
-        double NoveltySearch_Pmin_min;
-        unsigned int NoveltySearch_Quick_Archiving_Min_Evaluations;
-        double NoveltySearch_Pmin_raising_multiplier;
-        unsigned int NoveltySearch_Recompute_Sparseness_Each;
-        double MutateAddNeuronProb;
-        bool SplitRecurrent;
-        bool SplitLoopedRecurrent;
-        int NeuronTries;
-        double MutateAddLinkProb;
-        double MutateAddLinkFromBiasProb;
-        double MutateRemLinkProb;
-        double MutateRemSimpleNeuronProb;
-        unsigned int LinkTries;
-        double RecurrentProb;
-        double RecurrentLoopProb;
-        double MutateWeightsProb;
-        double MutateWeightsSevereProb;
-        double WeightMutationRate;
-        double WeightMutationMaxPower;
-        double WeightReplacementMaxPower;
-        double MaxWeight;
-        double MutateActivationAProb;
-        double MutateActivationBProb;
-        double ActivationAMutationMaxPower;
-        double ActivationBMutationMaxPower;
-        double TimeConstantMutationMaxPower;
-        double BiasMutationMaxPower;
-        double MinActivationA;
-        double MaxActivationA;
-        double MinActivationB;
-        double MaxActivationB;
-        double MutateNeuronActivationTypeProb;
-        double ActivationFunction_SignedSigmoid_Prob;
-        double ActivationFunction_UnsignedSigmoid_Prob;
-        double ActivationFunction_Tanh_Prob;
-        double ActivationFunction_TanhCubic_Prob;
-        double ActivationFunction_SignedStep_Prob;
-        double ActivationFunction_UnsignedStep_Prob;
-        double ActivationFunction_SignedGauss_Prob;
-        double ActivationFunction_UnsignedGauss_Prob;
-        double ActivationFunction_Abs_Prob;
-        double ActivationFunction_SignedSine_Prob;
-        double ActivationFunction_UnsignedSine_Prob;
-        double ActivationFunction_SignedSquare_Prob;
-        double ActivationFunction_UnsignedSquare_Prob;
-        double ActivationFunction_Linear_Prob;
-        double MutateNeuronTimeConstantsProb;
-        double MutateNeuronBiasesProb;
-        double MinNeuronTimeConstant;
-        double MaxNeuronTimeConstant;
-        double MinNeuronBias;
-        double MaxNeuronBias;
-        double DisjointCoeff;
-        double ExcessCoeff;
-        double ActivationADiffCoeff;
-        double ActivationBDiffCoeff;
-        double WeightDiffCoeff;
-        double TimeConstantDiffCoeff;
-        double BiasDiffCoeff;
-        double ActivationFunctionDiffCoeff;
-        double CompatTreshold;
-        double MinCompatTreshold;
-        double CompatTresholdModifier;
-        unsigned int CompatTreshChangeInterval_Generations;
-        unsigned int CompatTreshChangeInterval_Evaluations;
-
-        Parameters() except +
-
-        int Load(const char* filename);
-        void Save(const char* filename);
-        void Reset();
-
-
-cdef class pyParameters:
-    cdef Parameters *thisptr      # hold a C++ instance which we're wrapping
+cdef class Parameters:
+    cdef cmn.Parameters thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = new Parameters()
-    def __dealloc__(self):
-        del self.thisptr
+        self.thisptr = cmn.Parameters()
+    # def __dealloc__(self):
+    #     del self.thisptr
 
     def Load(self, filename):
         self.thisptr.Load(filename)
@@ -510,13 +341,13 @@ cdef class pyParameters:
         def __get__(self): return self.thisptr.ActivationFunction_UnsignedSine_Prob
         def __set__(self, ActivationFunction_UnsignedSine_Prob): self.thisptr.ActivationFunction_UnsignedSine_Prob = ActivationFunction_UnsignedSine_Prob
         
-    property ActivationFunction_SignedSquare_Prob:
-        def __get__(self): return self.thisptr.ActivationFunction_SignedSquare_Prob
-        def __set__(self, ActivationFunction_SignedSquare_Prob): self.thisptr.ActivationFunction_SignedSquare_Prob = ActivationFunction_SignedSquare_Prob
-        
-    property ActivationFunction_UnsignedSquare_Prob:
-        def __get__(self): return self.thisptr.ActivationFunction_UnsignedSquare_Prob
-        def __set__(self, ActivationFunction_UnsignedSquare_Prob): self.thisptr.ActivationFunction_UnsignedSquare_Prob = ActivationFunction_UnsignedSquare_Prob
+    # property ActivationFunction_SignedSquare_Prob:
+    #     def __get__(self): return self.thisptr.ActivationFunction_SignedSquare_Prob
+    #     def __set__(self, ActivationFunction_SignedSquare_Prob): self.thisptr.ActivationFunction_SignedSquare_Prob = ActivationFunction_SignedSquare_Prob
+    #
+    # property ActivationFunction_UnsignedSquare_Prob:
+    #     def __get__(self): return self.thisptr.ActivationFunction_UnsignedSquare_Prob
+    #     def __set__(self, ActivationFunction_UnsignedSquare_Prob): self.thisptr.ActivationFunction_UnsignedSquare_Prob = ActivationFunction_UnsignedSquare_Prob
         
     property ActivationFunction_Linear_Prob:
         def __get__(self): return self.thisptr.ActivationFunction_Linear_Prob
@@ -598,68 +429,11 @@ cdef class pyParameters:
         def __get__(self): return self.thisptr.CompatTreshChangeInterval_Evaluations
         def __set__(self, CompatTreshChangeInterval_Evaluations): self.thisptr.CompatTreshChangeInterval_Evaluations = CompatTreshChangeInterval_Evaluations
 
-"""
-#############################################
 
-NeuralNetwork class
-
-#############################################
-"""
-
-cdef extern from "src/NeuralNetwork.h" namespace "NEAT":
-    cdef cppclass Connection:
-        unsigned short int m_source_neuron_idx;
-        unsigned short int m_target_neuron_idx;
-        double m_weight;
-        bool m_recur_flag;
-
-    cdef cppclass Neuron:
-        double m_activation;
-        ActivationFunction m_activation_function_type;
-        double m_a;
-        double m_b;
-        double m_timeconst;
-        double m_bias;
-        double m_x;
-        double m_y;
-        double m_z;
-        double m_sx;
-        double m_sy;
-        double m_sz;
-        vector[double] m_substrate_coords;
-        double m_split_y;
-        NeuronType m_type;
-
-    cdef cppclass NeuralNetwork:
-        unsigned short m_num_inputs;
-        unsigned short m_num_outputs;
-        vector[Neuron] m_neurons;
-        vector[Connection] m_connections;
-
-        NeuralNetwork() except +
-        NeuralNetwork(bool x) except +
-
-        void InitRTRLMatrix();
-        void ActivateFast();
-        void Activate();
-        void ActivateUseInternalBias();
-        void ActivateLeaky(double step);
-
-        void RTRL_update_gradients();
-        void RTRL_update_error(double a_target);
-        void RTRL_update_weights();
-        void Adapt(Parameters& a_Parameters);
-
-        void Flush();
-        void FlushCube();
-        void Input(vector[double]& a_Inputs);
-        vector[double] Output();
-
-
-cdef class pyConnection:
-    cdef Connection *thisptr      # hold a C++ instance which we're wrapping
+cdef class Connection:
+    cdef cmn.Connection *thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = new Connection()
+        self.thisptr = new cmn.Connection()
     def __dealloc__(self):
         del self.thisptr
 
@@ -680,10 +454,10 @@ cdef class pyConnection:
             def __set__(self, m_recur_flag): self.thisptr.m_recur_flag = m_recur_flag
             
             
-cdef class pyNeuron:
-    cdef Neuron *thisptr      # hold a C++ instance which we're wrapping
+cdef class Neuron:
+    cdef cmn.Neuron *thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = new Neuron()
+        self.thisptr = new cmn.Neuron()
     def __dealloc__(self):
         del self.thisptr
 
@@ -748,14 +522,14 @@ cdef class pyNeuron:
             def __set__(self, m_type): self.thisptr.m_type = m_type
         
 
-            
-            
-cdef class pyNeuralNetwork:
-    cdef NeuralNetwork *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new NeuralNetwork()
-    def __cinit__(self, x):
-        self.thisptr = new NeuralNetwork(x)
+
+cdef class NeuralNetwork:
+    cdef cmn.NeuralNetwork *thisptr      # hold a C++ instance which we're wrapping
+    def __cinit__(self, x=None):
+        if x is None:
+            self.thisptr = new cmn.NeuralNetwork()
+        else:
+            self.thisptr = new cmn.NeuralNetwork(x)
     def __dealloc__(self):
         del self.thisptr
 
@@ -783,8 +557,8 @@ cdef class pyNeuralNetwork:
     def RTRL_update_weights(self):
         return self.thisptr.RTRL_update_weights()
     
-    def Adapt(self, pyParameters a_Parameters):
-        return self.thisptr.Adapt(deref(a_Parameters.thisptr))
+    def Adapt(self, Parameters a_Parameters):
+        return self.thisptr.Adapt(a_Parameters.thisptr)
     
     def Flush(self):
         return self.thisptr.Flush()
@@ -826,48 +600,15 @@ Substrate class
 #y.push_back(1)
 #x.push_back(y)
 
-cdef extern from "src/Substrate.h" namespace "NEAT":
-    cdef cppclass Substrate:
-        vector[vector[double]] m_input_coords;
-        vector[vector[double]] m_hidden_coords;
-        vector[vector[double]] m_output_coords;
 
-        bool m_leaky;
-        bool m_with_distance;
-
-        bool m_allow_input_hidden_links;
-        bool m_allow_input_output_links;
-        bool m_allow_hidden_hidden_links;
-        bool m_allow_hidden_output_links;
-        bool m_allow_output_hidden_links;
-        bool m_allow_output_output_links;
-        bool m_allow_looped_hidden_links;
-        bool m_allow_looped_output_links;
-
-        ActivationFunction m_hidden_nodes_activation;
-        ActivationFunction m_output_nodes_activation;
-
-        double m_link_threshold;
-        double m_max_weight_and_bias;
-        double m_min_time_const;
-        double m_max_time_const;
-
-        Substrate();
-        Substrate(vector[vector[double]]& a_inputs,
-                  vector[vector[double]]& a_hidden,
-                  vector[vector[double]]& a_outputs);
-
-        int GetMinCPPNInputs();
-        int GetMinCPPNOutputs();
-        void PrintInfo();
-        
-
-cdef class pySubstrate:
-    cdef Substrate *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new Substrate()
-    def __cinit__(self, i, h, o):
-        self.thisptr = new Substrate(i, h, o)
+cdef class Substrate:
+    cdef cmn.Substrate *thisptr      # hold a C++ instance which we're wrapping
+    def __cinit__(self, *attribs):
+        if len(attribs) == 0:
+            self.thisptr = new cmn.Substrate()
+        else:
+            i, h, o = attribs
+            self.thisptr = new cmn.Substrate(i, h, o)
     def __dealloc__(self):
         del self.thisptr
         
@@ -940,9 +681,9 @@ cdef class pySubstrate:
             def __get__(self): return self.thisptr.m_output_nodes_activation
             def __set__(self, m_output_nodes_activation): self.thisptr.m_output_nodes_activation = m_output_nodes_activation
             
-    property m_link_threshold:
-            def __get__(self): return self.thisptr.m_link_threshold
-            def __set__(self, m_link_threshold): self.thisptr.m_link_threshold = m_link_threshold
+    # property m_link_threshold:
+    #         def __get__(self): return self.thisptr.m_link_threshold
+    #         def __set__(self, m_link_threshold): self.thisptr.m_link_threshold = m_link_threshold
             
     property m_max_weight_and_bias:
             def __get__(self): return self.thisptr.m_max_weight_and_bias
@@ -955,58 +696,25 @@ cdef class pySubstrate:
     property m_max_time_const:
             def __get__(self): return self.thisptr.m_max_time_const
             def __set__(self, m_max_time_const): self.thisptr.m_max_time_const = m_max_time_const
-        
-
-"""
-#############################################
-
-Genome class
-
-#############################################
-"""
-
-cdef extern from "src/Genome.h" namespace "NEAT":
-    cdef cppclass Genome:
-        Genome() except +
-        Genome(const char* a_filename);
-        Genome(unsigned int a_ID,
-               unsigned int a_NumInputs,
-               unsigned int a_NumHidden,
-               unsigned int a_NumOutputs,
-               bool a_FS_NEAT, ActivationFunction a_OutputActType,
-               ActivationFunction a_HiddenActType,
-               unsigned int a_SeedType,
-               const Parameters& a_Parameters);
-
-        unsigned int NumNeurons();
-        unsigned int NumLinks();
-        unsigned int NumInputs();
-        unsigned int NumOutputs();
-
-        double GetFitness();
-        void SetFitness(double a_f);
-        unsigned int GetID();
-        void CalculateDepth();
-        unsigned int GetDepth();
-
-        void BuildPhenotype(NeuralNetwork& net);
-        void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst);
-
-        void Save(const char* a_filename);
-
-        bool IsEvaluated();
-        void SetEvaluated();
-        void ResetEvaluated();
 
 
-cdef class pyGenome:
-    cdef Genome *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new Genome()
-    def __cinit__(self, fname):
-        self.thisptr = new Genome(fname)
-    def __cinit__(self, a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, pyParameters a_ps):
-        self.thisptr = new Genome(a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, deref(a_ps.thisptr))
+cdef class Genome:
+    cdef cmn.Genome *thisptr      # hold a C++ instance which we're wrapping
+    cdef int attribsLen
+    cdef Parameters a_ps
+    def __cinit__(self, *attribs):
+        attribsLen = len(attribs)
+        if attribsLen == 0:
+            self.thisptr = new cmn.Genome()
+        elif attribsLen == 1:
+            if isinstance(attribs[0], Genome):
+                self.thisptr = new cmn.Genome(<const cmn.Genome&>(attribs[0].thisptr))
+            elif isinstance(attribs[0], str):
+                self.thisptr = new cmn.Genome(<char*>attribs[0])
+        elif attribsLen == 9:
+            a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, a_ps = attribs
+            self.thisptr = new cmn.Genome(a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st,
+                                          (<Parameters>a_ps).thisptr)
     def __dealloc__(self):
         del self.thisptr
         
@@ -1037,10 +745,10 @@ cdef class pyGenome:
     def GetDepth(self):
         return self.thisptr.GetDepth()
     
-    def BuildPhenotype(self, pyNeuralNetwork net):
+    def BuildPhenotype(self, NeuralNetwork net):
         return self.thisptr.BuildPhenotype(deref(net.thisptr))
     
-    def BuildHyperNEATPhenotype(self, pyNeuralNetwork net, pySubstrate subst):
+    def BuildHyperNEATPhenotype(self, NeuralNetwork net, Substrate subst):
         return self.thisptr.BuildHyperNEATPhenotype(deref(net.thisptr), deref(subst.thisptr))
     
     def Save(self, a_filename):
@@ -1055,155 +763,184 @@ cdef class pyGenome:
     def ResetEvaluated(self):
         return self.thisptr.ResetEvaluated()
 
-"""
-#############################################
 
-Species class
-
-#############################################
-"""
-
-"""
-cdef extern from "src/Species.h" namespace "NEAT":
-    cdef cppclass Species:
-        Species() except +
-        
-        double m_BestFitness;
-        Genome m_BestGenome;
-        unsigned int m_GensNoImprovement;
-        int m_R, m_G, m_B;
-        vector[Genome] m_Individuals;
-        
-        double GetBestFitness();
-        unsigned int NumIndividuals();
-        Genome GetLeader();
-        
-
-
-cdef class pySpecies:
-    cdef Species *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new Species()
+cdef class Species:
+    cdef cmn.Species *thisptr      # hold a C++ instance which we're wrapping
+    def __cinit__(self, Genome a_Seed, int a_id):
+        if a_Seed is None and a_id is -1:
+            return
+        self.thisptr = new cmn.Species(deref(a_Seed.thisptr), a_id);
     def __dealloc__(self):
         del self.thisptr
 
     def GetBestFitness(self):
         return self.thisptr.GetBestFitness()
-    
+
     def NumIndividuals(self):
         return self.thisptr.NumIndividuals()
-    
-    #def GetLeader(self):
-    #    return self.thisptr.GetLeader()
+
+    def GetLeader(self):
+       return pyGenomeFromReference(self.thisptr.GetLeader())
+
+    @staticmethod
+    cdef list genomesVectorToList(const vector[cmn.Genome]& vec):
+        cdef list ret = [None] * vec.size()
+        cdef Genome gen
+        cdef unsigned int i
+        for i in range(vec.size()):
+            ret[i] = pyGenomeFromReference(<const cmn.Genome&>(vec.at(i)))
+
+        return ret
 
     property m_BestFitness:
         def __get__(self): return self.thisptr.m_BestFitness
         def __set__(self, m_BestFitness): self.thisptr.m_BestFitness = m_BestFitness
-            
+
     #property m_BestGenome:
     #    def __get__(self): return self.thisptr.m_BestGenome
     #    def __set__(self, m_BestGenome): self.thisptr.m_BestGenome = m_BestGenome
-            
+
     property m_GensNoImprovement:
         def __get__(self): return self.thisptr.m_GensNoImprovement
         def __set__(self, m_GensNoImprovement): self.thisptr.m_GensNoImprovement = m_GensNoImprovement
-            
+
     property m_B:
         def __get__(self): return self.thisptr.m_B
         def __set__(self, m_B): self.thisptr.m_B = m_B
-"""
 
-        
-"""
-#############################################
-
-Population class
-
-#############################################
-"""
-
-cdef extern from "src/Population.h" namespace "NEAT":
-    cdef cppclass Population:
-        Population(const Genome& a_G, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomRange);
-        Population(const char* a_FileName);
-
-        RNG m_RNG;
-        Parameters m_Parameters;
-        unsigned int m_Generation;
-        unsigned int m_NumEvaluations;
-        #vector[Species] m_Species;
-
-        SearchMode GetSearchMode(); 
-        double GetCurrentMPC(); 
-        double GetBaseMPC(); 
-    
-        unsigned int NumGenomes(); 
-    
-        unsigned int GetGeneration();
-        double GetBestFitnessEver();
-        Genome GetBestGenome();
-
-        unsigned int GetStagnation();
-        unsigned int GetMPCStagnation();
-    
-        unsigned int GetNextGenomeID();
-        unsigned int GetNextSpeciesID();
-        
-        void Epoch();
-    
-        void Save(const char* a_FileName);
-        Genome* Tick(Genome& a_deleted_genome);
+    property Individuals:
+        def __get__(self): return Species.genomesVectorToList(self.thisptr.m_Individuals)
 
 
-cdef class pyPopulation:
-    cdef Population *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self, pyGenome a_g, pyParameters a_ps, a_r, a_rr):
-        self.thisptr = new Population(deref(a_g.thisptr), deref(a_ps.thisptr), a_r, a_rr)
-    def __cinit__(self, fn):
-        self.thisptr = new Population(fn)
+cdef class Population:
+    cdef cmn.Population *thisptr      # hold a C++ instance which we're wrapping
+    cdef Genome a_g
+    cdef Parameters a_ps
+    cdef int a_RNG_seed
+
+    def __cinit__(self, *attribs):
+        if len(attribs) == 1:
+            self.thisptr = new cmn.Population(attribs[0])
+        else:
+            a_g, a_ps, a_r, a_rr, a_RNG_seed = attribs
+            self.thisptr = new cmn.Population(deref((<Genome>a_g).thisptr), (<Parameters>a_ps).thisptr,
+            a_r, a_rr, a_RNG_seed)
     def __dealloc__(self):
         del self.thisptr
 
     def GetSearchMode(self):
         return self.thisptr.GetSearchMode()
-    
+
     def GetCurrentMPC(self):
         return self.thisptr.GetCurrentMPC()
-    
+
     def GetBaseMPC(self):
         return self.thisptr.GetBaseMPC()
-    
+
     def NumGenomes(self):
         return self.thisptr.NumGenomes()
-    
+
     def GetGeneration(self):
         return self.thisptr.GetGeneration()
-    
+
     def GetBestFitnessEver(self):
         return self.thisptr.GetBestFitnessEver()
-    
-    #def GetBestGenome(self):
-    #    return self.thisptr.GetBestGenome()
-    
+
+    def GetBestGenome(self):
+       return pyGenomeFromReference(self.thisptr.GetBestGenome())
+
     def GetStagnation(self):
         return self.thisptr.GetStagnation()
-    
+
     def GetMPCStagnation(self):
         return self.thisptr.GetMPCStagnation()
-    
+
     def GetNextGenomeID(self):
         return self.thisptr.GetNextGenomeID()
-    
+
     def GetNextSpeciesID(self):
         return self.thisptr.GetNextSpeciesID()
-    
+
     def Epoch(self):
         return self.thisptr.Epoch()
-    
+
     def Save(self, a_FileName):
         return self.thisptr.Save(a_FileName)
-    
+
     #def Tick(self, a_deleted_genome):
-    #    return self.thisptr.Tick(a_deleted_genome)
-    
-    
+    #    return self.thisptr.Tick
+
+    @staticmethod
+    cdef RNG buildRNG(const cmn.RNG &rng):
+        cdef RNG tRNG = RNG()
+        tRNG.thisptr = rng
+        return tRNG
+
+    @staticmethod
+    cdef RNG buildParams(const cmn.Parameters& par):
+        cdef Parameters tPar = Parameters()
+        tPar.thisptr = par
+        return tPar
+
+    @staticmethod
+    cdef list speciesVectorToList(const vector[cmn.Species]& vec):
+        cdef list ret = [None] * vec.size()
+        cdef Species spec
+        cdef unsigned int i
+        for i in range(vec.size()):
+            spec = Species(None, -1)
+            spec.thisptr = new cmn.Species(vec.at(i).m_BestGenome,
+                                           vec.at(i).ID())
+            spec.thisptr.copy(vec.at(i))
+            ret[i] = spec
+
+        return ret
+
+    property RNG:
+        '''Random number generator'''
+        def __get__(self): return Population.buildRNG(self.thisptr.m_RNG)
+
+    property Parameters:
+        '''Evolution parameters'''
+        def __get__(self): return Population.buildParams(self.thisptr.m_Parameters)
+
+    property Generation:
+        '''Current generation'''
+        def __get__(self): return self.thisptr.m_Generation
+
+    property Species:
+        '''The list of species'''
+        def __get__(self): return Population.speciesVectorToList(self.thisptr.m_Species)
+
+class NeuronType:
+    NONE = cmn.NONE
+    INPUT  = cmn.INPUT
+    BIAS   = cmn.BIAS
+    HIDDEN = cmn.HIDDEN
+    OUTPUT = cmn.OUTPUT
+
+class ActivationFunction:
+    SIGNED_SIGMOID   = cmn.SIGNED_SIGMOID
+    UNSIGNED_SIGMOID = cmn.UNSIGNED_SIGMOID
+    TANH             = cmn.TANH
+    TANH_CUBIC       = cmn.TANH_CUBIC
+    SIGNED_STEP      = cmn.SIGNED_STEP
+    UNSIGNED_STEP    = cmn.UNSIGNED_STEP
+    SIGNED_GAUSS     = cmn.SIGNED_GAUSS
+    UNSIGNED_GAUSS   = cmn.UNSIGNED_GAUSS
+    ABS              = cmn.ABS
+    SIGNED_SINE      = cmn.SIGNED_SINE
+    UNSIGNED_SINE    = cmn.UNSIGNED_SINE
+    # SIGNED_SQUARE    = cmn.SIGNED_SQUARE
+    # UNSIGNED_SQUARE  = cmn.UNSIGNED_SQUARE
+    LINEAR           = cmn.LINEAR
+
+class SearchMode:
+    COMPLEXIFYING = cmn.COMPLEXIFYING
+    SIMPLIFYING   = cmn.SIMPLIFYING
+    BLENDED       = cmn.BLENDED
+
+cdef Genome pyGenomeFromReference(const cmn.Genome& cgen):
+    gen = Genome()
+    gen.thisptr = new cmn.Genome(cgen)
+    return gen
