@@ -2,88 +2,89 @@
 from __future__ import print_function
 from distutils.core import setup, Extension
 from distutils.core import setup
+from distutils.command.build_ext import build_ext  # shouldn't distutils be replaced with setuptools?
 import sys
+import os
 
-if sys.version_info[0] < 3:
-    lb = 'boost_python'
-else:
-    lb = 'boost_python3'
-
-''' Note: 
+''' Note:
 
 to build Boost.Python on Windows with mingw
 
 bjam target-os=windows/python=3.4 toolset=gcc variant=debug,release link=static,shared threading=multi runtime-link=shared cxxflags="-include cmath "
 
 
-also insert this on top of boost/python.hpp : 
+also insert this on top of boost/python.hpp :
 
 #include <cmath>   //fix  cmath:1096:11: error: '::hypot' has not been declared
 
 '''
 
-try:
-    from Cython.Build import cythonize
 
-    # easy way to turn Boost.Python on/off
-    1 / 0
+def getExtensions():
+    platform = sys.platform
+    if sys.version_info[0] < 3:
+        lb = 'boost_python'
+    else:
+        lb = 'boost_python3'  # in Ubuntu 14 there is only 'boost_python-py34'
+    extensionsList = []
+    sources = ['src/Genome.cpp',
+               'src/Innovation.cpp',
+               'src/NeuralNetwork.cpp',
+               'src/Parameters.cpp',
+               'src/PhenotypeBehavior.cpp',
+               'src/Population.cpp',
+               'src/Random.cpp',
+               'src/Species.cpp',
+               'src/Substrate.cpp',
+               'src/Utils.cpp']
 
-    setup(name='MultiNEAT',
-          version='0.3',
-          packages=['MultiNEAT'],
-          ext_modules=cythonize([Extension('_MultiNEAT',
-                                           ['_MultiNEAT.pyx',
-                                            'src/Genome.cpp',
-                                            'src/Innovation.cpp',
-                                            'src/NeuralNetwork.cpp',
-                                            'src/Parameters.cpp',
-                                            'src/PhenotypeBehavior.cpp',
-                                            'src/Population.cpp',
-                                            'src/Random.cpp',
-                                            'src/Species.cpp',
-                                            'src/Substrate.cpp',
-                                            'src/Utils.cpp'],
-                                           extra_compile_args=['-O3', '-march=native',  # '/EHsc', # for Windows
-                                                               '-std=gnu++11',
-                                                               '-g',
-                                                               '-Wall'
-                                                               ])
-                                 ],
-                                ))
+    extra = ['-march=native',
+             '-std=gnu++11',
+             '-g',
+             '-Wall'
+             ]
 
-except Exception as ex:
-    print('Cython is not present, trying boost::python (with boost::random and boost::serialization)')
+    if 'win' in platform:
+        extra.append('/EHsc')
+    else:
+        extra.append('-w')
 
-    setup(name='MultiNEAT',
-          version='0.3',
-          packages=['MultiNEAT'],
-          ext_modules=[Extension('_MultiNEAT', ['src/Genome.cpp',
-                                                'src/Innovation.cpp',
-                                                'src/NeuralNetwork.cpp',
-                                                'src/Parameters.cpp',
-                                                'src/PhenotypeBehavior.cpp',
-                                                'src/Population.cpp',
-                                                'src/PythonBindings.cpp',
-                                                'src/Random.cpp',
-                                                'src/Species.cpp',
-                                                'src/Substrate.cpp',
-                                                'src/Utils.cpp'],
-                                 libraries=[lb,
-                                            'boost_system',
-                                            'boost_serialization'],
+    build_sys = os.getenv('MN_BUILD')
 
-                                 # for Windows                                 
-                                 # libraries= ['libboost_python-mgw48-mt-1_58',
-                                 #            'libboost_serialization-mgw48-mt-1_58'],
-                                 # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
-                                 # library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
+    if build_sys is None:
+        print('MN_BUILD environment variable is not set.\n'
+              'Specify either \'cython\' or \'boost\'. Example for Linux:\n'
+              '\t$ export MN_BUILD=cython')
+        exit(1)
+    elif build_sys == 'cython':
+        from Cython.Build import cythonize
+        sources.append('_MultiNEAT.pyx')
+        extra.append('-O3')
+        extensionsList.extend(cythonize([Extension('MultiNEAT._MultiNEAT',
+                                                   sources,
+                                                   extra_compile_args=extra)],
+                                        ))
+    elif build_sys == 'boost':
+        sources.append('src/PythonBindings.cpp')
+        libs = [lb, 'boost_system', 'boost_serialization']
+        # for Windows
+        # libraries= ['libboost_python-mgw48-mt-1_58',
+        #            'libboost_serialization-mgw48-mt-1_58'],
+        # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
+        # library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
+        extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM'])
+        extensionsList.append(Extension('MultiNEAT._MultiNEAT',
+                                        sources,
+                                        libraries=libs,
+                                        extra_compile_args=extra)
+                              )
+    else:
+        raise AttributeError('Unknown tool: {}'.format(build_sys))
 
-                                 extra_compile_args=[  # '-O3',
-                                     '-march=native',
-                                     '-DUSE_BOOST_PYTHON',
-                                     '-DUSE_BOOST_RANDOM',
-                                     '-std=gnu++11',
-                                     '-g',
-                                     '-Wall'
-                                 ])
-                       ])
+    return extensionsList
+
+
+setup(name='MultiNEAT',
+      version='0.3',
+      packages=['MultiNEAT'],
+      ext_modules=getExtensions())
