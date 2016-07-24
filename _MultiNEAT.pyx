@@ -32,11 +32,11 @@ cdef class RNG:
 
 
 cdef class Parameters:
-    cdef cmn.Parameters thisptr      # hold a C++ instance which we're wrapping
+    cdef cmn.Parameters *thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = cmn.Parameters()
-    # def __dealloc__(self):
-    #     del self.thisptr
+        self.thisptr = new cmn.Parameters()
+    def __dealloc__(self):
+        del self.thisptr
 
     def Load(self, filename):
         self.thisptr.Load(filename)
@@ -561,7 +561,7 @@ cdef class NeuralNetwork:
         return self.thisptr.RTRL_update_weights()
     
     def Adapt(self, Parameters a_Parameters):
-        return self.thisptr.Adapt(a_Parameters.thisptr)
+        return self.thisptr.Adapt(deref(a_Parameters.thisptr))
     
     def Flush(self):
         return self.thisptr.Flush()
@@ -717,7 +717,7 @@ cdef class Genome:
         elif attribsLen == 9:
             a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, a_ps = attribs
             self.thisptr = new cmn.Genome(a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st,
-                                          (<Parameters>a_ps).thisptr)
+                                          deref((<Parameters>a_ps).thisptr))
     def __dealloc__(self):
         del self.thisptr
         
@@ -826,7 +826,7 @@ cdef class Population:
             self.thisptr = new cmn.Population(attribs[0])
         else:
             a_g, a_ps, a_r, a_rr, a_RNG_seed = attribs
-            self.thisptr = new cmn.Population(deref((<Genome>a_g).thisptr), (<Parameters>a_ps).thisptr,
+            self.thisptr = new cmn.Population(deref((<Genome>a_g).thisptr), deref((<Parameters>a_ps).thisptr),
             a_r, a_rr, a_RNG_seed)
     def __dealloc__(self):
         del self.thisptr
@@ -880,7 +880,7 @@ cdef class Population:
         return tRNG
 
     @staticmethod
-    cdef RNG buildParams(const cmn.Parameters& par):
+    cdef Parameters buildParams(cmn.Parameters* par):
         cdef Parameters tPar = Parameters()
         tPar.thisptr = par
         return tPar
@@ -905,7 +905,7 @@ cdef class Population:
 
     property Parameters:
         '''Evolution parameters'''
-        def __get__(self): return Population.buildParams(self.thisptr.m_Parameters)
+        def __get__(self): return Population.buildParams(&self.thisptr.m_Parameters)
 
     property Generation:
         '''Current generation'''
