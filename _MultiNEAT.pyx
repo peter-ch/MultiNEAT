@@ -440,19 +440,19 @@ cdef class Connection:
     def __dealloc__(self):
         del self.thisptr
 
-    property m_source_neuron_idx:
+    property source_neuron_idx:
             def __get__(self): return self.thisptr.m_source_neuron_idx
             def __set__(self, m_source_neuron_idx): self.thisptr.m_source_neuron_idx = m_source_neuron_idx
             
-    property m_target_neuron_idx:
+    property target_neuron_idx:
             def __get__(self): return self.thisptr.m_target_neuron_idx
             def __set__(self, m_target_neuron_idx): self.thisptr.m_target_neuron_idx = m_target_neuron_idx
             
-    property m_weight:
+    property weight:
             def __get__(self): return self.thisptr.m_weight
             def __set__(self, m_weight): self.thisptr.m_weight = m_weight
             
-    property m_recur_flag:
+    property recur_flag:
             def __get__(self): return self.thisptr.m_recur_flag
             def __set__(self, m_recur_flag): self.thisptr.m_recur_flag = m_recur_flag
             
@@ -464,63 +464,63 @@ cdef class Neuron:
     def __dealloc__(self):
         del self.thisptr
 
-    property m_activation:
+    property activation:
             def __get__(self): return self.thisptr.m_activation
             def __set__(self, m_activation): self.thisptr.m_activation = m_activation
             
-    property m_activation_function_type:
+    property activation_function_type:
             def __get__(self): return self.thisptr.m_activation_function_type
             def __set__(self, m_activation_function_type): self.thisptr.m_activation_function_type = m_activation_function_type
             
-    property m_a:
+    property a:
             def __get__(self): return self.thisptr.m_a
             def __set__(self, m_a): self.thisptr.m_a = m_a
             
-    property m_b:
+    property b:
             def __get__(self): return self.thisptr.m_b
             def __set__(self, m_b): self.thisptr.m_b = m_b
             
-    property m_timeconst:
+    property timeconst:
             def __get__(self): return self.thisptr.m_timeconst
             def __set__(self, m_timeconst): self.thisptr.m_timeconst = m_timeconst
             
-    property m_bias:
+    property bias:
             def __get__(self): return self.thisptr.m_bias
             def __set__(self, m_bias): self.thisptr.m_bias = m_bias
             
-    property m_x:
+    property x:
             def __get__(self): return self.thisptr.m_x
             def __set__(self, m_x): self.thisptr.m_x = m_x
             
-    property m_y:
+    property y:
             def __get__(self): return self.thisptr.m_y
             def __set__(self, m_y): self.thisptr.m_y = m_y
             
-    property m_z:
+    property z:
             def __get__(self): return self.thisptr.m_z
             def __set__(self, m_z): self.thisptr.m_z = m_z
             
-    property m_sx:
+    property sx:
             def __get__(self): return self.thisptr.m_sx
             def __set__(self, m_sx): self.thisptr.m_sx = m_sx
             
-    property m_sy:
+    property sy:
             def __get__(self): return self.thisptr.m_sy
             def __set__(self, m_sy): self.thisptr.m_sy = m_sy
             
-    property m_sz:
+    property sz:
             def __get__(self): return self.thisptr.m_sz
             def __set__(self, m_sz): self.thisptr.m_sz = m_sz
             
-    property m_substrate_coords:
+    property substrate_coords:
             def __get__(self): return self.thisptr.m_substrate_coords
             def __set__(self, m_substrate_coords): self.thisptr.m_substrate_coords = m_substrate_coords
             
-    property m_split_y:
+    property split_y:
             def __get__(self): return self.thisptr.m_split_y
             def __set__(self, m_split_y): self.thisptr.m_split_y = m_split_y
             
-    property m_type:
+    property type:
             def __get__(self): return self.thisptr.m_type
             def __set__(self, m_type): self.thisptr.m_type = m_type
         
@@ -576,19 +576,19 @@ cdef class NeuralNetwork:
         return self.thisptr.Output()
 
 
-    property m_num_inputs:
+    property num_inputs:
             def __get__(self): return self.thisptr.m_num_inputs
             def __set__(self, m_num_inputs): self.thisptr.m_num_inputs = m_num_inputs
             
-    property m_num_outputs:
+    property num_outputs:
             def __get__(self): return self.thisptr.m_num_outputs
             def __set__(self, m_num_outputs): self.thisptr.m_num_outputs = m_num_outputs
             
-    #property m_neurons:
+    #property neurons:
     #        def __get__(self): return self.thisptr.m_neurons
     #        def __set__(self, vector[Neuron] m_neurons): self.thisptr.m_neurons = m_neurons
             
-    #property m_connections:
+    #property connections:
     #        def __get__(self): return self.thisptr.m_connections
     #        def __set__(self, vector[Connection] m_connections): self.thisptr.m_connections = m_connections
 """
@@ -624,79 +624,79 @@ cdef class Substrate:
     def PrintInfo(self):
         return self.thisptr.PrintInfo()
 
-    property m_input_coords:
+    property input_coords:
             def __get__(self): return self.thisptr.m_input_coords
             def __set__(self, m_input_coords): self.thisptr.m_input_coords = m_input_coords
             
-    property m_hidden_coords:
+    property hidden_coords:
             def __get__(self): return self.thisptr.m_hidden_coords
             def __set__(self, m_hidden_coords): self.thisptr.m_hidden_coords = m_hidden_coords
             
-    property m_output_coords:
+    property output_coords:
             def __get__(self): return self.thisptr.m_output_coords
             def __set__(self, m_output_coords): self.thisptr.m_output_coords = m_output_coords
             
-    property m_leaky:
+    property leaky:
             def __get__(self): return self.thisptr.m_leaky
             def __set__(self, m_leaky): self.thisptr.m_leaky = m_leaky
             
-    property m_with_distance:
+    property with_distance:
             def __get__(self): return self.thisptr.m_with_distance
             def __set__(self, m_with_distance): self.thisptr.m_with_distance = m_with_distance
             
-    property m_allow_input_hidden_links:
+    property allow_input_hidden_links:
             def __get__(self): return self.thisptr.m_allow_input_hidden_links
             def __set__(self, m_allow_input_hidden_links): self.thisptr.m_allow_input_hidden_links = m_allow_input_hidden_links
             
-    property m_allow_input_output_links:
+    property allow_input_output_links:
             def __get__(self): return self.thisptr.m_allow_input_output_links
             def __set__(self, m_allow_input_output_links): self.thisptr.m_allow_input_output_links = m_allow_input_output_links
             
-    property m_allow_hidden_hidden_links:
+    property allow_hidden_hidden_links:
             def __get__(self): return self.thisptr.m_allow_hidden_hidden_links
             def __set__(self, m_allow_hidden_hidden_links): self.thisptr.m_allow_hidden_hidden_links = m_allow_hidden_hidden_links
             
-    property m_allow_hidden_output_links:
+    property allow_hidden_output_links:
             def __get__(self): return self.thisptr.m_allow_hidden_output_links
             def __set__(self, m_allow_hidden_output_links): self.thisptr.m_allow_hidden_output_links = m_allow_hidden_output_links
             
-    property m_allow_output_hidden_links:
+    property allow_output_hidden_links:
             def __get__(self): return self.thisptr.m_allow_output_hidden_links
             def __set__(self, m_allow_output_hidden_links): self.thisptr.m_allow_output_hidden_links = m_allow_output_hidden_links
             
-    property m_allow_output_output_links:
+    property allow_output_output_links:
             def __get__(self): return self.thisptr.m_allow_output_output_links
             def __set__(self, m_allow_output_output_links): self.thisptr.m_allow_output_output_links = m_allow_output_output_links
             
-    property m_allow_looped_hidden_links:
+    property allow_looped_hidden_links:
             def __get__(self): return self.thisptr.m_allow_looped_hidden_links
             def __set__(self, m_allow_looped_hidden_links): self.thisptr.m_allow_looped_hidden_links = m_allow_looped_hidden_links
             
-    property m_allow_looped_output_links:
+    property allow_looped_output_links:
             def __get__(self): return self.thisptr.m_allow_looped_output_links
             def __set__(self, m_allow_looped_output_links): self.thisptr.m_allow_looped_output_links = m_allow_looped_output_links
             
-    property m_hidden_nodes_activation:
+    property hidden_nodes_activation:
             def __get__(self): return self.thisptr.m_hidden_nodes_activation
             def __set__(self, m_hidden_nodes_activation): self.thisptr.m_hidden_nodes_activation = m_hidden_nodes_activation
             
-    property m_output_nodes_activation:
+    property output_nodes_activation:
             def __get__(self): return self.thisptr.m_output_nodes_activation
             def __set__(self, m_output_nodes_activation): self.thisptr.m_output_nodes_activation = m_output_nodes_activation
             
-    # property m_link_threshold:
+    # property link_threshold:
     #         def __get__(self): return self.thisptr.m_link_threshold
     #         def __set__(self, m_link_threshold): self.thisptr.m_link_threshold = m_link_threshold
             
-    property m_max_weight_and_bias:
+    property max_weight_and_bias:
             def __get__(self): return self.thisptr.m_max_weight_and_bias
             def __set__(self, m_max_weight_and_bias): self.thisptr.m_max_weight_and_bias = m_max_weight_and_bias
             
-    property m_min_time_const:
+    property min_time_const:
             def __get__(self): return self.thisptr.m_min_time_const
             def __set__(self, m_min_time_const): self.thisptr.m_min_time_const = m_min_time_const
             
-    property m_max_time_const:
+    property max_time_const:
             def __get__(self): return self.thisptr.m_max_time_const
             def __set__(self, m_max_time_const): self.thisptr.m_max_time_const = m_max_time_const
 
@@ -795,19 +795,19 @@ cdef class Species:
 
         return ret
 
-    property m_BestFitness:
+    property BestFitness:
         def __get__(self): return self.thisptr.m_BestFitness
         def __set__(self, m_BestFitness): self.thisptr.m_BestFitness = m_BestFitness
 
-    #property m_BestGenome:
+    #property BestGenome:
     #    def __get__(self): return self.thisptr.m_BestGenome
     #    def __set__(self, m_BestGenome): self.thisptr.m_BestGenome = m_BestGenome
 
-    property m_GensNoImprovement:
+    property GensNoImprovement:
         def __get__(self): return self.thisptr.m_GensNoImprovement
         def __set__(self, m_GensNoImprovement): self.thisptr.m_GensNoImprovement = m_GensNoImprovement
 
-    property m_B:
+    property B:
         def __get__(self): return self.thisptr.m_B
         def __set__(self, m_B): self.thisptr.m_B = m_B
 
