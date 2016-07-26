@@ -273,6 +273,8 @@ cdef extern from "src/NeuralNetwork.h" namespace "NEAT":
         void FlushCube()
         void Input(vector[double]& a_Inputs)
         vector[double] Output()
+        void Clear()
+
 
 cdef extern from "src/Substrate.h" namespace "NEAT":
     cdef cppclass Substrate:
@@ -340,6 +342,7 @@ cdef extern from "src/Genome.h" namespace "NEAT":
         double GetFitness()
         void SetFitness(double a_f)
         unsigned int GetID()
+        void SetID(int a_id)
         void CalculateDepth()
         unsigned int GetDepth()
 
@@ -348,6 +351,7 @@ cdef extern from "src/Genome.h" namespace "NEAT":
 
         void Save(const char* a_filename)
 
+        bool m_Evaluated
         bool IsEvaluated()
         void SetEvaluated()
         void ResetEvaluated()
