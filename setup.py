@@ -1,8 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-from distutils.core import setup, Extension
-from distutils.core import setup
-from distutils.command.build_ext import build_ext  # shouldn't distutils be replaced with setuptools?
+from setuptools import setup, Extension
 import sys
 import os
 
@@ -52,20 +50,28 @@ def getExtensions():
     build_sys = os.getenv('MN_BUILD')
 
     if build_sys is None:
-        print('MN_BUILD environment variable is not set.\n'
-              'Specify either \'cython\' or \'boost\'. Example for Linux:\n'
-              '\t$ export MN_BUILD=cython')
-        exit(1)
+        if os.path.exists('_MultiNEAT.cpp'):
+            sources.insert(0, '_MultiNEAT.cpp')
+            extra.append('-O3')
+            extensionsList.extend([Extension('MultiNEAT._MultiNEAT',
+                                             sources,
+                                             extra_compile_args=extra)],
+                                  )
+        else:
+            print('Source file is missing and MN_BUILD environment variable is not set.\n'
+                  'Specify either \'cython\' or \'boost\'. Example to build in Linux with Cython:\n'
+                  '\t$ export MN_BUILD=cython')
+            exit(1)
     elif build_sys == 'cython':
         from Cython.Build import cythonize
-        sources.append('_MultiNEAT.pyx')
+        sources.insert(0, '_MultiNEAT.pyx')
         extra.append('-O3')
         extensionsList.extend(cythonize([Extension('MultiNEAT._MultiNEAT',
                                                    sources,
                                                    extra_compile_args=extra)],
                                         ))
     elif build_sys == 'boost':
-        sources.append('src/PythonBindings.cpp')
+        sources.insert(0, 'src/PythonBindings.cpp')
         libs = [lb, 'boost_system', 'boost_serialization']
         # for Windows
         # libraries= ['libboost_python-mgw48-mt-1_58',
