@@ -27,12 +27,12 @@ This builds on the original repository to complete the needed parts to allow com
 
 * Set the required system (boost or cython) by setting an evironment variable with name MN_BUILD.
 Example in Linux:
-```bash
-export MN_BUILD=cython
-```
+  ```bash
+  export MN_BUILD=cython
+  ```
 
 * then, the usual:
-```bash
-python setup.py build_ext
-python setup.py install
-```
+  ```bash
+  python setup.py build_ext
+  python setup.py install
+  ```
