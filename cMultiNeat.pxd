@@ -1,5 +1,6 @@
 from libcpp.vector cimport vector
 from libcpp cimport bool
+from libc.stdio cimport FILE
 
 """
 #############################################
@@ -275,6 +276,20 @@ cdef extern from "src/NeuralNetwork.h" namespace "NEAT":
         vector[double] Output()
         void Clear()
 
+        # one-shot save/load
+        void Save(const char* a_filename)
+        bool Load(const char* a_filename)
+        # save/load from already opened files for reading/writing
+        void Save(FILE* a_file)
+
+        void AddNeuron(const Neuron& a_n)
+        void AddConnection(const Connection& a_c)
+        Connection GetConnectionByIndex(unsigned int a_idx) const
+        Neuron GetNeuronByIndex(unsigned int a_idx) const
+        void SetInputOutputDimentions(const unsigned short a_i, const unsigned short a_o)
+        unsigned int NumInputs() const
+        unsigned int NumOutputs() const
+
 
 cdef extern from "src/Substrate.h" namespace "NEAT":
     cdef cppclass Substrate:
@@ -350,6 +365,8 @@ cdef extern from "src/Genome.h" namespace "NEAT":
         void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 
         void Save(const char* a_filename)
+        # Saves this genome to an already opened file for writing
+        void Save(FILE* a_fstream);
 
         bool m_Evaluated
         bool IsEvaluated()

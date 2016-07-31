@@ -60,7 +60,7 @@ cdef class Parameters:
     def Load(self, filename):
         self.thisptr.Load(filename)
     def Save(self, filename):
-        self.thisptr.Load(filename)
+        self.thisptr.Save(filename)
     def Reset(self):
         self.thisptr.Reset()
 
@@ -605,6 +605,35 @@ cdef class NeuralNetwork:
     def Clear(self):
         self.thisptr.Clear()
 
+    def Save(self, const char* a_filename):
+        self.thisptr.Save(a_filename)
+
+    def Load(self, const char* a_filename):
+        return self.thisptr.Load(a_filename)
+
+    def NumInputs(self):
+        return self.thisptr.NumInputs()
+
+    def NumOutputs(self):
+        return self.thisptr.NumOutputs()
+
+    def AddNeuron(self, Neuron a_n):
+        self.thisptr.AddNeuron(deref(a_n.thisptr))
+
+    def AddConnection(self, Connection a_c):
+        self.thisptr.AddConnection(deref(a_c.thisptr))
+
+    def GetConnectionByIndex(self, unsigned int a_idx):
+        cdef cmn.Connection ncon= self.thisptr.GetConnectionByIndex(a_idx)
+        return pyConnectionFromReference(ncon)
+
+    def GetNeuronByIndex(self, unsigned int a_idx):
+        cdef cmn.Neuron nneur = self.thisptr.GetNeuronByIndex(a_idx)
+        return pyNeuronFromReference(nneur)
+
+    def SetInputOutputDimentions(self, const unsigned short a_i, const unsigned short a_o):
+        self.thisptr.SetInputOutputDimentions(a_i, a_o)
+
     property num_inputs:
             def __get__(self): return self.thisptr.m_num_inputs
             def __set__(self, m_num_inputs): self.thisptr.m_num_inputs = m_num_inputs
@@ -812,7 +841,7 @@ cdef class Genome:
     def BuildHyperNEATPhenotype(self, NeuralNetwork net, Substrate subst):
         self.thisptr.BuildHyperNEATPhenotype(deref(net.thisptr), deref(subst.thisptr))
     
-    def Save(self, a_filename):
+    def Save(self, str a_filename):
         self.thisptr.Save(a_filename)
     
     def IsEvaluated(self):
