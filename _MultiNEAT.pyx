@@ -682,79 +682,79 @@ cdef class Substrate:
     def PrintInfo(self):
         return self.thisptr.PrintInfo()
 
-    property input_coords:
+    property m_input_coords:
             def __get__(self): return self.thisptr.m_input_coords
             def __set__(self, m_input_coords): self.thisptr.m_input_coords = m_input_coords
             
-    property hidden_coords:
+    property m_hidden_coords:
             def __get__(self): return self.thisptr.m_hidden_coords
             def __set__(self, m_hidden_coords): self.thisptr.m_hidden_coords = m_hidden_coords
             
-    property output_coords:
+    property m_output_coords:
             def __get__(self): return self.thisptr.m_output_coords
             def __set__(self, m_output_coords): self.thisptr.m_output_coords = m_output_coords
             
-    property leaky:
+    property m_leaky:
             def __get__(self): return self.thisptr.m_leaky
             def __set__(self, m_leaky): self.thisptr.m_leaky = m_leaky
             
-    property with_distance:
+    property m_with_distance:
             def __get__(self): return self.thisptr.m_with_distance
             def __set__(self, m_with_distance): self.thisptr.m_with_distance = m_with_distance
             
-    property allow_input_hidden_links:
+    property m_allow_input_hidden_links:
             def __get__(self): return self.thisptr.m_allow_input_hidden_links
             def __set__(self, m_allow_input_hidden_links): self.thisptr.m_allow_input_hidden_links = m_allow_input_hidden_links
             
-    property allow_input_output_links:
+    property m_allow_input_output_links:
             def __get__(self): return self.thisptr.m_allow_input_output_links
             def __set__(self, m_allow_input_output_links): self.thisptr.m_allow_input_output_links = m_allow_input_output_links
             
-    property allow_hidden_hidden_links:
+    property m_allow_hidden_hidden_links:
             def __get__(self): return self.thisptr.m_allow_hidden_hidden_links
             def __set__(self, m_allow_hidden_hidden_links): self.thisptr.m_allow_hidden_hidden_links = m_allow_hidden_hidden_links
             
-    property allow_hidden_output_links:
+    property m_allow_hidden_output_links:
             def __get__(self): return self.thisptr.m_allow_hidden_output_links
             def __set__(self, m_allow_hidden_output_links): self.thisptr.m_allow_hidden_output_links = m_allow_hidden_output_links
             
-    property allow_output_hidden_links:
+    property m_allow_output_hidden_links:
             def __get__(self): return self.thisptr.m_allow_output_hidden_links
             def __set__(self, m_allow_output_hidden_links): self.thisptr.m_allow_output_hidden_links = m_allow_output_hidden_links
             
-    property allow_output_output_links:
+    property m_allow_output_output_links:
             def __get__(self): return self.thisptr.m_allow_output_output_links
             def __set__(self, m_allow_output_output_links): self.thisptr.m_allow_output_output_links = m_allow_output_output_links
             
-    property allow_looped_hidden_links:
+    property m_allow_looped_hidden_links:
             def __get__(self): return self.thisptr.m_allow_looped_hidden_links
             def __set__(self, m_allow_looped_hidden_links): self.thisptr.m_allow_looped_hidden_links = m_allow_looped_hidden_links
             
-    property allow_looped_output_links:
+    property m_allow_looped_output_links:
             def __get__(self): return self.thisptr.m_allow_looped_output_links
             def __set__(self, m_allow_looped_output_links): self.thisptr.m_allow_looped_output_links = m_allow_looped_output_links
             
-    property hidden_nodes_activation:
+    property m_hidden_nodes_activation:
             def __get__(self): return self.thisptr.m_hidden_nodes_activation
             def __set__(self, m_hidden_nodes_activation): self.thisptr.m_hidden_nodes_activation = m_hidden_nodes_activation
             
-    property output_nodes_activation:
+    property m_output_nodes_activation:
             def __get__(self): return self.thisptr.m_output_nodes_activation
             def __set__(self, m_output_nodes_activation): self.thisptr.m_output_nodes_activation = m_output_nodes_activation
             
-    # property link_threshold:
+    # property m_link_threshold:
     #         def __get__(self): return self.thisptr.m_link_threshold
     #         def __set__(self, m_link_threshold): self.thisptr.m_link_threshold = m_link_threshold
             
-    property max_weight_and_bias:
+    property m_max_weight_and_bias:
             def __get__(self): return self.thisptr.m_max_weight_and_bias
             def __set__(self, m_max_weight_and_bias): self.thisptr.m_max_weight_and_bias = m_max_weight_and_bias
             
-    property min_time_const:
+    property m_min_time_const:
             def __get__(self): return self.thisptr.m_min_time_const
             def __set__(self, m_min_time_const): self.thisptr.m_min_time_const = m_min_time_const
             
-    property max_time_const:
+    property m_max_time_const:
             def __get__(self): return self.thisptr.m_max_time_const
             def __set__(self, m_max_time_const): self.thisptr.m_max_time_const = m_max_time_const
 
