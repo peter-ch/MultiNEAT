@@ -448,10 +448,81 @@ cdef class Parameters:
         def __get__(self): return self.thisptr.CompatTreshChangeInterval_Evaluations
         def __set__(self, CompatTreshChangeInterval_Evaluations): self.thisptr.CompatTreshChangeInterval_Evaluations = CompatTreshChangeInterval_Evaluations
 
+    property Elitism:
+        '''Fraction of individuals to be copied unchanged'''
+        def __get__(self): return self.thisptr.Elitism
+        def __set__(self, double Elitism): self.thisptr.Elitism = Elitism
+
+    ##############
+    # ES HyperNEAT params
+    ##############
     property DivisionThreshold:
         def __get__(self): return self.thisptr.DivisionThreshold
         def __set__(self, DivisionThreshold): self.thisptr.DivisionThreshold = DivisionThreshold
 
+    property VarianceThreshold:
+        def __get__(self): return self.thisptr.VarianceThreshold
+        def __set__(self, VarianceThreshold): self.thisptr.VarianceThreshold = VarianceThreshold
+
+    property BandThreshold:
+        '''Used for Band prunning.'''
+        def __get__(self): return self.thisptr.BandThreshold
+        def __set__(self, BandThreshold): self.thisptr.BandThreshold = BandThreshold
+        
+    property InitialDepth:
+        '''Min Depth of the quadtree'''
+        def __get__(self): return self.thisptr.InitialDepth
+        def __set__(self, unsigned int InitialDepth): self.thisptr.InitialDepth = InitialDepth
+
+    property MaxDepth:
+        '''Max Depth of the quadtree'''
+        def __get__(self): return self.thisptr.MaxDepth
+        def __set__(self, unsigned int MaxDepth): self.thisptr.MaxDepth = MaxDepth
+
+    property IterationLevel:
+        '''How many hidden layers before connecting nodes to output. 
+        At 0 there is one hidden layer. At 1, there are two and so on.'''
+        def __get__(self): return self.thisptr.IterationLevel
+        def __set__(self, unsigned int IterationLevel): self.thisptr.IterationLevel = IterationLevel
+
+    property CPPN_Bias:
+        '''The Bias value for the CPPN queries'''
+        def __get__(self): return self.thisptr.CPPN_Bias
+        def __set__(self, double CPPN_Bias): self.thisptr.CPPN_Bias = CPPN_Bias
+
+    property Width:
+        def __get__(self): return self.thisptr.Width
+        def __set__(self, double Width): self.thisptr.Width = Width
+
+    property Height:
+        def __get__(self): return self.thisptr.Height
+        def __set__(self, double Height): self.thisptr.Height = Height
+
+    property Qtree_X:
+        def __get__(self): return self.thisptr.Qtree_X
+        def __set__(self, double Qtree_X): self.thisptr.Qtree_X = Qtree_X
+
+    property Qtree_Y:
+        def __get__(self): return self.thisptr.Qtree_Y
+        def __set__(self, double Qtree_Y): self.thisptr.Qtree_Y = Qtree_Y
+
+    property Leo:
+        '''Use Link Expression output'''
+        def __get__(self): return self.thisptr.Leo
+        def __set__(self, bint Leo): self.thisptr.Leo = Leo    
+
+    property LeoThreshold:
+        '''Threshold above which a connection is expressed'''
+        def __get__(self): return self.thisptr.LeoThreshold
+        def __set__(self, double LeoThreshold): self.thisptr.LeoThreshold = LeoThreshold
+
+    property LeoSeed:
+        def __get__(self): return self.thisptr.LeoSeed
+        def __set__(self, bint LeoSeed): self.thisptr.LeoSeed = LeoSeed
+
+    property GeometrySeed:
+        def __get__(self): return self.thisptr.GeometrySeed
+        def __set__(self, bint GeometrySeed): self.thisptr.GeometrySeed = GeometrySeed
 
 cdef class Connection:
     cdef cmn.Connection *thisptr      # hold a C++ instance which we're wrapping
@@ -840,6 +911,9 @@ cdef class Genome:
     
     def BuildHyperNEATPhenotype(self, NeuralNetwork net, Substrate subst):
         self.thisptr.BuildHyperNEATPhenotype(deref(net.thisptr), deref(subst.thisptr))
+
+    def BuildESHyperNEATPhenotype(Genome self, NeuralNetwork a_net, Substrate subst, Parameters params):
+        self.thisptr.BuildESHyperNEATPhenotype(deref(a_net.thisptr), deref(subst.thisptr), deref(params.thisptr))
     
     def Save(self, str a_filename):
         self.thisptr.Save(a_filename)

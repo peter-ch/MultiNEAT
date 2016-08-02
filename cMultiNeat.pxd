@@ -168,6 +168,9 @@ cdef extern from "src/Parameters.h" namespace "NEAT":
         unsigned int CompatTreshChangeInterval_Generations
         unsigned int CompatTreshChangeInterval_Evaluations
 
+        # Fraction of individuals to be copied unchanged
+        double Elitism 'EliteFraction'
+
         Parameters() except +
 
         int Load(const char* filename)
@@ -363,6 +366,7 @@ cdef extern from "src/Genome.h" namespace "NEAT":
 
         void BuildPhenotype(NeuralNetwork& net)
         void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
+        void BuildESHyperNEATPhenotype(NeuralNetwork& a_net, Substrate& subst, Parameters& params)
 
         void Save(const char* a_filename)
         # Saves this genome to an already opened file for writing
