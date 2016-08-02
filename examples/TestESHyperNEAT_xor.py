@@ -181,7 +181,7 @@ def getbest(run):
         
 
         # Visualize best network's Genome
-        '''
+
         net = NEAT.NeuralNetwork()
         pop.Species[0].GetLeader().BuildPhenotype(net)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
@@ -190,14 +190,14 @@ def getbest(run):
         cv2.imshow("CPPN", img)
         # Visualize best network's Pheotype
         net = NEAT.NeuralNetwork()
-        pop.Species[0].GetLeader().Build_ES_Phenotype(net, substrate, params)
+        pop.Species[0].GetLeader().BuildESHyperNEATPhenotype(net, substrate, params)
         img = np.zeros((500, 500, 3), dtype=np.uint8)
         img += 10
 
-        Utilities.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
+        NEAT.DrawPhenotype(img, (0, 0, 500, 500), net, substrate=True )
         cv2.imshow("NN", img)
         cv2.waitKey(1)
-        '''
+
         if max(fitnesses) > 15.0:
             break
         
