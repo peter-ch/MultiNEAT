@@ -23,8 +23,8 @@ def evaluate(genome):
 
     # do stuff and return the fitness
     net.Flush()
-    net.Input(np.array([1., 0., 1.])) # can input numpy arrays, too
-                                      # for some reason only np.float64 is supported
+    net.Input(np.array([1., 0., 1.]))  # can input numpy arrays, too
+    # for some reason only np.float64 is supported
     for _ in range(2):
         net.Activate()
     o = net.Output()
@@ -51,9 +51,8 @@ def evaluate(genome):
     o = net.Output()
     error += abs(o[0])
 
-    return (4 - error)**2
-    
-    
+    return (4 - error) ** 2
+
 
 params = NEAT.Parameters()
 params.PopulationSize = 150
@@ -82,8 +81,8 @@ params.MutateAddNeuronProb = 0.03
 params.MutateAddLinkProb = 0.05
 params.MutateRemLinkProb = 0.0
 
-params.MinActivationA  = 4.9
-params.MaxActivationA  = 4.9
+params.MinActivationA = 4.9
+params.MaxActivationA = 4.9
 
 params.ActivationFunction_SignedSigmoid_Prob = 0.0
 params.ActivationFunction_UnsignedSigmoid_Prob = 1.0
@@ -96,8 +95,8 @@ params.SurvivalRate = 0.2
 
 
 def getbest(i):
-
-    g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+    g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
+                    NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
     pop = NEAT.Population(g, params, True, 1.0, i)
     pop.RNG.Seed(i)
 
@@ -115,7 +114,6 @@ def getbest(i):
     return generations
 
 
-
 gens = []
 for run in range(100):
     gen = getbest(run)
@@ -125,5 +123,3 @@ avg_gens = sum(gens) / len(gens)
 
 print('All:', gens)
 print('Average:', avg_gens)
-
-
