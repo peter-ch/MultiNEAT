@@ -842,7 +842,7 @@ cdef class Genome:
             self.thisptr = new cmn.Genome()
         elif attribsLen == 1:
             if isinstance(attribs[0], Genome):
-                self.thisptr = new cmn.Genome(<const cmn.Genome&>(attribs[0].thisptr))
+                self.thisptr = new cmn.Genome(deref(<cmn.Genome*>((<Genome>attribs[0]).thisptr)))
             elif isinstance(attribs[0], str):
                 self.thisptr = new cmn.Genome(<char*>attribs[0])
         elif attribsLen == 9:
