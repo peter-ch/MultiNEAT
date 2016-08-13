@@ -19,10 +19,6 @@ GNU Lesser General Public License v3.0
 ### Documentation
 [http://multineat.com/docs.html](http://multineat.com/docs.html)
 
-#### About this fork
-
-This builds on the original repository to complete the needed parts to allow compilation with either Cython or Boost.
-
 #### To compile
 
 * Set the required system (boost or cython) by setting an evironment variable with name MN_BUILD.
