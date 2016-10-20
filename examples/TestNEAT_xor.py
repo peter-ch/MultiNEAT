@@ -1,18 +1,7 @@
 #!/usr/bin/python3
-
-
-import os
-import sys
-import time
-import random as rnd
-import cv2
 import numpy as np
-import pickle as pickle
 import MultiNEAT as NEAT
 from MultiNEAT import EvaluateGenomeList_Serial
-from MultiNEAT import GetGenomeList, ZipFitness
-
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 def evaluate(genome):

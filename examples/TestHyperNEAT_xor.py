@@ -1,16 +1,8 @@
 #!/usr/bin/python3
-import os
 import sys
-import time
-import random as rnd
-import subprocess as comm
-import cv2
-import numpy as np
 import pickle as pickle
 import MultiNEAT as NEAT
-from MultiNEAT import GetGenomeList, ZipFitness, EvaluateGenomeList_Serial, EvaluateGenomeList_Parallel
-
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from MultiNEAT import EvaluateGenomeList_Serial, EvaluateGenomeList_Parallel
 
 # the simple 2D substrate with 3 input points, 2 hidden and 1 output for XOR
 
