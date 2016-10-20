@@ -1,17 +1,8 @@
 #!/usr/bin/python3
-import os
-import sys
-import time
-import random as rnd
-import subprocess as comm
 import cv2
 import numpy as np
-import pickle as pickle
 import MultiNEAT as NEAT
-from MultiNEAT import GetGenomeList, ZipFitness
 from MultiNEAT import EvaluateGenomeList_Serial
-
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 params = NEAT.Parameters()
@@ -101,6 +92,7 @@ substrate.m_with_distance = False;
 
 substrate.m_max_weight_and_bias = 8.0;
 
+
 def evaluate_xor(genome):
 
     net = NEAT.NeuralNetwork()
@@ -152,7 +144,6 @@ def evaluate_xor(genome):
         return 0.0
 
 
-
 def getbest(run):
     g = NEAT.Genome(0,
                     substrate.GetMinCPPNInputs(),
@@ -178,7 +169,6 @@ def getbest(run):
         #print("---------------------------")
         #print("Generation: ", generation)
         #print("max ", max([x.GetLeader().GetFitness() for x in pop.Species]))
-        
 
         # Visualize best network's Genome
         '''
