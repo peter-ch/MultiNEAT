@@ -1,73 +1,31 @@
 # distutils: language = c++
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: initializedcheck=False
+# cython: nonecheck=False
+# cython: infer_types=False
+# cython: nonecheck=False
+# cython: embedsignature=True
+# cython: c_string_type=str
+# cython: c_string_encoding=ascii
 
 from libcpp.vector cimport vector
 from libcpp cimport bool
 from cython.operator cimport dereference as deref, preincrement as preinc
-
-"""
-#############################################
-
-Enums
-
-#############################################
-"""
-cdef extern from "src/Genes.h" namespace "NEAT":
-    cpdef enum NeuronType:
-        NONE
-        INPUT
-        BIAS
-        HIDDEN
-        OUTPUT
-
-    cpdef enum ActivationFunction:
-        SIGNED_SIGMOID
-        UNSIGNED_SIGMOID
-        TANH
-        TANH_CUBIC
-        SIGNED_STEP
-        UNSIGNED_STEP
-        SIGNED_GAUSS
-        UNSIGNED_GAUSS
-        ABS
-        SIGNED_SINE
-        UNSIGNED_SINE
-        SIGNED_SQUARE
-        UNSIGNED_SQUARE
-        LINEAR
-
-cdef extern from "src/Population.h" namespace "NEAT":
-    cpdef enum SearchMode:
-        COMPLEXIFYING
-        SIMPLIFYING
-        BLENDED
+cimport cMultiNeat as cmn
 
 
-"""
-#############################################
+cdef class RNG:
+    cdef cmn.RNG* thisptr      # hold a C++ instance which we're wrapping
+    cdef bint borrowed
 
-RNG class
-
-#############################################
-"""
-
-cdef extern from "src/Random.h" namespace "NEAT":
-    cdef cppclass RNG:
-        RNG() except +
-        void Seed(int seed)
-        void TimeSeed()
-        int RandPosNeg()
-        int RandInt(int x, int y)
-        double RandFloat()
-        double RandFloatClamped()
-        double RandGaussClamped()
-        int Roulette(vector[double]& a_probs)
-
-cdef class pyRNG:
-    cdef RNG *thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = new RNG()
+        self.thisptr = new cmn.RNG()
+        self.borrowed = False
+
     def __dealloc__(self):
-        del self.thisptr
+        if not self.borrowed:
+            del self.thisptr
 
     def Seed(self, int a_seed):
         self.thisptr.Seed(a_seed)
@@ -86,131 +44,23 @@ cdef class pyRNG:
     def Roulette(self, a_probs):
         return self.thisptr.Roulette(a_probs)
 
-"""
-#############################################
 
-Parameters class
+cdef class Parameters:
+    cdef cmn.Parameters *thisptr      # hold a C++ instance which we're wrapping
+    cdef bint borrowed
 
-#############################################
-"""
-
-cdef extern from "src/Parameters.h" namespace "NEAT":
-    cdef cppclass Parameters:
-        unsigned int PopulationSize;
-        bool DynamicCompatibility;
-        unsigned int MinSpecies;
-        unsigned int MaxSpecies;
-        bool InnovationsForever;
-        bool AllowClones;
-        unsigned int YoungAgeTreshold;
-        double YoungAgeFitnessBoost;
-        unsigned int SpeciesMaxStagnation;
-        double StagnationDelta;
-        unsigned int OldAgeTreshold;
-        double OldAgePenalty;
-        bool DetectCompetetiveCoevolutionStagnation;
-        int KillWorstSpeciesEach;
-        int KillWorstAge;
-        double SurvivalRate;
-        double CrossoverRate;
-        double OverallMutationRate;
-        double InterspeciesCrossoverRate;
-        double MultipointCrossoverRate;
-        bool RouletteWheelSelection;
-        bool PhasedSearching;
-        bool DeltaCoding;
-        unsigned int SimplifyingPhaseMPCTreshold;
-        unsigned int SimplifyingPhaseStagnationTreshold;
-        unsigned int ComplexityFloorGenerations;
-        unsigned int NoveltySearch_K;
-        double NoveltySearch_P_min;
-        bool NoveltySearch_Dynamic_Pmin;
-        unsigned int NoveltySearch_No_Archiving_Stagnation_Treshold;
-        double NoveltySearch_Pmin_lowering_multiplier;
-        double NoveltySearch_Pmin_min;
-        unsigned int NoveltySearch_Quick_Archiving_Min_Evaluations;
-        double NoveltySearch_Pmin_raising_multiplier;
-        unsigned int NoveltySearch_Recompute_Sparseness_Each;
-        double MutateAddNeuronProb;
-        bool SplitRecurrent;
-        bool SplitLoopedRecurrent;
-        int NeuronTries;
-        double MutateAddLinkProb;
-        double MutateAddLinkFromBiasProb;
-        double MutateRemLinkProb;
-        double MutateRemSimpleNeuronProb;
-        unsigned int LinkTries;
-        double RecurrentProb;
-        double RecurrentLoopProb;
-        double MutateWeightsProb;
-        double MutateWeightsSevereProb;
-        double WeightMutationRate;
-        double WeightMutationMaxPower;
-        double WeightReplacementMaxPower;
-        double MaxWeight;
-        double MutateActivationAProb;
-        double MutateActivationBProb;
-        double ActivationAMutationMaxPower;
-        double ActivationBMutationMaxPower;
-        double TimeConstantMutationMaxPower;
-        double BiasMutationMaxPower;
-        double MinActivationA;
-        double MaxActivationA;
-        double MinActivationB;
-        double MaxActivationB;
-        double MutateNeuronActivationTypeProb;
-        double ActivationFunction_SignedSigmoid_Prob;
-        double ActivationFunction_UnsignedSigmoid_Prob;
-        double ActivationFunction_Tanh_Prob;
-        double ActivationFunction_TanhCubic_Prob;
-        double ActivationFunction_SignedStep_Prob;
-        double ActivationFunction_UnsignedStep_Prob;
-        double ActivationFunction_SignedGauss_Prob;
-        double ActivationFunction_UnsignedGauss_Prob;
-        double ActivationFunction_Abs_Prob;
-        double ActivationFunction_SignedSine_Prob;
-        double ActivationFunction_UnsignedSine_Prob;
-        double ActivationFunction_SignedSquare_Prob;
-        double ActivationFunction_UnsignedSquare_Prob;
-        double ActivationFunction_Linear_Prob;
-        double MutateNeuronTimeConstantsProb;
-        double MutateNeuronBiasesProb;
-        double MinNeuronTimeConstant;
-        double MaxNeuronTimeConstant;
-        double MinNeuronBias;
-        double MaxNeuronBias;
-        double DisjointCoeff;
-        double ExcessCoeff;
-        double ActivationADiffCoeff;
-        double ActivationBDiffCoeff;
-        double WeightDiffCoeff;
-        double TimeConstantDiffCoeff;
-        double BiasDiffCoeff;
-        double ActivationFunctionDiffCoeff;
-        double CompatTreshold;
-        double MinCompatTreshold;
-        double CompatTresholdModifier;
-        unsigned int CompatTreshChangeInterval_Generations;
-        unsigned int CompatTreshChangeInterval_Evaluations;
-
-        Parameters() except +
-
-        int Load(const char* filename);
-        void Save(const char* filename);
-        void Reset();
-
-
-cdef class pyParameters:
-    cdef Parameters *thisptr      # hold a C++ instance which we're wrapping
     def __cinit__(self):
-        self.thisptr = new Parameters()
+        self.thisptr = new cmn.Parameters()
+        self.borrowed = False
+
     def __dealloc__(self):
-        del self.thisptr
+        if not self.borrowed:
+            del self.thisptr
 
     def Load(self, filename):
         self.thisptr.Load(filename)
     def Save(self, filename):
-        self.thisptr.Load(filename)
+        self.thisptr.Save(filename)
     def Reset(self):
         self.thisptr.Reset()
 
@@ -510,13 +360,13 @@ cdef class pyParameters:
         def __get__(self): return self.thisptr.ActivationFunction_UnsignedSine_Prob
         def __set__(self, ActivationFunction_UnsignedSine_Prob): self.thisptr.ActivationFunction_UnsignedSine_Prob = ActivationFunction_UnsignedSine_Prob
         
-    property ActivationFunction_SignedSquare_Prob:
-        def __get__(self): return self.thisptr.ActivationFunction_SignedSquare_Prob
-        def __set__(self, ActivationFunction_SignedSquare_Prob): self.thisptr.ActivationFunction_SignedSquare_Prob = ActivationFunction_SignedSquare_Prob
-        
-    property ActivationFunction_UnsignedSquare_Prob:
-        def __get__(self): return self.thisptr.ActivationFunction_UnsignedSquare_Prob
-        def __set__(self, ActivationFunction_UnsignedSquare_Prob): self.thisptr.ActivationFunction_UnsignedSquare_Prob = ActivationFunction_UnsignedSquare_Prob
+    # property ActivationFunction_SignedSquare_Prob:
+    #     def __get__(self): return self.thisptr.ActivationFunction_SignedSquare_Prob
+    #     def __set__(self, ActivationFunction_SignedSquare_Prob): self.thisptr.ActivationFunction_SignedSquare_Prob = ActivationFunction_SignedSquare_Prob
+    #
+    # property ActivationFunction_UnsignedSquare_Prob:
+    #     def __get__(self): return self.thisptr.ActivationFunction_UnsignedSquare_Prob
+    #     def __set__(self, ActivationFunction_UnsignedSquare_Prob): self.thisptr.ActivationFunction_UnsignedSquare_Prob = ActivationFunction_UnsignedSquare_Prob
         
     property ActivationFunction_Linear_Prob:
         def __get__(self): return self.thisptr.ActivationFunction_Linear_Prob
@@ -598,222 +448,278 @@ cdef class pyParameters:
         def __get__(self): return self.thisptr.CompatTreshChangeInterval_Evaluations
         def __set__(self, CompatTreshChangeInterval_Evaluations): self.thisptr.CompatTreshChangeInterval_Evaluations = CompatTreshChangeInterval_Evaluations
 
-"""
-#############################################
+    property Elitism:
+        '''Fraction of individuals to be copied unchanged'''
+        def __get__(self): return self.thisptr.Elitism
+        def __set__(self, double Elitism): self.thisptr.Elitism = Elitism
 
-NeuralNetwork class
+    ##############
+    # ES HyperNEAT params
+    ##############
+    property DivisionThreshold:
+        def __get__(self): return self.thisptr.DivisionThreshold
+        def __set__(self, DivisionThreshold): self.thisptr.DivisionThreshold = DivisionThreshold
 
-#############################################
-"""
+    property VarianceThreshold:
+        def __get__(self): return self.thisptr.VarianceThreshold
+        def __set__(self, VarianceThreshold): self.thisptr.VarianceThreshold = VarianceThreshold
 
-cdef extern from "src/NeuralNetwork.h" namespace "NEAT":
-    cdef cppclass Connection:
-        unsigned short int m_source_neuron_idx;
-        unsigned short int m_target_neuron_idx;
-        double m_weight;
-        bool m_recur_flag;
+    property BandThreshold:
+        '''Used for Band prunning.'''
+        def __get__(self): return self.thisptr.BandThreshold
+        def __set__(self, BandThreshold): self.thisptr.BandThreshold = BandThreshold
+        
+    property InitialDepth:
+        '''Min Depth of the quadtree'''
+        def __get__(self): return self.thisptr.InitialDepth
+        def __set__(self, unsigned int InitialDepth): self.thisptr.InitialDepth = InitialDepth
 
-    cdef cppclass Neuron:
-        double m_activation;
-        ActivationFunction m_activation_function_type;
-        double m_a;
-        double m_b;
-        double m_timeconst;
-        double m_bias;
-        double m_x;
-        double m_y;
-        double m_z;
-        double m_sx;
-        double m_sy;
-        double m_sz;
-        vector[double] m_substrate_coords;
-        double m_split_y;
-        NeuronType m_type;
+    property MaxDepth:
+        '''Max Depth of the quadtree'''
+        def __get__(self): return self.thisptr.MaxDepth
+        def __set__(self, unsigned int MaxDepth): self.thisptr.MaxDepth = MaxDepth
 
-    cdef cppclass NeuralNetwork:
-        unsigned short m_num_inputs;
-        unsigned short m_num_outputs;
-        vector[Neuron] m_neurons;
-        vector[Connection] m_connections;
+    property IterationLevel:
+        '''How many hidden layers before connecting nodes to output. 
+        At 0 there is one hidden layer. At 1, there are two and so on.'''
+        def __get__(self): return self.thisptr.IterationLevel
+        def __set__(self, unsigned int IterationLevel): self.thisptr.IterationLevel = IterationLevel
 
-        NeuralNetwork() except +
-        NeuralNetwork(bool x) except +
+    property CPPN_Bias:
+        '''The Bias value for the CPPN queries'''
+        def __get__(self): return self.thisptr.CPPN_Bias
+        def __set__(self, double CPPN_Bias): self.thisptr.CPPN_Bias = CPPN_Bias
 
-        void InitRTRLMatrix();
-        void ActivateFast();
-        void Activate();
-        void ActivateUseInternalBias();
-        void ActivateLeaky(double step);
+    property Width:
+        def __get__(self): return self.thisptr.Width
+        def __set__(self, double Width): self.thisptr.Width = Width
 
-        void RTRL_update_gradients();
-        void RTRL_update_error(double a_target);
-        void RTRL_update_weights();
-        void Adapt(Parameters& a_Parameters);
+    property Height:
+        def __get__(self): return self.thisptr.Height
+        def __set__(self, double Height): self.thisptr.Height = Height
 
-        void Flush();
-        void FlushCube();
-        void Input(vector[double]& a_Inputs);
-        vector[double] Output();
+    property Qtree_X:
+        def __get__(self): return self.thisptr.Qtree_X
+        def __set__(self, double Qtree_X): self.thisptr.Qtree_X = Qtree_X
 
+    property Qtree_Y:
+        def __get__(self): return self.thisptr.Qtree_Y
+        def __set__(self, double Qtree_Y): self.thisptr.Qtree_Y = Qtree_Y
 
-cdef class pyConnection:
-    cdef Connection *thisptr      # hold a C++ instance which we're wrapping
+    property Leo:
+        '''Use Link Expression output'''
+        def __get__(self): return self.thisptr.Leo
+        def __set__(self, bint Leo): self.thisptr.Leo = Leo    
+
+    property LeoThreshold:
+        '''Threshold above which a connection is expressed'''
+        def __get__(self): return self.thisptr.LeoThreshold
+        def __set__(self, double LeoThreshold): self.thisptr.LeoThreshold = LeoThreshold
+
+    property LeoSeed:
+        def __get__(self): return self.thisptr.LeoSeed
+        def __set__(self, bint LeoSeed): self.thisptr.LeoSeed = LeoSeed
+
+    property GeometrySeed:
+        def __get__(self): return self.thisptr.GeometrySeed
+        def __set__(self, bint GeometrySeed): self.thisptr.GeometrySeed = GeometrySeed
+
+cdef class Connection:
+    cdef cmn.Connection *thisptr      # hold a C++ instance which we're wrapping
+    cdef bint borrowed
     def __cinit__(self):
-        self.thisptr = new Connection()
+        self.thisptr = new cmn.Connection()
+        self.borrowed = False
     def __dealloc__(self):
-        del self.thisptr
+        if not self.borrowed:
+            del self.thisptr
 
-    property m_source_neuron_idx:
+    property source_neuron_idx:
             def __get__(self): return self.thisptr.m_source_neuron_idx
             def __set__(self, m_source_neuron_idx): self.thisptr.m_source_neuron_idx = m_source_neuron_idx
             
-    property m_target_neuron_idx:
+    property target_neuron_idx:
             def __get__(self): return self.thisptr.m_target_neuron_idx
             def __set__(self, m_target_neuron_idx): self.thisptr.m_target_neuron_idx = m_target_neuron_idx
             
-    property m_weight:
+    property weight:
             def __get__(self): return self.thisptr.m_weight
             def __set__(self, m_weight): self.thisptr.m_weight = m_weight
             
-    property m_recur_flag:
+    property recur_flag:
             def __get__(self): return self.thisptr.m_recur_flag
             def __set__(self, m_recur_flag): self.thisptr.m_recur_flag = m_recur_flag
             
             
-cdef class pyNeuron:
-    cdef Neuron *thisptr      # hold a C++ instance which we're wrapping
+cdef class Neuron:
+    cdef cmn.Neuron *thisptr      # hold a C++ instance which we're wrapping
+    cdef bint borrowed
     def __cinit__(self):
-        self.thisptr = new Neuron()
+        self.thisptr = new cmn.Neuron()
+        self.borrowed = False
     def __dealloc__(self):
-        del self.thisptr
+        if not self.borrowed:
+            del self.thisptr
 
-    property m_activation:
+    property activation:
             def __get__(self): return self.thisptr.m_activation
             def __set__(self, m_activation): self.thisptr.m_activation = m_activation
             
-    property m_activation_function_type:
+    property activation_function_type:
             def __get__(self): return self.thisptr.m_activation_function_type
             def __set__(self, m_activation_function_type): self.thisptr.m_activation_function_type = m_activation_function_type
             
-    property m_a:
+    property a:
             def __get__(self): return self.thisptr.m_a
             def __set__(self, m_a): self.thisptr.m_a = m_a
             
-    property m_b:
+    property b:
             def __get__(self): return self.thisptr.m_b
             def __set__(self, m_b): self.thisptr.m_b = m_b
             
-    property m_timeconst:
+    property timeconst:
             def __get__(self): return self.thisptr.m_timeconst
             def __set__(self, m_timeconst): self.thisptr.m_timeconst = m_timeconst
             
-    property m_bias:
+    property bias:
             def __get__(self): return self.thisptr.m_bias
             def __set__(self, m_bias): self.thisptr.m_bias = m_bias
             
-    property m_x:
+    property x:
             def __get__(self): return self.thisptr.m_x
             def __set__(self, m_x): self.thisptr.m_x = m_x
             
-    property m_y:
+    property y:
             def __get__(self): return self.thisptr.m_y
             def __set__(self, m_y): self.thisptr.m_y = m_y
             
-    property m_z:
+    property z:
             def __get__(self): return self.thisptr.m_z
             def __set__(self, m_z): self.thisptr.m_z = m_z
             
-    property m_sx:
+    property sx:
             def __get__(self): return self.thisptr.m_sx
             def __set__(self, m_sx): self.thisptr.m_sx = m_sx
             
-    property m_sy:
+    property sy:
             def __get__(self): return self.thisptr.m_sy
             def __set__(self, m_sy): self.thisptr.m_sy = m_sy
             
-    property m_sz:
+    property sz:
             def __get__(self): return self.thisptr.m_sz
             def __set__(self, m_sz): self.thisptr.m_sz = m_sz
             
-    property m_substrate_coords:
+    property substrate_coords:
             def __get__(self): return self.thisptr.m_substrate_coords
             def __set__(self, m_substrate_coords): self.thisptr.m_substrate_coords = m_substrate_coords
             
-    property m_split_y:
+    property split_y:
             def __get__(self): return self.thisptr.m_split_y
             def __set__(self, m_split_y): self.thisptr.m_split_y = m_split_y
             
-    property m_type:
+    property type:
             def __get__(self): return self.thisptr.m_type
             def __set__(self, m_type): self.thisptr.m_type = m_type
-        
 
-            
-            
-cdef class pyNeuralNetwork:
-    cdef NeuralNetwork *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new NeuralNetwork()
-    def __cinit__(self, x):
-        self.thisptr = new NeuralNetwork(x)
+
+cdef class NeuralNetwork:
+    cdef cmn.NeuralNetwork *thisptr      # hold a C++ instance which we're wrapping
+
+    def __cinit__(self, x=None):
+        if x is None:
+            self.thisptr = new cmn.NeuralNetwork()
+        else:
+            self.thisptr = new cmn.NeuralNetwork(x)
+
     def __dealloc__(self):
         del self.thisptr
 
     def InitRTRLMatrix(self):
-        return self.thisptr.InitRTRLMatrix()
+        self.thisptr.InitRTRLMatrix()
     
     def ActivateFast(self):
-        return self.thisptr.ActivateFast()
+        self.thisptr.ActivateFast()
     
     def Activate(self):
-        return self.thisptr.Activate()
+        self.thisptr.Activate()
     
     def ActivateUseInternalBias(self):
-        return self.thisptr.ActivateUseInternalBias()
+        self.thisptr.ActivateUseInternalBias()
     
     def ActivateLeaky(self, step):
-        return self.thisptr.ActivateLeaky(step)
+        self.thisptr.ActivateLeaky(step)
     
     def RTRL_update_gradients(self):
-        return self.thisptr.RTRL_update_gradients()
+        self.thisptr.RTRL_update_gradients()
     
     def RTRL_update_error(self, double a_target):
-        return self.thisptr.RTRL_update_error(a_target)
+        self.thisptr.RTRL_update_error(a_target)
     
     def RTRL_update_weights(self):
-        return self.thisptr.RTRL_update_weights()
+        self.thisptr.RTRL_update_weights()
     
-    def Adapt(self, pyParameters a_Parameters):
-        return self.thisptr.Adapt(deref(a_Parameters.thisptr))
+    def Adapt(self, Parameters a_Parameters):
+        self.thisptr.Adapt(deref(a_Parameters.thisptr))
     
     def Flush(self):
-        return self.thisptr.Flush()
+        self.thisptr.Flush()
     
     def FlushCube(self):
-        return self.thisptr.FlushCube()
+        self.thisptr.FlushCube()
     
     def Input(self, a_Inputs):
-        return self.thisptr.Input(a_Inputs)
+        self.thisptr.Input(a_Inputs)
     
     def Output(self):
         return self.thisptr.Output()
 
+    def Clear(self):
+        self.thisptr.Clear()
 
-    property m_num_inputs:
+    def Save(self, const char* a_filename):
+        self.thisptr.Save(a_filename)
+
+    def Load(self, const char* a_filename):
+        return self.thisptr.Load(a_filename)
+
+    def NumInputs(self):
+        return self.thisptr.NumInputs()
+
+    def NumOutputs(self):
+        return self.thisptr.NumOutputs()
+
+    def AddNeuron(self, Neuron a_n):
+        self.thisptr.AddNeuron(deref(a_n.thisptr))
+
+    def AddConnection(self, Connection a_c):
+        self.thisptr.AddConnection(deref(a_c.thisptr))
+
+    def GetConnectionByIndex(self, unsigned int a_idx):
+        cdef cmn.Connection ncon= self.thisptr.GetConnectionByIndex(a_idx)
+        return pyConnectionFromReference(ncon)
+
+    def GetNeuronByIndex(self, unsigned int a_idx):
+        cdef cmn.Neuron nneur = self.thisptr.GetNeuronByIndex(a_idx)
+        return pyNeuronFromReference(nneur)
+
+    def SetInputOutputDimentions(self, const unsigned short a_i, const unsigned short a_o):
+        self.thisptr.SetInputOutputDimentions(a_i, a_o)
+
+    property num_inputs:
             def __get__(self): return self.thisptr.m_num_inputs
             def __set__(self, m_num_inputs): self.thisptr.m_num_inputs = m_num_inputs
             
-    property m_num_outputs:
+    property num_outputs:
             def __get__(self): return self.thisptr.m_num_outputs
             def __set__(self, m_num_outputs): self.thisptr.m_num_outputs = m_num_outputs
             
-    #property m_neurons:
-    #        def __get__(self): return self.thisptr.m_neurons
-    #        def __set__(self, vector[Neuron] m_neurons): self.thisptr.m_neurons = m_neurons
+    property neurons:
+        def __get__(self): return neuronsVectorToList(self.thisptr.m_neurons)
+        def __set__(self, list m_neurons): self.thisptr.m_neurons = neuronsListToVector(m_neurons)
             
-    #property m_connections:
-    #        def __get__(self): return self.thisptr.m_connections
-    #        def __set__(self, vector[Connection] m_connections): self.thisptr.m_connections = m_connections
+    property connections:
+           def __get__(self): return connectionsVectorToList(self.thisptr.m_connections)
+           def __set__(self, list m_connections): self.thisptr.m_connections = connectionsListToVector(m_connections)
 """
 #############################################
 
@@ -826,48 +732,15 @@ Substrate class
 #y.push_back(1)
 #x.push_back(y)
 
-cdef extern from "src/Substrate.h" namespace "NEAT":
-    cdef cppclass Substrate:
-        vector[vector[double]] m_input_coords;
-        vector[vector[double]] m_hidden_coords;
-        vector[vector[double]] m_output_coords;
 
-        bool m_leaky;
-        bool m_with_distance;
-
-        bool m_allow_input_hidden_links;
-        bool m_allow_input_output_links;
-        bool m_allow_hidden_hidden_links;
-        bool m_allow_hidden_output_links;
-        bool m_allow_output_hidden_links;
-        bool m_allow_output_output_links;
-        bool m_allow_looped_hidden_links;
-        bool m_allow_looped_output_links;
-
-        ActivationFunction m_hidden_nodes_activation;
-        ActivationFunction m_output_nodes_activation;
-
-        double m_link_threshold;
-        double m_max_weight_and_bias;
-        double m_min_time_const;
-        double m_max_time_const;
-
-        Substrate();
-        Substrate(vector[vector[double]]& a_inputs,
-                  vector[vector[double]]& a_hidden,
-                  vector[vector[double]]& a_outputs);
-
-        int GetMinCPPNInputs();
-        int GetMinCPPNOutputs();
-        void PrintInfo();
-        
-
-cdef class pySubstrate:
-    cdef Substrate *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new Substrate()
-    def __cinit__(self, i, h, o):
-        self.thisptr = new Substrate(i, h, o)
+cdef class Substrate:
+    cdef cmn.Substrate *thisptr      # hold a C++ instance which we're wrapping
+    def __cinit__(self, *attribs):
+        if len(attribs) == 0:
+            self.thisptr = new cmn.Substrate()
+        else:
+            i, h, o = attribs
+            self.thisptr = new cmn.Substrate(i, h, o)
     def __dealloc__(self):
         del self.thisptr
         
@@ -940,9 +813,9 @@ cdef class pySubstrate:
             def __get__(self): return self.thisptr.m_output_nodes_activation
             def __set__(self, m_output_nodes_activation): self.thisptr.m_output_nodes_activation = m_output_nodes_activation
             
-    property m_link_threshold:
-            def __get__(self): return self.thisptr.m_link_threshold
-            def __set__(self, m_link_threshold): self.thisptr.m_link_threshold = m_link_threshold
+    # property m_link_threshold:
+    #         def __get__(self): return self.thisptr.m_link_threshold
+    #         def __set__(self, m_link_threshold): self.thisptr.m_link_threshold = m_link_threshold
             
     property m_max_weight_and_bias:
             def __get__(self): return self.thisptr.m_max_weight_and_bias
@@ -955,255 +828,361 @@ cdef class pySubstrate:
     property m_max_time_const:
             def __get__(self): return self.thisptr.m_max_time_const
             def __set__(self, m_max_time_const): self.thisptr.m_max_time_const = m_max_time_const
-        
-
-"""
-#############################################
-
-Genome class
-
-#############################################
-"""
-
-cdef extern from "src/Genome.h" namespace "NEAT":
-    cdef cppclass Genome:
-        Genome() except +
-        Genome(const char* a_filename);
-        Genome(unsigned int a_ID,
-               unsigned int a_NumInputs,
-               unsigned int a_NumHidden,
-               unsigned int a_NumOutputs,
-               bool a_FS_NEAT, ActivationFunction a_OutputActType,
-               ActivationFunction a_HiddenActType,
-               unsigned int a_SeedType,
-               const Parameters& a_Parameters);
-
-        unsigned int NumNeurons();
-        unsigned int NumLinks();
-        unsigned int NumInputs();
-        unsigned int NumOutputs();
-
-        double GetFitness();
-        void SetFitness(double a_f);
-        unsigned int GetID();
-        void CalculateDepth();
-        unsigned int GetDepth();
-
-        void BuildPhenotype(NeuralNetwork& net);
-        void BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst);
-
-        void Save(const char* a_filename);
-
-        bool IsEvaluated();
-        void SetEvaluated();
-        void ResetEvaluated();
 
 
-cdef class pyGenome:
-    cdef Genome *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new Genome()
-    def __cinit__(self, fname):
-        self.thisptr = new Genome(fname)
-    def __cinit__(self, a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, pyParameters a_ps):
-        self.thisptr = new Genome(a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, deref(a_ps.thisptr))
+cdef class Genome:
+    cdef cmn.Genome *thisptr      # hold a C++ instance which we're wrapping
+    cdef bint borrowed
+
+    def __cinit__(self, *attribs):
+        cdef int attribsLen = len(attribs)
+        cdef Parameters a_ps
+        self.borrowed = False
+        if attribsLen == 0:
+            self.thisptr = new cmn.Genome()
+        elif attribsLen == 1:
+            if isinstance(attribs[0], Genome):
+                self.thisptr = new cmn.Genome(deref(<cmn.Genome*>((<Genome>attribs[0]).thisptr)))
+            elif isinstance(attribs[0], str):
+                self.thisptr = new cmn.Genome(<char*>attribs[0])
+        elif attribsLen == 9:
+            a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st, a_ps = attribs
+            self.thisptr = new cmn.Genome(a_id, a_ni, a_nh, a_no, a_fs, a_oa, a_ha, a_st,
+                                          deref((<Parameters>a_ps).thisptr))
     def __dealloc__(self):
-        del self.thisptr
-        
+        if not self.borrowed:
+            del self.thisptr
+
+    def __repr__(self):
+        return 'ID {} Fitt {}'.format(self.thisptr.GetID(), self.thisptr.GetFitness())
+
+    property Evaluated:
+        def __get__(self): return self.thisptr.m_Evaluated
+
     def NumNeurons(self):
         return self.thisptr.NumNeurons()
+
+    property Num_Neurons:
+        def __get__(self): return self.thisptr.NumNeurons()
     
     def NumLinks(self):
         return self.thisptr.NumLinks()
 
+    property Num_Links:
+        def __get__(self): return self.thisptr.NumLinks()
+
     def NumInputs(self):
         return self.thisptr.NumInputs()
+
+    property Num_Inputs:
+        def __get__(self): return self.thisptr.NumInputs()
     
     def NumOutputs(self):
         return self.thisptr.NumOutputs()
+
+    property Num_Outputs:
+        def __get__(self): return self.thisptr.NumOutputs()
     
     def GetFitness(self):
         return self.thisptr.GetFitness()
+
+    property Fitness:
+        def __get__(self): return self.thisptr.GetFitness()
+        def __set__(self, val): self.thisptr.SetFitness(val)
     
     def SetFitness(self, a_f):
-        return self.thisptr.SetFitness(a_f)
+        self.thisptr.SetFitness(a_f)
     
     def GetID(self):
         return self.thisptr.GetID()
+
+    property ID:
+        def __get__(self): return self.thisptr.GetID()
+        def __set__(self, val): self.thisptr.SetID(val)
     
     def CalculateDepth(self):
-        return self.thisptr.CalculateDepth()
+        self.thisptr.CalculateDepth()
     
     def GetDepth(self):
         return self.thisptr.GetDepth()
     
-    def BuildPhenotype(self, pyNeuralNetwork net):
-        return self.thisptr.BuildPhenotype(deref(net.thisptr))
+    def BuildPhenotype(self, NeuralNetwork net):
+        self.thisptr.BuildPhenotype(deref(net.thisptr))
     
-    def BuildHyperNEATPhenotype(self, pyNeuralNetwork net, pySubstrate subst):
-        return self.thisptr.BuildHyperNEATPhenotype(deref(net.thisptr), deref(subst.thisptr))
+    def BuildHyperNEATPhenotype(self, NeuralNetwork net, Substrate subst):
+        self.thisptr.BuildHyperNEATPhenotype(deref(net.thisptr), deref(subst.thisptr))
+
+    def BuildESHyperNEATPhenotype(Genome self, NeuralNetwork a_net, Substrate subst, Parameters params):
+        self.thisptr.BuildESHyperNEATPhenotype(deref(a_net.thisptr), deref(subst.thisptr), deref(params.thisptr))
     
-    def Save(self, a_filename):
-        return self.thisptr.Save(a_filename)
+    def Save(self, str a_filename):
+        self.thisptr.Save(a_filename)
     
     def IsEvaluated(self):
         return self.thisptr.IsEvaluated()
     
     def SetEvaluated(self):
-        return self.thisptr.SetEvaluated()
+        self.thisptr.SetEvaluated()
     
     def ResetEvaluated(self):
-        return self.thisptr.ResetEvaluated()
-
-"""
-#############################################
-
-Species class
-
-#############################################
-"""
-
-"""
-cdef extern from "src/Species.h" namespace "NEAT":
-    cdef cppclass Species:
-        Species() except +
-        
-        double m_BestFitness;
-        Genome m_BestGenome;
-        unsigned int m_GensNoImprovement;
-        int m_R, m_G, m_B;
-        vector[Genome] m_Individuals;
-        
-        double GetBestFitness();
-        unsigned int NumIndividuals();
-        Genome GetLeader();
-        
+        self.thisptr.ResetEvaluated()
 
 
-cdef class pySpecies:
-    cdef Species *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self):
-        self.thisptr = new Species()
+cdef class Species:
+    cdef cmn.Species *thisptr      # hold a C++ instance which we're wrapping
+    cdef bint borrowed
+    def __cinit__(self, Genome a_Seed, int a_id):
+        if a_Seed is None and a_id == -1:
+            return
+        self.thisptr = new cmn.Species(deref(a_Seed.thisptr), a_id)
+        self.borrowed = False
+
     def __dealloc__(self):
-        del self.thisptr
+        if not self.borrowed:
+            del self.thisptr
+
+    def __repr__(self):
+        return 'ID {} Age {}'.format(self.thisptr.ID(), self.thisptr.Age())
 
     def GetBestFitness(self):
         return self.thisptr.GetBestFitness()
-    
+
     def NumIndividuals(self):
         return self.thisptr.NumIndividuals()
-    
-    #def GetLeader(self):
-    #    return self.thisptr.GetLeader()
 
-    property m_BestFitness:
+    def GetLeader(self):
+       return pyGenomeFromConstant(self.thisptr.GetLeader())
+
+    property BestFitness:
         def __get__(self): return self.thisptr.m_BestFitness
         def __set__(self, m_BestFitness): self.thisptr.m_BestFitness = m_BestFitness
-            
-    #property m_BestGenome:
-    #    def __get__(self): return self.thisptr.m_BestGenome
-    #    def __set__(self, m_BestGenome): self.thisptr.m_BestGenome = m_BestGenome
-            
-    property m_GensNoImprovement:
+
+    property BestGenome:
+       def __get__(self): return pyGenomeFromConstant(self.thisptr.m_BestGenome)
+       def __set__(self,  Genome m_BestGenome): self.thisptr.m_BestGenome = deref(m_BestGenome.thisptr)
+
+    property GensNoImprovement:
         def __get__(self): return self.thisptr.m_GensNoImprovement
         def __set__(self, m_GensNoImprovement): self.thisptr.m_GensNoImprovement = m_GensNoImprovement
-            
-    property m_B:
+
+    property B:
         def __get__(self): return self.thisptr.m_B
         def __set__(self, m_B): self.thisptr.m_B = m_B
-"""
 
-        
-"""
-#############################################
+    property Individuals:
+        def __get__(self): return genomesVectorToList(self.thisptr.m_Individuals)
 
-Population class
+    property ID:
+        def __get__(self): return self.thisptr.ID()
 
-#############################################
-"""
-
-cdef extern from "src/Population.h" namespace "NEAT":
-    cdef cppclass Population:
-        Population(const Genome& a_G, const Parameters& a_Parameters, bool a_RandomizeWeights, double a_RandomRange);
-        Population(const char* a_FileName);
-
-        RNG m_RNG;
-        Parameters m_Parameters;
-        unsigned int m_Generation;
-        unsigned int m_NumEvaluations;
-        #vector[Species] m_Species;
-
-        SearchMode GetSearchMode(); 
-        double GetCurrentMPC(); 
-        double GetBaseMPC(); 
-    
-        unsigned int NumGenomes(); 
-    
-        unsigned int GetGeneration();
-        double GetBestFitnessEver();
-        Genome GetBestGenome();
-
-        unsigned int GetStagnation();
-        unsigned int GetMPCStagnation();
-    
-        unsigned int GetNextGenomeID();
-        unsigned int GetNextSpeciesID();
-        
-        void Epoch();
-    
-        void Save(const char* a_FileName);
-        Genome* Tick(Genome& a_deleted_genome);
+    property Age:
+        def __get__(self): return self.thisptr.Age()
 
 
-cdef class pyPopulation:
-    cdef Population *thisptr      # hold a C++ instance which we're wrapping
-    def __cinit__(self, pyGenome a_g, pyParameters a_ps, a_r, a_rr):
-        self.thisptr = new Population(deref(a_g.thisptr), deref(a_ps.thisptr), a_r, a_rr)
-    def __cinit__(self, fn):
-        self.thisptr = new Population(fn)
+cdef class Population:
+    cdef cmn.Population *thisptr      # hold a C++ instance which we're wrapping
+
+    def __cinit__(self, *attribs):
+        cdef Genome a_g
+        cdef Parameters a_ps
+        cdef int a_RNG_seed
+        if len(attribs) == 1:
+            self.thisptr = new cmn.Population(attribs[0])
+        else:
+            a_g, a_ps, a_r, a_rr, a_RNG_seed = attribs
+            self.thisptr = new cmn.Population(deref((<Genome>a_g).thisptr), deref((<Parameters>a_ps).thisptr),
+            a_r, a_rr, a_RNG_seed)
+
     def __dealloc__(self):
         del self.thisptr
 
     def GetSearchMode(self):
         return self.thisptr.GetSearchMode()
-    
+
     def GetCurrentMPC(self):
         return self.thisptr.GetCurrentMPC()
-    
+
     def GetBaseMPC(self):
         return self.thisptr.GetBaseMPC()
-    
+
     def NumGenomes(self):
         return self.thisptr.NumGenomes()
-    
+
     def GetGeneration(self):
         return self.thisptr.GetGeneration()
-    
+
     def GetBestFitnessEver(self):
         return self.thisptr.GetBestFitnessEver()
-    
-    #def GetBestGenome(self):
-    #    return self.thisptr.GetBestGenome()
-    
+
+    def GetBestGenome(self):
+       return pyGenomeFromConstant(self.thisptr.GetBestGenome())
+
     def GetStagnation(self):
         return self.thisptr.GetStagnation()
-    
+
     def GetMPCStagnation(self):
         return self.thisptr.GetMPCStagnation()
-    
+
     def GetNextGenomeID(self):
         return self.thisptr.GetNextGenomeID()
-    
+
     def GetNextSpeciesID(self):
         return self.thisptr.GetNextSpeciesID()
-    
+
     def Epoch(self):
         return self.thisptr.Epoch()
-    
+
     def Save(self, a_FileName):
         return self.thisptr.Save(a_FileName)
-    
+
     #def Tick(self, a_deleted_genome):
-    #    return self.thisptr.Tick(a_deleted_genome)
-    
-    
+    #    return self.thisptr.Tick
+
+    property RNG:
+        '''Random number generator'''
+        def __get__(self): return buildRNG(self.thisptr.m_RNG)
+
+    property Parameters:
+        '''Evolution parameters'''
+        def __get__(self): return buildParams(self.thisptr.m_Parameters)
+
+    property Generation:
+        '''Current generation'''
+        def __get__(self): return self.thisptr.m_Generation
+
+    property Species:
+        '''The list of species'''
+        def __get__(self):
+            cdef list newspecies = speciesVectorToList(self.thisptr.m_Species)
+            return newspecies
+
+class NeuronType:
+    NONE = cmn.NONE
+    INPUT  = cmn.INPUT
+    BIAS   = cmn.BIAS
+    HIDDEN = cmn.HIDDEN
+    OUTPUT = cmn.OUTPUT
+
+class ActivationFunction:
+    SIGNED_SIGMOID   = cmn.SIGNED_SIGMOID
+    UNSIGNED_SIGMOID = cmn.UNSIGNED_SIGMOID
+    TANH             = cmn.TANH
+    TANH_CUBIC       = cmn.TANH_CUBIC
+    SIGNED_STEP      = cmn.SIGNED_STEP
+    UNSIGNED_STEP    = cmn.UNSIGNED_STEP
+    SIGNED_GAUSS     = cmn.SIGNED_GAUSS
+    UNSIGNED_GAUSS   = cmn.UNSIGNED_GAUSS
+    ABS              = cmn.ABS
+    SIGNED_SINE      = cmn.SIGNED_SINE
+    UNSIGNED_SINE    = cmn.UNSIGNED_SINE
+    # SIGNED_SQUARE    = cmn.SIGNED_SQUARE
+    # UNSIGNED_SQUARE  = cmn.UNSIGNED_SQUARE
+    LINEAR           = cmn.LINEAR
+
+class SearchMode:
+    COMPLEXIFYING = cmn.COMPLEXIFYING
+    SIMPLIFYING   = cmn.SIMPLIFYING
+    BLENDED       = cmn.BLENDED
+
+
+cdef Genome pyGenomeFromReference(cmn.Genome& cval):
+    cdef Genome ret = Genome()
+    del ret.thisptr
+    ret.thisptr = &cval
+    ret.borrowed = True
+    return ret
+
+cdef Genome pyGenomeFromConstant(const cmn.Genome& cval):
+    cdef Genome ret = Genome()
+    ret.thisptr = new cmn.Genome(cval)
+    return ret
+
+cdef list genomesVectorToList(vector[cmn.Genome]& vec):
+    cdef list ret = [None] * vec.size()
+    cdef unsigned int i
+    cdef cmn.Genome* p
+    for i in range(vec.size()):
+        p = &(<cmn.Genome&>vec.at(i))
+        ret[i] = pyGenomeFromReference(deref(p))
+    return ret
+
+cdef Neuron pyNeuronFromReference(cmn.Neuron& cval):
+    cdef Neuron ret = Neuron()
+    del ret.thisptr
+    ret.thisptr = &cval
+    ret.borrowed = True
+    return ret
+
+cdef list neuronsVectorToList(const vector[cmn.Neuron]& vec):
+    cdef list ret = [None] * vec.size()
+    cdef unsigned int i
+    cdef cmn.Neuron* np
+    for i in range(vec.size()):
+        np = &(<cmn.Neuron&>vec.at(i))
+        ret[i] = pyNeuronFromReference(deref(np))
+    return ret
+
+cdef vector[cmn.Neuron] neuronsListToVector(list l):
+    cdef unsigned int i, llen = len(l)
+    cdef vector[cmn.Neuron] ret = vector[cmn.Neuron](llen)
+    for i in range(llen):
+        if not isinstance(l[i], Neuron):
+            raise TypeError('expected \'Neuron\', got \'{}\''.format(type(l[i])))
+        ret[i] = deref((<Neuron>(l[i])).thisptr)
+        l[i].borrowed = True
+    return ret
+
+cdef Connection pyConnectionFromReference(cmn.Connection& cval):
+    cdef Connection ret = Connection()
+    del ret.thisptr
+    ret.thisptr = &cval
+    ret.borrowed = True
+    return ret
+
+cdef list connectionsVectorToList(vector[cmn.Connection]& vec):
+    cdef list ret = [None] * vec.size()
+    cdef unsigned int i
+    cdef cmn.Connection* p
+    for i in range(vec.size()):
+        p = &(<cmn.Connection&>vec.at(i))
+        ret[i] = pyConnectionFromReference(deref(p))
+    return ret
+
+cdef vector[cmn.Connection] connectionsListToVector(list l):
+    cdef unsigned int i, llen = len(l)
+    cdef vector[cmn.Connection] ret = vector[cmn.Connection](llen)
+    for i in range(llen):
+        if not isinstance(l[i], Neuron):
+            raise TypeError('expected \'Connection\', got \'{}\''.format(type(l[i])))
+        ret[i] = deref((<Connection>(l[i])).thisptr)
+        l[i].borrowed = True
+    return ret
+
+cdef Species pySpeciesFromReference(cmn.Species& cval):
+    cdef Species ret = Species(None, -1)
+    ret.thisptr = &cval
+    ret.borrowed = True
+    return ret
+
+cdef list speciesVectorToList(vector[cmn.Species]& vec):
+    cdef list ret = [None] * vec.size()
+    cdef unsigned int i
+    cdef cmn.Species* p
+    for i in range(vec.size()):
+        p = &(<cmn.Species&>vec.at(i))
+        ret[i] = pySpeciesFromReference(deref(p))
+    return ret
+
+cdef RNG buildRNG(cmn.RNG &rng):
+    cdef RNG tRNG = RNG()
+    del tRNG.thisptr
+    tRNG.thisptr = &rng
+    tRNG.borrowed = True
+    return tRNG
+
+cdef Parameters buildParams(cmn.Parameters& par):
+    cdef Parameters tPar = Parameters()
+    del tPar.thisptr
+    tPar.thisptr = &par
+    tPar.borrowed = True
+    return tPar
