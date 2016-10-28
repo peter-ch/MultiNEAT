@@ -1,4 +1,4 @@
-# About MultiNeat
+# About MultiNEAT
 
 MultiNEAT is a portable software library for performing neuroevolution, a form of machine learning that
 trains neural networks with a genetic algorithm. It is based on NEAT, an advanced method for evolving
