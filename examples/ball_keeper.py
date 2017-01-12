@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import sys
+sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 
 import time
 import random as rnd
@@ -6,7 +8,7 @@ import cv2
 import numpy as np
 import math
 import MultiNEAT as NEAT
-from MultiNEAT.viz import DrawPhenotype
+from MultiNEAT.viz import Draw
 import pygame
 from pygame.locals import *
 from pygame.color import *
@@ -235,10 +237,7 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
 
         if not fast_mode:
             # draw the phenotype
-            img = np.zeros((250, 250, 3), dtype=np.uint8)
-            img += 10
-            DrawPhenotype(img, (0, 0, 250, 250), net )
-            cv2.imshow("current best", img)
+            cv2.imshow("current best", Draw(net))
             cv2.waitKey(1)
 
             ## Draw stuff

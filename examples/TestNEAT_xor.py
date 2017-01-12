@@ -3,6 +3,7 @@
 
 import os
 import sys
+sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 import time
 import random as rnd
 import cv2
@@ -93,7 +94,6 @@ params.ActivationFunction_SignedStep_Prob = 0.0
 params.CrossoverRate = 0.75  # mutate only 0.25
 params.MultipointCrossoverRate = 0.4
 params.SurvivalRate = 0.2
-
 
 def getbest(i):
 

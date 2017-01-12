@@ -8,6 +8,11 @@ if sys.version_info[0] < 3:
     lb = 'boost_python'
 else:
     lb = 'boost_python3'
+
+if '--debug' in sys.argv:
+    ddebug = True
+else:
+    ddebug = False
     
 ''' Note: 
 
@@ -31,8 +36,8 @@ try:
     setup(name='MultiNEAT',
           version='0.3',
           packages=['MultiNEAT'] ,
-          ext_modules = cythonize([Extension('_MultiNEAT',
-                                             ['_MultiNEAT.pyx',
+          ext_modules = cythonize([Extension('MultiNEAT/_MultiNEAT',
+                                             ['MultiNEAT/_MultiNEAT.pyx',
                                               'src/Genome.cpp',
                                               'src/Innovation.cpp',
                                               'src/NeuralNetwork.cpp',
@@ -54,10 +59,28 @@ try:
 except Exception as ex:
     print('Cython is not present, trying boost::python (with boost::random and boost::serialization)')
 
+    if not ddebug:
+        args = ['-O3',
+            '-march=native',
+            '-DUSE_BOOST_PYTHON',
+            '-DUSE_BOOST_RANDOM',
+            '-std=gnu++11',
+#            '-NDEBUG',
+        ]
+    else:
+        args = ['-O0',
+            '-march=native',
+            '-DUSE_BOOST_PYTHON',
+            '-DUSE_BOOST_RANDOM',
+            '-std=gnu++11',
+            '-g',
+            '-Wall'
+        ]
+
     setup(name='MultiNEAT',
           version='0.3',
           packages=['MultiNEAT'] ,
-          ext_modules=[Extension('_MultiNEAT', ['src/Genome.cpp',
+          ext_modules=[Extension('MultiNEAT/_MultiNEAT', ['src/Genome.cpp',
                                                 'src/Innovation.cpp',
                                                 'src/NeuralNetwork.cpp',
                                                 'src/Parameters.cpp',
@@ -78,12 +101,5 @@ except Exception as ex:
                                  #include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
                                  #library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
 
-                                 extra_compile_args=[#'-O3', 
-                                                     '-march=native', 
-                                                     '-DUSE_BOOST_PYTHON',
-                                                     '-DUSE_BOOST_RANDOM', 
-                                                    '-std=gnu++11',
-                                                    '-g',
-                                                    '-Wall'
-                                                     ])
+                                 extra_compile_args=args)
                        ])

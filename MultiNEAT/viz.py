@@ -366,3 +366,16 @@ else:
             
             
 
+# More general one that returns a NumPy image
+def Draw(x, size=(300,300)):
+    img = np.zeros((size[0], size[1], 3), dtype=np.uint8)
+    img += 10
+
+    if isinstance(x, NeuralNetwork):
+        DrawPhenotype(img, (0, 0, 250, 250), x )
+    else:
+        nn = NeuralNetwork()
+        x.BuildPhenotype(nn)
+        DrawPhenotype(img, (0, 0, 250, 250), nn )
+
+    return img

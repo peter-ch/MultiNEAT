@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import sys
+sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 import time
 import random as rnd
 import subprocess as comm
@@ -80,12 +81,11 @@ def evaluate(genome):
         o = net.Output()
         error += abs(o[0] - 0)
 
-        return (4 - error)**2
+        return (4 - error) ** 2
 
     except Exception as ex:
         print('Exception:', ex)
         return 1.0
-
 
 
 params = NEAT.Parameters()
@@ -148,23 +148,24 @@ def getbest(i):
 
     for generation in range(2000):
         genome_list = NEAT.GetGenomeList(pop)
-        #if sys.platform == 'linux':
+        # if sys.platform == 'linux':
         #    fitnesses = EvaluateGenomeList_Parallel(genome_list, evaluate, display=False)
-        #else:
+        # else:
         fitnesses = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitnesses)]
-        
+
         print('Gen: %d Best: %3.5f' % (generation, max(fitnesses)))
 
         best = max(fitnesses)
 
         pop.Epoch()
         generations = generation
-        
+
         if best > 15.0:
             break
 
     return generations
+
 
 gens = []
 for run in range(100):
@@ -175,5 +176,3 @@ avg_gens = sum(gens) / len(gens)
 
 print('All:', gens)
 print('Average:', avg_gens)
-
-
