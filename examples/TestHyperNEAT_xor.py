@@ -19,26 +19,26 @@ substrate = NEAT.Substrate([(-1, -1), (-1, 0), (-1, 1)],
                            [(0, -1), (0, 0), (0, 1)],
                            [(1, 0)])
 
-substrate.m_allow_input_hidden_links = False;
-substrate.m_allow_input_output_links = False;
-substrate.m_allow_hidden_hidden_links = False;
-substrate.m_allow_hidden_output_links = False;
-substrate.m_allow_output_hidden_links = False;
-substrate.m_allow_output_output_links = False;
-substrate.m_allow_looped_hidden_links = False;
-substrate.m_allow_looped_output_links = False;
+substrate.m_allow_input_hidden_links = False
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_hidden_links = False
+substrate.m_allow_hidden_output_links = False
+substrate.m_allow_output_hidden_links = False
+substrate.m_allow_output_output_links = False
+substrate.m_allow_looped_hidden_links = False
+substrate.m_allow_looped_output_links = False
 
-substrate.m_allow_input_hidden_links = True;
-substrate.m_allow_input_output_links = False;
-substrate.m_allow_hidden_output_links = True;
-substrate.m_allow_hidden_hidden_links = False;
+substrate.m_allow_input_hidden_links = True
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_output_links = True
+substrate.m_allow_hidden_hidden_links = False
 
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID;
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID;
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
-substrate.m_with_distance = True;
+substrate.m_with_distance = True
 
-substrate.m_max_weight_and_bias = 8.0;
+substrate.m_max_weight_and_bias = 8.0
 
 try:
     x = pickle.dumps(substrate)
@@ -90,46 +90,46 @@ def evaluate(genome):
 
 params = NEAT.Parameters()
 
-params.PopulationSize = 150;
+params.PopulationSize = 150
 
-params.DynamicCompatibility = True;
-params.CompatTreshold = 2.0;
-params.YoungAgeTreshold = 15;
-params.SpeciesMaxStagnation = 100;
-params.OldAgeTreshold = 35;
-params.MinSpecies = 5;
-params.MaxSpecies = 10;
-params.RouletteWheelSelection = False;
+params.DynamicCompatibility = True
+params.CompatTreshold = 2.0
+params.YoungAgeTreshold = 15
+params.SpeciesMaxStagnation = 100
+params.OldAgeTreshold = 35
+params.MinSpecies = 5
+params.MaxSpecies = 10
+params.RouletteWheelSelection = False
 
-params.MutateRemLinkProb = 0.02;
-params.RecurrentProb = 0;
-params.OverallMutationRate = 0.15;
-params.MutateAddLinkProb = 0.08;
-params.MutateAddNeuronProb = 0.01;
-params.MutateWeightsProb = 0.90;
-params.MaxWeight = 8.0;
-params.WeightMutationMaxPower = 0.2;
-params.WeightReplacementMaxPower = 1.0;
+params.MutateRemLinkProb = 0.02
+params.RecurrentProb = 0
+params.OverallMutationRate = 0.15
+params.MutateAddLinkProb = 0.08
+params.MutateAddNeuronProb = 0.01
+params.MutateWeightsProb = 0.90
+params.MaxWeight = 8.0
+params.WeightMutationMaxPower = 0.2
+params.WeightReplacementMaxPower = 1.0
 
-params.MutateActivationAProb = 0.0;
-params.ActivationAMutationMaxPower = 0.5;
-params.MinActivationA = 0.05;
-params.MaxActivationA = 6.0;
+params.MutateActivationAProb = 0.0
+params.ActivationAMutationMaxPower = 0.5
+params.MinActivationA = 0.05
+params.MaxActivationA = 6.0
 
-params.MutateNeuronActivationTypeProb = 0.03;
+params.MutateNeuronActivationTypeProb = 0.03
 
-params.ActivationFunction_SignedSigmoid_Prob = 0.0;
-params.ActivationFunction_UnsignedSigmoid_Prob = 0.0;
-params.ActivationFunction_Tanh_Prob = 1.0;
-params.ActivationFunction_TanhCubic_Prob = 0.0;
-params.ActivationFunction_SignedStep_Prob = 1.0;
-params.ActivationFunction_UnsignedStep_Prob = 0.0;
-params.ActivationFunction_SignedGauss_Prob = 1.0;
-params.ActivationFunction_UnsignedGauss_Prob = 0.0;
-params.ActivationFunction_Abs_Prob = 0.0;
-params.ActivationFunction_SignedSine_Prob = 1.0;
-params.ActivationFunction_UnsignedSine_Prob = 0.0;
-params.ActivationFunction_Linear_Prob = 1.0;
+params.ActivationFunction_SignedSigmoid_Prob = 0.0
+params.ActivationFunction_UnsignedSigmoid_Prob = 0.0
+params.ActivationFunction_Tanh_Prob = 1.0
+params.ActivationFunction_TanhCubic_Prob = 0.0
+params.ActivationFunction_SignedStep_Prob = 1.0
+params.ActivationFunction_UnsignedStep_Prob = 0.0
+params.ActivationFunction_SignedGauss_Prob = 1.0
+params.ActivationFunction_UnsignedGauss_Prob = 0.0
+params.ActivationFunction_Abs_Prob = 0.0
+params.ActivationFunction_SignedSine_Prob = 1.0
+params.ActivationFunction_UnsignedSine_Prob = 0.0
+params.ActivationFunction_Linear_Prob = 1.0
 
 
 def getbest(i):

@@ -117,7 +117,6 @@ inline double af_abs(double aX, double aShift)
 
 inline double af_sine_signed(double aX, double aFreq, double aShift)
 {
-    aFreq = 3.141592;
     return sin(aX * aFreq + aShift);
 }
 
