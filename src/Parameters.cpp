@@ -321,8 +321,14 @@ void Parameters::Reset()
     ActivationFunction_Linear_Prob = 0.0;
     ActivationFunction_Relu_Prob = 0.0;
     ActivationFunction_Softplus_Prob = 0.0;
-
-
+    
+    
+    /////////////////////////////
+    // Genome properties params
+    /////////////////////////////
+    
+    // When true, don't have a special bias neuron and treat all inputs equal
+    bool DontUseBiasNeuron = false;
 
 
     /////////////////////////////////////
@@ -369,7 +375,6 @@ void Parameters::Reset()
     // Per how many evaluations to change the treshold
     // (used in steady state mode)
     CompatTreshChangeInterval_Evaluations = 10;
-
 
     DivisionThreshold = 0.03;
 
@@ -723,7 +728,16 @@ int Parameters::Load(std::ifstream& a_DataFile)
             a_DataFile >> ActivationFunction_Relu_Prob;
         if (s == "ActivationFunction_Softplus_Prob")
             a_DataFile >> ActivationFunction_Softplus_Prob;
-
+    
+        if (s == "DontUseBiasNeuron")
+        {
+            a_DataFile >> tf;
+            if (tf == "true" || tf == "1" || tf == "1.0")
+                DontUseBiasNeuron = true;
+            else
+                DontUseBiasNeuron = false;
+        }
+        
         if (s == "DisjointCoeff")
             a_DataFile >> DisjointCoeff;
 
@@ -941,6 +955,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "MaxNeuronTimeConstant %3.20f\n", MaxNeuronTimeConstant);
     fprintf(a_fstream, "MinNeuronBias %3.20f\n", MinNeuronBias);
     fprintf(a_fstream, "MaxNeuronBias %3.20f\n", MaxNeuronBias);
+    fprintf(a_fstream, "DontUseBiasNeuron %s\n", DontUseBiasNeuron==true?"true":"false");
     fprintf(a_fstream, "DisjointCoeff %3.20f\n", DisjointCoeff);
     fprintf(a_fstream, "ExcessCoeff %3.20f\n", ExcessCoeff);
     fprintf(a_fstream, "ActivationADiffCoeff %3.20f\n", ActivationADiffCoeff);

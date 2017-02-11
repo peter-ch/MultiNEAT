@@ -359,6 +359,13 @@ public:
 
     // Per how many evaluations to change the treshold
     unsigned int CompatTreshChangeInterval_Evaluations;
+    
+    /////////////////////////////
+    // Genome properties params
+    /////////////////////////////
+    
+    // When true, don't have a special bias neuron and treat all inputs equal
+    bool DontUseBiasNeuron;
 
 
     /////////////////////////////

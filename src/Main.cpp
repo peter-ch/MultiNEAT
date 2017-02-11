@@ -122,7 +122,8 @@ int main()
     params.CrossoverRate = 0.75 ;
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
-
+    
+    //params.DontUseBiasNeuron = true;
 
     Genome s(0, 3,
              0,

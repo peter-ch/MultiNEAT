@@ -129,18 +129,32 @@ Genome::Genome(unsigned int a_ID,
 
     m_ID = a_ID;
     int t_innovnum = 1, t_nnum = 1;
-
-    // Create the input neurons.
-    // Warning! The last one is a bias!
-    // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
-    for(unsigned int i=0; i < (a_NumInputs-1); i++)
+    
+    if (a_Parameters.DontUseBiasNeuron == false)
     {
-        m_NeuronGenes.push_back( NeuronGene(INPUT, t_nnum, 0.0) );
+    
+        // Create the input neurons.
+        // Warning! The last one is a bias!
+        // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
+        for (unsigned int i = 0; i < (a_NumInputs - 1); i++)
+        {
+            m_NeuronGenes.push_back(NeuronGene(INPUT, t_nnum, 0.0));
+            t_nnum++;
+        }
+        // add the bias
+        m_NeuronGenes.push_back(NeuronGene(BIAS, t_nnum, 0.0));
         t_nnum++;
     }
-    // add the bias
-    m_NeuronGenes.push_back( NeuronGene(BIAS, t_nnum, 0.0) );
-    t_nnum++;
+    else
+    {
+        // Create the input neurons without marking the last node as bias.
+        // The order of the neurons is very important. It is the following: INPUTS, OUTPUTS, HIDDEN ... (no limit)
+        for (unsigned int i = 0; i < a_NumInputs; i++)
+        {
+            m_NeuronGenes.push_back(NeuronGene(INPUT, t_nnum, 0.0));
+            t_nnum++;
+        }
+    }
 
     // now the outputs
     for(unsigned int i=0; i < (a_NumOutputs); i++)
@@ -218,13 +232,17 @@ Genome::Genome(unsigned int a_ID,
                     t_innovnum++;
                 }
             }
-            // Connect the bias to the outputs as well
-            for(unsigned int i=0; i < (a_NumOutputs); i++)
+            
+            if (a_Parameters.DontUseBiasNeuron == false)
             {
-                // add the link
-                // created with zero weights. needs future random initialization. !!!!!!!!
-                m_LinkGenes.push_back( LinkGene(a_NumInputs, i+a_NumInputs+1, t_innovnum, 0.0, false) );
-                t_innovnum++;
+                // Connect the bias to the outputs as well
+                for (unsigned int i = 0; i < (a_NumOutputs); i++)
+                {
+                    // add the link
+                    // created with zero weights. needs future random initialization. !!!!!!!!
+                    m_LinkGenes.push_back(LinkGene(a_NumInputs, i + a_NumInputs + 1, t_innovnum, 0.0, false));
+                    t_innovnum++;
+                }
             }
         }
     }
@@ -257,8 +275,12 @@ Genome::Genome(unsigned int a_ID,
                 // created with zero weights. needs future random initialization. !!!!!!!!
                 m_LinkGenes.push_back( LinkGene(t_inp_id, t_outp_id,  t_innovnum, 0.0, false) );
                 t_innovnum++;
-                m_LinkGenes.push_back( LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false) );
-                t_innovnum++;
+                
+                if (a_Parameters.DontUseBiasNeuron == false)
+                {
+                    m_LinkGenes.push_back(LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false));
+                    t_innovnum++;
+                }
             }
         }
     }
@@ -1272,14 +1294,19 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
         t_link_found   = true;
 
         // In case there is only one link, coming from a bias - just quit
-        if ((m_NeuronGenes[GetNeuronIndex( t_in )].Type() == BIAS) && (NumLinks() == 1))
+        
+        // unless the parameter is set
+        if (a_Parameters.DontUseBiasNeuron == false)
         {
-            return false;
+            if ((m_NeuronGenes[GetNeuronIndex(t_in)].Type() == BIAS) && (NumLinks() == 1))
+            {
+                return false;
+            }
+            
+            // Do not allow splitting a link coming from a bias
+            if (m_NeuronGenes[GetNeuronIndex(t_in)].Type() == BIAS)
+                t_link_found = false;
         }
-
-        // Do not allow splitting a link coming from a bias
-        if (m_NeuronGenes[GetNeuronIndex( t_in )].Type() == BIAS)
-            t_link_found = false;
 
         // Do not allow splitting of recurrent links
         if (!a_Parameters.SplitRecurrent)
