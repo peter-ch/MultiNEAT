@@ -366,6 +366,7 @@ public:
     
     // When true, don't have a special bias neuron and treat all inputs equal
     bool DontUseBiasNeuron;
+    bool AllowLoops;
 
 
     /////////////////////////////
@@ -540,6 +541,9 @@ public:
         ar & CompatTresholdModifier;
         ar & CompatTreshChangeInterval_Generations;
         ar & CompatTreshChangeInterval_Evaluations;
+        
+        ar & DontUseBiasNeuron;
+        ar & AllowLoops;
 
         ar & DivisionThreshold;
         ar & VarianceThreshold;

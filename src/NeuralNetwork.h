@@ -51,8 +51,8 @@ namespace NEAT
 class Connection
 {
 public:
-    unsigned short int m_source_neuron_idx;       // index of source neuron
-    unsigned short int m_target_neuron_idx;       // index of target neuron
+    int m_source_neuron_idx;       // index of source neuron
+    int m_target_neuron_idx;       // index of target neuron
     double m_weight;                               // weight of the connection
     double m_signal;                               // weight * input signal
 

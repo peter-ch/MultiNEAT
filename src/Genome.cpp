@@ -293,178 +293,125 @@ Genome::Genome(unsigned int a_ID,
     m_Depth = 0;
     m_PhenotypeBehavior = NULL;
 }
-
-
-// Alternative constructor that creates a minimum genome with a leo output and if needed a gaussian seed.
-/*
-Genome::Genome(unsigned int a_ID,
-               unsigned int a_NumInputs,
-               unsigned int a_NumOutputs,
-               bool empty,
-               ActivationFunction a_OutputActType,
-               ActivationFunction a_HiddenActType,
-               const Parameters& a_Parameters)
+    
+void Genome::SetDepth(unsigned int a_d)
 {
-    ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
-    RNG t_RNG;
-    t_RNG.TimeSeed();
-    m_ID = a_ID;
-    int t_innovnum = 1, t_nnum = 1;
-    double weight = 0.0;
-    int hid = 0;
-
-    //Add the inputs
-    for(unsigned int i=0; i < (a_NumInputs-1); i++)
-    {
-        m_NeuronGenes.push_back( NeuronGene(INPUT, t_nnum, 0.0) );
-        t_nnum++;
-    }
-    // Add bias
-    m_NeuronGenes.push_back( NeuronGene(BIAS, t_nnum, 0.0) );
-    t_nnum++;
-    // Add Outputs
-    for(unsigned int i=0; i < (a_NumOutputs); i++)
-    {
-        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
-        // Initialize the neuron gene's properties
-        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                      a_OutputActType );
-        m_NeuronGenes.push_back( t_ngene );
-        t_nnum++;
-    }
-
-    if (a_Parameters.Leo)
-    {
-        NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
-        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                      UNSIGNED_STEP);
-        m_NeuronGenes.push_back( t_ngene );
-        t_nnum++;
-        a_NumOutputs++;
-    }
-    if (a_Parameters.GeometrySeed)
-    {
-        hid++;
-        // -----------------------------------------------------------------//
-        // Geometry seed
-        NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
-        // Initialize the neuron gene's properties
-        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                      SIGNED_GAUSS );
-
-        t_ngene.m_SplitY = 0.5;
-        m_NeuronGenes.push_back( t_ngene );
-        t_nnum++;
-        // y1 and y2 coords
-        m_LinkGenes.push_back( LinkGene(2, a_NumInputs+a_NumOutputs + hid, t_innovnum, 1, false) );
-        t_innovnum++;
-
-        m_LinkGenes.push_back( LinkGene(5, a_NumInputs+a_NumOutputs + hid, t_innovnum, -1 , false) );
-        t_innovnum++;
-
-
-
-        m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + hid, a_NumInputs + hid, t_innovnum, 1.0, false) );
-        t_innovnum++;
-
-
-        // connect bias to GeoSeed
-        m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+a_NumOutputs + hid , t_innovnum, 0.33 , false) );
-        t_innovnum++;
-
-    }
-    if (a_Parameters.LeoSeed)
-    {
-        hid++;
-
-        NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
-        // Initialize the neuron gene's properties
-
-        t_ngene.Init( (a_Parameters.MinActivationA + a_Parameters.MaxActivationA)/2.0f,
-                      (a_Parameters.MinActivationB + a_Parameters.MaxActivationB)/2.0f,
-                      (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant)/2.0f,
-                      (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias)/2.0f,
-                      SIGNED_GAUSS );
-
-        t_ngene.m_SplitY = 0.5;
-        m_NeuronGenes.push_back( t_ngene );
-        t_nnum++;
-
-        //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
-        m_LinkGenes.push_back( LinkGene(1, a_NumInputs+a_NumOutputs + hid, t_innovnum, 1, false) );
-        t_innovnum++;
-
-        m_LinkGenes.push_back( LinkGene(4, a_NumInputs+a_NumOutputs + hid, t_innovnum, -1 , false) );
-        t_innovnum++;
-
-        //connect gaussian node
-        //weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-        m_LinkGenes.push_back( LinkGene(a_NumInputs+a_NumOutputs + hid, a_NumInputs+a_NumOutputs, t_innovnum, 1.0, false) );
-        t_innovnum++;
-
-
-
-    }
-    //Genome with only bias connected
-    if (empty)
-    {
-        if (a_Parameters.Leo && a_Parameters.LeoSeed) // Connect bias to LEO.
-        {
-            //weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-
-            m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+a_NumOutputs , t_innovnum, 1.0 , false) );
-            t_innovnum++;
-        }
-
-        else
-        {
-            for(unsigned int i=0; i < (a_NumOutputs); i++)
-            {
-                weight = t_RNG.RandFloatClamped()*a_Parameters.MaxWeight;
-
-                m_LinkGenes.push_back( LinkGene(a_NumInputs, a_NumInputs+i+1 , t_innovnum, weight , false) );
-                t_innovnum++;
-            }
-        }
-    }
-    // Or just buld a fully connected minimal genome, eh?
-    else
-    {
-        //connect x1 and x2 to gaussian. Obviously need to get rid oft he hardcoded values.
-        m_LinkGenes.push_back( LinkGene(1, a_NumInputs+1, t_innovnum, 1, false) );
-        t_innovnum++;
-
-        m_LinkGenes.push_back( LinkGene(4, a_NumInputs+1, t_innovnum, -1 , false) );
-        t_innovnum++;
-    }
-
-    // setup final properties
-    m_Evaluated = false;
-    m_NumInputs  = a_NumInputs;
-    m_NumOutputs = a_NumOutputs;
-    m_Fitness = 0.0;
-    m_AdjustedFitness = 0.0;
-    m_OffspringAmount = 0.0;
-    m_Depth = 0;
-    m_PhenotypeBehavior = NULL;
-    Performance = 0.0;
-    Length = 0.0;
-
+    m_Depth = a_d;
 }
-*/
+
+unsigned int Genome::GetDepth() const
+{
+    return m_Depth;
+}
+
+void Genome::SetID(unsigned int a_id)
+{
+    m_ID = a_id;
+}
+
+unsigned int Genome::GetID() const
+{
+    return m_ID;
+}
+
+void Genome::SetAdjFitness(double a_af)
+{
+    m_AdjustedFitness = a_af;
+}
+
+void Genome::SetFitness(double a_f)
+{
+    m_Fitness = a_f;
+}
+
+double Genome::GetAdjFitness() const
+{
+    return m_AdjustedFitness;
+}
+
+double Genome::GetFitness() const
+{
+    return m_Fitness;
+}
+
+void Genome::SetNeuronY(unsigned int a_idx, int a_y)
+{
+    ASSERT(a_idx < m_NeuronGenes.size());
+    m_NeuronGenes[a_idx].y = a_y;
+}
+
+void Genome::SetNeuronX(unsigned int a_idx, int a_x)
+{
+    ASSERT(a_idx < m_NeuronGenes.size());
+    m_NeuronGenes[a_idx].x = a_x;
+}
+
+void Genome::SetNeuronXY(unsigned int a_idx, int a_x, int a_y)
+{
+    ASSERT(a_idx < m_NeuronGenes.size());
+    m_NeuronGenes[a_idx].x = a_x;
+    m_NeuronGenes[a_idx].y = a_y;
+}
+
+LinkGene Genome::GetLinkByIndex(int a_idx) const
+{
+    ASSERT(a_idx < m_LinkGenes.size());
+    return m_LinkGenes[a_idx];
+}
+
+LinkGene Genome::GetLinkByInnovID(int a_ID) const
+{
+    ASSERT(HasLinkByInnovID(a_ID));
+    for(unsigned int i=0; i<m_LinkGenes.size(); i++)
+        if (m_LinkGenes[i].InnovationID() == a_ID)
+            return m_LinkGenes[i];
+    
+    // should never reach this code
+    throw std::exception();
+}
+
+NeuronGene Genome::GetNeuronByIndex(int a_idx) const
+{
+    ASSERT(a_idx < m_NeuronGenes.size());
+    return m_NeuronGenes[a_idx];
+}
+
+NeuronGene Genome::GetNeuronByID(int a_ID) const
+{
+    ASSERT(HasNeuronID(a_ID));
+    int t_idx = GetNeuronIndex(a_ID);
+    ASSERT(t_idx != -1);
+    return m_NeuronGenes[t_idx];
+}
+
+double Genome::GetOffspringAmount() const
+{
+    return m_OffspringAmount;
+}
+
+void Genome::SetOffspringAmount(double a_oa)
+{
+    m_OffspringAmount = a_oa;
+}
+
+bool Genome::IsEvaluated() const
+{
+    return m_Evaluated;
+}
+
+void Genome::SetEvaluated()
+{
+    m_Evaluated = true;
+}
+
+void Genome::ResetEvaluated()
+{
+    m_Evaluated = false;
+}
 
 // A little helper function to find the index of a neuron, given its ID
 // returns -1 if not found
-int Genome::GetNeuronIndex(unsigned int a_ID) const
+int Genome::GetNeuronIndex(int a_ID) const
 {
     ASSERT(a_ID > 0);
 
@@ -481,7 +428,7 @@ int Genome::GetNeuronIndex(unsigned int a_ID) const
 
 // A little helper function to find the index of a link, given its innovation ID
 // returns -1 if not found
-int Genome::GetLinkIndex(unsigned int a_InnovID) const
+int Genome::GetLinkIndex(int a_InnovID) const
 {
     ASSERT(a_InnovID > 0);
     ASSERT(NumLinks() > 0);
@@ -499,11 +446,11 @@ int Genome::GetLinkIndex(unsigned int a_InnovID) const
 
 
 // returns the max neuron ID
-unsigned int Genome::GetLastNeuronID() const
+int Genome::GetLastNeuronID() const
 {
     ASSERT(NumNeurons() > 0);
 
-    unsigned int t_maxid = 0;
+    int t_maxid = 0;
 
     for(unsigned int i=0; i< NumNeurons(); i++)
     {
@@ -515,11 +462,11 @@ unsigned int Genome::GetLastNeuronID() const
 }
 
 // returns the max innovation Id
-unsigned int Genome::GetLastInnovationID() const
+int Genome::GetLastInnovationID() const
 {
     ASSERT(NumLinks() > 0);
 
-    unsigned int t_maxid = 0;
+    int t_maxid = 0;
 
     for(unsigned int i=0; i< NumLinks(); i++)
     {
@@ -531,7 +478,7 @@ unsigned int Genome::GetLastInnovationID() const
 }
 
 // Returns true if the specified neuron ID is present in the genome
-bool Genome::HasNeuronID(unsigned int a_ID) const
+bool Genome::HasNeuronID(int a_ID) const
 {
     ASSERT(a_ID > 0);
     ASSERT(NumNeurons() > 0);
@@ -549,7 +496,7 @@ bool Genome::HasNeuronID(unsigned int a_ID) const
 
 
 // Returns true if the specified link is present in the genome
-bool Genome::HasLink(unsigned int a_n1id, unsigned int a_n2id) const
+bool Genome::HasLink(int a_n1id, int a_n2id) const
 {
     ASSERT((a_n1id>0)&&(a_n2id>0));
 
@@ -565,7 +512,7 @@ bool Genome::HasLink(unsigned int a_n1id, unsigned int a_n2id) const
 }
 
 // Returns true if the specified link is present in the genome
-bool Genome::HasLinkByInnovID(unsigned int id) const
+bool Genome::HasLinkByInnovID(int id) const
 {
     ASSERT(id > 0);
 
@@ -1254,8 +1201,8 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
 
     // Select a random link for now
     bool t_link_found = false;
-    int  t_link_num;
-    int  t_in, t_out;
+    int  t_link_num = 0;
+    int  t_in = 0, t_out = 0;
     LinkGene t_chosenlink(0, 0, -1, 0, false); // to save it for later
 
     // numer of tries to find a good link or give up
@@ -1722,7 +1669,7 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters& a_Paramete
 // Helper functions for the pruning procedure
 
 // Removes the link with the specified innovation ID
-void Genome::RemoveLinkGene(unsigned int a_InnovID)
+void Genome::RemoveLinkGene(int a_InnovID)
 {
     // for iterating through the genes
     std::vector<LinkGene>::iterator t_curlink = m_LinkGenes.begin();
@@ -1744,7 +1691,7 @@ void Genome::RemoveLinkGene(unsigned int a_InnovID)
 
 // Remove node
 // Links connected to this node are also removed
-void Genome::RemoveNeuronGene(unsigned int a_ID)
+void Genome::RemoveNeuronGene(int a_ID)
 {
     // the list of links connected to this neuron
     std::vector<int> t_link_removal_queue;
@@ -1784,7 +1731,7 @@ void Genome::RemoveNeuronGene(unsigned int a_ID)
 
 
 // Returns true is the specified neuron ID is a dead end or isolated
-bool Genome::IsDeadEndNeuron(unsigned int a_ID) const
+bool Genome::IsDeadEndNeuron(int a_ID) const
 {
     bool t_no_incoming = true;
     bool t_no_outgoing = true;
@@ -1943,7 +1890,7 @@ bool Genome::Mutate_RemoveLink(RNG& a_RNG)
 
 
 // Returns the count of links inputting from the specified neuron ID
-int Genome::LinksInputtingFrom(unsigned int a_ID) const
+int Genome::LinksInputtingFrom(int a_ID) const
 {
     int t_counter = 0;
     for(unsigned int i=0; i<NumLinks(); i++)
@@ -1957,7 +1904,7 @@ int Genome::LinksInputtingFrom(unsigned int a_ID) const
 
 
 // Returns the count of links outputting to the specified neuron ID
-int Genome::LinksOutputtingTo(unsigned int a_ID) const
+int Genome::LinksOutputtingTo(int a_ID) const
 {
     int t_counter = 0;
     for(unsigned int i=0; i<NumLinks(); i++)
@@ -1981,7 +1928,7 @@ bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase& a_Innovs, RNG& a_RNG)
     // Build a list of candidate neurons for deletion
     // Indexes!
     std::vector<int> t_neurons_to_delete;
-    for(unsigned int i=0; i<NumNeurons(); i++)
+    for(int i=0; i<NumNeurons(); i++)
     {
         if ((LinksInputtingFrom(m_NeuronGenes[i].ID()) == 1) && (LinksOutputtingTo(m_NeuronGenes[i].ID()) == 1)
                 && (m_NeuronGenes[i].Type() == HIDDEN))
@@ -2407,7 +2354,7 @@ Genome Genome::Mate(Genome& a_Dad, bool a_MateAverage, bool a_InterSpecies, RNG&
     // for cleaning up
     LinkGene t_emptygene(0, 0, -1, 0, false);
     bool t_skip = false;
-    unsigned int t_innov_mum, t_innov_dad;
+    int t_innov_mum, t_innov_dad;
 
     // step through each parents link genes until we reach the end of both
     while (!((t_curMum == m_LinkGenes.end()) && (t_curDad == a_Dad.m_LinkGenes.end())))
@@ -2634,29 +2581,11 @@ Genome Genome::Mate(Genome& a_Dad, bool a_MateAverage, bool a_InterSpecies, RNG&
 
     // Sort the baby's genes
     t_baby.SortGenes();
-
-    /*    if (t_baby.NumLinks() == 0)
-        {
-    //        std::cout << "No links in baby after crossover" << std::endl;
-    //        int p;
-    //        std::cin >> p;
-        }
-
-        if (t_baby.HasDeadEnds())
-        {
-    //        std::cout << "Dead ends in baby after crossover" << std::endl;
-    //        int p;
-    //        std::cin >> p;
-        }
-    */
-    // OK here is the baby
+    
     return t_baby;
 }
 
-
-
-
-
+    
 // Sorts the genes of the genome
 // The neurons by IDs and the links by innovation numbers.
 bool neuron_compare(NeuronGene a_ls, NeuronGene a_rs)
@@ -2674,21 +2603,18 @@ void Genome::SortGenes()
     std::sort(m_NeuronGenes.begin(), m_NeuronGenes.end(), neuron_compare);
     std::sort(m_LinkGenes.begin(), m_LinkGenes.end(), link_compare);
 }
+    
 
-
-
-
-
-unsigned int Genome::NeuronDepth(unsigned int a_NeuronID, unsigned int a_Depth)
+unsigned int Genome::NeuronDepth(int a_NeuronID, unsigned int a_Depth)
 {
     unsigned int t_current_depth;
     unsigned int t_max_depth = a_Depth;
 
-    if (a_Depth > 16)
+    if (a_Depth > 32)
     {
-        // oops! a loop in the network!
+        // oops! a possible loop in the network!
         //std::cout << std::endl << " ERROR! Trying to get the depth of a looped network!" << std::endl;
-        return 16;
+        return 32;
     }
 
     // Base case
@@ -2736,7 +2662,7 @@ void Genome::CalculateDepth()
     }
 
     // make a list of all output IDs
-    std::vector<unsigned int> t_output_ids;
+    std::vector<int> t_output_ids;
     for(unsigned int i=0; i < NumNeurons(); i++)
     {
         if (m_NeuronGenes[i].Type() == OUTPUT)
@@ -2794,9 +2720,9 @@ Genome::Genome(std::ifstream& a_DataFile)
     while (t_Str != "GenomeStart");
 
     // read the genome ID
-    int t_id;
-    a_DataFile >> t_id;
-    m_ID = t_id;
+    int t_gid;
+    a_DataFile >> t_gid;
+    m_ID = t_gid;
 
     // read the genome until GenomeEnd is encountered
     do
@@ -3459,5 +3385,5 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
         }
     }
 }
-
+    
 } // namespace NEAT

@@ -384,8 +384,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
         else
         {
-            //do // - while the baby already exists somewhere in the new population
-            //{
+            do // - while the baby already exists somewhere in the new population or turned invalid in some way
+            {
                 // this tells us if the baby is a result of mating
                 bool t_mated = false;
 
@@ -432,7 +432,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                                 int t_tries = 3;
                                 if (!a_Parameters.AllowClones)
                                 {
-                                    while(((t_mom.GetID() == t_dad.GetID()) /*|| (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)*/ ) && (t_tries--))
+                                    while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001) ) && (t_tries--))
                                     {
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
                                     }
@@ -467,12 +467,13 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                             t_mated = false;
                         }
 
-                    } while (t_baby.HasDeadEnds() || (t_baby.NumLinks() == 0));
+                    } while (t_baby.HasDeadEnds() ||
+                            (t_baby.NumLinks() == 0) /*||
+                            (t_baby.HasLoops() && (a_Parameters.AllowLoops == false))*/);
                     // in case of dead ends after crossover we will repeat crossover
                     // until it works
                 }
-
-
+                
                 // Mutate the baby
                 if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
                 {
@@ -481,8 +482,8 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
 
                 // Check if this baby is already present somewhere in the offspring
                 // we don't want that
-                /*t_baby_exists_in_pop = false;
-                // Unless of course, we want
+                t_baby_exists_in_pop = false;
+                // Unless of course, we want clones to exist
                 if (!a_Parameters.AllowClones)
                 {
                     for(unsigned int i=0; i<a_Pop.m_TempSpecies.size(); i++)
@@ -499,9 +500,9 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                             }
                         }
                     }
-                }*/
-            //}
-            //while (t_baby_exists_in_pop); // end do
+                }
+            }
+            while ((t_baby_exists_in_pop == true) || (t_baby.HasLoops() && (a_Parameters.AllowLoops == false))); // end do
         }
 
         // Final place to test for problems
@@ -511,8 +512,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         {
             t_baby = GetIndividual(a_Parameters, a_RNG);
         }
-
-
+        
         // We have a new offspring now
         // give the offspring a new ID
         t_baby.SetID(a_Pop.GetNextGenomeID());

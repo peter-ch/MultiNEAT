@@ -329,6 +329,9 @@ void Parameters::Reset()
     
     // When true, don't have a special bias neuron and treat all inputs equal
     bool DontUseBiasNeuron = false;
+    
+    // When false, this prevents any recurrent pathways in the genomes from forming
+    bool AllowLoops = true;
 
 
     /////////////////////////////////////
@@ -737,7 +740,16 @@ int Parameters::Load(std::ifstream& a_DataFile)
             else
                 DontUseBiasNeuron = false;
         }
-        
+    
+        if (s == "AllowLoops")
+        {
+            a_DataFile >> tf;
+            if (tf == "true" || tf == "1" || tf == "1.0")
+                AllowLoops = true;
+            else
+                AllowLoops = false;
+        }
+    
         if (s == "DisjointCoeff")
             a_DataFile >> DisjointCoeff;
 
@@ -956,6 +968,7 @@ void Parameters::Save(FILE* a_fstream)
     fprintf(a_fstream, "MinNeuronBias %3.20f\n", MinNeuronBias);
     fprintf(a_fstream, "MaxNeuronBias %3.20f\n", MaxNeuronBias);
     fprintf(a_fstream, "DontUseBiasNeuron %s\n", DontUseBiasNeuron==true?"true":"false");
+    fprintf(a_fstream, "AllowLoops %s\n", AllowLoops==true?"true":"false");
     fprintf(a_fstream, "DisjointCoeff %3.20f\n", DisjointCoeff);
     fprintf(a_fstream, "ExcessCoeff %3.20f\n", ExcessCoeff);
     fprintf(a_fstream, "ActivationADiffCoeff %3.20f\n", ActivationADiffCoeff);

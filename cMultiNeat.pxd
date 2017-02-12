@@ -154,6 +154,8 @@ cdef extern from "src/Parameters.h" namespace "NEAT":
         double MaxNeuronTimeConstant
         double MinNeuronBias
         double MaxNeuronBias
+        bool DontUseBiasNeuron
+        bool AllowLoops
         double DisjointCoeff
         double ExcessCoeff
         double ActivationADiffCoeff

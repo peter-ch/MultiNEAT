@@ -101,32 +101,32 @@ private:
     // Private methods
 
     // Returns true if the specified neuron ID is present in the genome
-    bool HasNeuronID(unsigned int a_id) const;
+    bool HasNeuronID(int a_id) const;
 
     // Returns true if the specified link is present in the genome
-    bool HasLink(unsigned int a_n1id, unsigned int a_n2id) const;
+    bool HasLink(int a_n1id, int a_n2id) const;
 
     // Returns true if the specified link is present in the genome
-    bool HasLinkByInnovID(unsigned int a_id) const;
+    bool HasLinkByInnovID(int a_id) const;
 
     // Removes the link with the specified innovation ID
-    void RemoveLinkGene(unsigned int a_innovid);
+    void RemoveLinkGene(int a_innovid);
 
     // Remove node
     // Links connected to this node are also removed
-    void RemoveNeuronGene(unsigned int a_id);
+    void RemoveNeuronGene(int a_id);
 
     // Returns the count of links inputting from the specified neuron ID
-    int LinksInputtingFrom(unsigned int a_id) const;
+    int LinksInputtingFrom(int a_id) const;
 
     // Returns the count of links outputting to the specified neuron ID
-    int LinksOutputtingTo(unsigned int a_id) const;
+    int LinksOutputtingTo(int a_id) const;
 
     // A recursive function returning the max depth from the specified neuron to the inputs
-    unsigned int NeuronDepth(unsigned int a_NeuronID, unsigned int a_Depth);
+    unsigned int NeuronDepth(int a_NeuronID, unsigned int a_Depth);
 
     // Returns true is the specified neuron ID is a dead end or isolated
-    bool IsDeadEndNeuron(unsigned int a_id) const;
+    bool IsDeadEndNeuron(int a_id) const;
 
 public:
 
@@ -199,131 +199,54 @@ public:
     ////////////////////
     // Accessor methods
 
-    NeuronGene GetNeuronByID(unsigned int a_ID) const
-    {
-        ASSERT(HasNeuronID(a_ID));
-        int t_idx = GetNeuronIndex(a_ID);
-        ASSERT(t_idx != -1);
-        return m_NeuronGenes[t_idx];
-    }
-
-    NeuronGene GetNeuronByIndex(unsigned int a_idx) const
-    {
-        ASSERT(a_idx < m_NeuronGenes.size());
-        return m_NeuronGenes[a_idx];
-    }
-
-    LinkGene GetLinkByInnovID(unsigned int a_ID) const
-    {
-        ASSERT(HasLinkByInnovID(a_ID));
-        for(unsigned int i=0; i<m_LinkGenes.size(); i++)
-            if (m_LinkGenes[i].InnovationID() == a_ID)
-                return m_LinkGenes[i];
-
-        // should never reach this code
-        throw std::exception();
-    }
-
-    LinkGene GetLinkByIndex(unsigned int a_idx) const
-    {
-        ASSERT(a_idx < m_LinkGenes.size());
-        return m_LinkGenes[a_idx];
-    }
+    NeuronGene GetNeuronByID(int a_ID) const;
+    NeuronGene GetNeuronByIndex(int a_idx) const;
+    LinkGene GetLinkByInnovID(int a_ID) const;
+    LinkGene GetLinkByIndex(int a_idx) const;
 
     // A little helper function to find the index of a neuron, given its ID
-    int GetNeuronIndex(unsigned int a_id) const;
+    int GetNeuronIndex(int a_id) const;
 
     // A little helper function to find the index of a link, given its innovation ID
-    int GetLinkIndex(unsigned int a_innovid) const;
+    int GetLinkIndex(int a_innovid) const;
 
-    unsigned int NumNeurons() const
-    {
-        return static_cast<unsigned int>(m_NeuronGenes.size());
-    }
-    unsigned int NumLinks() const
-    {
-        return static_cast<unsigned int>(m_LinkGenes.size());
-    }
-    unsigned int NumInputs() const
-    {
-        return m_NumInputs;
-    }
-    unsigned int NumOutputs() const
-    {
-        return m_NumOutputs;
-    }
+    unsigned int NumNeurons() const { return static_cast<unsigned int>(m_NeuronGenes.size()); }
+    unsigned int NumLinks() const { return static_cast<unsigned int>(m_LinkGenes.size()); }
+    unsigned int NumInputs() const { return m_NumInputs; }
+    unsigned int NumOutputs() const { return m_NumOutputs; }
 
-    void SetNeuronXY(unsigned int a_idx, int a_x, int a_y)
-    {
-        ASSERT(a_idx < m_NeuronGenes.size());
-        m_NeuronGenes[a_idx].x = a_x;
-        m_NeuronGenes[a_idx].y = a_y;
-    }
-    void SetNeuronX(unsigned int a_idx, int a_x)
-    {
-        ASSERT(a_idx < m_NeuronGenes.size());
-        m_NeuronGenes[a_idx].x = a_x;
-    }
-    void SetNeuronY(unsigned int a_idx, int a_y)
-    {
-        ASSERT(a_idx < m_NeuronGenes.size());
-        m_NeuronGenes[a_idx].y = a_y;
-    }
+    void SetNeuronXY(unsigned int a_idx, int a_x, int a_y);
+    void SetNeuronX(unsigned int a_idx, int a_x);
+    void SetNeuronY(unsigned int a_idx, int a_y);
 
+    double GetFitness() const;
+    double GetAdjFitness() const;
+    void SetFitness(double a_f);
+    void SetAdjFitness(double a_af);
 
-    double GetFitness() const
-    {
-        return m_Fitness;
-    }
-    double GetAdjFitness() const
-    {
-        return m_AdjustedFitness;
-    }
-    void SetFitness(double a_f)
-    {
-        m_Fitness = a_f;
-    }
-    void SetAdjFitness(double a_af)
-    {
-        m_AdjustedFitness = a_af;
-    }
+    unsigned int GetID() const;
+    void SetID(unsigned int a_id);
 
-    unsigned int GetID() const
-    {
-        return m_ID;
-    }
-    void SetID(int a_id)
-    {
-        m_ID = a_id;
-    }
-
-    unsigned int GetDepth() const
-    {
-        return m_Depth;
-    }
-    void SetDepth(int a_d)
-    {
-        m_Depth = a_d;
-    }
+    unsigned int GetDepth() const;
+    void SetDepth(unsigned int a_d);
 
     // Returns true if there is any dead end in the network
     bool HasDeadEnds() const;
+    
+    // Returns true if there is any looping path in the network
+    bool HasLoops() const
+    {
+        return false;
+    }
 
-    double GetOffspringAmount() const
-    {
-        return m_OffspringAmount;
-    }
-    void SetOffspringAmount(double a_oa)
-    {
-        m_OffspringAmount = a_oa;
-    }
+    double GetOffspringAmount() const;
+    void SetOffspringAmount(double a_oa);
 
     // This builds a fastnetwork structure out from the genome
     void BuildPhenotype(NeuralNetwork& net) const;
 
     // Projects the phenotype's weights back to the genome
     void DerivePhenotypicChanges(NeuralNetwork& a_Net);
-
 
     ////////////
     // Other possible methods for building a phenotype go here
@@ -338,10 +261,10 @@ public:
     void Save(FILE* a_fstream);
 
     // returns the max neuron ID
-    unsigned int GetLastNeuronID() const;
+    int GetLastNeuronID() const;
 
     // returns the max innovation Id
-    unsigned int GetLastInnovationID() const;
+    int GetLastInnovationID() const;
 
     // Sorts the genes of the genome
     // The neurons by IDs and the links by innovation numbers.
@@ -358,9 +281,6 @@ public:
 
     // returns the absolute compatibility distance between this genome and a_G
     double CompatibilityDistance(Genome &a_G, Parameters& a_Parameters);
-
-
-
 
     // Calculates the network depth
     void CalculateDepth();
@@ -428,32 +348,20 @@ public:
 
     // Checks for the genome's integrity
     // returns false if something is wrong
-    bool Verify() const;
+    //bool Verify() const;
 
     // Search the genome for isolated structure and clean it up
     // Returns true is something was removed
     bool Cleanup();
-
-
-
+	
 
     ////////////////////
     // new stuff
-
-    bool IsEvaluated() const
-    {
-        return m_Evaluated;
-    }
-    void SetEvaluated()
-    {
-        m_Evaluated = true;
-    }
-    void ResetEvaluated()
-    {
-        m_Evaluated = false;
-    }
-
-
+    bool IsEvaluated() const;
+    void SetEvaluated();
+    void ResetEvaluated();
+    
+    
     /////////////////////////////////////////////
     // Evolvable Substrate HyperNEAT
     ////////////////////////////////////////////
@@ -503,7 +411,7 @@ public:
     	double weight;
     	double height;
     	double variance;
-    	unsigned int level;
+    	int level;
     	// Do I use this?
     	double leo;
 
