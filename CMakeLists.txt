@@ -14,6 +14,10 @@ if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
+#include_directories(${PYTHON_INCLUDE_DIRS})
+
+#add_definitions(-DUSE_BOOST_PYTHON)
+
 set(SOURCE_FILES
     src/Assert.h
     src/Genes.h

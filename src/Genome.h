@@ -74,10 +74,10 @@ namespace NEAT
     
     extern ActivationFunction GetRandomActivation(Parameters &a_Parameters, RNG &a_RNG);
     
-    using namespace boost;
+    namespace bs = boost;
     
-    typedef adjacency_list <vecS, vecS, directedS> Graph;
-    typedef graph_traits<Graph>::vertex_descriptor Vertex;
+    typedef bs::adjacency_list <bs::vecS, bs::vecS, bs::directedS> Graph;
+    typedef bs::graph_traits<Graph>::vertex_descriptor Vertex;
     
     class Genome
     {

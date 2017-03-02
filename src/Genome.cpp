@@ -521,16 +521,16 @@ bool Genome::HasLoops() const
     Graph g;
     for(int i=0; i<net.m_connections.size(); i++)
     {
-        add_edge(net.m_connections[i].m_source_neuron_idx, net.m_connections[i].m_target_neuron_idx, g);
+        bs::add_edge(net.m_connections[i].m_source_neuron_idx, net.m_connections[i].m_target_neuron_idx, g);
     }
     
     typedef std::vector< Vertex > container;
     container c;
     try
     {
-        topological_sort(g, std::back_inserter(c));
+        bs::topological_sort(g, std::back_inserter(c));
     }
-    catch (not_a_dag)
+    catch (bs::not_a_dag)
     {
         has_cycles = true;
     }
