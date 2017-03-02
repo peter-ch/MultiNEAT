@@ -174,7 +174,7 @@ public:
     {
         return m_neurons[a_idx];
     }
-    void SetInputOutputDimentions(const unsigned short a_i, const unsigned short a_o)
+    void SetInputOutputDimentions(const unsigned int a_i, const unsigned int a_o)
     {
         m_num_inputs = a_i;
         m_num_outputs = a_o;

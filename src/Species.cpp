@@ -468,8 +468,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                         }
 
                     } while (t_baby.HasDeadEnds() ||
-                            (t_baby.NumLinks() == 0) /*||
-                            (t_baby.HasLoops() && (a_Parameters.AllowLoops == false))*/);
+                            (t_baby.NumLinks() == 0));
                     // in case of dead ends after crossover we will repeat crossover
                     // until it works
                 }

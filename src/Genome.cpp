@@ -510,6 +510,33 @@ bool Genome::HasLink(int a_n1id, int a_n2id) const
 
     return false;
 }
+    
+bool Genome::HasLoops() const
+{
+    NeuralNetwork net;
+    BuildPhenotype(net);
+    bool has_cycles = false;
+    
+    // convert the net to a Boost::Graph object
+    Graph g;
+    for(int i=0; i<net.m_connections.size(); i++)
+    {
+        add_edge(net.m_connections[i].m_source_neuron_idx, net.m_connections[i].m_target_neuron_idx, g);
+    }
+    
+    typedef std::vector< Vertex > container;
+    container c;
+    try
+    {
+        topological_sort(g, std::back_inserter(c));
+    }
+    catch (not_a_dag)
+    {
+        has_cycles = true;
+    }
+    
+    return has_cycles;
+}
 
 // Returns true if the specified link is present in the genome
 bool Genome::HasLinkByInnovID(int id) const
@@ -728,10 +755,10 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 	if (subst.m_custom_connectivity.size() == 0)
 	{
 		// only incoming connections, so loop only the hidden and output neurons
-		for(unsigned int i=net.NumInputs(); i<net.m_neurons.size(); i++)
+		for(int i=net.NumInputs(); i<net.m_neurons.size(); i++)
 		{
 			// loop all neurons
-			for(unsigned int j=0; j<net.m_neurons.size(); j++)
+			for(int j=0; j<net.m_neurons.size(); j++)
 			{
 				// this is connection "j" to "i"
 
@@ -785,8 +812,8 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 			int dst_idx = subst.m_custom_connectivity[idx][3];
 
 			// determine the indices in the NN
-			int j; // src
-			int i; // dst
+			int j = 0; // src
+			int i = 0; // dst
 
 			if ((src_type == INPUT) || (src_type == BIAS))
 			{
@@ -919,7 +946,7 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 		}
 
 		// the output is a weight
-		double t_link = 0; ;
+		double t_link = 0;
 		double t_weight = 0;
 
 		if (subst.m_query_weights_only)
@@ -931,8 +958,6 @@ void Genome::BuildHyperNEATPhenotype(NeuralNetwork& net, Substrate& subst)
 			t_link = t_temp_phenotype.Output()[0];
 			t_weight = t_temp_phenotype.Output()[1];
 		}
-
-//		Clamp(t_weight, -1, 1);
 
 		if (((t_link > 0) && (!subst.m_query_weights_only)) || (subst.m_query_weights_only))
 		{
@@ -2720,7 +2745,7 @@ Genome::Genome(std::ifstream& a_DataFile)
     while (t_Str != "GenomeStart");
 
     // read the genome ID
-    int t_gid;
+    unsigned int t_gid;
     a_DataFile >> t_gid;
     m_ID = t_gid;
 
@@ -3385,5 +3410,7 @@ void Genome::Clean_Net(std::vector<Connection>& connections, unsigned int input_
         }
     }
 }
+    
+    
     
 } // namespace NEAT

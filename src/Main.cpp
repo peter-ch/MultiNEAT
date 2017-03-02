@@ -123,6 +123,8 @@ int main()
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
     
+    params.AllowLoops = false;
+    
     //params.AllowClones = false;
     
     //params.DontUseBiasNeuron = true;
@@ -147,6 +149,11 @@ int main()
                 double f = xortest(pop.m_Species[i].m_Individuals[j]);
                 pop.m_Species[i].m_Individuals[j].SetFitness(f);
                 pop.m_Species[i].m_Individuals[j].SetEvaluated();
+                
+                if (pop.m_Species[i].m_Individuals[j].HasLoops())
+                {
+                    std::cout << "loops found in individual\n";
+                }
 
                 if (f > bestf)
                 {
