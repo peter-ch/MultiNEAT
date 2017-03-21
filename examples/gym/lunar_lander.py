@@ -13,7 +13,7 @@ rng = NEAT.RNG()
 rng.TimeSeed()
 
 params = NEAT.Parameters()
-params.PopulationSize = 40
+params.PopulationSize = 150
 params.DynamicCompatibility = True
 params.WeightDiffCoeff = 1.0
 params.CompatTreshold = 2.0
@@ -24,7 +24,7 @@ params.MinSpecies = 2
 params.MaxSpecies = 4
 params.RouletteWheelSelection = False
 params.Elitism = True
-params.RecurrentProb = 0.5
+params.RecurrentProb = 0.15
 params.OverallMutationRate = 0.2
 
 params.MutateWeightsProb = 0.8
@@ -45,8 +45,8 @@ params.MutateAddNeuronProb = 0.1
 params.MutateAddLinkProb = 0.2
 params.MutateRemLinkProb = 0.0
 
-params.MinActivationA  = 8.1
-params.MaxActivationA  = 8.9
+params.MinActivationA  = 1.0
+params.MaxActivationA  = 6.0
 
 params.MinNeuronTimeConstant = 0.04
 params.MaxNeuronTimeConstant = 0.24
@@ -66,11 +66,11 @@ params.SurvivalRate = 0.2
 
 
 
-trials = 1
+trials = 15
 render_during_training = 0
 
-g = NEAT.Genome(0, 8 +1, 3, 1, False,
-                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.LINEAR, 1, params)
+g = NEAT.Genome(0, 8 +1, 0, 4, False,
+                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
 
 
@@ -83,8 +83,10 @@ def interact_with_nn():
     global out
     inp = observation.tolist()
     net.Input(inp + [1.0])
-    net.Activate()#Leaky(0.01)
-    out = net.Output()
+    #print(inp)
+    net.Activate()
+    out = list(net.Output())
+    #print(np.argmax(list(out)))
     #out[0] *= 10.0
     #if out[0] < 0.0: out[0] = -2.0
     #if out[0] > 0.0: out[0] = 2.0
@@ -111,11 +113,9 @@ def do_trial():
             cv2.imshow("current best", img)
             cv2.waitKey(1)
 
-        if out[0] > 0:
-            action = 1
-        else:
-            action = 0
+        action = np.argmax(out)
         observation, reward, done, info = env.step(action)
+        if done: break
 
         f += reward
 
@@ -142,7 +142,7 @@ try:
 
             #print(avg_reward)
 
-            genome.SetFitness(avg_reward)
+            genome.SetFitness(10000 + avg_reward)
 
         maxf = max([x.GetFitness() for x in NEAT.GetGenomeList(pop)])
         print('Generation: {}, max fitness: {}'.format(generation, maxf))
@@ -181,10 +181,7 @@ if hof:
                 cv2.imshow("current best", img)
                 cv2.waitKey(1)
 
-                if out[0] > 0:
-                    action = 1
-                else:
-                    action = 0
+                action = np.argmax(out)
                 observation, reward, done, info = env.step(action)
 
                 if done:

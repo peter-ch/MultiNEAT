@@ -254,6 +254,24 @@ namespace NEAT
         // Returns true if there is any looping path in the network
         bool HasLoops() const;
         
+        bool FailsConstraints(Parameters &a_Parameters) const
+        {
+            bool fails = false;
+            
+            if (HasDeadEnds() || (NumLinks() == 0))
+            {
+                return true; // no reason to continue
+            }
+            
+            if ((HasLoops() && (a_Parameters.AllowLoops == false)))
+            {
+                return true;
+            }
+            
+            // add more consraints here
+            return false;
+        }
+        
         double GetOffspringAmount() const;
         
         void SetOffspringAmount(double a_oa);

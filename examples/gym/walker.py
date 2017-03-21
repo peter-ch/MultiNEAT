@@ -45,8 +45,9 @@ except:
 def interact_with_nn(env, net, t, observation):
     global out
     inp = observation.tolist()
-    net.Input(inp + [np.sin(t / 6), 1.0])
-    net.ActivateLeaky(0.01)
+    #print(inp)
+    net.Input(inp + [np.sin(t / 5), 1.0])
+    net.Activate()#Leaky(0.01)
     out = net.Output()
     # out[0] *= 10.0
     # if out[0] < 0.0: out[0] = -2.0
@@ -93,8 +94,8 @@ def main():
 
     params.MutateActivationAProb = 0.0;
     params.ActivationAMutationMaxPower = 0.5;
-    params.MinActivationA = 2.1
-    params.MaxActivationA = 2.9
+    params.MinActivationA = 1.1
+    params.MaxActivationA = 6.9
 
     params.MinNeuronTimeConstant = 0.04
     params.MaxNeuronTimeConstant = 0.24
@@ -121,11 +122,11 @@ def main():
     params.MultipointCrossoverRate = 0.4
     params.SurvivalRate = 0.2
 
-    trials = 10
-    generations = 100
+    trials = 5
+    generations = 10
 
-    g = NEAT.Genome(0, 24 + 1 + 1, 4, 4, False,
-                    NEAT.ActivationFunction.LINEAR, NEAT.ActivationFunction.TANH, 1, params)
+    g = NEAT.Genome(0, 24 + 1 + 1, 0, 4, False,
+                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params)
     pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
     hof = []
     maxf_ever = 0
@@ -195,8 +196,6 @@ def do_trial(env, net, render_during_training):
             cv2.waitKey(1)
 
         action = np.array(out)
-        # action[action<0] = -1
-        # action[action>0] = 1
         observation, reward, done, info = env.step(action)
 
         f += reward

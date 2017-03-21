@@ -402,75 +402,68 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                 // else we can mate
                 else
                 {
-                    do // keep trying to mate until a good offspring is produced
+                    Genome t_mom = GetIndividual(a_Parameters, a_RNG);
+
+                    // choose whether to mate at all
+                    // Do not allow crossover when in simplifying phase
+                    if ((a_RNG.RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
                     {
-                        Genome t_mom = GetIndividual(a_Parameters, a_RNG);
+                        // get the father
+                        Genome t_dad;
+                        bool t_interspecies = false;
 
-                        // choose whether to mate at all
-                        // Do not allow crossover when in simplifying phase
-                        if ((a_RNG.RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+                        // There is a probability that the father may come from another species
+                        if ((a_RNG.RandFloat() < a_Parameters.InterspeciesCrossoverRate) && (a_Pop.m_Species.size()>1))
                         {
-                            // get the father
-                            Genome t_dad;
-                            bool t_interspecies = false;
-
-                            // There is a probability that the father may come from another species
-                            if ((a_RNG.RandFloat() < a_Parameters.InterspeciesCrossoverRate) && (a_Pop.m_Species.size()>1))
-                            {
-                                // Find different species (random one) // !!!!!!!!!!!!!!!!!
-                                int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size()-1));
-                                t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
-                                t_interspecies = true;
-                            }
-                            else
-                            {
-                                // Mate within species
-                                t_dad = GetIndividual(a_Parameters, a_RNG);
-
-                                // The other parent should be a different one
-                                // number of tries to find different parent
-                                int t_tries = 3;
-                                if (!a_Parameters.AllowClones)
-                                {
-                                    while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001) ) && (t_tries--))
-                                    {
-                                        t_dad = GetIndividual(a_Parameters, a_RNG);
-                                    }
-                                }
-                                else
-                                {
-                                    while(((t_mom.GetID() == t_dad.GetID()) ) && (t_tries--))
-                                    {
-                                        t_dad = GetIndividual(a_Parameters, a_RNG);
-                                    }
-                                }
-                                t_interspecies = false;
-                            }
-
-                            // OK we have both mom and dad so mate them
-                            // Choose randomly one of two types of crossover
-                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
-                            {
-                                t_baby = t_mom.Mate( t_dad, false, t_interspecies, a_RNG);
-                            }
-                            else
-                            {
-                                t_baby = t_mom.Mate( t_dad, true, t_interspecies, a_RNG);
-                            }
-
-                            t_mated = true;
+                            // Find different species (random one) // !!!!!!!!!!!!!!!!!
+                            int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size()-1));
+                            t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
+                            t_interspecies = true;
                         }
-                        // don't mate - reproduce the mother asexually
                         else
                         {
-                            t_baby = t_mom;
-                            t_mated = false;
+                            // Mate within species
+                            t_dad = GetIndividual(a_Parameters, a_RNG);
+
+                            // The other parent should be a different one
+                            // number of tries to find different parent
+                            int t_tries = 3;
+                            if (!a_Parameters.AllowClones)
+                            {
+                                while(((t_mom.GetID() == t_dad.GetID()) || (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001) ) && (t_tries--))
+                                {
+                                    t_dad = GetIndividual(a_Parameters, a_RNG);
+                                }
+                            }
+                            else
+                            {
+                                while(((t_mom.GetID() == t_dad.GetID()) ) && (t_tries--))
+                                {
+                                    t_dad = GetIndividual(a_Parameters, a_RNG);
+                                }
+                            }
+                            t_interspecies = false;
                         }
 
-                    } while (t_baby.HasDeadEnds() ||
-                            (t_baby.NumLinks() == 0));
-                    // in case of dead ends after crossover we will repeat crossover
-                    // until it works
+                        // OK we have both mom and dad so mate them
+                        // Choose randomly one of two types of crossover
+                        if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
+                        {
+                            t_baby = t_mom.Mate( t_dad, false, t_interspecies, a_RNG);
+                        }
+                        else
+                        {
+                            t_baby = t_mom.Mate( t_dad, true, t_interspecies, a_RNG);
+                        }
+
+                        t_mated = true;
+                    }
+                    // don't mate - reproduce the mother asexually
+                    else
+                    {
+                        t_baby = t_mom;
+                        t_mated = false;
+                    }
                 }
                 
                 // Mutate the baby
@@ -501,15 +494,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
                     }
                 }
             }
-            while ((t_baby_exists_in_pop == true) || (t_baby.HasLoops() && (a_Parameters.AllowLoops == false))); // end do
-        }
-
-        // Final place to test for problems
-        // If there is anything wrong here, we will just
-        // pick a random individual and leave him unchanged
-        if ((t_baby.NumLinks() == 0) || t_baby.HasDeadEnds())
-        {
-            t_baby = GetIndividual(a_Parameters, a_RNG);
+            while ((t_baby_exists_in_pop == true) || (t_baby.FailsConstraints(a_Parameters))); // end do
         }
         
         // We have a new offspring now
@@ -526,8 +511,7 @@ void Species::Reproduce(Population &a_Pop, Parameters& a_Parameters, RNG& a_RNG)
         t_baby.SetOffspringAmount(0);
 
         t_baby.ResetEvaluated();
-
-
+        
         //////////////////////////////////
         // put the baby to its species  //
         //////////////////////////////////
@@ -703,13 +687,6 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
         }
     }
 
-/*    if (t_baby.HasDeadEnds())
-    {
-        std::cout << "Dead ends in baby after crossover" << std::endl;
-//        int p;
-//        std::cin >> p;
-    }*/
-
     // OK we have the baby, so let's mutate it.
     bool t_baby_is_clone = false;
 
@@ -730,22 +707,7 @@ Genome Species::ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a
     t_baby.SetOffspringAmount(0);
 
     t_baby.ResetEvaluated();
-
-    // debug trap
-/*    if (t_baby.NumLinks() == 0)
-    {
-        std::cout << "No links in baby after reproduction" << std::endl;
-//        int p;
-//        std::cin >> p;
-    }
-
-    if (t_baby.HasDeadEnds())
-    {
-        std::cout << "Dead ends in baby after reproduction" << std::endl;
-//        int p;
-//        std::cin >> p;
-    }
-*/
+    
     return t_baby;
 }
 
@@ -862,16 +824,6 @@ void Species::MutateGenome( bool t_baby_is_clone, Population &a_Pop, Genome &t_b
             while(t_no_links || t_has_dead_ends);
 
             t_baby = t_saved_baby;
-
-            // debugger trap
-            if (t_baby.NumLinks() == 0)
-            {
-                std::cerr << "No links in baby after mutation" << std::endl;
-            }
-            if (t_baby.HasDeadEnds())
-            {
-                std::cerr << "Dead ends in baby after mutation" << std::endl;
-            }
         }
         break;
 

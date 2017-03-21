@@ -9,11 +9,11 @@ import pickle
 import numpy as np
 import cv2
 
-trials = 1
+trials = 5
 render_during_training = False
 
 params = NEAT.Parameters()
-params.PopulationSize = 64
+params.PopulationSize = 150
 params.DynamicCompatibility = True
 params.WeightDiffCoeff = 1.0
 params.CompatTreshold = 2.0
@@ -32,7 +32,7 @@ params.MutateNeuronBiasesProb = 0.1
 
 params.WeightMutationMaxPower = 0.5
 params.WeightReplacementMaxPower = 1.0
-params.MutateWeightsSevereProb = 0.5
+params.MutateWeightsSevereProb = 0.15
 params.WeightMutationRate = 0.25
 
 params.TimeConstantMutationMaxPower = 0.1
@@ -44,8 +44,8 @@ params.MutateAddNeuronProb = 0.1
 params.MutateAddLinkProb = 0.2
 params.MutateRemLinkProb = 0.0
 
-params.MinActivationA  = 0.2
-params.MaxActivationA  = 1.2
+params.MinActivationA  = 1.0
+params.MaxActivationA  = 6.2
 
 params.MinNeuronTimeConstant = 0.04
 params.MaxNeuronTimeConstant = 0.09
@@ -78,70 +78,74 @@ env = gym.make('Pendulum-v0')
 def interact_with_nn():
     global out
     inp = observation.tolist()
+    inp[2] /= 8.0
     net.Input(inp + [1.0])
-    net.ActivateLeaky(0.01)
-    out = net.Output()
+    net.Activate()
+    out = list(net.Output())
     #out[0] *= 10.0
     #if out[0] < 0.0: out[0] = -2.0
     #if out[0] > 0.0: out[0] = 2.0
     return inp
 
 
-for generation in range(50):
+try:
+    for generation in range(50):
 
-    for i_episode, genome in enumerate(NEAT.GetGenomeList(pop)):
+        for i_episode, genome in enumerate(NEAT.GetGenomeList(pop)):
 
-        net = NEAT.NeuralNetwork()
-        genome.BuildPhenotype(net)
+            net = NEAT.NeuralNetwork()
+            genome.BuildPhenotype(net)
 
-        avg_reward = 0
+            avg_reward = 0
 
-        for trial in range(trials):
+            for trial in range(trials):
 
-            observation = env.reset()
-            net.Flush()
+                observation = env.reset()
+                net.Flush()
 
-            cum_reward = 0
-            reward = 0
-            f = 0
+                cum_reward = 0
+                reward = 0
+                f = 0
 
-            for t in range(250):
+                for t in range(300):
 
-                if render_during_training:
-                    time.sleep(0.01)
-                    env.render()
+                    if render_during_training:
+                        time.sleep(0.01)
+                        env.render()
 
-                # interact with NN
-                inp = interact_with_nn()
+                    # interact with NN
+                    inp = interact_with_nn()
 
-                if render_during_training:
-                    img = viz.Draw(net)
-                    cv2.imshow("current best", img)
-                    cv2.waitKey(1)
+                    if render_during_training:
+                        img = viz.Draw(net)
+                        cv2.imshow("current best", img)
+                        cv2.waitKey(1)
 
-                action = np.array([out[0]])
-                observation, reward, done, info = env.step(action)
+                    action = np.array([out[0]*2.0])
+                    observation, reward, done, info = env.step(action)
 
-                f += reward
+                    f += reward
 
-                if done:
-                    break
+                    if done:
+                        break
 
-            avg_reward += f
+                avg_reward += f
 
-        avg_reward /= trials
-        #print(avg_reward)
+            avg_reward /= trials
+            #print(avg_reward)
 
-        genome.SetFitness(15000 + avg_reward)
+            genome.SetFitness(15000 + avg_reward)
 
-    maxf = max([x.GetFitness() for x in NEAT.GetGenomeList(pop)])
-    print('Generation: {}, max fitness: {}'.format(generation, maxf))
+        maxf = max([x.GetFitness() for x in NEAT.GetGenomeList(pop)])
+        print('Generation: {}, max fitness: {}'.format(generation, maxf))
 
-    hof.append(pickle.dumps(pop.GetBestGenome()))
-    pop.Epoch()
+        hof.append(pickle.dumps(pop.GetBestGenome()))
+        pop.Epoch()
 
-#    if maxf > 220:
-#        break
+    #    if maxf > 220:
+    #        break
+except KeyboardInterrupt:
+    pass
 
 print('Replaying forever..')
 
@@ -167,7 +171,7 @@ if hof:
             cv2.waitKey(1)
 
 
-            action = np.array([out[0]])
+            action = np.array([out[0]*2.0])
             observation, reward, done, info = env.step(action)
 
             if done:
