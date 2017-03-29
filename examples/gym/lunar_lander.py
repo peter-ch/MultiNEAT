@@ -142,7 +142,7 @@ try:
 
             #print(avg_reward)
 
-            genome.SetFitness(10000 + avg_reward)
+            genome.SetFitness(1000000 + avg_reward)
 
         maxf = max([x.GetFitness() for x in NEAT.GetGenomeList(pop)])
         print('Generation: {}, max fitness: {}'.format(generation, maxf))

@@ -9,7 +9,7 @@ import pickle
 import numpy as np
 import cv2
 
-trials = 5
+trials = 15
 render_during_training = False
 
 params = NEAT.Parameters()
@@ -77,16 +77,14 @@ env = gym.make('Pendulum-v0')
 
 def interact_with_nn():
     global out
+    global observation
+    global net
     inp = observation.tolist()
     inp[2] /= 8.0
     net.Input(inp + [1.0])
     net.Activate()
     out = list(net.Output())
-    #out[0] *= 10.0
-    #if out[0] < 0.0: out[0] = -2.0
-    #if out[0] > 0.0: out[0] = 2.0
     return inp
-
 
 try:
     for generation in range(50):
@@ -107,7 +105,7 @@ try:
                 reward = 0
                 f = 0
 
-                for t in range(300):
+                for t in range(500):
 
                     if render_during_training:
                         time.sleep(0.01)
@@ -132,9 +130,8 @@ try:
                 avg_reward += f
 
             avg_reward /= trials
-            #print(avg_reward)
 
-            genome.SetFitness(15000 + avg_reward)
+            genome.SetFitness(1000000 + avg_reward)
 
         maxf = max([x.GetFitness() for x in NEAT.GetGenomeList(pop)])
         print('Generation: {}, max fitness: {}'.format(generation, maxf))
@@ -142,8 +139,6 @@ try:
         hof.append(pickle.dumps(pop.GetBestGenome()))
         pop.Epoch()
 
-    #    if maxf > 220:
-    #        break
 except KeyboardInterrupt:
     pass
 
@@ -169,7 +164,6 @@ if hof:
             img = viz.Draw(net)
             cv2.imshow("current best", img)
             cv2.waitKey(1)
-
 
             action = np.array([out[0]*2.0])
             observation, reward, done, info = env.step(action)
