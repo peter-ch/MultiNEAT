@@ -42,7 +42,7 @@ def getExtensions():
              '-Wall'
              ]
 
-    if 'win' in platform:
+    if 'win' in platform and platform != 'darwin':
         extra.append('/EHsc')
     else:
         extra.append('-w')
