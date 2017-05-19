@@ -30,6 +30,9 @@
 // Description: Definition for the parameters class.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <map>
+#include "Traits.h"
+
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
@@ -411,6 +414,12 @@ public:
     // Use geometric seeding. Currently only along the X axis. 1
     bool LeoSeed;
     bool GeometrySeed;
+
+    /////////////////////////////////////
+    // Universal traits
+    /////////////////////////////////////
+    std::map< std::string, TraitParameters > NodeTraits;
+    std::map< std::string, TraitParameters > LinkTraits;
 
     /////////////////////////////////////
     // Constructors

@@ -1306,6 +1306,7 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
 
     // remove the link from the genome
     // find it first and then erase it
+    // TODO: add option to keep the link, but disabled
     std::vector<LinkGene>::iterator t_iter;
     for(t_iter = m_LinkGenes.begin(); t_iter != m_LinkGenes.end(); t_iter++)
     {
@@ -1360,6 +1361,9 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
                       t_Bs,
                       GetRandomActivation(a_Parameters, a_RNG) );
 
+        // Initialize the traits
+        t_ngene.InitTraits(a_Parameters.NodeTraits);
+
         // Add the NeuronGene
         m_NeuronGenes.push_back( t_ngene );
 
@@ -1369,10 +1373,16 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
         bool t_recurrentflag = t_chosenlink.IsRecurrent();
 
         // First link
-        m_LinkGenes.push_back( LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag) );
+        LinkGene l1 = LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag);
+        // Init the link's traits
+        l1.InitTraits(a_Parameters.LinkTraits);
+        m_LinkGenes.push_back( l1 );
 
         // Second link
-        m_LinkGenes.push_back( LinkGene(t_nid, t_out, t_l2id, t_orig_weight, t_recurrentflag) );
+        LinkGene l2 = LinkGene(t_nid, t_out, t_l2id, t_orig_weight, t_recurrentflag);
+        // Init the link's traits
+        l2.InitTraits(a_Parameters.LinkTraits);
+        m_LinkGenes.push_back( l2 );
     }
     else
     {
@@ -1452,22 +1462,28 @@ bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters& a_Parame
                       t_Bs,
                       GetRandomActivation(a_Parameters, a_RNG) );
 
+        // Initialize the traits
+        t_ngene.InitTraits(a_Parameters.NodeTraits);
+
         // Make sure the recurrent flag is kept
         bool t_recurrentflag = t_chosenlink.IsRecurrent();
 
         // Add the NeuronGene
         m_NeuronGenes.push_back( t_ngene );
         // First link
-        m_LinkGenes.push_back( LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag) );
+        LinkGene l1 = LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag);
+        // initialize the link's traits
+        l1.InitTraits(a_Parameters.LinkTraits);
+        m_LinkGenes.push_back( l1 );
         // Second link
-        m_LinkGenes.push_back( LinkGene(t_nid, t_out, t_l2id, t_orig_weight, t_recurrentflag) );
+        LinkGene l2 = LinkGene(t_nid, t_out, t_l2id, t_orig_weight, t_recurrentflag);
+        // initialize the link's traits
+        l2.InitTraits(a_Parameters.LinkTraits);
+        m_LinkGenes.push_back( l2 );
     }
 
     return true;
 }
-
-
-
 
 
 
@@ -1673,15 +1689,15 @@ bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters& a_Paramete
     // A novel innovation?
     if (t_innovid == -1)
     {
-        // Make new innovation and add the connection gene
+        // Make new innovation
         t_innovid = a_Innovs.AddLinkInnovation(t_n1id, t_n2id);
-        m_LinkGenes.push_back( LinkGene(t_n1id, t_n2id, t_innovid, t_weight, t_MakeRecurrent) );
     }
-    else
-    {
-        // This innovation is already present, so just use it
-        m_LinkGenes.push_back( LinkGene(t_n1id, t_n2id, t_innovid, t_weight, t_MakeRecurrent) );
-    }
+
+    // Create and add the link
+    LinkGene l = LinkGene(t_n1id, t_n2id, t_innovid, t_weight, t_MakeRecurrent);
+    // init the link's traits
+    l.InitTraits(a_Parameters.LinkTraits);
+    m_LinkGenes.push_back( l );
 
     // All done.
     return true;
