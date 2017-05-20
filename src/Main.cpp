@@ -77,7 +77,20 @@ double xortest(Genome& g)
     for(int i=0; i<depth; i++) { net.Activate(); }
     error += fabs(net.Output()[0] - 0.0);
 
-    return (4.0 - error)*(4.0 - error);
+    double f = 0;//(4.0 - error)*(4.0 - error);
+
+    // also contribute small trait factor
+    for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
+    {
+        /*for(auto k=it->m_Traits.begin(); k!=it->m_Traits.end();k++)
+        {
+
+        }*/
+        f += 0.01 * (double)(boost::get<double>(it->m_Traits["tp2"].value)) / g.m_NeuronGenes.size();
+        f += 0.001 * (double)(boost::get<int>(it->m_Traits["tp1"].value)) / g.m_NeuronGenes.size();
+    }
+
+    return f;
 
 }
 
@@ -107,8 +120,8 @@ int main()
 
     params.MaxWeight = 8;
 
-    params.MutateAddNeuronProb = 0.03;
-    params.MutateAddLinkProb = 0.05;
+    params.MutateAddNeuronProb = 0;//0.03;
+    params.MutateAddLinkProb = 0;//0.05;
     params.MutateRemLinkProb = 0.0;
 
     params.MinActivationA  = 4.9;
@@ -124,7 +137,38 @@ int main()
     params.SurvivalRate = 0.2;
     
     params.AllowLoops = false;
-    
+
+    TraitParameters tp1;
+    tp1.m_ImportanceCoeff = 0.0;
+    tp1.m_MutationProb = 0.1;
+    tp1.type = "int";
+    IntTraitParameters itp1;
+    itp1.min = -5;
+    itp1.max = 5;
+    itp1.mut_power = 1;
+    itp1.mut_replace_prob = 0.1;
+    tp1.m_Details = itp1;
+
+    TraitParameters tp2;
+    tp2.m_ImportanceCoeff = 0.0;
+    tp2.m_MutationProb = 0.2;
+    tp2.type = "float";
+    FloatTraitParameters itp2;
+    itp2.min = -1;
+    itp2.max = 1;
+    itp2.mut_power = 0.2;
+    itp2.mut_replace_prob = 0.1;
+    tp2.m_Details = itp2;
+
+    TraitParameters tp3;
+    tp3.m_ImportanceCoeff = 0.0;
+    tp3.m_MutationProb = 0.3;
+    tp3.type = "bool";
+
+    params.NeuronTraits["tp1"] = tp1;
+    params.NeuronTraits["tp2"] = tp2;
+    params.LinkTraits["tp3"] = tp3;
+
     //params.AllowClones = false;
     
     //params.DontUseBiasNeuron = true;
@@ -137,6 +181,7 @@ int main()
              UNSIGNED_SIGMOID,
              0,
              params);
+
     Population pop(s, params, true, 1.0, time(0));
 
     for(int k=0; k<5000; k++)
@@ -161,6 +206,9 @@ int main()
                 }
             }
         }
+
+        Genome g = pop.GetBestGenome();
+        g.PrintTraits();
 
         printf("Generation: %d, best fitness: %3.5f\n", k, bestf);
         pop.Epoch();

@@ -321,6 +321,11 @@ void Parameters::Reset()
     ActivationFunction_Linear_Prob = 0.0;
     ActivationFunction_Relu_Prob = 0.0;
     ActivationFunction_Softplus_Prob = 0.0;
+
+
+    // Trait mutation probabilities
+    MutateNeuronTraitsProb = 0.1;
+    MutateLinkTraitsProb = 0.1;
     
     
     /////////////////////////////
@@ -378,6 +383,12 @@ void Parameters::Reset()
     // Per how many evaluations to change the treshold
     // (used in steady state mode)
     CompatTreshChangeInterval_Evaluations = 10;
+
+
+
+
+    //////////////////////////////
+    // ES-HyperNEAT parameters
 
     DivisionThreshold = 0.03;
 

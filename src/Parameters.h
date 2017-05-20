@@ -418,8 +418,10 @@ public:
     /////////////////////////////////////
     // Universal traits
     /////////////////////////////////////
-    std::map< std::string, TraitParameters > NodeTraits;
+    std::map< std::string, TraitParameters > NeuronTraits;
     std::map< std::string, TraitParameters > LinkTraits;
+    double MutateNeuronTraitsProb;
+    double MutateLinkTraitsProb;
 
     /////////////////////////////////////
     // Constructors

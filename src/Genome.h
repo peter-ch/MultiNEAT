@@ -60,12 +60,11 @@
 namespace NEAT
 {
 
+    //////////////////////////////////////////////
+    // The Genome class
+    //////////////////////////////////////////////
 
-//////////////////////////////////////////////
-// The Genome class
-//////////////////////////////////////////////
-
-// forward
+    // forward
     class Innovation;
     
     class InnovationDatabase;
@@ -87,10 +86,6 @@ namespace NEAT
     private:
         // ID of genome
         unsigned int m_ID;
-        
-        // The two lists of genes
-        std::vector<NeuronGene> m_NeuronGenes;
-        std::vector<LinkGene> m_LinkGenes;
         
         // How many inputs/outputs
         unsigned int m_NumInputs;
@@ -140,7 +135,11 @@ namespace NEAT
         bool IsDeadEndNeuron(int a_id) const;
     
     public:
-        
+
+        // The two lists of genes
+        std::vector<NeuronGene> m_NeuronGenes;
+        std::vector<LinkGene> m_LinkGenes;
+
         // tells whether this genome was evaluated already
         // used in steady state evolution
         bool m_Evaluated;
@@ -293,6 +292,8 @@ namespace NEAT
         
         // Saves this genome to an already opened file for writing
         void Save(FILE *a_fstream);
+
+        void PrintTraits();
         
         // returns the max neuron ID
         int GetLastNeuronID() const;
@@ -345,6 +346,9 @@ namespace NEAT
         
         // Set all link weights to random values between [-R .. R]
         void Randomize_LinkWeights(double a_Range, RNG &a_RNG);
+
+        // Set all traits to random values
+        void Randomize_Traits(const Parameters& a_Parameters, RNG &a_RNG);
         
         // Perturbs the A parameters of the neuron activation functions
         void Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG);
@@ -360,8 +364,14 @@ namespace NEAT
         
         // Perturbs the neuron biases
         void Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG);
-        
-        
+
+        // Perturbs the neuron traits
+        void Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG);
+
+        // Perturbs the link traits
+        void Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG);
+
+
         ///////////
         // Mating
         ///////////
@@ -372,23 +382,17 @@ namespace NEAT
         // If the bool is true, then the genes are averaged
         // Disjoint and excess genes are inherited from the fittest parent
         // If fitness is equal, the smaller genome is assumed to be the better one
-        Genome Mate(Genome &a_dad, bool a_averagemating, bool a_interspecies, RNG &a_RNG);
+        Genome Mate(Genome &a_dad, bool a_averagemating, bool a_interspecies, RNG &a_RNG, Parameters &a_Parameters);
         
         
         //////////
         // Utility
         //////////
         
-        
-        // Checks for the genome's integrity
-        // returns false if something is wrong
-        //bool Verify() const;
-        
         // Search the genome for isolated structure and clean it up
         // Returns true is something was removed
         bool Cleanup();
-        
-        
+
         ////////////////////
         // new stuff
         bool IsEvaluated() const;

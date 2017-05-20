@@ -92,13 +92,13 @@ double RNG::RandFloat()
 }
 
 // Returns a random number from a uniform distribution in the range of [-1 .. 1]
-double RNG::RandFloatClamped()
+double RNG::RandFloatSigned()
 {
     return (RandFloat() - RandFloat());
 }
 
 // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
-double RNG::RandGaussClamped()
+double RNG::RandGaussSigned()
 {
 #ifdef USE_BOOST_RANDOM
     boost::random::normal_distribution<> dist;

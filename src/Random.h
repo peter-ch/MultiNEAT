@@ -67,10 +67,10 @@ public:
     double RandFloat();
 
     // Returns a random number from a uniform distribution in the range of [-1 .. 1]
-    double RandFloatClamped();
+    double RandFloatSigned();
 
     // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
-    double RandGaussClamped();
+    double RandGaussSigned();
 
     // Returns an index given a vector of probabilities
     int Roulette(std::vector<double>& a_probs);

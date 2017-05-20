@@ -38,9 +38,9 @@ cdef class RNG:
     def RandFloat(self):
         return self.thisptr.RandFloat()
     def RandFloatClamped(self):
-        return self.thisptr.RandFloatClamped()
+        return self.thisptr.RandFloatSigned()
     def RandGaussClamped(self):
-        return self.thisptr.RandGaussClamped()
+        return self.thisptr.RandGaussSigned()
     def Roulette(self, a_probs):
         return self.thisptr.Roulette(a_probs)
 

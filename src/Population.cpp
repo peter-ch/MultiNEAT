@@ -72,7 +72,11 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
         if (a_RandomizeWeights)
+        {
             m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
+            // randomize the traits as well
+            m_Genomes[i].Randomize_Traits(a_Parameters, m_RNG);
+        }
 
         //m_Genomes[i].CalculateDepth();
     }
@@ -106,7 +110,6 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     m_BestGenome = m_Species[0].GetLeader();
 
     Sort();
-
 
     // Set up the rest of the phased search variables
     CalculateMPC();
@@ -274,42 +277,6 @@ void Population::Speciate()
 
         t_cs++;
     }
-
-
-    /*
-        //////////////////
-        // extensive test DEBUG
-        // ////
-        // check to see if compatible enough individuals are in different species
-
-        // for each species
-        for(int i=0; i<m_Species.size(); i++)
-        {
-            for(int j=0; j<m_Species.size(); j++)
-            {
-                // do not check individuals in the same species
-                if (i != j)
-                {
-                    // now for each individual in species [i]
-                    // compare it to all individuals in species [j]
-                    // report if there is a distance smaller that CompatTreshold
-                    for(int sp1=0; sp1<m_Species[i].m_Members.size(); sp1++)
-                    {
-                        for(int sp2=0; sp2<m_Species[j].m_Members.size(); sp2++)
-                        {
-                            double t_dist = m_Species[i].m_Members[sp1]->CompatibilityDistance( *(m_Species[j].m_Members[sp2]) );
-
-                            if (t_dist <= GlobalParameters.CompatTreshold)
-                            {
-                                const string tMessage = "Compatible individuals in different species!";
-                                m_MessageQueue.push(tMessage);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    */
 }
 
 

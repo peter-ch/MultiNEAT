@@ -56,8 +56,8 @@ cdef extern from "src/Random.h" namespace "NEAT":
         int RandPosNeg()
         int RandInt(int x, int y)
         double RandFloat()
-        double RandFloatClamped()
-        double RandGaussClamped()
+        double RandFloatSigned()
+        double RandGaussSigned()
         int Roulette(vector[double]& a_probs)
 
 
