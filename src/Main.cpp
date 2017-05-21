@@ -37,7 +37,7 @@ double abs(double x)
 double xortest(Genome& g)
 {
 
-    NeuralNetwork net;
+    /*NeuralNetwork net;
     g.BuildPhenotype(net);
 
     int depth = 5;
@@ -75,7 +75,7 @@ double xortest(Genome& g)
     inputs[2] = 1;
     net.Input(inputs);
     for(int i=0; i<depth; i++) { net.Activate(); }
-    error += fabs(net.Output()[0] - 0.0);
+    error += fabs(net.Output()[0] - 0.0);*/
 
     double f = 0;//(4.0 - error)*(4.0 - error);
 
@@ -86,8 +86,10 @@ double xortest(Genome& g)
         {
 
         }*/
-        f += 0.01 * (double)(boost::get<double>(it->m_Traits["tp2"].value)) / g.m_NeuronGenes.size();
-        f += 0.001 * (double)(boost::get<int>(it->m_Traits["tp1"].value)) / g.m_NeuronGenes.size();
+        f += 0.01 * (double)(boost::get<double>(it->m_Traits["x"].value)) / g.m_NeuronGenes.size();
+        f += 0.001 * (double)(boost::get<int>(it->m_Traits["v"].value)) / g.m_NeuronGenes.size();
+        if (boost::get<std::string>(it->m_Traits["y"].value) == "a")
+            f += 0.00005;
     }
 
     return f;
@@ -98,20 +100,21 @@ int main()
 {
     Parameters params;
 
-    params.PopulationSize = 150;
+    params.PopulationSize = 32;
     params.DynamicCompatibility = true;
-    params.WeightDiffCoeff = 4.0;
-    params.CompatTreshold = 2.0;
+    params.WeightDiffCoeff = 0.0;
+    params.CompatTreshold = 3.0;
     params.YoungAgeTreshold = 15;
     params.SpeciesMaxStagnation = 15;
     params.OldAgeTreshold = 35;
-    params.MinSpecies = 5;
-    params.MaxSpecies = 25;
+    params.OldAgePenalty = 0.1;
+    params.MinSpecies = 2;
+    params.MaxSpecies = 4;
     params.RouletteWheelSelection = false;
     params.RecurrentProb = 0.0;
-    params.OverallMutationRate = 0.8;
+    params.OverallMutationRate = 0.4;
 
-    params.MutateWeightsProb = 0.90;
+    params.MutateWeightsProb = 0.0;
 
     params.WeightMutationMaxPower = 2.5;
     params.WeightReplacementMaxPower = 5.0;
@@ -120,8 +123,8 @@ int main()
 
     params.MaxWeight = 8;
 
-    params.MutateAddNeuronProb = 0;//0.03;
-    params.MutateAddLinkProb = 0;//0.05;
+    params.MutateAddNeuronProb = 0.003;
+    params.MutateAddLinkProb = 0.05;
     params.MutateRemLinkProb = 0.0;
 
     params.MinActivationA  = 4.9;
@@ -137,10 +140,14 @@ int main()
     params.SurvivalRate = 0.2;
     
     params.AllowLoops = false;
+    params.DontUseBiasNeuron = true;
+
+    params.MutateNeuronTraitsProb = 0.2;
+    params.MutateLinkTraitsProb = 0.2;
 
     TraitParameters tp1;
-    tp1.m_ImportanceCoeff = 0.0;
-    tp1.m_MutationProb = 0.1;
+    tp1.m_ImportanceCoeff = 1.0;
+    tp1.m_MutationProb = 0.9;
     tp1.type = "int";
     IntTraitParameters itp1;
     itp1.min = -5;
@@ -150,8 +157,8 @@ int main()
     tp1.m_Details = itp1;
 
     TraitParameters tp2;
-    tp2.m_ImportanceCoeff = 0.0;
-    tp2.m_MutationProb = 0.2;
+    tp2.m_ImportanceCoeff = 0.2;
+    tp2.m_MutationProb = 0.9;
     tp2.type = "float";
     FloatTraitParameters itp2;
     itp2.min = -1;
@@ -160,20 +167,44 @@ int main()
     itp2.mut_replace_prob = 0.1;
     tp2.m_Details = itp2;
 
+    TraitParameters tps;
+    tps.m_ImportanceCoeff = 0.02;
+    tps.m_MutationProb = 0.9;
+    tps.type = "str";
+    StringTraitParameters itps;
+    itps.set.push_back("a");
+    itps.set.push_back("b");
+    itps.set.push_back("c");
+    itps.set.push_back("d");
+    itps.set.push_back("e");
+    itps.probs.push_back(1);
+    itps.probs.push_back(1);
+    itps.probs.push_back(1);
+    itps.probs.push_back(1);
+    itps.probs.push_back(1);
+    tps.m_Details = itps;
+
     TraitParameters tp3;
     tp3.m_ImportanceCoeff = 0.0;
-    tp3.m_MutationProb = 0.3;
-    tp3.type = "bool";
+    tp3.m_MutationProb = 0.9;
+    tp3.type = "str";
+    StringTraitParameters itp3;
+    itp3.set.push_back("true");
+    itp3.set.push_back("false");
+    itp3.probs.push_back(1);
+    itp3.probs.push_back(1);
+    tp3.m_Details = itp3;
 
-    params.NeuronTraits["tp1"] = tp1;
-    params.NeuronTraits["tp2"] = tp2;
-    params.LinkTraits["tp3"] = tp3;
+    params.NeuronTraits["v"] = tp1;
+    params.NeuronTraits["x"] = tp2;
+    params.NeuronTraits["y"] = tps;
+    params.LinkTraits["z"] = tp3;
 
-    //params.AllowClones = false;
+    params.AllowClones = false;
     
-    //params.DontUseBiasNeuron = true;
+    params.DontUseBiasNeuron = true;
 
-    Genome s(0, 3,
+    Genome s(0, 1,
              0,
              1,
              false,
@@ -211,6 +242,7 @@ int main()
         g.PrintTraits();
 
         printf("Generation: %d, best fitness: %3.5f\n", k, bestf);
+        printf("Species: %d\n", pop.m_Species.size());
         pop.Epoch();
     }
 

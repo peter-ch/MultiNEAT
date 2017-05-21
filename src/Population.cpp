@@ -416,10 +416,6 @@ void Population::UpdateSpecies()
 
 
 
-
-
-
-
 // the epoch method - the heart of the GA
 void Population::Epoch()
 {   

@@ -122,10 +122,6 @@ namespace NEAT
                     IntTraitParameters itp = bs::get<IntTraitParameters>(it->second.m_Details);
                     t = a_RNG.RandInt(itp.min, itp.max);
                 }
-                if (it->second.type == "bool")
-                {
-                    t = a_RNG.RandFloat() < 0.5f;
-                }
                 if (it->second.type == "float")
                 {
                     FloatTraitParameters itp = bs::get<FloatTraitParameters>(it->second.m_Details);
@@ -133,10 +129,15 @@ namespace NEAT
                     Scale(x, 0, 1, itp.min, itp.max);
                     t = x;
                 }
-                if (it->second.type == "string")
+                if (it->second.type == "str")
                 {
                     StringTraitParameters itp = bs::get<StringTraitParameters>(it->second.m_Details);
                     std::vector<double> probs = itp.probs;
+                    if (itp.set.size() == 0)
+                    {
+                        throw std::runtime_error("Empty set of string traits");
+                    }
+                    probs.resize(itp.set.size());
 
                     int idx = a_RNG.Roulette(probs);
                     t = itp.set[idx];
@@ -172,24 +173,21 @@ namespace NEAT
                     {
                         int m1 = bs::get<int>(mine);
                         int m2 = bs::get<int>(yours);
-                        m_Traits[it->first].value = (m1+m2)/2;
+                        m_Traits[it->first].value = (m1 + m2) / 2;
                     }
-                    if (mine.type() == typeid(bool))
+
+                    if (mine.type() == typeid(double))
                     {
-                        // bools are always either-or
-                        m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5)? mine : yours;
+                        double m1 = bs::get<double>(mine);
+                        double m2 = bs::get<double>(yours);
+                        m_Traits[it->first].value = (m1 + m2) / 2.0;
                     }
-                }
-                if (mine.type() == typeid(double))
-                {
-                    double m1 = bs::get<double>(mine);
-                    double m2 = bs::get<double>(yours);
-                    m_Traits[it->first].value = (m1+m2)/2.0;
-                }
-                if (mine.type() == typeid(std::string))
-                {
-                    // strings are always either-or
-                    m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5)? mine : yours;
+
+                    if (mine.type() == typeid(std::string))
+                    {
+                        // strings are always either-or
+                        m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                    }
                 }
             }
         }
@@ -228,21 +226,6 @@ namespace NEAT
                         }
                     }
                 }
-                if (it->second.type == "bool")
-                {
-                    // Mutate?
-                    if (a_RNG.RandFloat() < it->second.m_MutationProb)
-                    {
-                        // determine type of mutation - modify or replace, according to parameters
-                        if (a_RNG.RandFloat() < 0.5)
-                        {
-                            // flip it
-                            bool val = bs::get<bool>(m_Traits[it->first].value);
-                            val = !val;
-                            m_Traits[it->first].value = val;
-                        }
-                    }
-                }
                 if (it->second.type == "float")
                 {
                     FloatTraitParameters itp = bs::get<FloatTraitParameters>(it->second.m_Details);
@@ -269,10 +252,11 @@ namespace NEAT
                         }
                     }
                 }
-                if (it->second.type == "string")
+                if (it->second.type == "str")
                 {
                     StringTraitParameters itp = bs::get<StringTraitParameters>(it->second.m_Details);
                     std::vector<double> probs = itp.probs;
+                    probs.resize(itp.set.size());
 
                     int idx=0;
                     /*int cur_idx=0;
@@ -284,7 +268,7 @@ namespace NEAT
                         }
                     }
                     idx = cur_idx;
-                    while(idx == cur_idx)*/ // the commented part forces it to be different .. may cause infinite loops
+                    while(idx == cur_idx)*/ // the commented part forces it to be different .. todo check if it causes infinite loops
                     {
                         idx = a_RNG.Roulette(probs);
                     }
@@ -306,7 +290,7 @@ namespace NEAT
 
                 if (!(mine.type() == yours.type()))
                 {
-                    throw std::runtime_error("Types of traits doesn't match");
+                    throw std::runtime_error("Types of traits don't match");
                 }
 
                 if (mine.type() == typeid(int))
@@ -314,21 +298,9 @@ namespace NEAT
                     // distance between ints - calculate directly
                     dist[it->first] = abs(bs::get<int>(mine) - bs::get<int>(yours));
                 }
-                if (mine.type() == typeid(bool))
-                {
-                    // distance between bools - matching is 0, non-matching is 1
-                    if (bs::get<bool>(mine) == bs::get<bool>(yours))
-                    {
-                        dist[it->first] = 0.0;
-                    }
-                    else
-                    {
-                        dist[it->first] = 1.0;
-                    }
-                }
                 if (mine.type() == typeid(double))
                 {
-                    // distance between ints - calculate directly
+                    // distance between floats - calculate directly
                     dist[it->first] = abs(bs::get<double>(mine) - bs::get<double>(yours));
                 }
                 if (mine.type() == typeid(std::string))
@@ -393,7 +365,7 @@ namespace NEAT
             ar & m_Weight;
 
             // the traits too, TODO
-            ar & m_Traits;
+            //ar & m_Traits;
         }
 #endif
 
@@ -404,13 +376,17 @@ namespace NEAT
 
         void SetWeight(const double a_Weight)
         {
-            //TODO: Add ASSERTS and logic to check for valid values
             m_Weight = a_Weight;
         }
 
         ////////////////
         // Constructors
         ////////////////
+        LinkGene()
+        {
+
+        }
+
         LinkGene(int a_InID, int a_OutID, int a_InnovID, double a_Wgt, bool a_Recurrent = false)
         {
             m_FromNeuronID = a_InID;
@@ -573,13 +549,18 @@ namespace NEAT
             ar & m_SplitY;
 
             // TODO the traits also
-            ar & m_Traits;
+            //ar & m_Traits;
         }
 #endif
 
         ////////////////
         // Constructors
         ////////////////
+        NeuronGene()
+        {
+
+        }
+
         NeuronGene(NeuronType a_type, int a_id, double a_splity)
         {
             m_ID = a_id;

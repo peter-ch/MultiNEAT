@@ -634,10 +634,6 @@ namespace NEAT
     }
 
 
-
-
-
-
     // Builds a HyperNEAT phenotype based on the substrate
     // The CPPN input dimensionality must match the largest number of
     // dimensions in the substrate
@@ -718,9 +714,15 @@ namespace NEAT
         BuildPhenotype(t_temp_phenotype);
         t_temp_phenotype.Flush();
 
+        // To ensure network relaxation
+        int dp = 8;
+        if (!HasLoops())
+        {
+            CalculateDepth();
+            dp = GetDepth();
+        }
+
         // now loop over every potential connection in the substrate and take its weight
-        //CalculateDepth();
-        int dp = 8;//GetDepth();
 
         // For leaky substrates, first loop over the neurons and set their properties
         if (subst.m_leaky)
@@ -1029,17 +1031,6 @@ namespace NEAT
     }
 
 
-
-
-/*
-bool Genome::CompatCompare(Genome &ls, Genome &rs)
-{
-    return CompatibilityDistance(ls) < CompatibilityDistance(rs);
-}*/
-
-
-
-
     // Returns the absolute distance between this genome and a_G
     double Genome::CompatibilityDistance(Genome &a_G, Parameters &a_Parameters)
     {
@@ -1059,7 +1050,6 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
         double t_total_num_activation_difference = 0.0;
         std::map<std::string, double> t_total_neuron_trait_difference;
         std::map<std::string, double> t_total_link_trait_difference;
-        // TODO initialize the two above with 0s
 
         // count of matching genes
         double t_num_excess = 0;
@@ -1124,16 +1114,12 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
                     t_g1++;
                     t_g2++;
                 }
-                else if
-                    // disjoint
-                        (t_g1innov < t_g2innov)
+                else if (t_g1innov < t_g2innov) // disjoint
                 {
                     t_num_disjoint++;
                     t_g1++;
                 }
-                else if
-                    // disjoint
-                        (t_g1innov > t_g2innov)
+                else if (t_g1innov > t_g2innov) // disjoint
                 {
                     t_num_disjoint++;
                     t_g2++;
@@ -1427,7 +1413,15 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
                          GetRandomActivation(a_Parameters, a_RNG));
 
             // Initialize the traits
-            t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            if (a_RNG.RandFloat() < 0.5)
+            {
+                t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            }
+            else
+            {   // mate instead of randomizing
+                t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
+                t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
+            }
 
             // Add the NeuronGene
             m_NeuronGenes.push_back(t_ngene);
@@ -1529,7 +1523,15 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
                          GetRandomActivation(a_Parameters, a_RNG));
 
             // Initialize the traits
-            t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            if (a_RNG.RandFloat() < 0.5)
+            {
+                t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            }// mate instead of randomizing
+            else
+            {
+                t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
+                t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
+            }
 
             // Make sure the recurrent flag is kept
             bool t_recurrentflag = t_chosenlink.IsRecurrent();
@@ -2247,6 +2249,7 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
         Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
         m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
     }
+
 #endif
     }
 
@@ -2415,39 +2418,80 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
             unsigned int i = 0;
             for (i = 0; i < m_NumInputs - 1; i++)
             {
-                // Pick random gene from either parent instead of creating new
-                NeuronGene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
-                t_baby.m_NeuronGenes.push_back(n);
+                // Determine if it will pick either gene or mate it
+                if (a_RNG.RandFloat() < 0.5)
+                {
+                    // pick
+                    NeuronGene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    t_baby.m_NeuronGenes.push_back(n);
+                }
+                else
+                {
+                    // mate
+                    NeuronGene n = m_NeuronGenes[i];
+                    n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                    t_baby.m_NeuronGenes.push_back(n);
+                }
+
             }
-            // the bias
-            NeuronGene nb = ((a_RNG.RandFloat() < 0.5f)==0)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
-            t_baby.m_NeuronGenes.push_back(nb);
+            if (a_RNG.RandFloat() < 0.5)
+            {
+                // the bias
+                NeuronGene nb = ((a_RNG.RandFloat() < 0.5f) == 0) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                t_baby.m_NeuronGenes.push_back(nb);
+            }
+            else
+            {
+                // mate
+                NeuronGene nb = m_NeuronGenes[i];
+                nb.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                t_baby.m_NeuronGenes.push_back(nb);
+            }
         }
         else
         {
             // the inputs
             for (unsigned int i = 0; i < m_NumInputs; i++)
             {
-                NeuronGene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
-                t_baby.m_NeuronGenes.push_back(n);
+                if (a_RNG.RandFloat() < 0.5)
+                {
+                    NeuronGene n = ((a_RNG.RandFloat() < 0.5f) == 0) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    t_baby.m_NeuronGenes.push_back(n);
+                }
+                else
+                {
+                    NeuronGene n = m_NeuronGenes[i];
+                    n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                    t_baby.m_NeuronGenes.push_back(n);
+                }
             }
         }
 
-        // the outputs will be inherited randomly from either parent
-        // because otherwise the neuron-specific parameters would be wiped away
+        // the outputs
         for (unsigned int i = 0; i < m_NumOutputs; i++)
         {
             NeuronGene t_tempneuron(OUTPUT, 0, 1);
 
-            if (a_RNG.RandFloat() < 0.5f)
+            if (a_RNG.RandFloat() < 0.5)
             {
-                // from mother
-                t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                // random pick
+                if (a_RNG.RandFloat() < 0.5f)
+                {
+                    // from mother
+                    t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                }
+                else
+                {
+                    // from father
+                    t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                }
             }
             else
             {
-                // from father
-                t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                // mating
+                // from mother
+                t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                t_tempneuron.MateTraits(a_Dad.GetNeuronByIndex(i + m_NumInputs).m_Traits, a_RNG);
             }
 
             t_baby.m_NeuronGenes.push_back(t_tempneuron);
@@ -2675,7 +2719,6 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
                             // add mom's neuron to the baby
                             t_baby.m_NeuronGenes.push_back(m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
                         }
-
                     }
 
                     // dad has a neuron ID not present in the baby?
@@ -2994,8 +3037,9 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
 
     void Genome::PrintTraits()
     {
+        std::cout << "====================================================================\n";
         std::cout << "Neurons:\n"
-                  << "=================\n";
+                  << "==================================\n";
         for(auto it = m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
         {
             std::cout << "ID: " << it->ID() << " : ";
@@ -3023,8 +3067,39 @@ bool Genome::CompatCompare(Genome &ls, Genome &rs)
             }
             std::cout << "\n";
         }
-        std::cout << "=================\n";
+        std::cout << "==================================\n";
 
+        std::cout << "Links:\n"
+                  << "==================================\n";
+        for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
+        {
+            std::cout << "ID: " << it->InnovationID() << " : ";
+            for(auto t = (*it).m_Traits.begin(); t != (*it).m_Traits.end(); t++)
+            {
+                std::cout << t->first << " - ";
+                if (t->second.value.type() == typeid(int))
+                {
+                    std::cout << bs::get<int>(t->second.value);
+                }
+                if (t->second.value.type() == typeid(bool))
+                {
+                    std::cout << (bs::get<bool>(t->second.value))?"true":"false";
+                }
+                if (t->second.value.type() == typeid(double))
+                {
+                    std::cout << bs::get<double>(t->second.value);
+                }
+                if (t->second.value.type() == typeid(std::string))
+                {
+                    std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                }
+
+                std::cout << ", ";
+            }
+            std::cout << "\n";
+        }
+        std::cout << "==================================\n";
+        std::cout << "====================================================================\n";
     }
 
 

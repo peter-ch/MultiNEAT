@@ -286,10 +286,80 @@ namespace NEAT
         // Like CPPN/HyperNEAT stuff
         ////////////
         void BuildHyperNEATPhenotype(NeuralNetwork &net, Substrate &subst);
-        
+
+#ifdef USE_BOOST_PYTHON
+        py::object GetNeuronTraits()
+        {
+            py::list neurons;
+            for(auto it=m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
+            {
+                py::dict traits;
+                for(auto tit=(*it).m_Traits.begin(); tit!=(*it).m_Traits.end(); tit++)
+                {
+                    TraitType t = tit->second.value;
+                    if (t.type() == typeid(int))
+                    {
+                        traits[tit->first] = bs::get<int>(t);
+                    }
+                    if (t.type() == typeid(double))
+                    {
+                        traits[tit->first] = bs::get<double>(t);
+                    }
+                    if (t.type() == typeid(std::string))
+                    {
+                        traits[tit->first] = bs::get<std::string>(t);
+                    }
+
+                }
+                py::list little;
+                little.append( (*it).ID() );
+                little.append( (*it).Type() );
+                little.append( traits );
+                neurons.append( little );
+            }
+
+            return neurons;
+        }
+
+        py::object GetLinkTraits()
+        {
+            py::list links;
+            for(auto it=m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
+            {
+                py::dict traits;
+                for(auto tit=(*it).m_Traits.begin(); tit!=(*it).m_Traits.end(); tit++)
+                {
+                    TraitType t = tit->second.value;
+                    if (t.type() == typeid(int))
+                    {
+                        traits[tit->first] = bs::get<int>(t);
+                    }
+                    if (t.type() == typeid(double))
+                    {
+                        traits[tit->first] = bs::get<double>(t);
+                    }
+                    if (t.type() == typeid(std::string))
+                    {
+                        traits[tit->first] = bs::get<std::string>(t);
+                    }
+
+                }
+                py::list little;
+                little.append( (*it).InnovationID() );
+                little.append( (*it).FromNeuronID() );
+                little.append( (*it).ToNeuronID() );
+                little.append( (*it).IsRecurrent() );
+                little.append( traits );
+                links.append( little );
+            }
+
+            return links;
+        }
+#endif
+
         // Saves this genome to a file
         void Save(const char *a_filename);
-        
+
         // Saves this genome to an already opened file for writing
         void Save(FILE *a_fstream);
 
@@ -378,8 +448,8 @@ namespace NEAT
         
         
         // Mate this genome with dad and return the baby
-        // This is multipoint mating - genes inherited randomly
-        // If the bool is true, then the genes are averaged
+        // If this is multipoint mating, genes are inherited randomly
+        // If the a_averagemating bool is true, then the genes are averaged
         // Disjoint and excess genes are inherited from the fittest parent
         // If fitness is equal, the smaller genome is assumed to be the better one
         Genome Mate(Genome &a_dad, bool a_averagemating, bool a_interspecies, RNG &a_RNG, Parameters &a_Parameters);

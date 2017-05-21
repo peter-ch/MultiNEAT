@@ -94,8 +94,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("RandPosNeg", &RNG::RandPosNeg)
             .def("RandInt", &RNG::RandInt)
             .def("RandFloat", &RNG::RandFloat)
-            .def("RandFloatClamped", &RNG::RandFloatClamped)
-            .def("RandGaussClamped", &RNG::RandGaussClamped)
+            .def("RandFloatSigned", &RNG::RandFloatSigned)
+            .def("RandGaussSigned", &RNG::RandGaussSigned)
             .def("Roulette", &RNG::Roulette)
             ;
 
@@ -131,7 +131,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     void (NeuralNetwork::*NN_Save)(const char*) = &NeuralNetwork::Save;
     bool (NeuralNetwork::*NN_Load)(const char*) = &NeuralNetwork::Load;
     void (Genome::*Genome_Save)(const char*) = &Genome::Save;
-    void (NeuralNetwork::*NN_Input)(list&) = &NeuralNetwork::Input_python_list;
+    void (NeuralNetwork::*NN_Input)(py::list&) = &NeuralNetwork::Input_python_list;
     void (NeuralNetwork::*NN_Input_numpy)(numeric::array&) = &NeuralNetwork::Input_numpy;
     void (Parameters::*Parameters_Save)(const char*) = &Parameters::Save;
     int (Parameters::*Parameters_Load)(const char*) = &Parameters::Load;
@@ -212,6 +212,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, int, Parameters>())
+
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)
             .def("NumInputs", &Genome::NumInputs)
@@ -222,19 +223,22 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetID", &Genome::GetID)
             .def("GetDepth", &Genome::GetDepth)
             .def("CalculateDepth", &Genome::CalculateDepth)
-            .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
+
+            .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
-            
-             .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
+            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
+
+            .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
+            .def("Randomize_Traits", &Genome::Randomize_Traits)
+            .def("GetNeuronTraits", &Genome::GetNeuronTraits)
+            .def("GetLinkTraits", &Genome::GetLinkTraits)
 
             .def("IsEvaluated", &Genome::IsEvaluated)
             .def("SetEvaluated", &Genome::SetEvaluated)
             .def("ResetEvaluated", &Genome::ResetEvaluated)
 
             .def("Save", Genome_Save)
-
-	         .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
 
             .def_pickle(Genome_pickle_suite())
             ;
@@ -263,7 +267,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     void (Substrate::*SetCustomConnectivity_Py)(py::list) = &Substrate::SetCustomConnectivity;
 
     class_<Substrate>("Substrate", init<>())
-            .def(init<list, list, list>())
+            .def(init<py::list, py::list, py::list>())
             .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs)
             .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs)
             .def("PrintInfo", &Substrate::PrintInfo)
@@ -345,6 +349,14 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("Reset", &Parameters::Reset)
             .def("Load", Parameters_Load)
             .def("Save", Parameters_Save)
+            .def("ListNeuronTraitParameters", &Parameters::ListNeuronTraitParameters)
+            .def("ListLinkTraitParameters", &Parameters::ListLinkTraitParameters)
+            .def("SetNeuronTraitParameters", &Parameters::SetNeuronTraitParameters)
+            .def("SetLinkTraitParameters", &Parameters::SetLinkTraitParameters)
+            .def("GetNeuronTraitParameters", &Parameters::GetNeuronTraitParameters)
+            .def("GetLinkTraitParameters", &Parameters::GetLinkTraitParameters)
+            .def("ClearNeuronTraitParameters", &Parameters::ClearNeuronTraitParameters)
+            .def("ClearLinkTraitParameters", &Parameters::ClearLinkTraitParameters)
             // Now there are hell lot of variables
             .def_readwrite("PopulationSize", &Parameters::PopulationSize)
             .def_readwrite("DynamicCompatibility", &Parameters::DynamicCompatibility)
@@ -428,6 +440,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("ActivationFunction_Linear_Prob", &Parameters::ActivationFunction_Linear_Prob)
             .def_readwrite("DontUseBiasNeuron", &Parameters::DontUseBiasNeuron)
             .def_readwrite("AllowLoops", &Parameters::AllowLoops)
+            .def_readwrite("MutateNeuronTraitsProb", &Parameters::MutateNeuronTraitsProb)
+            .def_readwrite("MutateLinkTraitsProb", &Parameters::MutateLinkTraitsProb)
             .def_readwrite("DisjointCoeff", &Parameters::DisjointCoeff)
             .def_readwrite("ExcessCoeff", &Parameters::ExcessCoeff)
             .def_readwrite("WeightDiffCoeff", &Parameters::WeightDiffCoeff)

@@ -52,35 +52,6 @@ namespace NEAT
     public:
         TraitType value;
 
-        Trait()
-        {
-
-        }
-
-        Trait(TraitType t)
-        {
-            value = t;
-        }
-
-        Trait(int t)
-        {
-            value = t;
-        }
-
-        Trait(bool t)
-        {
-            value = t;
-        }
-
-        Trait(double t)
-        {
-            value = t;
-        }
-
-        Trait(std::string t)
-        {
-            value = t;
-        }
     };
 
 }
