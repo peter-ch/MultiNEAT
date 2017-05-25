@@ -31,6 +31,9 @@ params.MutateAddLinkProb = 0.02
 params.MutateRemLinkProb = 0.00
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
+params.MutateNeuronTraitsProb = 0
+params.MutateLinkTraitsProb = 0
+
 rng = NEAT.RNG()
 rng.TimeSeed()
 

@@ -121,6 +121,9 @@ def main():
     params.CrossoverRate = 0.75  # mutate only 0.25
     params.MultipointCrossoverRate = 0.4
     params.SurvivalRate = 0.2
+    
+    params.MutateNeuronTraitsProb = 0
+    params.MutateLinkTraitsProb = 0
 
     trials = 5
     generations = 10

@@ -57,6 +57,9 @@ params.ActivationFunction_SignedSine_Prob = 1.0
 params.ActivationFunction_UnsignedSine_Prob = 0.0
 params.ActivationFunction_Linear_Prob = 1.0
 
+params.MutateNeuronTraitsProb = 0
+params.MutateLinkTraitsProb = 0
+
 params.DivisionThreshold = 0.5
 params.VarianceThreshold = 0.03
 params.BandThreshold = 0.3
