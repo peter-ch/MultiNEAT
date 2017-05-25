@@ -313,7 +313,22 @@ namespace NEAT
                 }
                 py::list little;
                 little.append( (*it).ID() );
-                little.append( (*it).Type() );
+                if ((*it).Type() == INPUT)
+                {
+                    little.append( "input" );
+                }
+                else if ((*it).Type() == BIAS)
+                {
+                    little.append( "bias" );
+                }
+                else if ((*it).Type() == HIDDEN)
+                {
+                    little.append( "hidden" );
+                }
+                else if ((*it).Type() == OUTPUT)
+                {
+                    little.append( "output" );
+                }
                 little.append( traits );
                 neurons.append( little );
             }
@@ -345,10 +360,10 @@ namespace NEAT
 
                 }
                 py::list little;
-                little.append( (*it).InnovationID() );
+                //little.append( (*it).InnovationID() );
                 little.append( (*it).FromNeuronID() );
                 little.append( (*it).ToNeuronID() );
-                little.append( (*it).IsRecurrent() );
+                //little.append( (*it).IsRecurrent() );
                 little.append( traits );
                 links.append( little );
             }

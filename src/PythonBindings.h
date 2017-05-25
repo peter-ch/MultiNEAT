@@ -225,6 +225,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("CalculateDepth", &Genome::CalculateDepth)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
 
+            .def("PrintTraits", &Genome::PrintTraits)
+
             .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
             .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)

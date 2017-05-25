@@ -2911,7 +2911,7 @@ namespace NEAT
         {
             ostringstream tStream;
             tStream << "Genome file error!" << std::endl;
-            //throw std::exception(tStream.str());
+            throw std::runtime_error("Genome file error!");
         }
 
         // search for GenomeStart

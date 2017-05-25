@@ -56,7 +56,7 @@ class Species
 private:
 
     // ID of the species
-    unsigned int m_ID;
+    int m_ID;
 
     // Keep a local copy of the representative
     Genome m_Representative;

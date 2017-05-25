@@ -138,8 +138,9 @@ int main()
     params.CrossoverRate = 0.75 ;
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
-    
-    params.AllowLoops = false;
+
+    params.AllowClones = true;
+    params.AllowLoops = true;
     params.DontUseBiasNeuron = true;
 
     params.MutateNeuronTraitsProb = 0.2;
@@ -199,10 +200,6 @@ int main()
     params.NeuronTraits["x"] = tp2;
     params.NeuronTraits["y"] = tps;
     params.LinkTraits["z"] = tp3;
-
-    params.AllowClones = false;
-    
-    params.DontUseBiasNeuron = true;
 
     Genome s(0, 1,
              0,

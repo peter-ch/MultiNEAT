@@ -43,11 +43,11 @@
 namespace NEAT
 {
 
-// initializes a species with a leader genome and an ID number
+    // initializes a species with a representative genome and an ID number
     Species::Species(const Genome &a_Genome, int a_ID)
     {
         m_ID = a_ID;
-        m_Individuals.reserve(50);
+        //m_Individuals.reserve(50); wtf is this?
         // copy the initializing genome locally.
         // it is now the representative of the species.
         m_Representative = a_Genome;
@@ -68,7 +68,8 @@ namespace NEAT
         RNG rng;
         rng.TimeSeed();
         m_R = static_cast<int>(rng.RandFloat() * 255);
-        m_G = static_cast<int>(rng.RandFloat() * 255);
+        m_G = static_cast<int>(rng.RandFloat() * 255) + 100;
+        if (m_G > 255) m_G=255;
         m_B = static_cast<int>(rng.RandFloat() * 255);
     }
 
@@ -97,14 +98,14 @@ namespace NEAT
     }
 
 
-// adds a new member to the species and updates variables
+    // adds a new member to the species and updates variables
     void Species::AddIndividual(Genome &a_Genome)
     {
         m_Individuals.push_back(a_Genome);
     }
 
 
-// returns an individual randomly selected from the best N%
+    // returns an individual randomly selected from the best N%
     Genome Species::GetIndividual(Parameters &a_Parameters, RNG &a_RNG) const
     {
         ASSERT(m_Individuals.size() > 0);
@@ -166,7 +167,7 @@ namespace NEAT
     }
 
 
-// returns a completely random individual
+    // returns a completely random individual
     Genome Species::GetRandomIndividual(RNG &a_RNG) const
     {
         if (m_Individuals.size() == 0) // no members yet, return representative
@@ -181,7 +182,7 @@ namespace NEAT
         }
     }
 
-// returns the leader (the member having the best fitness)
+    // returns the leader (the member having the best fitness)
     Genome Species::GetLeader() const
     {
         // Don't store the leader any more
@@ -346,7 +347,6 @@ namespace NEAT
                 t_baby = m_Individuals[elite_count];
                 elite_count++;
             }
-
             else
             {
                 do // - while the baby already exists somewhere in the new population or turned invalid in some way

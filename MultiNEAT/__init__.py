@@ -18,6 +18,21 @@ def ZipFitness(genome_list, fitness_list):
     [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitness_list)]
     [genome.SetEvaluated() for genome in genome_list]
 
+try:
+    import networkx as nx
+    def Genome2NX(g):
+        nts = g.GetNeuronTraits()
+        lts = g.GetLinkTraits()
+        gr = nx.DiGraph()
+
+        for i, tp, traits in nts:
+            gr.add_node( i, **traits)
+
+        for inp, outp, traits in lts:
+            gr.add_edge( inp, outp, **traits )
+        return gr
+except:
+    pass
 
 RetrieveGenomeList = GetGenomeList
 FetchGenomeList = GetGenomeList
@@ -30,28 +45,46 @@ try:
 except:
     ipython_installed = False
 
+try:
+    from progressbar import ProgressBar
+    pbar_installed = True
+except:
+    pbar_installed = False
+
 
 # Evaluates all genomes in sequential manner (using only 1 process) and
 # returns a list of corresponding fitness values.
 # evaluator is a callable that is supposed to take Genome as argument and
 # return a double
-def EvaluateGenomeList_Serial(genome_list, evaluator, display=True):
+def EvaluateGenomeList_Serial(genome_list, evaluator, display=True, show_elapsed=False):
     fitnesses = []
     count = 0
-    curtime = time.time()
 
-    for g in genome_list:
+    if display and show_elapsed:
+        curtime = time.time()
+
+    if display and pbar_installed:
+        pbar = ProgressBar()
+        pbar.max_value = len(genome_list)
+        pbar.min_value = 0
+
+    for i,g in enumerate(genome_list):
         f = evaluator(g)
         fitnesses.append(f)
 
         if display:
-            if ipython_installed: clear_output(wait=True)
-            print('Individuals: (%s/%s) Fitness: %3.4f' % (count, len(genome_list), f))
+            if not pbar_installed:
+                if ipython_installed: clear_output(wait=True)
+                print('Individuals: (%s/%s) Fitness: %3.4f' % (count, len(genome_list), f))
+            else:
+                pbar.update(i)
         count += 1
 
-    elapsed = time.time() - curtime
+    if display and pbar_installed:
+        pbar.finish()
 
-    if display:
+    if display and show_elapsed:
+        elapsed = time.time() - curtime
         print('seconds elapsed: %s' % elapsed)
 
     return fitnesses
