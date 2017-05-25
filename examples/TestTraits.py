@@ -6,13 +6,13 @@ import MultiNEAT as NEAT
 
 def evaluate(genome):
     f = 0
-    for tr in g.GetNeuronTraits():
+    for tr in genome.GetNeuronTraits():
         f += tr[2]['y']  # maximize the y neuron trait
 
-    for tr in g.GetLinkTraits():
+    for tr in genome.GetLinkTraits():
         f -= tr[2]['n'] # minimize the n link trait
 
-    return f / g.NumNeurons()
+    return f / genome.NumNeurons()
 
 
 params = NEAT.Parameters()
@@ -85,7 +85,7 @@ pop.RNG.Seed(int(time.clock()*100))
 
 def PrintGenomeTraits(g):
     print('Nodes:')
-    for tr in g.GetNeuronTraits()[1:]:
+    for tr in g.GetNeuronTraits():
         print(tr[0], tr[1], end=': ')
         for k,v in tr[2].items():
             if isinstance(v, float):
