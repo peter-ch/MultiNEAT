@@ -456,6 +456,32 @@ public:
         t.m_ImportanceCoeff = py::extract<double>(trait_params["importance_coeff"]);
         t.m_MutationProb = py::extract<double>(trait_params["mutation_prob"]);
         t.type = py::extract<std::string>(trait_params["type"]);
+        if (trait_params.has_key("dep_key"))
+        {
+            t.dep_key = py::extract<std::string>(trait_params["dep_key"]);
+            // infer the dep_value type from the value
+            py::object o = trait_params["dep_value"];
+            std::string st = py::extract<std::string>(o.attr("__class__").attr("__name__"));
+            if (st == "int")
+            {
+                t.dep_value = py::extract<int>(trait_params["dep_value"]);
+            }
+            else
+            if (st == "float")
+            {
+                t.dep_value = py::extract<double>(trait_params["dep_value"]);
+            }
+            else
+            if (st == "str")
+            {
+                t.dep_value = py::extract<std::string>(trait_params["dep_value"]);
+            }
+            else
+            {
+                throw std::runtime_error("Unknown trait type");
+            }
+        }
+
         if (t.type == "int")
         {
             IntTraitParameters itp;

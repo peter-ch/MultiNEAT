@@ -200,7 +200,6 @@ public:
         }
 
         return m_Species[idx_species].m_Individuals[idx_genome];
-
     }
 
 

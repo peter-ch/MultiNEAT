@@ -37,59 +37,20 @@ double abs(double x)
 double xortest(Genome& g)
 {
 
-    /*NeuralNetwork net;
-    g.BuildPhenotype(net);
-
-    int depth = 5;
-    double error = 0;
-    std::vector<double> inputs;
-    inputs.resize(3);
-
-    net.Flush();
-    inputs[0] = 1;
-    inputs[1] = 0;
-    inputs[2] = 1;
-    net.Input(inputs);
-    for(int i=0; i<depth; i++) { net.Activate(); }
-    error += fabs(net.Output()[0] - 1.0);
-
-    net.Flush();
-    inputs[0] = 0;
-    inputs[1] = 1;
-    inputs[2] = 1;
-    net.Input(inputs);
-    for(int i=0; i<depth; i++) { net.Activate(); }
-    error += fabs(net.Output()[0] - 1.0);
-
-    net.Flush();
-    inputs[0] = 0;
-    inputs[1] = 0;
-    inputs[2] = 1;
-    net.Input(inputs);
-    for(int i=0; i<depth; i++) { net.Activate(); }
-    error += fabs(net.Output()[0] - 0.0);
-
-    net.Flush();
-    inputs[0] = 1;
-    inputs[1] = 1;
-    inputs[2] = 1;
-    net.Input(inputs);
-    for(int i=0; i<depth; i++) { net.Activate(); }
-    error += fabs(net.Output()[0] - 0.0);*/
-
-    double f = 0;//(4.0 - error)*(4.0 - error);
+    double f = 0;
 
     // also contribute small trait factor
     for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
     {
-        /*for(auto k=it->m_Traits.begin(); k!=it->m_Traits.end();k++)
-        {
 
-        }*/
-        f += 0.01 * (double)(boost::get<double>(it->m_Traits["x"].value)) / g.m_NeuronGenes.size();
-        f += 0.001 * (double)(boost::get<int>(it->m_Traits["v"].value)) / g.m_NeuronGenes.size();
-        if (boost::get<std::string>(it->m_Traits["y"].value) == "a")
-            f += 0.00005;
+        //f += 0.01 * (double)(boost::get<double>(it->m_Traits["x"].value)) / g.m_NeuronGenes.size();
+        // if trait is enabled
+        if (boost::get<std::string>(it->m_Traits["y"].value) == "c")
+            f += 1 * (double)(boost::get<int>(it->m_Traits["v"].value)) / g.m_NeuronGenes.size();
+        else
+            f = 0.1;
+        //if (boost::get<std::string>(it->m_Traits["y"].value) == "c")
+        //    f += 0.00005;
     }
 
     return f;
@@ -150,6 +111,8 @@ int main()
     tp1.m_ImportanceCoeff = 1.0;
     tp1.m_MutationProb = 0.9;
     tp1.type = "int";
+    tp1.dep_key = "y";
+    tp1.dep_value = std::string("c");
     IntTraitParameters itp1;
     itp1.min = -5;
     itp1.max = 5;

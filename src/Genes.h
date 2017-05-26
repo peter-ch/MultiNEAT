@@ -145,6 +145,9 @@ namespace NEAT
 
                 Trait tr;
                 tr.value = t;
+                tr.dep_key = it->second.dep_key;
+                tr.dep_value = it->second.dep_value;
+                // todo check for invalid dep_value types here
                 m_Traits[it->first] = tr;
             }
         }
@@ -201,80 +204,89 @@ namespace NEAT
                 // Check what kind of type is this and modify it
                 TraitType t;
 
-                if (it->second.type == "int")
+                // only mutate the trait if it's enabled
+                bool doit = false;
+                if (it->second.dep_key != "")
                 {
-                    IntTraitParameters itp = bs::get<IntTraitParameters>(it->second.m_Details);
-
-                    // Mutate?
-                    if (a_RNG.RandFloat() < it->second.m_MutationProb)
+                    // there is such trait..
+                    if (m_Traits.count(it->second.dep_key) != 0)
                     {
-                        // determine type of mutation - modify or replace, according to parameters
-                        if (a_RNG.RandFloat() < itp.mut_replace_prob)
+                        // and it has the right value?
+                        if (m_Traits[it->second.dep_key].value == it->second.dep_value)
                         {
-                            // replace
-                            int val=0;
-                            val = a_RNG.RandInt(itp.min, itp.max);
-                            m_Traits[it->first].value = val;
-                        }
-                        else
-                        {
-                            // modify
-                            int val = bs::get<int>(m_Traits[it->first].value);
-                            val += a_RNG.RandInt(-itp.mut_power, itp.mut_power);
-                            Clamp(val, itp.min, itp.max);
-                            m_Traits[it->first].value = val;
+                            doit = true;
                         }
                     }
                 }
-                if (it->second.type == "float")
+                else
                 {
-                    FloatTraitParameters itp = bs::get<FloatTraitParameters>(it->second.m_Details);
-
-                    // Mutate?
-                    if (a_RNG.RandFloat() < it->second.m_MutationProb)
-                    {
-                        // determine type of mutation - modify or replace, according to parameters
-                        if (a_RNG.RandFloat() < itp.mut_replace_prob)
-                        {
-                            // replace
-                            double val=0;
-                            val = a_RNG.RandFloat();
-                            Scale(val, 0, 1, itp.min, itp.max);
-                            m_Traits[it->first].value = val;
-                        }
-                        else
-                        {
-                            // modify
-                            double val = bs::get<double>(m_Traits[it->first].value);
-                            val += a_RNG.RandFloatSigned() * itp.mut_power;
-                            Clamp(val, itp.min, itp.max);
-                            m_Traits[it->first].value = val;
-                        }
-                    }
+                    doit = true;
                 }
-                if (it->second.type == "str")
-                {
-                    StringTraitParameters itp = bs::get<StringTraitParameters>(it->second.m_Details);
-                    std::vector<double> probs = itp.probs;
-                    probs.resize(itp.set.size());
 
-                    int idx=0;
-                    /*int cur_idx=0;
-                    for(auto kk=itp.set.begin();kk!=itp.set.end();kk++,cur_idx++)
+                if (doit)
+                {
+                    if (it->second.type == "int")
                     {
-                        if ((*kk) == it->first)
+                        IntTraitParameters itp = bs::get<IntTraitParameters>(it->second.m_Details);
+
+                        // Mutate?
+                        if (a_RNG.RandFloat() < it->second.m_MutationProb)
                         {
-                            break;
+                            // determine type of mutation - modify or replace, according to parameters
+                            if (a_RNG.RandFloat() < itp.mut_replace_prob)
+                            {
+                                // replace
+                                int val = 0;
+                                val = a_RNG.RandInt(itp.min, itp.max);
+                                m_Traits[it->first].value = val;
+                            }
+                            else
+                            {
+                                // modify
+                                int val = bs::get<int>(m_Traits[it->first].value);
+                                val += a_RNG.RandInt(-itp.mut_power, itp.mut_power);
+                                Clamp(val, itp.min, itp.max);
+                                m_Traits[it->first].value = val;
+                            }
                         }
                     }
-                    idx = cur_idx;
-                    while(idx == cur_idx)*/ // the commented part forces it to be different .. todo check if it causes infinite loops
+                    if (it->second.type == "float")
                     {
-                        idx = a_RNG.Roulette(probs);
-                    }
+                        FloatTraitParameters itp = bs::get<FloatTraitParameters>(it->second.m_Details);
 
-                    // now choose the new idx from the set
-                    m_Traits[it->first].value = itp.set[idx];
+                        // Mutate?
+                        if (a_RNG.RandFloat() < it->second.m_MutationProb)
+                        {
+                            // determine type of mutation - modify or replace, according to parameters
+                            if (a_RNG.RandFloat() < itp.mut_replace_prob)
+                            {
+                                // replace
+                                double val = 0;
+                                val = a_RNG.RandFloat();
+                                Scale(val, 0, 1, itp.min, itp.max);
+                                m_Traits[it->first].value = val;
+                            }
+                            else
+                            {
+                                // modify
+                                double val = bs::get<double>(m_Traits[it->first].value);
+                                val += a_RNG.RandFloatSigned() * itp.mut_power;
+                                Clamp(val, itp.min, itp.max);
+                                m_Traits[it->first].value = val;
+                            }
+                        }
+                    }
+                    if (it->second.type == "str")
+                    {
+                        StringTraitParameters itp = bs::get<StringTraitParameters>(it->second.m_Details);
+                        std::vector<double> probs = itp.probs;
+                        probs.resize(itp.set.size());
+
+                        int idx = a_RNG.Roulette(probs);
+
+                        // now choose the new idx from the set
+                        m_Traits[it->first].value = itp.set[idx];
+                    }
                 }
             }
         }
@@ -293,26 +305,50 @@ namespace NEAT
                     throw std::runtime_error("Types of traits don't match");
                 }
 
-                if (mine.type() == typeid(int))
+                // only do it if the trait if it's enabled
+                // todo: not sure about the distance, think more about it
+                bool doit = false;
+                if (it->second.dep_key != "")
                 {
-                    // distance between ints - calculate directly
-                    dist[it->first] = abs(bs::get<int>(mine) - bs::get<int>(yours));
-                }
-                if (mine.type() == typeid(double))
-                {
-                    // distance between floats - calculate directly
-                    dist[it->first] = abs(bs::get<double>(mine) - bs::get<double>(yours));
-                }
-                if (mine.type() == typeid(std::string))
-                {
-                    // distance between stringss - matching is 0, non-matching is 1
-                    if (bs::get<std::string>(mine) == bs::get<std::string>(yours))
+                    // there is such trait..
+                    if (m_Traits.count(it->second.dep_key) != 0)
                     {
-                        dist[it->first] = 0.0;
+                        // and it has the right value?
+                        // also the other genome has to have the trait turned on
+                        if ((m_Traits[it->second.dep_key].value == it->second.dep_value) && ( other.at(it->second.dep_key).value == it->second.dep_value))
+                        {
+                            doit = true;
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    doit = true;
+                }
+
+                if (doit)
+                {
+                    if (mine.type() == typeid(int))
                     {
-                        dist[it->first] = 1.0;
+                        // distance between ints - calculate directly
+                        dist[it->first] = abs(bs::get<int>(mine) - bs::get<int>(yours));
+                    }
+                    if (mine.type() == typeid(double))
+                    {
+                        // distance between floats - calculate directly
+                        dist[it->first] = abs(bs::get<double>(mine) - bs::get<double>(yours));
+                    }
+                    if (mine.type() == typeid(std::string))
+                    {
+                        // distance between stringss - matching is 0, non-matching is 1
+                        if (bs::get<std::string>(mine) == bs::get<std::string>(yours))
+                        {
+                            dist[it->first] = 0.0;
+                        }
+                        else
+                        {
+                            dist[it->first] = 1.0;
+                        }
                     }
                 }
             }

@@ -296,18 +296,39 @@ namespace NEAT
                 py::dict traits;
                 for(auto tit=(*it).m_Traits.begin(); tit!=(*it).m_Traits.end(); tit++)
                 {
-                    TraitType t = tit->second.value;
-                    if (t.type() == typeid(int))
+                    bool doit = false;
+                    if (tit->second.dep_key != "")
                     {
-                        traits[tit->first] = bs::get<int>(t);
+                        // there is such trait..
+                        if ((*it).m_Traits.count(tit->second.dep_key) != 0)
+                        {
+                            // and it has the right value?
+                            if ((*it).m_Traits[tit->second.dep_key].value == tit->second.dep_value)
+                            {
+                                doit = true;
+                            }
+                        }
                     }
-                    if (t.type() == typeid(double))
+                    else
                     {
-                        traits[tit->first] = bs::get<double>(t);
+                        doit = true;
                     }
-                    if (t.type() == typeid(std::string))
+
+                    if (doit)
                     {
-                        traits[tit->first] = bs::get<std::string>(t);
+                        TraitType t = tit->second.value;
+                        if (t.type() == typeid(int))
+                        {
+                            traits[tit->first] = bs::get<int>(t);
+                        }
+                        if (t.type() == typeid(double))
+                        {
+                            traits[tit->first] = bs::get<double>(t);
+                        }
+                        if (t.type() == typeid(std::string))
+                        {
+                            traits[tit->first] = bs::get<std::string>(t);
+                        }
                     }
 
                 }
@@ -344,20 +365,40 @@ namespace NEAT
                 py::dict traits;
                 for(auto tit=(*it).m_Traits.begin(); tit!=(*it).m_Traits.end(); tit++)
                 {
-                    TraitType t = tit->second.value;
-                    if (t.type() == typeid(int))
+                    bool doit = false;
+                    if (tit->second.dep_key != "")
                     {
-                        traits[tit->first] = bs::get<int>(t);
+                        // there is such trait..
+                        if ((*it).m_Traits.count(tit->second.dep_key) != 0)
+                        {
+                            // and it has the right value?
+                            if ((*it).m_Traits[tit->second.dep_key].value == tit->second.dep_value)
+                            {
+                                doit = true;
+                            }
+                        }
                     }
-                    if (t.type() == typeid(double))
+                    else
                     {
-                        traits[tit->first] = bs::get<double>(t);
-                    }
-                    if (t.type() == typeid(std::string))
-                    {
-                        traits[tit->first] = bs::get<std::string>(t);
+                        doit = true;
                     }
 
+                    if (doit)
+                    {
+                        TraitType t = tit->second.value;
+                        if (t.type() == typeid(int))
+                        {
+                            traits[tit->first] = bs::get<int>(t);
+                        }
+                        if (t.type() == typeid(double))
+                        {
+                            traits[tit->first] = bs::get<double>(t);
+                        }
+                        if (t.type() == typeid(std::string))
+                        {
+                            traits[tit->first] = bs::get<std::string>(t);
+                        }
+                    }
                 }
                 py::list little;
                 //little.append( (*it).InnovationID() );

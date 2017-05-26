@@ -3045,25 +3045,64 @@ namespace NEAT
             std::cout << "ID: " << it->ID() << " : ";
             for(auto t = (*it).m_Traits.begin(); t != (*it).m_Traits.end(); t++)
             {
-                std::cout << t->first << " - ";
-                if (t->second.value.type() == typeid(int))
+                bool doit = false;
+                std::string s = t->second.dep_key;
+                //std::string sv = bs::get<std::string>(t->second.dep_value);
+                if (s != "")
                 {
-                    std::cout << bs::get<int>(t->second.value);
+                    // there is such trait..
+                    if ((*it).m_Traits.count(s) != 0)
+                    {
+                        /*int a; double b; std::string c;
+                        if ((*it).m_Traits[s].value.type() == typeid(int))
+                            a = bs::get<int>((*it).m_Traits[s].value);
+                        if ((*it).m_Traits[s].value.type() == typeid(double))
+                            b = bs::get<double>((*it).m_Traits[s].value);
+                        if ((*it).m_Traits[s].value.type() == typeid(std::string))
+                            c = bs::get<std::string>((*it).m_Traits[s].value);
+
+                        int a1; double b1; std::string c1;
+                        if ((t->second.dep_value).type() == typeid(int))
+                            a1 = bs::get<int>((t->second.dep_value));
+                        if ((t->second.dep_value).type() == typeid(double))
+                            b1 = bs::get<double>((t->second.dep_value));
+                        if ((t->second.dep_value).type() == typeid(std::string))
+                            c1 = bs::get<std::string>((t->second.dep_value));*/
+
+                        // and it has the right value?
+                        if ((*it).m_Traits[s].value == (t->second.dep_value))
+                        {
+                            doit = true;
+                        }
+                    }
                 }
-                if (t->second.value.type() == typeid(bool))
+                else
                 {
-                    std::cout << (bs::get<bool>(t->second.value))?"true":"false";
-                }
-                if (t->second.value.type() == typeid(double))
-                {
-                    std::cout << bs::get<double>(t->second.value);
-                }
-                if (t->second.value.type() == typeid(std::string))
-                {
-                    std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                    doit = true;
                 }
 
-                std::cout << ", ";
+                if (doit)
+                {
+                    std::cout << t->first << " - ";
+                    if (t->second.value.type() == typeid(int))
+                    {
+                        std::cout << bs::get<int>(t->second.value);
+                    }
+                    if (t->second.value.type() == typeid(bool))
+                    {
+                        std::cout << (bs::get<bool>(t->second.value)) ? "true" : "false";
+                    }
+                    if (t->second.value.type() == typeid(double))
+                    {
+                        std::cout << bs::get<double>(t->second.value);
+                    }
+                    if (t->second.value.type() == typeid(std::string))
+                    {
+                        std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                    }
+
+                    std::cout << ", ";
+                }
             }
             std::cout << "\n";
         }
@@ -3076,25 +3115,46 @@ namespace NEAT
             std::cout << "ID: " << it->InnovationID() << " : ";
             for(auto t = (*it).m_Traits.begin(); t != (*it).m_Traits.end(); t++)
             {
-                std::cout << t->first << " - ";
-                if (t->second.value.type() == typeid(int))
+                bool doit = false;
+                if (t->second.dep_key != "")
                 {
-                    std::cout << bs::get<int>(t->second.value);
+                    // there is such trait..
+                    if ((*it).m_Traits.count(t->second.dep_key) != 0)
+                    {
+                        // and it has the right value?
+                        if ((*it).m_Traits[t->second.dep_key].value == t->second.dep_value)
+                        {
+                            doit = true;
+                        }
+                    }
                 }
-                if (t->second.value.type() == typeid(bool))
+                else
                 {
-                    std::cout << (bs::get<bool>(t->second.value))?"true":"false";
-                }
-                if (t->second.value.type() == typeid(double))
-                {
-                    std::cout << bs::get<double>(t->second.value);
-                }
-                if (t->second.value.type() == typeid(std::string))
-                {
-                    std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                    doit = true;
                 }
 
-                std::cout << ", ";
+                if (doit)
+                {
+                    std::cout << t->first << " - ";
+                    if (t->second.value.type() == typeid(int))
+                    {
+                        std::cout << bs::get<int>(t->second.value);
+                    }
+                    if (t->second.value.type() == typeid(bool))
+                    {
+                        std::cout << (bs::get<bool>(t->second.value)) ? "true" : "false";
+                    }
+                    if (t->second.value.type() == typeid(double))
+                    {
+                        std::cout << bs::get<double>(t->second.value);
+                    }
+                    if (t->second.value.type() == typeid(std::string))
+                    {
+                        std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                    }
+
+                    std::cout << ", ";
+                }
             }
             std::cout << "\n";
         }

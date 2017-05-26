@@ -22,6 +22,12 @@ namespace NEAT
         int min, max;
         int mut_power; // magnitude of max change up/down
         double mut_replace_prob; // probability to replace when mutating
+
+        IntTraitParameters()
+        {
+            min = 0; max = 0;
+            mut_replace_prob = 0;
+        }
     };
     class FloatTraitParameters
     {
@@ -29,6 +35,12 @@ namespace NEAT
         double min, max;
         double mut_power; // magnitude of max change up/down
         double mut_replace_prob; // probability to replace when mutating
+
+        FloatTraitParameters()
+        {
+            min = 0; max = 0;
+            mut_replace_prob = 0;
+        }
     };
     class StringTraitParameters
     {
@@ -45,6 +57,21 @@ namespace NEAT
 
         std::string type; // can be "int", "bool", "float", "string"
         bs::variant<IntTraitParameters, FloatTraitParameters, StringTraitParameters> m_Details;
+
+        std::string dep_key; // counts only if this other trait exists..
+        TraitType dep_value; // and has this value
+
+        // keep dep_key empty and no conditional logic will apply
+
+        TraitParameters()
+        {
+            m_ImportanceCoeff = 0;
+            m_MutationProb = 0;
+            type = "int";
+            m_Details = IntTraitParameters();
+            dep_key = "";
+            dep_value = std::string("");
+        }
     };
 
     class Trait
@@ -52,6 +79,15 @@ namespace NEAT
     public:
         TraitType value;
 
+        Trait()
+        {
+            value = 0;
+            dep_value = 0;
+            dep_key = "";
+        }
+
+        std::string dep_key; // counts only if this other trait exists..
+        TraitType dep_value; // and has this value
     };
 
 }
