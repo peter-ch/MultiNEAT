@@ -1055,12 +1055,16 @@ namespace NEAT
         double t_total_num_activation_difference = 0.0;
         std::map<std::string, double> t_total_neuron_trait_difference;
         std::map<std::string, double> t_total_link_trait_difference;
+        std::map<std::string, double> t_genome_link_trait_difference;
 
         // count of matching genes
         double t_num_excess = 0;
         double t_num_disjoint = 0;
         double t_num_matching_links = 0;
         double t_num_matching_neurons = 0;
+    
+        // calculate genome trait difference here
+        t_genome_link_trait_difference = m_GenomeGene.GetTraitDistances(a_G.m_GenomeGene.m_Traits);
 
         // used for percentage of excess/disjoint genes calculation
         int t_max_genome_size = static_cast<int> (NumLinks()   < a_G.NumLinks())   ? (a_G.NumLinks())   : (NumLinks());
@@ -1217,6 +1221,10 @@ namespace NEAT
         for(auto it = t_total_neuron_trait_difference.begin(); it != t_total_neuron_trait_difference.end(); it++)
         {
             t_total_distance += (a_Parameters.NeuronTraits[it->first].m_ImportanceCoeff * it->second) / t_num_matching_neurons;
+        }
+        for(auto it = t_genome_link_trait_difference.begin(); it != t_genome_link_trait_difference.end(); it++)
+        {
+            t_total_distance += (a_Parameters.GenomeTraits[it->first].m_ImportanceCoeff * it->second);
         }
 
         return t_total_distance;

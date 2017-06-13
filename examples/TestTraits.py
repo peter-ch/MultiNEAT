@@ -49,12 +49,17 @@ params.WeightDiffCoeff = 0
 
 params.MutateNeuronTraitsProb = 0.8
 params.MutateLinkTraitsProb = 0.8
+params.MutateGenomeTraitsProb = 0.8
 
 # use this to list names of all link traits
 print(params.ListLinkTraitParameters())
 
 # use this to list names of all link traits
 print(params.ListNeuronTraitParameters())
+
+# use this to list names of all genome traits
+print(params.ListGenomeTraitParameters())
+
 
 s = [ 'a', 'b', 'c'] # the strings
 p = [ 1.0, 1.0, 0.5, ] # probabilities for appearance
