@@ -40,7 +40,7 @@ double xortest(Genome& g)
     double f = 0;
 
     // also contribute small trait factor
-    for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
+    /*for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
     {
 
         //f += 0.01 * (double)(boost::get<double>(it->m_Traits["x"].value)) / g.m_NeuronGenes.size();
@@ -51,7 +51,12 @@ double xortest(Genome& g)
             f = 0.1;
         //if (boost::get<std::string>(it->m_Traits["y"].value) == "c")
         //    f += 0.00005;
-    }
+    }*/
+    
+    if (boost::get<std::string>(g.m_GenomeGene.m_Traits["y"].value) == "c")
+        f += 1 * (double)(boost::get<int>(g.m_GenomeGene.m_Traits["v"].value));
+    else
+        f = 0.1;
 
     return f;
 
@@ -159,9 +164,9 @@ int main()
     itp3.probs.push_back(1);
     tp3.m_Details = itp3;
 
-    params.NeuronTraits["v"] = tp1;
-    params.NeuronTraits["x"] = tp2;
-    params.NeuronTraits["y"] = tps;
+    params.GenomeTraits["v"] = tp1;
+    params.GenomeTraits["x"] = tp2;
+    params.GenomeTraits["y"] = tps;
     params.LinkTraits["z"] = tp3;
 
     Genome s(0, 1,
@@ -199,7 +204,7 @@ int main()
         }
 
         Genome g = pop.GetBestGenome();
-        g.PrintTraits();
+        g.PrintAllTraits();
 
         printf("Generation: %d, best fitness: %3.5f\n", k, bestf);
         printf("Species: %d\n", pop.m_Species.size());

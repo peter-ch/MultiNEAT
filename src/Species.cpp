@@ -216,7 +216,7 @@ namespace NEAT
         return m_Representative;
     }
 
-// calculates how many offspring this species should spawn
+    // calculates how many offspring this species should spawn
     void Species::CountOffspring()
     {
         m_OffspringRqd = 0;
@@ -228,8 +228,8 @@ namespace NEAT
     }
 
 
-// this method performs fitness sharing
-// it also boosts the fitness of the young and penalizes old species
+    // this method performs fitness sharing
+    // it also boosts the fitness of the young and penalizes old species
     void Species::AdjustFitness(Parameters &a_Parameters)
     {
         ASSERT(m_Individuals.size() > 0);
@@ -284,7 +284,7 @@ namespace NEAT
     }
 
 
-// Sorts the members of this species by fitness
+    // Sorts the members of this species by fitness
     bool fitness_greater(Genome *ls, Genome *rs)
     {
         return ((ls->GetFitness()) > (rs->GetFitness()));
@@ -397,7 +397,7 @@ namespace NEAT
                                 if (!a_Parameters.AllowClones)
                                 {
                                     while (((t_mom.GetID() == t_dad.GetID()) ||
-                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)) &&
+                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00000001)) &&
                                            (t_tries--))
                                     {
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
@@ -686,7 +686,8 @@ namespace NEAT
         enum MutationTypes
         {
             ADD_NODE = 0, ADD_LINK, REMOVE_NODE, REMOVE_LINK, CHANGE_ACTIVATION_FUNCTION,
-            MUTATE_WEIGHTS, MUTATE_ACTIVATION_A, MUTATE_ACTIVATION_B, MUTATE_TIMECONSTS, MUTATE_BIASES, MUTATE_NEURON_TRAITS, MUTATE_LINK_TRAITS
+            MUTATE_WEIGHTS, MUTATE_ACTIVATION_A, MUTATE_ACTIVATION_B, MUTATE_TIMECONSTS, MUTATE_BIASES,
+            MUTATE_NEURON_TRAITS, MUTATE_LINK_TRAITS, MUTATE_GENOME_TRAITS
         };
         std::vector<int> t_muts;
         std::vector<double> t_mut_probs;
@@ -726,6 +727,9 @@ namespace NEAT
 
         // MUTATE_LINK_TRAITS;
         t_mut_probs.push_back( a_Parameters.MutateLinkTraitsProb );
+    
+        // MUTATE_GENOME_TRAITS;
+        t_mut_probs.push_back( a_Parameters.MutateGenomeTraitsProb );
 
         // Special consideration for phased searching - do not allow certain mutations depending on the search mode
         // also don't use additive mutations if we just want to get rid of the clones
@@ -827,7 +831,11 @@ namespace NEAT
                 case MUTATE_LINK_TRAITS:t_baby.Mutate_LinkTraits(a_Parameters, a_RNG);
                     t_mutation_success = true;
                     break;
-
+    
+                case MUTATE_GENOME_TRAITS:t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
+                    t_mutation_success = true;
+                    break;
+    
                 default:t_mutation_success = false;
                     break;
             }

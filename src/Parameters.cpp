@@ -347,6 +347,7 @@ namespace NEAT
         // Trait mutation probabilities
         MutateNeuronTraitsProb = 1.0;
         MutateLinkTraitsProb = 1.0;
+        MutateGenomeTraitsProb = 1.0;
 
 
         /////////////////////////////

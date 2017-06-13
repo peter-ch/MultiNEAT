@@ -12,6 +12,8 @@ def evaluate(genome):
     for tr in genome.GetLinkTraits():
         f -= tr[2]['n'] # minimize the n link trait
 
+    f -= genome.GetGenomeTraits()['gn'] # and minimize the gn genome trait
+
     return f / genome.NumNeurons()
 
 
@@ -71,11 +73,18 @@ trait3 = {'details': {'max': 10.0, 'min': -10.0, 'mut_power': 2.0, 'mut_replace_
           'mutation_prob': 0.1,
           'type': 'float'}
 
+trait4 = {'details': {'max': 10.0, 'min': -10.0, 'mut_power': 2.0, 'mut_replace_prob': 0.25},
+          'importance_coeff': 0.5,
+          'mutation_prob': 0.1,
+          'type': 'float'}
+
 # set two neuron traits with the dicts above
 params.SetNeuronTraitParameters('x', trait1)
 params.SetNeuronTraitParameters('y', trait2)
 # set one link trait
 params.SetLinkTraitParameters('n', trait3)
+# the genome can also have traits, independent of the graph
+params.SetGenomeTraitParameters('gn', trait4)
 
 # the seed genome and test population
 g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
@@ -84,6 +93,15 @@ pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 100))
 pop.RNG.Seed(int(time.clock()*100))
 
 def PrintGenomeTraits(g):
+    print('Genome:')
+    for k,v in g.GetGenomeTraits().items():
+        if isinstance(v, float):
+            print(k,'= %3.4f' % v, end=', ')
+        else:
+            print(k,'= {0}'.format(v), end=', ')
+        print()
+    print()
+
     print('Nodes:')
     for tr in g.GetNeuronTraits():
         print(tr[0], tr[1], end=': ')
@@ -93,6 +111,8 @@ def PrintGenomeTraits(g):
             else:
                 print(k,'= {0}'.format(v), end=', ')
         print()
+    print()
+
     print('Links:')
     for tr in g.GetLinkTraits():
         print(tr[0], tr[1], end=': ')

@@ -420,8 +420,10 @@ public:
     /////////////////////////////////////
     std::map< std::string, TraitParameters > NeuronTraits;
     std::map< std::string, TraitParameters > LinkTraits;
+    std::map< std::string, TraitParameters > GenomeTraits;
     double MutateNeuronTraitsProb;
     double MutateLinkTraitsProb;
+    double MutateGenomeTraitsProb;
 
     /////////////////////////////////////
     // Constructors
@@ -523,6 +525,49 @@ public:
 
         return t;
     }
+    
+    py::dict DictFromTraitParams(TraitParameters& pms)
+    {
+        py::dict t;
+        t["importance_coeff"] = pms.m_ImportanceCoeff;
+        t["mutation_prob"] = pms.m_MutationProb;
+        py::dict dt;
+        if (pms.type == "int")
+        {
+            t["type"] = "int";
+            dt["min"] = bs::get<IntTraitParameters>(pms.m_Details).min;
+            dt["max"] = bs::get<IntTraitParameters>(pms.m_Details).max;
+            dt["mut_power"] = bs::get<IntTraitParameters>(pms.m_Details).mut_power;
+            dt["mut_replace_prob"] = bs::get<IntTraitParameters>(pms.m_Details).mut_replace_prob;
+        }
+        if (pms.type == "float")
+        {
+            t["type"] = "float";
+            dt["min"] = bs::get<FloatTraitParameters>(pms.m_Details).min;
+            dt["max"] = bs::get<FloatTraitParameters>(pms.m_Details).max;
+            dt["mut_power"] = bs::get<FloatTraitParameters>(pms.m_Details).mut_power;
+            dt["mut_replace_prob"] = bs::get<FloatTraitParameters>(pms.m_Details).mut_replace_prob;
+        }
+        if (pms.type == "str")
+        {
+            t["type"] = "str";
+            py::list set;
+            py::list probs;
+            int ssize = bs::get<StringTraitParameters>(pms.m_Details).set.size();
+            for(int i=0; i<ssize; i++)
+            {
+                set.append(bs::get<StringTraitParameters>(pms.m_Details).set[i]);
+                probs.append(bs::get<StringTraitParameters>(pms.m_Details).probs[i]);
+            }
+            
+            dt["set"] = bs::get<FloatTraitParameters>(pms.m_Details).min;
+            dt["probs"] = bs::get<FloatTraitParameters>(pms.m_Details).max;
+        }
+        
+        t["details"] = dt;
+        
+        return t;
+    }
 
     void SetNeuronTraitParameters(std::string name, py::dict trait_params)
     {
@@ -533,7 +578,12 @@ public:
     {
         LinkTraits[name] = TraitParamsFromDict(trait_params);
     }
-
+    
+    void SetGenomeTraitParameters(std::string name, py::dict trait_params)
+    {
+        GenomeTraits[name] = TraitParamsFromDict(trait_params);
+    }
+    
     py::list ListNeuronTraitParameters()
     {
         py::list l;
@@ -553,7 +603,17 @@ public:
         }
         return l;
     }
-
+    
+    py::list ListGenomeTraitParameters()
+    {
+        py::list l;
+        for(auto it=GenomeTraits.begin(); it!=GenomeTraits.end(); it++)
+        {
+            l.append(it->first);
+        }
+        return l;
+    }
+    
     void ClearNeuronTraitParameters()
     {
         NeuronTraits.clear();
@@ -563,63 +623,43 @@ public:
     {
         LinkTraits.clear();
     }
-
+    
+    void ClearGenomeTraitParameters()
+    {
+        GenomeTraits.clear();
+    }
+    
     py::dict GetNeuronTraitParameters(std::string name)
     {
         if (NeuronTraits.count(name) == 0)
         {
             throw std::runtime_error("No such trait");
         }
-
-        py::dict t;
-        t["importance_coeff"] = NeuronTraits[name].m_ImportanceCoeff;
-        t["mutation_prob"] = NeuronTraits[name].m_MutationProb;
-        py::dict dt;
-        if (NeuronTraits[name].type == "int")
-        {
-            t["type"] = "int";
-            dt["min"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).min;
-            dt["max"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).max;
-            dt["mut_power"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).mut_power;
-            dt["mut_replace_prob"] = bs::get<IntTraitParameters>(NeuronTraits[name].m_Details).mut_replace_prob;
-        }
-        if (NeuronTraits[name].type == "float")
-        {
-            t["type"] = "float";
-            dt["min"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).min;
-            dt["max"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).max;
-            dt["mut_power"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).mut_power;
-            dt["mut_replace_prob"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).mut_replace_prob;
-        }
-        if (NeuronTraits[name].type == "str")
-        {
-            t["type"] = "str";
-            py::list set;
-            py::list probs;
-            int ssize = bs::get<StringTraitParameters>(NeuronTraits[name].m_Details).set.size();
-            for(int i=0; i<ssize; i++)
-            {
-                set.append(bs::get<StringTraitParameters>(NeuronTraits[name].m_Details).set[i]);
-                probs.append(bs::get<StringTraitParameters>(NeuronTraits[name].m_Details).probs[i]);
-            }
-
-            dt["set"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).min;
-            dt["probs"] = bs::get<FloatTraitParameters>(NeuronTraits[name].m_Details).max;
-        }
-
-        t["details"] = dt;
-
-        return t;
+        
+        return DictFromTraitParams(NeuronTraits[name]);
     }
 
     py::dict GetLinkTraitParameters(std::string name)
     {
-        py::dict traits;
-        return traits;
+        if (LinkTraits.count(name) == 0)
+        {
+            throw std::runtime_error("No such trait");
+        }
+    
+        return DictFromTraitParams(LinkTraits[name]);
     }
-
-
-
+    
+    py::dict GetGenomeTraitParameters(std::string name)
+    {
+        if (GenomeTraits.count(name) == 0)
+        {
+            throw std::runtime_error("No such trait");
+        }
+        
+        return DictFromTraitParams(GenomeTraits[name]);
+    }
+    
+    
     // Serialization
     friend class boost::serialization::access;
     template<class Archive>
@@ -707,12 +747,12 @@ public:
         ar & MutateNeuronBiasesProb;
         ar & MutateNeuronTraitsProb;
         ar & MutateLinkTraitsProb;
+        ar & MutateGenomeTraitsProb;
 
         ar & MinNeuronTimeConstant;
         ar & MaxNeuronTimeConstant;
         ar & MinNeuronBias;
         ar & MaxNeuronBias;
-
 
         ar & DisjointCoeff;
         ar & ExcessCoeff;

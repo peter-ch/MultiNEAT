@@ -139,6 +139,9 @@ namespace NEAT
         // The two lists of genes
         std::vector<NeuronGene> m_NeuronGenes;
         std::vector<LinkGene> m_LinkGenes;
+        
+        // To have traits that belong to the genome itself
+        Gene m_GenomeGene;
 
         // tells whether this genome was evaluated already
         // used in steady state evolution
@@ -288,52 +291,62 @@ namespace NEAT
         void BuildHyperNEATPhenotype(NeuralNetwork &net, Substrate &subst);
 
 #ifdef USE_BOOST_PYTHON
+    
+        py::dict TraitMap2Dict(std::map< std::string, Trait>& tmap)
+        {
+            py::dict traits;
+            for(auto tit=tmap.begin(); tit!=tmap.end(); tit++)
+            {
+                bool doit = false;
+                if (tit->second.dep_key != "")
+                {
+                    // there is such trait..
+                    if (tmap.count(tit->second.dep_key) != 0)
+                    {
+                        // and it has the right value?
+                        if (tmap[tit->second.dep_key].value == tit->second.dep_value)
+                        {
+                            doit = true;
+                        }
+                    }
+                }
+                else
+                {
+                    doit = true;
+                }
+        
+                if (doit)
+                {
+                    TraitType t = tit->second.value;
+                    if (t.type() == typeid(int))
+                    {
+                        traits[tit->first] = bs::get<int>(t);
+                    }
+                    if (t.type() == typeid(double))
+                    {
+                        traits[tit->first] = bs::get<double>(t);
+                    }
+                    if (t.type() == typeid(std::string))
+                    {
+                        traits[tit->first] = bs::get<std::string>(t);
+                    }
+                }
+            }
+            
+            return traits;
+        }
+        
         py::object GetNeuronTraits()
         {
             py::list neurons;
             for(auto it=m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
             {
-                py::dict traits;
-                for(auto tit=(*it).m_Traits.begin(); tit!=(*it).m_Traits.end(); tit++)
-                {
-                    bool doit = false;
-                    if (tit->second.dep_key != "")
-                    {
-                        // there is such trait..
-                        if ((*it).m_Traits.count(tit->second.dep_key) != 0)
-                        {
-                            // and it has the right value?
-                            if ((*it).m_Traits[tit->second.dep_key].value == tit->second.dep_value)
-                            {
-                                doit = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        doit = true;
-                    }
-
-                    if (doit)
-                    {
-                        TraitType t = tit->second.value;
-                        if (t.type() == typeid(int))
-                        {
-                            traits[tit->first] = bs::get<int>(t);
-                        }
-                        if (t.type() == typeid(double))
-                        {
-                            traits[tit->first] = bs::get<double>(t);
-                        }
-                        if (t.type() == typeid(std::string))
-                        {
-                            traits[tit->first] = bs::get<std::string>(t);
-                        }
-                    }
-
-                }
+                
+                py::dict traits = TraitMap2Dict((*it).m_Traits);
+                
                 py::list little;
                 little.append( (*it).ID() );
+                
                 if ((*it).Type() == INPUT)
                 {
                     little.append( "input" );
@@ -362,44 +375,8 @@ namespace NEAT
             py::list links;
             for(auto it=m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
             {
-                py::dict traits;
-                for(auto tit=(*it).m_Traits.begin(); tit!=(*it).m_Traits.end(); tit++)
-                {
-                    bool doit = false;
-                    if (tit->second.dep_key != "")
-                    {
-                        // there is such trait..
-                        if ((*it).m_Traits.count(tit->second.dep_key) != 0)
-                        {
-                            // and it has the right value?
-                            if ((*it).m_Traits[tit->second.dep_key].value == tit->second.dep_value)
-                            {
-                                doit = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        doit = true;
-                    }
-
-                    if (doit)
-                    {
-                        TraitType t = tit->second.value;
-                        if (t.type() == typeid(int))
-                        {
-                            traits[tit->first] = bs::get<int>(t);
-                        }
-                        if (t.type() == typeid(double))
-                        {
-                            traits[tit->first] = bs::get<double>(t);
-                        }
-                        if (t.type() == typeid(std::string))
-                        {
-                            traits[tit->first] = bs::get<std::string>(t);
-                        }
-                    }
-                }
+                py::dict traits = TraitMap2Dict((*it).m_Traits);
+                
                 py::list little;
                 //little.append( (*it).InnovationID() );
                 little.append( (*it).FromNeuronID() );
@@ -411,6 +388,12 @@ namespace NEAT
 
             return links;
         }
+        
+        py::dict GetGenomeTraits()
+        {
+            return TraitMap2Dict(m_GenomeGene.m_Traits);
+        }
+
 #endif
 
         // Saves this genome to a file
@@ -418,8 +401,9 @@ namespace NEAT
 
         // Saves this genome to an already opened file for writing
         void Save(FILE *a_fstream);
-
-        void PrintTraits();
+        
+        void PrintTraits(std::map< std::string, Trait>& traits);
+        void PrintAllTraits();
         
         // returns the max neuron ID
         int GetLastNeuronID() const;
@@ -496,7 +480,9 @@ namespace NEAT
 
         // Perturbs the link traits
         void Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG);
-
+        
+        // Perturbs the genome traits
+        void Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG);
 
         ///////////
         // Mating

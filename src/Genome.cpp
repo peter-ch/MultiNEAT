@@ -83,6 +83,7 @@ namespace NEAT
         m_Depth = a_G.m_Depth;
         m_NeuronGenes = a_G.m_NeuronGenes;
         m_LinkGenes = a_G.m_LinkGenes;
+        m_GenomeGene = a_G.m_GenomeGene;
         m_Fitness = a_G.m_Fitness;
         m_NumInputs = a_G.m_NumInputs;
         m_NumOutputs = a_G.m_NumOutputs;
@@ -102,6 +103,7 @@ namespace NEAT
             m_Depth = a_G.m_Depth;
             m_NeuronGenes = a_G.m_NeuronGenes;
             m_LinkGenes = a_G.m_LinkGenes;
+            m_GenomeGene = a_G.m_GenomeGene;
             m_Fitness = a_G.m_Fitness;
             m_AdjustedFitness = a_G.m_AdjustedFitness;
             m_NumInputs = a_G.m_NumInputs;
@@ -312,6 +314,9 @@ namespace NEAT
                 }
             }
         }
+        
+        // Also initialize the Genome's traits
+        m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, t_RNG);
 
         m_Evaluated = false;
         m_NumInputs = a_NumInputs;
@@ -2276,6 +2281,8 @@ namespace NEAT
         {
             it->InitTraits(a_Parameters.LinkTraits, a_RNG);
         }
+        
+        m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, a_RNG);
     }
 
     // Perturbs the A parameters of the neuron activation functions
@@ -2378,6 +2385,11 @@ namespace NEAT
             it->MutateTraits(a_Parameters.LinkTraits, a_RNG);
         }
     }
+    
+    void Genome::Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG)
+    {
+        m_GenomeGene.MutateTraits(a_Parameters.GenomeTraits, a_RNG);
+    }
 
     // Mate this genome with dad and return the baby
     // This is multipoint mating - genes inherited randomly
@@ -2408,7 +2420,24 @@ namespace NEAT
 
         // this will hold a copy of the gene we wish to add at each step
         LinkGene t_selectedgene(0, 0, -1, 0, false);
-
+        
+        // Mate the GenomeGene first
+        // Determine if it will pick either gene or mate it
+        if (a_RNG.RandFloat() < 0.5)
+        {
+            // pick
+            Gene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_GenomeGene : a_Dad.m_GenomeGene;
+            t_baby.m_GenomeGene = n;
+        }
+        else
+        {
+            // mate
+            Gene n = m_GenomeGene;
+            n.MateTraits(a_Dad.m_GenomeGene.m_Traits, a_RNG);
+            t_baby.m_GenomeGene = n;
+        }
+    
+    
         // Make sure all inputs/outputs are present in the baby
         // Essential to FS-NEAT
 
@@ -2645,7 +2674,9 @@ namespace NEAT
 
             // for interspecies mating, allow all genes through
             if (a_InterSpecies)
+            {
                 t_skip = false;
+            }
 
             // If the selected gene's innovation number is negative,
             // this means that no gene is selected (should be skipped)
@@ -3034,76 +3065,89 @@ namespace NEAT
 
         fprintf(a_file, "GenomeEnd\n\n");
     }
-
-    void Genome::PrintTraits()
+    
+    void Genome::PrintTraits(std::map< std::string, Trait>& traits)
     {
+        for(auto t = traits.begin(); t != traits.end(); t++)
+        {
+            bool doit = false;
+            std::string s = t->second.dep_key;
+            //std::string sv = bs::get<std::string>(t->second.dep_value);
+            if (s != "")
+            {
+                // there is such trait..
+                if (traits.count(s) != 0)
+                {
+                    /*int a; double b; std::string c;
+                    if ((*it).m_Traits[s].value.type() == typeid(int))
+                        a = bs::get<int>((*it).m_Traits[s].value);
+                    if ((*it).m_Traits[s].value.type() == typeid(double))
+                        b = bs::get<double>((*it).m_Traits[s].value);
+                    if ((*it).m_Traits[s].value.type() == typeid(std::string))
+                        c = bs::get<std::string>((*it).m_Traits[s].value);
+
+                    int a1; double b1; std::string c1;
+                    if ((t->second.dep_value).type() == typeid(int))
+                        a1 = bs::get<int>((t->second.dep_value));
+                    if ((t->second.dep_value).type() == typeid(double))
+                        b1 = bs::get<double>((t->second.dep_value));
+                    if ((t->second.dep_value).type() == typeid(std::string))
+                        c1 = bs::get<std::string>((t->second.dep_value));*/
+                
+                    // and it has the right value?
+                    if (traits[s].value == (t->second.dep_value))
+                    {
+                        doit = true;
+                    }
+                }
+            }
+            else
+            {
+                doit = true;
+            }
+        
+            if (doit)
+            {
+                std::cout << t->first << " - ";
+                if (t->second.value.type() == typeid(int))
+                {
+                    std::cout << bs::get<int>(t->second.value);
+                }
+                if (t->second.value.type() == typeid(bool))
+                {
+                    std::cout << (bs::get<bool>(t->second.value)) ? "true" : "false";
+                }
+                if (t->second.value.type() == typeid(double))
+                {
+                    std::cout << bs::get<double>(t->second.value);
+                }
+                if (t->second.value.type() == typeid(std::string))
+                {
+                    std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                }
+            
+                std::cout << ", ";
+            }
+        }
+    }
+
+    void Genome::PrintAllTraits()
+    {
+        std::cout << "====================================================================\n";
+        std::cout << "Genome:\n"
+                  << "==================================\n";
+        PrintTraits(m_GenomeGene.m_Traits);
+    
+        std::cout << "\n";
+    
         std::cout << "====================================================================\n";
         std::cout << "Neurons:\n"
                   << "==================================\n";
         for(auto it = m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
         {
             std::cout << "ID: " << it->ID() << " : ";
-            for(auto t = (*it).m_Traits.begin(); t != (*it).m_Traits.end(); t++)
-            {
-                bool doit = false;
-                std::string s = t->second.dep_key;
-                //std::string sv = bs::get<std::string>(t->second.dep_value);
-                if (s != "")
-                {
-                    // there is such trait..
-                    if ((*it).m_Traits.count(s) != 0)
-                    {
-                        /*int a; double b; std::string c;
-                        if ((*it).m_Traits[s].value.type() == typeid(int))
-                            a = bs::get<int>((*it).m_Traits[s].value);
-                        if ((*it).m_Traits[s].value.type() == typeid(double))
-                            b = bs::get<double>((*it).m_Traits[s].value);
-                        if ((*it).m_Traits[s].value.type() == typeid(std::string))
-                            c = bs::get<std::string>((*it).m_Traits[s].value);
+            PrintTraits((*it).m_Traits);
 
-                        int a1; double b1; std::string c1;
-                        if ((t->second.dep_value).type() == typeid(int))
-                            a1 = bs::get<int>((t->second.dep_value));
-                        if ((t->second.dep_value).type() == typeid(double))
-                            b1 = bs::get<double>((t->second.dep_value));
-                        if ((t->second.dep_value).type() == typeid(std::string))
-                            c1 = bs::get<std::string>((t->second.dep_value));*/
-
-                        // and it has the right value?
-                        if ((*it).m_Traits[s].value == (t->second.dep_value))
-                        {
-                            doit = true;
-                        }
-                    }
-                }
-                else
-                {
-                    doit = true;
-                }
-
-                if (doit)
-                {
-                    std::cout << t->first << " - ";
-                    if (t->second.value.type() == typeid(int))
-                    {
-                        std::cout << bs::get<int>(t->second.value);
-                    }
-                    if (t->second.value.type() == typeid(bool))
-                    {
-                        std::cout << (bs::get<bool>(t->second.value)) ? "true" : "false";
-                    }
-                    if (t->second.value.type() == typeid(double))
-                    {
-                        std::cout << bs::get<double>(t->second.value);
-                    }
-                    if (t->second.value.type() == typeid(std::string))
-                    {
-                        std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
-                    }
-
-                    std::cout << ", ";
-                }
-            }
             std::cout << "\n";
         }
         std::cout << "==================================\n";
@@ -3113,49 +3157,7 @@ namespace NEAT
         for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
         {
             std::cout << "ID: " << it->InnovationID() << " : ";
-            for(auto t = (*it).m_Traits.begin(); t != (*it).m_Traits.end(); t++)
-            {
-                bool doit = false;
-                if (t->second.dep_key != "")
-                {
-                    // there is such trait..
-                    if ((*it).m_Traits.count(t->second.dep_key) != 0)
-                    {
-                        // and it has the right value?
-                        if ((*it).m_Traits[t->second.dep_key].value == t->second.dep_value)
-                        {
-                            doit = true;
-                        }
-                    }
-                }
-                else
-                {
-                    doit = true;
-                }
-
-                if (doit)
-                {
-                    std::cout << t->first << " - ";
-                    if (t->second.value.type() == typeid(int))
-                    {
-                        std::cout << bs::get<int>(t->second.value);
-                    }
-                    if (t->second.value.type() == typeid(bool))
-                    {
-                        std::cout << (bs::get<bool>(t->second.value)) ? "true" : "false";
-                    }
-                    if (t->second.value.type() == typeid(double))
-                    {
-                        std::cout << bs::get<double>(t->second.value);
-                    }
-                    if (t->second.value.type() == typeid(std::string))
-                    {
-                        std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
-                    }
-
-                    std::cout << ", ";
-                }
-            }
+            PrintTraits((*it).m_Traits);
             std::cout << "\n";
         }
         std::cout << "==================================\n";
