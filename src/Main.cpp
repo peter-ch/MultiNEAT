@@ -117,7 +117,7 @@ int main()
     tp1.m_MutationProb = 0.9;
     tp1.type = "int";
     tp1.dep_key = "y";
-    tp1.dep_value = std::string("c");
+    tp1.dep_values.push_back( std::string("c") );
     IntTraitParameters itp1;
     itp1.min = -5;
     itp1.max = 5;

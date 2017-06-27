@@ -146,8 +146,8 @@ namespace NEAT
                 Trait tr;
                 tr.value = t;
                 tr.dep_key = it->second.dep_key;
-                tr.dep_value = it->second.dep_value;
-                // todo check for invalid dep_value types here
+                tr.dep_values = it->second.dep_values;
+                // todo check for invalid dep_values types here
                 m_Traits[it->first] = tr;
             }
         }
@@ -211,10 +211,14 @@ namespace NEAT
                     // there is such trait..
                     if (m_Traits.count(it->second.dep_key) != 0)
                     {
-                        // and it has the right value?
-                        if (m_Traits[it->second.dep_key].value == it->second.dep_value)
+                        // and it matches any of the right values?
+                        for(int ix=0; ix<it->second.dep_values.size();ix++)
                         {
-                            doit = true;
+                            if (m_Traits[it->second.dep_key].value == it->second.dep_values[ix])
+                            {
+                                doit = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -315,9 +319,14 @@ namespace NEAT
                     {
                         // and it has the right value?
                         // also the other genome has to have the trait turned on
-                        if ((m_Traits[it->second.dep_key].value == it->second.dep_value) && ( other.at(it->second.dep_key).value == it->second.dep_value))
+                        for(int ix=0; ix<it->second.dep_values.size(); ix++)
                         {
-                            doit = true;
+                            if ((m_Traits[it->second.dep_key].value == it->second.dep_values[ix]) &&
+                                (other.at(it->second.dep_key).value == it->second.dep_values[ix]))
+                            {
+                                doit = true;
+                                break;
+                            }
                         }
                     }
                 }

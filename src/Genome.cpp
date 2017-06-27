@@ -3080,7 +3080,7 @@ namespace NEAT
         {
             bool doit = false;
             std::string s = t->second.dep_key;
-            //std::string sv = bs::get<std::string>(t->second.dep_value);
+            //std::string sv = bs::get<std::string>(t->second.dep_values);
             if (s != "")
             {
                 // there is such trait..
@@ -3095,17 +3095,21 @@ namespace NEAT
                         c = bs::get<std::string>((*it).m_Traits[s].value);
 
                     int a1; double b1; std::string c1;
-                    if ((t->second.dep_value).type() == typeid(int))
-                        a1 = bs::get<int>((t->second.dep_value));
-                    if ((t->second.dep_value).type() == typeid(double))
-                        b1 = bs::get<double>((t->second.dep_value));
-                    if ((t->second.dep_value).type() == typeid(std::string))
-                        c1 = bs::get<std::string>((t->second.dep_value));*/
+                    if ((t->second.dep_values).type() == typeid(int))
+                        a1 = bs::get<int>((t->second.dep_values));
+                    if ((t->second.dep_values).type() == typeid(double))
+                        b1 = bs::get<double>((t->second.dep_values));
+                    if ((t->second.dep_values).type() == typeid(std::string))
+                        c1 = bs::get<std::string>((t->second.dep_values));*/
                 
                     // and it has the right value?
-                    if (traits[s].value == (t->second.dep_value))
+                    for(int ix=0; ix<t->second.dep_values.size(); ix++)
                     {
-                        doit = true;
+                        if (traits[s].value == (t->second.dep_values[ix]))
+                        {
+                            doit = true;
+                            break;
+                        }
                     }
                 }
             }

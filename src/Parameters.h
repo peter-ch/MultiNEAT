@@ -461,22 +461,34 @@ public:
         if (trait_params.has_key("dep_key"))
         {
             t.dep_key = py::extract<std::string>(trait_params["dep_key"]);
-            // infer the dep_value type from the value
-            py::object o = trait_params["dep_value"];
+            // infer the dep_values type from the value
+            py::object o = trait_params["dep_values"][0]; // needs to have at least one value
             std::string st = py::extract<std::string>(o.attr("__class__").attr("__name__"));
+
+            py::list pydepvals = py::extract<py::list>(trait_params["dep_values"]);
+
             if (st == "int")
             {
-                t.dep_value = py::extract<int>(trait_params["dep_value"]);
+                for(int ix=0; ix<py::len(pydepvals); ix++)
+                {
+                    t.dep_values.push_back( py::extract<int>(pydepvals[ix]) );
+                }
             }
             else
             if (st == "float")
             {
-                t.dep_value = py::extract<double>(trait_params["dep_value"]);
+                for(int ix=0; ix<py::len(pydepvals); ix++)
+                {
+                    t.dep_values.push_back( py::extract<double>(pydepvals[ix]) );
+                }
             }
             else
             if (st == "str")
             {
-                t.dep_value = py::extract<std::string>(trait_params["dep_value"]);
+                for(int ix=0; ix<py::len(pydepvals); ix++)
+                {
+                    t.dep_values.push_back( py::extract<std::string>(pydepvals[ix]) );
+                }
             }
             else
             {

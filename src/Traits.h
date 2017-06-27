@@ -59,7 +59,7 @@ namespace NEAT
         bs::variant<IntTraitParameters, FloatTraitParameters, StringTraitParameters> m_Details;
 
         std::string dep_key; // counts only if this other trait exists..
-        TraitType dep_value; // and has this value
+        std::vector<TraitType> dep_values; // and has one of these values
 
         // keep dep_key empty and no conditional logic will apply
 
@@ -70,7 +70,7 @@ namespace NEAT
             type = "int";
             m_Details = IntTraitParameters();
             dep_key = "";
-            dep_value = std::string("");
+            dep_values.push_back( std::string("") );
         }
     };
 
@@ -82,12 +82,12 @@ namespace NEAT
         Trait()
         {
             value = 0;
-            dep_value = 0;
+            dep_values.push_back(0);
             dep_key = "";
         }
 
         std::string dep_key; // counts only if this other trait exists..
-        TraitType dep_value; // and has this value
+        std::vector<TraitType> dep_values; // and has this value
     };
 
 }

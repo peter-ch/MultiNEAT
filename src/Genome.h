@@ -304,9 +304,13 @@ namespace NEAT
                     if (tmap.count(tit->second.dep_key) != 0)
                     {
                         // and it has the right value?
-                        if (tmap[tit->second.dep_key].value == tit->second.dep_value)
+                        for(int ix=0; ix < tit->second.dep_values.size(); ix++)
                         {
-                            doit = true;
+                            if (tmap[tit->second.dep_key].value == tit->second.dep_values[ix])
+                            {
+                                doit = true;
+                                break;
+                            }
                         }
                     }
                 }

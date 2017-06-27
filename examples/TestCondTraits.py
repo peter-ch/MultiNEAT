@@ -73,7 +73,7 @@ trait_c = {'details': {'max': 50, 'min': 10, 'mut_power': 10, 'mut_replace_prob'
            'mutation_prob': 0.8,
            'type': 'int',
            'dep_key': 'x', # this is the trait's name as specified in SetNeuronTraitParameters
-           'dep_value' : 'b', # and trait_c will exist only when it equals 'b'
+           'dep_values' : ['b'], # and trait_c will exist only when it equals 'b'
            }
 
 trait3 = {'details': {'max': 0.1, 'min': -0.1, 'mut_power': 0.02, 'mut_replace_prob': 0.25},
