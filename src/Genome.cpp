@@ -131,6 +131,12 @@ namespace NEAT
 
         m_ID = a_ID;
         int t_innovnum = 1, t_nnum = 1;
+        
+        // override seed_type if 0 hidden units are specified
+        if ((a_SeedType == 1) && (a_NumHidden == 0))
+        {
+            a_SeedType = 0;
+        }
 
         if (a_Parameters.DontUseBiasNeuron == false)
         {
