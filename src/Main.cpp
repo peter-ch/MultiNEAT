@@ -59,8 +59,8 @@ double xortest(Genome& g)
         f = 0.1;
 
     return f;
-
 }
+
 
 int main()
 {
@@ -105,8 +105,8 @@ int main()
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
 
-    params.AllowClones = true;
-    params.AllowLoops = true;
+    params.AllowClones = false;
+    params.AllowLoops = false;
     params.DontUseBiasNeuron = true;
 
     params.MutateNeuronTraitsProb = 0.2;
@@ -170,13 +170,14 @@ int main()
     params.LinkTraits["z"] = tp3;
 
     Genome s(0, 1,
-             0,
+             1,
              1,
              false,
              UNSIGNED_SIGMOID,
              UNSIGNED_SIGMOID,
-             0,
-             params);
+             1,
+             params,
+             2);
 
     Population pop(s, params, true, 1.0, time(0));
 

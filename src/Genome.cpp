@@ -123,7 +123,8 @@ namespace NEAT
                    bool a_FS_NEAT, ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
                    unsigned int a_SeedType,
-                   const Parameters &a_Parameters)
+                   const Parameters &a_Parameters,
+                   unsigned int a_NumLayers = 1) // number of hidden layers. Each will have a_NumHidden nodes
     {
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
         RNG t_RNG;
@@ -207,78 +208,101 @@ namespace NEAT
             m_NeuronGenes.push_back(t_ngene);
             t_nnum++;
             a_NumOutputs++;
-
         }
 
         // add and connect hidden neurons if seed type is != 0
         if ((a_SeedType != 0) && (a_NumHidden > 0))
         {
-            for (unsigned int i = 0; i < (a_NumHidden); i++)
+            for (unsigned int n = 0; n < a_NumLayers; n++)
             {
-                NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
-                // Initialize the neuron gene's properties
-                t_ngene.Init((a_Parameters.MinActivationA + a_Parameters.MaxActivationA) / 2.0f,
-                             (a_Parameters.MinActivationB + a_Parameters.MaxActivationB) / 2.0f,
-                             (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant) / 2.0f,
-                             (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias) / 2.0f,
-                             a_HiddenActType);
-                // Initialize the traits
-                t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-                t_ngene.m_SplitY = 0.5;
-
-                m_NeuronGenes.push_back(t_ngene);
-                t_nnum++;
+                for (unsigned int i = 0; i < a_NumHidden; i++)
+                {
+                    NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
+                    // Initialize the neuron gene's properties
+                    t_ngene.Init((a_Parameters.MinActivationA + a_Parameters.MaxActivationA) / 2.0f,
+                                 (a_Parameters.MinActivationB + a_Parameters.MaxActivationB) / 2.0f,
+                                 (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant) / 2.0f,
+                                 (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias) / 2.0f,
+                                 a_HiddenActType);
+                    // Initialize the traits
+                    t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+                    t_ngene.m_SplitY = 0.5;
+        
+                    m_NeuronGenes.push_back(t_ngene);
+                    t_nnum++;
+                }
             }
-
 
             if (!a_FS_NEAT)
             {
-                // The links from each input to this hidden node
-                for (unsigned int i = 0; i < (a_NumHidden); i++)
+                int last_dest_id = a_NumInputs + a_NumOutputs + 1;
+                int last_src_id = 1;
+                int prev_layer_size = a_NumInputs;
+                
+                for (unsigned int n = 0; n < a_NumLayers; n++)
                 {
-                    for (unsigned int j = 0; j < a_NumInputs; j++)
+                    // The links from each previous layer to this hidden node
+                    for (unsigned int i = 0; i < a_NumHidden; i++)
+                    {
+                        for (unsigned int j = 0; j < prev_layer_size; j++)
+                        {
+                            // add the link
+                            // created with zero weights. needs future random initialization. !!!!!!!!
+                            // init traits (TODO: maybe init empty traits?)
+                            LinkGene l = LinkGene(j + last_src_id, i + last_dest_id, t_innovnum, 0.0, false);
+                            l.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                            m_LinkGenes.push_back(l);
+                            t_innovnum++;
+                        }
+                    }
+    
+                    last_dest_id += a_NumHidden;
+                    if (n == 0)
+                    {
+                        // for the first hidden layer, jump over the outputs too
+                        last_src_id += prev_layer_size + a_NumOutputs;
+                    }
+                    else
+                    {
+                        last_src_id += prev_layer_size;
+                    }
+                    prev_layer_size = a_NumHidden;
+                }
+    
+                last_dest_id = a_NumInputs + 1;
+    
+                // The links from each previous layer to this output node
+                for (unsigned int i = 0; i < a_NumOutputs; i++)
+                {
+                    for (unsigned int j = 0; j < prev_layer_size; j++)
                     {
                         // add the link
                         // created with zero weights. needs future random initialization. !!!!!!!!
                         // init traits (TODO: maybe init empty traits?)
-                        LinkGene l = LinkGene(j + 1, i + a_NumInputs + a_NumOutputs + 1, t_innovnum, 0.0, false);
+                        LinkGene l = LinkGene(j + last_src_id, i + last_dest_id, t_innovnum, 0.0, false);
                         l.InitTraits(a_Parameters.LinkTraits, t_RNG);
                         m_LinkGenes.push_back(l);
                         t_innovnum++;
                     }
                 }
-                // The links from this hidden node to each output
-                for (unsigned int i = 0; i < (a_NumOutputs); i++)
+    
+                /*if (a_Parameters.DontUseBiasNeuron == false)
                 {
-                    for (unsigned int j = 0; j < a_NumHidden; j++)
+                    // Connect the bias as well
+                    for (unsigned int i = 0; i < a_NumOutputs; i++)
                     {
                         // add the link
                         // created with zero weights. needs future random initialization. !!!!!!!!
-                        LinkGene l = LinkGene(j + a_NumInputs + a_NumOutputs + 1, i + a_NumInputs + 1, t_innovnum, 0.0, false);
+                        LinkGene l = LinkGene(a_NumInputs, i + last_dest_id, t_innovnum, 0.0, false);
                         l.InitTraits(a_Parameters.LinkTraits, t_RNG);
                         m_LinkGenes.push_back(l);
                         t_innovnum++;
                     }
-                }
-
-                if (a_Parameters.DontUseBiasNeuron == false)
-                {
-                    // Connect the bias to the outputs as well
-                    for (unsigned int i = 0; i < (a_NumOutputs); i++)
-                    {
-                        // add the link
-                        // created with zero weights. needs future random initialization. !!!!!!!!
-                        LinkGene l = LinkGene(a_NumInputs, i + a_NumInputs + 1, t_innovnum, 0.0, false);
-                        l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.push_back(l);
-                        t_innovnum++;
-                    }
-                }
+                }*/
             }
         }
         else    // The links connecting every input to every output - perceptron structure
         {
-
             if ((!a_FS_NEAT) && (a_SeedType == 0))
             {
                 for (unsigned int i = 0; i < (a_NumOutputs); i++)

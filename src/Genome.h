@@ -184,7 +184,8 @@ namespace NEAT
                bool a_FS_NEAT, ActivationFunction a_OutputActType,
                ActivationFunction a_HiddenActType,
                unsigned int a_SeedType,
-               const Parameters &a_Parameters);
+               const Parameters &a_Parameters,
+               unsigned int a_NumLayers);
         
         /////////////
         // Other possible constructors for different types of networks go here
