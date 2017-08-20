@@ -214,6 +214,7 @@ public:
     void IncrementNextSpeciesID() { m_NextSpeciesID++; }
 
     Genome& AccessGenomeByIndex(unsigned int const a_idx);
+    Genome& AccessGenomeByID(unsigned int const a_id);
 
     InnovationDatabase& AccessInnovationDatabase() { return m_InnovationDatabase; }
 

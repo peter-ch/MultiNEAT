@@ -735,10 +735,25 @@ Genome& Population::AccessGenomeByIndex(unsigned int const a_idx)
     }
 
     // not found?! return dummy
-    return g_dummy;
+    throw std::runtime_error("No such index in population");
 }
 
-
+Genome& Population::AccessGenomeByID(unsigned int const a_id)
+{
+    for (unsigned int i = 0; i < m_Species.size(); i++)
+    {
+        for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
+        {
+            if (m_Species[i].m_Individuals[j].GetID() == a_id)// reached the ID?
+            {
+                return m_Species[i].m_Individuals[j];
+            }
+        }
+    }
+    
+    // not found?!
+    throw std::runtime_error("No such ID in population");
+}
 
 
 
@@ -879,9 +894,6 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
 }
 
 
-
-
-
 // Main realtime loop. We assume that the whole population was evaluated once before calling this.
 // Returns a pointer to the baby in the population. It will be the only individual that was not evaluated.
 // Set the m_Evaluated flag of the baby to true after evaluation! 
@@ -999,7 +1011,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     if (t_cur_species == m_Species.end())
     {
         // create the first species and place the baby there
-        m_Species.push_back( Species(t_baby, GetNextSpeciesID()));
+        m_Species.push_back( Species(t_baby, GetNextSpeciesID()) );
         // the last one
         t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
         IncrementNextSpeciesID();
