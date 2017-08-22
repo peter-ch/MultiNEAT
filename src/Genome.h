@@ -271,7 +271,7 @@ namespace NEAT
                 return true;
             }
             
-            // add more consraints here
+            // add more constraints here
             return false;
         }
         
@@ -335,6 +335,14 @@ namespace NEAT
                     {
                         traits[tit->first] = bs::get<std::string>(t);
                     }
+                    if (t.type() == typeid(intsetelement))
+                    {
+                        traits[tit->first] = (bs::get<intsetelement>(t)).value;
+                    }
+                    if (t.type() == typeid(floatsetelement))
+                    {
+                        traits[tit->first] = (bs::get<floatsetelement>(t)).value;
+                    }
                 }
             }
             
@@ -383,10 +391,8 @@ namespace NEAT
                 py::dict traits = TraitMap2Dict((*it).m_Traits);
                 
                 py::list little;
-                //little.append( (*it).InnovationID() );
                 little.append( (*it).FromNeuronID() );
                 little.append( (*it).ToNeuronID() );
-                //little.append( (*it).IsRecurrent() );
                 little.append( traits );
                 links.append( little );
             }

@@ -3155,10 +3155,6 @@ namespace NEAT
                 {
                     std::cout << bs::get<int>(t->second.value);
                 }
-                if (t->second.value.type() == typeid(bool))
-                {
-                    std::cout << (bs::get<bool>(t->second.value)) ? "true" : "false";
-                }
                 if (t->second.value.type() == typeid(double))
                 {
                     std::cout << bs::get<double>(t->second.value);
@@ -3166,6 +3162,14 @@ namespace NEAT
                 if (t->second.value.type() == typeid(std::string))
                 {
                     std::cout << "\"" << bs::get<std::string>(t->second.value) << "\"";
+                }
+                if (t->second.value.type() == typeid(intsetelement))
+                {
+                    std::cout << (bs::get<intsetelement>(t->second.value)).value;
+                }
+                if (t->second.value.type() == typeid(floatsetelement))
+                {
+                    std::cout << (bs::get<floatsetelement>(t->second.value)).value;
                 }
             
                 std::cout << ", ";

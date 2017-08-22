@@ -136,6 +136,29 @@ int main()
     itp2.mut_replace_prob = 0.1;
     tp2.m_Details = itp2;
 
+    TraitParameters tp3;
+    tp3.m_ImportanceCoeff = 0.02;
+    tp3.m_MutationProb = 0.9;
+    tp3.type = "intset";
+    IntSetTraitParameters itp3;
+    intsetelement kkk;
+    kkk.value=4;
+    itp3.set.push_back(kkk);
+    kkk.value=8;
+    itp3.set.push_back(kkk);
+    kkk.value=16;
+    itp3.set.push_back(kkk);
+    kkk.value=32;
+    itp3.set.push_back(kkk);
+    kkk.value=64;
+    itp3.set.push_back(kkk);
+    itp3.probs.push_back(1);
+    itp3.probs.push_back(1);
+    itp3.probs.push_back(1);
+    itp3.probs.push_back(1);
+    itp3.probs.push_back(1);
+    tp3.m_Details = itp3;
+
     TraitParameters tps;
     tps.m_ImportanceCoeff = 0.02;
     tps.m_MutationProb = 0.9;
@@ -153,7 +176,7 @@ int main()
     itps.probs.push_back(1);
     tps.m_Details = itps;
 
-    TraitParameters tp3;
+    /*TraitParameters tp3;
     tp3.m_ImportanceCoeff = 0.0;
     tp3.m_MutationProb = 0.9;
     tp3.type = "str";
@@ -162,12 +185,12 @@ int main()
     itp3.set.push_back("false");
     itp3.probs.push_back(1);
     itp3.probs.push_back(1);
-    tp3.m_Details = itp3;
+    tp3.m_Details = itp3;*/
 
     params.GenomeTraits["v"] = tp1;
     params.GenomeTraits["x"] = tp2;
     params.GenomeTraits["y"] = tps;
-    params.LinkTraits["z"] = tp3;
+    params.NeuronTraits["z"] = tp3;
 
     Genome s(0, 1,
              1,

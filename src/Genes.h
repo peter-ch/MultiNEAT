@@ -142,6 +142,32 @@ namespace NEAT
                     int idx = a_RNG.Roulette(probs);
                     t = itp.set[idx];
                 }
+                if (it->second.type == "intset")
+                {
+                    IntSetTraitParameters itp = bs::get<IntSetTraitParameters>(it->second.m_Details);
+                    std::vector<double> probs = itp.probs;
+                    if (itp.set.size() == 0)
+                    {
+                        throw std::runtime_error("Empty set of int traits");
+                    }
+                    probs.resize(itp.set.size());
+
+                    int idx = a_RNG.Roulette(probs);
+                    t = itp.set[idx];
+                }
+                if (it->second.type == "floatset")
+                {
+                    FloatSetTraitParameters itp = bs::get<FloatSetTraitParameters>(it->second.m_Details);
+                    std::vector<double> probs = itp.probs;
+                    if (itp.set.size() == 0)
+                    {
+                        throw std::runtime_error("Empty set of float traits");
+                    }
+                    probs.resize(itp.set.size());
+
+                    int idx = a_RNG.Roulette(probs);
+                    t = itp.set[idx];
+                }
 
                 Trait tr;
                 tr.value = t;
@@ -189,6 +215,18 @@ namespace NEAT
                     if (mine.type() == typeid(std::string))
                     {
                         // strings are always either-or
+                        m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                    }
+
+                    if (mine.type() == typeid(intsetelement))
+                    {
+                        // int sets are always either-or
+                        m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                    }
+
+                    if (mine.type() == typeid(floatsetelement))
+                    {
+                        // float sets are always either-or
                         m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
                     }
                 }
@@ -291,6 +329,28 @@ namespace NEAT
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
                     }
+                    if (it->second.type == "intset")
+                    {
+                        IntSetTraitParameters itp = bs::get<IntSetTraitParameters>(it->second.m_Details);
+                        std::vector<double> probs = itp.probs;
+                        probs.resize(itp.set.size());
+
+                        int idx = a_RNG.Roulette(probs);
+
+                        // now choose the new idx from the set
+                        m_Traits[it->first].value = itp.set[idx];
+                    }
+                    if (it->second.type == "floatset")
+                    {
+                        FloatSetTraitParameters itp = bs::get<FloatSetTraitParameters>(it->second.m_Details);
+                        std::vector<double> probs = itp.probs;
+                        probs.resize(itp.set.size());
+
+                        int idx = a_RNG.Roulette(probs);
+
+                        // now choose the new idx from the set
+                        m_Traits[it->first].value = itp.set[idx];
+                    }
                 }
             }
         }
@@ -349,7 +409,7 @@ namespace NEAT
                     }
                     if (mine.type() == typeid(std::string))
                     {
-                        // distance between stringss - matching is 0, non-matching is 1
+                        // distance between strings - matching is 0, non-matching is 1
                         if (bs::get<std::string>(mine) == bs::get<std::string>(yours))
                         {
                             dist[it->first] = 0.0;
@@ -358,6 +418,16 @@ namespace NEAT
                         {
                             dist[it->first] = 1.0;
                         }
+                    }
+                    if (mine.type() == typeid(intsetelement))
+                    {
+                        // distance between ints - calculate directly
+                        dist[it->first] = abs((bs::get<intsetelement>(mine)).value - (bs::get<intsetelement>(yours)).value);
+                    }
+                    if (mine.type() == typeid(floatsetelement))
+                    {
+                        // distance between floats - calculate directly
+                        dist[it->first] = abs((bs::get<floatsetelement>(mine)).value - (bs::get<floatsetelement>(yours)).value);
                     }
                 }
             }

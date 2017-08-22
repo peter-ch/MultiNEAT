@@ -490,6 +490,26 @@ public:
                     t.dep_values.push_back( py::extract<std::string>(pydepvals[ix]) );
                 }
             }
+            /*if (st == "intset")
+            {
+                for(int ix=0; ix<py::len(pydepvals); ix++)
+                {
+                    intsetelement x;
+                    int m = py::extract<int>(pydepvals[ix]);
+                    x.value = m;
+                    t.dep_values.push_back( x );
+                }
+            }
+            if (st == "floatset")
+            {
+                for(int ix=0; ix<py::len(pydepvals); ix++)
+                {
+                    floatsetelement x;
+                    double m = py::extract<double>(pydepvals[ix]);
+                    x.value = m;
+                    t.dep_values.push_back( x );
+                }
+            }*/
             else
             {
                 throw std::runtime_error("Unknown trait type");
@@ -526,6 +546,46 @@ public:
             {
                 std::string s = py::extract<std::string>(set[i]);
                 itp.set.push_back(s);
+            }
+            for(int i=0; i<py::len(probs); i++)
+            {
+                double d = py::extract<double>(probs[i]);
+                itp.probs.push_back(d);
+            }
+            t.m_Details = itp;
+        }
+        else if (t.type == "intset")
+        {
+            IntSetTraitParameters itp;
+            py::dict details = py::extract<py::dict>(trait_params["details"]);
+            py::list set = py::extract<py::list>(details["set"]);
+            py::list probs = py::extract<py::list>(details["probs"]);
+            for(int i=0; i<py::len(set); i++)
+            {
+                int x = py::extract<int>(set[i]);
+                intsetelement ise;
+                ise.value = x;
+                itp.set.push_back(ise);
+            }
+            for(int i=0; i<py::len(probs); i++)
+            {
+                double d = py::extract<double>(probs[i]);
+                itp.probs.push_back(d);
+            }
+            t.m_Details = itp;
+        }
+        else if (t.type == "floatset")
+        {
+            FloatSetTraitParameters itp;
+            py::dict details = py::extract<py::dict>(trait_params["details"]);
+            py::list set = py::extract<py::list>(details["set"]);
+            py::list probs = py::extract<py::list>(details["probs"]);
+            for(int i=0; i<py::len(set); i++)
+            {
+                double x = py::extract<double>(set[i]);
+                floatsetelement ise;
+                ise.value = x;
+                itp.set.push_back(ise);
             }
             for(int i=0; i<py::len(probs); i++)
             {
@@ -572,9 +632,40 @@ public:
                 probs.append(bs::get<StringTraitParameters>(pms.m_Details).probs[i]);
             }
             
-            dt["set"] = bs::get<FloatTraitParameters>(pms.m_Details).min;
-            dt["probs"] = bs::get<FloatTraitParameters>(pms.m_Details).max;
+            dt["set"] = set;
+            dt["probs"] = probs;
         }
+        if (pms.type == "intset")
+        {
+            t["type"] = "intset";
+            py::list set;
+            py::list probs;
+            int ssize = bs::get<IntSetTraitParameters>(pms.m_Details).set.size();
+            for(int i=0; i<ssize; i++)
+            {
+                set.append(bs::get<IntSetTraitParameters>(pms.m_Details).set[i]);
+                probs.append(bs::get<IntSetTraitParameters>(pms.m_Details).probs[i]);
+            }
+
+            dt["set"] = set;
+            dt["probs"] = probs;
+        }
+        if (pms.type == "floatset")
+        {
+            t["type"] = "floatset";
+            py::list set;
+            py::list probs;
+            int ssize = bs::get<FloatSetTraitParameters>(pms.m_Details).set.size();
+            for(int i=0; i<ssize; i++)
+            {
+                set.append(bs::get<FloatSetTraitParameters>(pms.m_Details).set[i]);
+                probs.append(bs::get<FloatSetTraitParameters>(pms.m_Details).probs[i]);
+            }
+
+            dt["set"] = set;
+            dt["probs"] = probs;
+        }
+
         
         t["details"] = dt;
         

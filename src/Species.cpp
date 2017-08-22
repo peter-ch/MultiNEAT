@@ -612,11 +612,11 @@ namespace NEAT
                     
                         // The other parent should be a different one
                         // number of tries to find different parent
-                        int t_tries = 8;
+                        int t_tries = 64;
                         if (!a_Parameters.AllowClones)
                         {
                             while (((t_mom.GetID() == t_dad.GetID()) ||
-                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00000001)) &&
+                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)) &&
                                    (t_tries--))
                             {
                                 t_dad = GetIndividual(a_Parameters, a_RNG);
@@ -682,7 +682,7 @@ namespace NEAT
                 }
             }
         }
-        while ((t_baby_exists_in_pop == true) || t_baby.FailsConstraints(a_Parameters)); // end do
+        while (t_baby_exists_in_pop || t_baby.FailsConstraints(a_Parameters)); // end do
 
 
         // We have a new offspring now

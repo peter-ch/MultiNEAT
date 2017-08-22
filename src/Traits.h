@@ -14,7 +14,29 @@ namespace bs = boost;
 
 namespace NEAT
 {
-    typedef bs::variant<int, bool, double, std::string> TraitType;
+    class intsetelement
+    {
+    public:
+        // Comparison operator
+        bool operator==(const intsetelement& rhs) const
+        {
+            return rhs.value == value;
+        }
+
+        int value;
+    };
+    class floatsetelement
+    {
+    public:
+        // Comparison operator
+        bool operator==(const floatsetelement& rhs) const
+        {
+            return rhs.value == value;
+        }
+
+        double value;
+    };
+    typedef bs::variant<int, double, std::string, intsetelement, floatsetelement> TraitType;
 
     class IntTraitParameters
     {
@@ -48,6 +70,19 @@ namespace NEAT
         std::vector<std::string> set; // the set of possible strings
         std::vector<double> probs; // their respective probabilities for appearance
     };
+    class IntSetTraitParameters
+    {
+    public:
+        std::vector<intsetelement> set; // the set of possible ints
+        std::vector<double> probs; // their respective probabilities for appearance
+    };
+    class FloatSetTraitParameters
+    {
+    public:
+        std::vector<floatsetelement> set; // the set of possible floats
+        std::vector<double> probs; // their respective probabilities for appearance
+    };
+
 
     class TraitParameters
     {
@@ -55,8 +90,8 @@ namespace NEAT
         double m_ImportanceCoeff;
         double m_MutationProb;
 
-        std::string type; // can be "int", "bool", "float", "string"
-        bs::variant<IntTraitParameters, FloatTraitParameters, StringTraitParameters> m_Details;
+        std::string type; // can be "int", "float", "string", "intset", "floatset"
+        bs::variant<IntTraitParameters, FloatTraitParameters, StringTraitParameters, IntSetTraitParameters, FloatSetTraitParameters> m_Details;
 
         std::string dep_key; // counts only if this other trait exists..
         std::vector<TraitType> dep_values; // and has one of these values
