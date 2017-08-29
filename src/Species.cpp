@@ -393,7 +393,7 @@ namespace NEAT
 
                                 // The other parent should be a different one
                                 // number of tries to find different parent
-                                int t_tries = 3;
+                                int t_tries = 64;
                                 if (!a_Parameters.AllowClones)
                                 {
                                     while (((t_mom.GetID() == t_dad.GetID()) ||
@@ -461,6 +461,22 @@ namespace NEAT
                             }
                         }
                     }
+
+                    // In case we want to enforce always new individuals
+                    if (a_Parameters.ArchiveEnforcement)
+                    {
+                        for (unsigned int i = 0; i < a_Pop.m_GenomeArchive.size(); i++)
+                        {
+                            if (
+                                    (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
+                                                                  a_Parameters) < 0.00001) // identical genome?
+                                    )
+                            {
+                                t_baby_exists_in_pop = true;
+                                break;
+                            }
+                        }
+                    }
                 }
                 while ((t_baby_exists_in_pop == true) || (t_baby.FailsConstraints(a_Parameters))); // end do
             }
@@ -479,6 +495,12 @@ namespace NEAT
             t_baby.SetOffspringAmount(0);
 
             t_baby.ResetEvaluated();
+
+            // Archive the baby if needed
+            if (a_Parameters.ArchiveEnforcement)
+            {
+                a_Pop.m_GenomeArchive.push_back(t_baby);
+            }
 
             //////////////////////////////////
             // put the baby to its species  //
@@ -681,6 +703,22 @@ namespace NEAT
                     }
                 }
             }
+
+            // In case we want to enforce always new individuals
+            if (a_Parameters.ArchiveEnforcement)
+            {
+                for (unsigned int i = 0; i < a_Pop.m_GenomeArchive.size(); i++)
+                {
+                    if (
+                            (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
+                                                          a_Parameters) < 0.00001) // identical genome?
+                            )
+                    {
+                        t_baby_exists_in_pop = true;
+                        break;
+                    }
+                }
+            }
         }
         while (t_baby_exists_in_pop || t_baby.FailsConstraints(a_Parameters)); // end do
 
@@ -699,6 +737,12 @@ namespace NEAT
         t_baby.SetOffspringAmount(0);
 
         t_baby.ResetEvaluated();
+
+        // In case of archiving, add the new baby to the archive
+        if (a_Parameters.ArchiveEnforcement)
+        {
+            a_Pop.m_GenomeArchive.push_back(t_baby);
+        }
 
         return t_baby;
     }

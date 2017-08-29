@@ -70,7 +70,8 @@ namespace NEAT
         // search quickly, yet less efficient, leave this to true.
         AllowClones = true;
 
-
+        // Keep an archive of genomes and don't allow any new genome to exist in the archive or the population
+        ArchiveEnforcement = false;
 
 
         ////////////////////////////////
@@ -785,6 +786,15 @@ namespace NEAT
                     AllowLoops = false;
             }
 
+            if (s == "ArchiveEnforcement")
+            {
+                a_DataFile >> tf;
+                if (tf == "true" || tf == "1" || tf == "1.0")
+                    ArchiveEnforcement = true;
+                else
+                    ArchiveEnforcement = false;
+            }
+
             if (s == "DisjointCoeff")
                 a_DataFile >> DisjointCoeff;
 
@@ -1008,6 +1018,7 @@ namespace NEAT
         fprintf(a_fstream, "MinNeuronBias %3.20f\n", MinNeuronBias);
         fprintf(a_fstream, "MaxNeuronBias %3.20f\n", MaxNeuronBias);
         fprintf(a_fstream, "DontUseBiasNeuron %s\n", DontUseBiasNeuron == true ? "true" : "false");
+        fprintf(a_fstream, "ArchiveEnforcement %s\n", ArchiveEnforcement == true ? "true" : "false");
         fprintf(a_fstream, "AllowLoops %s\n", AllowLoops == true ? "true" : "false");
         fprintf(a_fstream, "DisjointCoeff %3.20f\n", DisjointCoeff);
         fprintf(a_fstream, "ExcessCoeff %3.20f\n", ExcessCoeff);

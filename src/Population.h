@@ -126,6 +126,9 @@ private:
 
 public:
 
+    // The archive
+    std::vector<Genome> m_GenomeArchive;
+
     // Random number generator
     RNG m_RNG;
 

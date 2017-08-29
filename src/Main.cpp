@@ -112,6 +112,8 @@ int main()
     params.MutateNeuronTraitsProb = 0.2;
     params.MutateLinkTraitsProb = 0.2;
 
+    params.ArchiveEnforcement = true;
+
     TraitParameters tp1;
     tp1.m_ImportanceCoeff = 1.0;
     tp1.m_MutationProb = 0.9;

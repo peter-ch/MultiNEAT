@@ -87,6 +87,9 @@ public:
     // search quickly, yet less efficient, leave this to true.
     bool AllowClones;
 
+    // Keep an archive of genomes and don't allow any new genome to exist in the acrhive or the population
+    bool ArchiveEnforcement;
+
    ////////////////////////////////
     // GA Parameters
     ////////////////////////////////
@@ -890,6 +893,8 @@ public:
         ar & GeometrySeed;
         ar & TournamentSize;
         ar & EliteFraction;
+
+        ar & ArchiveEnforcement;
     }
     
 #endif

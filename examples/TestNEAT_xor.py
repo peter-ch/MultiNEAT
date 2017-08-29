@@ -69,6 +69,8 @@ params.RouletteWheelSelection = False
 params.RecurrentProb = 0.0
 params.OverallMutationRate = 0.8
 
+params.ArchiveEnforcement = True
+
 params.MutateWeightsProb = 0.90
 
 params.WeightMutationMaxPower = 2.5
