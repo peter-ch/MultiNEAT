@@ -145,7 +145,7 @@ def getbest(i):
                     NEAT.ActivationFunction.TANH,
                     NEAT.ActivationFunction.TANH,
                     0,
-                    params)
+                    params, 0)
 
     pop = NEAT.Population(g, params, True, 1.0, i)
     pop.RNG.Seed(i)

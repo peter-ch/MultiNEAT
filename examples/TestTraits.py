@@ -17,6 +17,14 @@ def evaluate(genome):
     return f / genome.NumNeurons()
 
 
+# this defines a custom constraint. return True if the genome failed, otherwise False
+def custom_constraint(genome):
+    for tr in genome.GetNeuronTraits():
+        if tr[2]['y'] > 40: # don't let y be higher than 40
+            return True
+    return False
+
+
 params = NEAT.Parameters()
 params.PopulationSize = 150
 params.DynamicCompatibility = True
@@ -91,9 +99,12 @@ params.SetLinkTraitParameters('n', trait3)
 # the genome can also have traits, independent of the graph
 params.SetGenomeTraitParameters('gn', trait4)
 
+# the custom constraint
+params.CustomConstraints = custom_constraint
+
 # the seed genome and test population
 g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
-                NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+                NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 100))
 pop.RNG.Seed(int(time.clock()*100))
 

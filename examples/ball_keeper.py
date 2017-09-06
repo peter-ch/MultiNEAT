@@ -298,7 +298,7 @@ def main():
 
 
     g = NEAT.Genome(0, 6, 0, 2, False, 
-                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0)
     pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
 
     best_genome_ever = None

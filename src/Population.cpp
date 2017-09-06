@@ -96,6 +96,12 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
                         }
                     }
                 }
+                
+                // Also don't let any genome to fail the constraints
+                if (m_Genomes[i].FailsConstraints(a_Parameters))
+                {
+                    has_clones = true;
+                }
             }
         }
 

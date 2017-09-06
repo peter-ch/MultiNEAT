@@ -47,6 +47,8 @@ namespace py = boost::python;
 namespace NEAT
 {
 
+// forward
+class Genome;
 
 //////////////////////////////////////////////
 // The NEAT Parameters class
@@ -89,8 +91,17 @@ public:
 
     // Keep an archive of genomes and don't allow any new genome to exist in the acrhive or the population
     bool ArchiveEnforcement;
-
-   ////////////////////////////////
+    
+    // Pointer to a function that specifies custom topology constraints
+    // Should return true if the genome FAILS to meet the constraints
+    bool (*CustomConstraints)(Genome& g);
+    
+#ifdef USE_BOOST_PYTHON
+    // same as above, but for Python
+    py::object pyCustomConstraints;
+#endif
+    
+    ////////////////////////////////
     // GA Parameters
     ////////////////////////////////
 

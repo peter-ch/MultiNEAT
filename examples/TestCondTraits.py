@@ -90,7 +90,7 @@ params.SetLinkTraitParameters('n', trait3)
 
 # the seed genome and test population
 g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
-                NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params)
+                NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 100))
 pop.RNG.Seed(int(time.clock()*100))
 

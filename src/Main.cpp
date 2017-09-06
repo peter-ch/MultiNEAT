@@ -33,6 +33,18 @@ double abs(double x)
     return x;
 }*/
 
+bool constraints(Genome& g)
+{
+    for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
+    {
+        
+        if (boost::get<intsetelement>(it->m_Traits["z"].value).value == 64) // don't allow 4 to appear anywhere
+            return true;
+    }
+    
+    return false;
+}
+
 //std::vector<double>
 double xortest(Genome& g)
 {
@@ -113,6 +125,8 @@ int main()
     params.MutateLinkTraitsProb = 0.2;
 
     params.ArchiveEnforcement = true;
+    
+    params.CustomConstraints = constraints;
 
     TraitParameters tp1;
     tp1.m_ImportanceCoeff = 1.0;

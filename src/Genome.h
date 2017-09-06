@@ -257,7 +257,7 @@ namespace NEAT
         // Returns true if there is any looping path in the network
         bool HasLoops() const;
         
-        bool FailsConstraints(Parameters &a_Parameters) const
+        bool FailsConstraints(const Parameters &a_Parameters)
         {
             bool fails = false;
             
@@ -271,6 +271,22 @@ namespace NEAT
                 return true;
             }
             
+            // Custom constraints
+            if (a_Parameters.CustomConstraints != NULL)
+            {
+                if (a_Parameters.CustomConstraints(*this))
+                {
+                    return true;
+                }
+            }
+            
+            // for Python-based custom constraint callbacks
+#ifdef USE_BOOST_PYTHON
+            if (a_Parameters.pyCustomConstraints.ptr() != py::object().ptr()) // is it not None?
+            {
+                return py::extract<bool>(a_Parameters.pyCustomConstraints(*this));
+            }
+#endif
             // add more constraints here
             return false;
         }

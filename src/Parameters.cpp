@@ -72,8 +72,11 @@ namespace NEAT
 
         // Keep an archive of genomes and don't allow any new genome to exist in the archive or the population
         ArchiveEnforcement = false;
-
-
+    
+        // Pointer to a function that specifies custom topology/trait constraints
+        // Should return true if the genome FAILS to meet the constraints
+        CustomConstraints = NULL;
+        
         ////////////////////////////////
         // GA Parameters
         ////////////////////////////////
