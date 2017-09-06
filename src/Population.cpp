@@ -73,9 +73,30 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     {
         if (a_RandomizeWeights)
         {
-            m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
-            // randomize the traits as well
-            m_Genomes[i].Randomize_Traits(a_Parameters, m_RNG);
+            bool has_clones = true;
+            while (has_clones)
+            {
+                m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
+                // randomize the traits as well
+                m_Genomes[i].Randomize_Traits(a_Parameters, m_RNG);
+
+                // check in the population if there is a clone of that genome
+                has_clones = false;
+                if (!m_Parameters.AllowClones)
+                {
+                    for(unsigned int j=0; j<m_Genomes.size(); j++)
+                    {
+                        if (i != j) // don't compare the same genome
+                        {
+                            if (m_Genomes[i].CompatibilityDistance(m_Genomes[j], m_Parameters) < 0.000001) // equal genomes?
+                            {
+                                has_clones = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         //m_Genomes[i].CalculateDepth();
@@ -93,17 +114,6 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
         m_SearchMode = BLENDED;
     }
 
-    // initial mutation
-    /*for (unsigned int i = 0; i < m_Species.size(); i++)
-    {
-        for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
-        {
-            m_Species[i].MutateGenome( true, *this, m_Species[i].m_Individuals[j], m_Parameters, m_RNG );
-        }
-    }
-
-    Speciate();*/
-    
     // Initialize the innovation database
     m_InnovationDatabase.Init(a_Seed);
 

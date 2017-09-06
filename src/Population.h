@@ -160,7 +160,7 @@ public:
     // Destructor
     ////////////////////////////
 
-    // TODO: Major: move all header code into the source file,
+    // TODO: move all header code into the source file,
     // make as much private members as possible
 
     ////////////////////////////

@@ -42,6 +42,7 @@
 
 namespace NEAT
 {
+    RNG global_rng;
 
     // initializes a species with a representative genome and an ID number
     Species::Species(const Genome &a_Genome, int a_ID)
@@ -65,12 +66,12 @@ namespace NEAT
         m_AverageFitness = 0;
 
         // Choose a random color
-        RNG rng;
-        rng.TimeSeed();
-        m_R = static_cast<int>(rng.RandFloat() * 255);
-        m_G = static_cast<int>(rng.RandFloat() * 255) + 100;
+        //RNG rng;
+        //rng.TimeSeed();
+        m_R = static_cast<int>(global_rng.RandFloat() * 255);
+        m_G = static_cast<int>(global_rng.RandFloat() * 255) + 100;
         if (m_G > 255) m_G=255;
-        m_B = static_cast<int>(rng.RandFloat() * 255);
+        m_B = static_cast<int>(global_rng.RandFloat() * 255);
     }
 
     Species &Species::operator=(const Species &a_S)
