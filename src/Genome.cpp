@@ -2177,7 +2177,7 @@ namespace NEAT
 
 
     // Perturbs the weights
-    void Genome::Mutate_LinkWeights(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_LinkWeights(Parameters &a_Parameters, RNG &a_RNG)
     {
 #if 1
         // The end part of the genome
@@ -2185,6 +2185,8 @@ namespace NEAT
         // yet exist and this becomes difficult for the kickstart in the right
         // direction. todo: fix this issue
         unsigned int t_genometail = static_cast<unsigned int>(NumLinks() * 0.95);
+
+        bool did_mutate = false;
 
         // This tells us if this mutation will shake things up
         bool t_severe_mutation;
@@ -2258,6 +2260,9 @@ namespace NEAT
             m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
         }
 
+        did_mutate = true;
+        return did_mutate;
+
 #else
 
     // This tells us if this mutation will shake things up
@@ -2324,7 +2329,7 @@ namespace NEAT
     }
 
     // Perturbs the A parameters of the neuron activation functions
-    void Genome::Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2339,11 +2344,13 @@ namespace NEAT
                 Clamp(m_NeuronGenes[i].m_A, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             }
         }
+
+        return true;
     }
 
 
     // Perturbs the B parameters of the neuron activation functions
-    void Genome::Mutate_NeuronActivations_B(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronActivations_B(Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2358,21 +2365,33 @@ namespace NEAT
                 Clamp(m_NeuronGenes[i].m_B, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             }
         }
+
+        return true;
     }
 
 
     // Changes the activation function type for a random neuron
-    void Genome::Mutate_NeuronActivation_Type(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronActivation_Type(Parameters &a_Parameters, RNG &a_RNG)
     {
         // the first non-input neuron
         int t_first_idx = NumInputs();
         int t_choice = a_RNG.RandInt(t_first_idx, m_NeuronGenes.size() - 1);
 
+        int cur = m_NeuronGenes[t_choice].m_ActFunction;
+
         m_NeuronGenes[t_choice].m_ActFunction = GetRandomActivation(a_Parameters, a_RNG);
+        if (m_NeuronGenes[t_choice].m_ActFunction == cur) // same as before?
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     // Perturbs the neuron time constants
-    void Genome::Mutate_NeuronTimeConstants(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronTimeConstants(Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2388,10 +2407,12 @@ namespace NEAT
                       a_Parameters.MaxNeuronTimeConstant);
             }
         }
+
+        return true;
     }
 
     // Perturbs the neuron biases
-    void Genome::Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2406,27 +2427,43 @@ namespace NEAT
                 Clamp(m_NeuronGenes[i].m_TimeConstant, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
             }
         }
+
+        return true;
     }
 
-    void Genome::Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG)
     {
+        bool did_mutate = false;
         for(auto it = m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
         {
-            it->MutateTraits(a_Parameters.NeuronTraits, a_RNG);
+            // don't mutate inputs and bias
+            if ((it->Type() != INPUT) && (it->Type() != BIAS))
+            {
+                if (it->MutateTraits(a_Parameters.NeuronTraits, a_RNG))
+                {
+                    did_mutate = true;
+                }
+            }
         }
+        return did_mutate;
     }
 
-    void Genome::Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG)
     {
+        bool did_mutate = false;
         for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
         {
-            it->MutateTraits(a_Parameters.LinkTraits, a_RNG);
+            if ( it->MutateTraits(a_Parameters.LinkTraits, a_RNG) )
+            {
+                did_mutate = true;
+            }
         }
+        return did_mutate;
     }
     
-    void Genome::Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG)
     {
-        m_GenomeGene.MutateTraits(a_Parameters.GenomeTraits, a_RNG);
+        return m_GenomeGene.MutateTraits(a_Parameters.GenomeTraits, a_RNG);
     }
 
     // Mate this genome with dad and return the baby

@@ -73,15 +73,15 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     {
         if (a_RandomizeWeights)
         {
-            bool has_clones = true;
-            while (has_clones)
+            bool is_invalid = true;
+            while (is_invalid)
             {
                 m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
                 // randomize the traits as well
                 m_Genomes[i].Randomize_Traits(a_Parameters, m_RNG);
 
                 // check in the population if there is a clone of that genome
-                has_clones = false;
+                is_invalid = false;
                 if (!m_Parameters.AllowClones)
                 {
                     for(unsigned int j=0; j<m_Genomes.size(); j++)
@@ -90,7 +90,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
                         {
                             if (m_Genomes[i].CompatibilityDistance(m_Genomes[j], m_Parameters) < 0.000001) // equal genomes?
                             {
-                                has_clones = true;
+                                is_invalid = true;
                                 break;
                             }
                         }
@@ -98,9 +98,12 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
                 }
                 
                 // Also don't let any genome to fail the constraints
-                if (m_Genomes[i].FailsConstraints(a_Parameters))
+                if (!is_invalid) // doesn't make sense to do the test if already failed
                 {
-                    has_clones = true;
+                    if (m_Genomes[i].FailsConstraints(a_Parameters))
+                    {
+                        is_invalid = true;
+                    }
                 }
             }
         }

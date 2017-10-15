@@ -235,8 +235,9 @@ namespace NEAT
 
 
         // Traits are mutated according to parameters
-        void MutateTraits(const std::map<std::string, TraitParameters> &tp, RNG &a_RNG)
+        bool MutateTraits(const std::map<std::string, TraitParameters> &tp, RNG &a_RNG)
         {
+            bool did_mutate = false;
             for(auto it = tp.begin(); it != tp.end(); it++)
             {
                 // Check what kind of type is this and modify it
@@ -279,16 +280,22 @@ namespace NEAT
                             {
                                 // replace
                                 int val = 0;
+                                int cur = bs::get<int>(m_Traits[it->first].value);
                                 val = a_RNG.RandInt(itp.min, itp.max);
                                 m_Traits[it->first].value = val;
+                                if (cur != val)
+                                    did_mutate = true;
                             }
                             else
                             {
                                 // modify
                                 int val = bs::get<int>(m_Traits[it->first].value);
+                                int cur = val;
                                 val += a_RNG.RandInt(-itp.mut_power, itp.mut_power);
                                 Clamp(val, itp.min, itp.max);
                                 m_Traits[it->first].value = val;
+                                if (cur != val)
+                                    did_mutate = true;
                             }
                         }
                     }
@@ -304,17 +311,23 @@ namespace NEAT
                             {
                                 // replace
                                 double val = 0;
+                                double cur = bs::get<double>(m_Traits[it->first].value);
                                 val = a_RNG.RandFloat();
                                 Scale(val, 0, 1, itp.min, itp.max);
                                 m_Traits[it->first].value = val;
+                                if (cur != val)
+                                    did_mutate = true;
                             }
                             else
                             {
                                 // modify
                                 double val = bs::get<double>(m_Traits[it->first].value);
+                                double cur = val;
                                 val += a_RNG.RandFloatSigned() * itp.mut_power;
                                 Clamp(val, itp.min, itp.max);
                                 m_Traits[it->first].value = val;
+                                if (cur != val)
+                                    did_mutate = true;
                             }
                         }
                     }
@@ -325,9 +338,12 @@ namespace NEAT
                         probs.resize(itp.set.size());
 
                         int idx = a_RNG.Roulette(probs);
+                        std::string cur = bs::get<std::string>(m_Traits[it->first].value);
 
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
+                        if (cur != itp.set[idx])
+                            did_mutate = true;
                     }
                     if (it->second.type == "intset")
                     {
@@ -336,9 +352,12 @@ namespace NEAT
                         probs.resize(itp.set.size());
 
                         int idx = a_RNG.Roulette(probs);
+                        intsetelement cur = bs::get<intsetelement>(m_Traits[it->first].value);
 
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
+                        if(cur.value != itp.set[idx].value)
+                            did_mutate = true;
                     }
                     if (it->second.type == "floatset")
                     {
@@ -347,12 +366,17 @@ namespace NEAT
                         probs.resize(itp.set.size());
 
                         int idx = a_RNG.Roulette(probs);
+                        floatsetelement cur = bs::get<floatsetelement>(m_Traits[it->first].value);
 
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
+                        if(cur.value != itp.set[idx].value)
+                            did_mutate = true;
                     }
                 }
             }
+
+            return did_mutate;
         }
 
         // Compute and return distances between each matching pair of traits

@@ -479,7 +479,7 @@ namespace NEAT
         bool Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, RNG &a_RNG);
         
         // Perturbs the weights
-        void Mutate_LinkWeights(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_LinkWeights(Parameters &a_Parameters, RNG &a_RNG);
         
         // Set all link weights to random values between [-R .. R]
         void Randomize_LinkWeights(double a_Range, RNG &a_RNG);
@@ -488,28 +488,28 @@ namespace NEAT
         void Randomize_Traits(const Parameters& a_Parameters, RNG &a_RNG);
         
         // Perturbs the A parameters of the neuron activation functions
-        void Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the B parameters of the neuron activation functions
-        void Mutate_NeuronActivations_B(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronActivations_B(Parameters &a_Parameters, RNG &a_RNG);
         
         // Changes the activation function type for a random neuron
-        void Mutate_NeuronActivation_Type(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronActivation_Type(Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the neuron time constants
-        void Mutate_NeuronTimeConstants(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronTimeConstants(Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the neuron biases
-        void Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG);
 
         // Perturbs the neuron traits
-        void Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG);
 
         // Perturbs the link traits
-        void Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the genome traits
-        void Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG);
 
         ///////////
         // Mating

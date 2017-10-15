@@ -39,6 +39,7 @@
 #include "Parameters.h"
 #include "assert.h"
 
+#define COMPAT_EQUALITY_DELTA 0.0000001
 
 namespace NEAT
 {
@@ -394,11 +395,11 @@ namespace NEAT
 
                                 // The other parent should be a different one
                                 // number of tries to find different parent
-                                int t_tries = 64;
+                                int t_tries = 1024;
                                 if (!a_Parameters.AllowClones)
                                 {
                                     while (((t_mom.GetID() == t_dad.GetID()) ||
-                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00000001)) &&
+                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < COMPAT_EQUALITY_DELTA)) &&
                                            (t_tries--))
                                     {
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
@@ -453,7 +454,7 @@ namespace NEAT
                             {
                                 if (
                                         (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j],
-                                                                      a_Parameters) < 0.00001) // identical genome?
+                                                                      a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
                                         )
                                 {
                                     t_baby_exists_in_pop = true;
@@ -470,7 +471,7 @@ namespace NEAT
                         {
                             if (
                                     (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
-                                                                  a_Parameters) < 0.00001) // identical genome?
+                                                                  a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
                                     )
                             {
                                 t_baby_exists_in_pop = true;
@@ -479,7 +480,7 @@ namespace NEAT
                         }
                     }
                 }
-                while ((t_baby_exists_in_pop == true) || (t_baby.FailsConstraints(a_Parameters))); // end do
+                while (t_baby_exists_in_pop || (t_baby.FailsConstraints(a_Parameters))); // end do
             }
 
             // We have a new offspring now
@@ -589,6 +590,7 @@ namespace NEAT
         //////////////////////////
         // Reproduction
         bool t_baby_exists_in_pop = false;
+        bool t_baby_is_clone = false;
 
         // Spawn only one baby
         do // - while the baby turned invalid in some way
@@ -635,11 +637,11 @@ namespace NEAT
                     
                         // The other parent should be a different one
                         // number of tries to find different parent
-                        int t_tries = 64;
+                        int t_tries = 1024;
                         if (!a_Parameters.AllowClones)
                         {
                             while (((t_mom.GetID() == t_dad.GetID()) ||
-                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < 0.00001)) &&
+                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < COMPAT_EQUALITY_DELTA)) &&
                                    (t_tries--))
                             {
                                 t_dad = GetIndividual(a_Parameters, a_RNG);
@@ -677,7 +679,7 @@ namespace NEAT
             }
             
             // Mutate the baby
-            bool t_baby_is_clone = false;
+            t_baby_is_clone = false;
             if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
             {
                 MutateGenome(t_baby_is_clone, a_Pop, t_baby, a_Parameters, a_RNG);
@@ -695,7 +697,7 @@ namespace NEAT
                     {
                         if (
                                 (t_baby.CompatibilityDistance(a_Pop.m_Species[i].m_Individuals[j],
-                                                              a_Parameters) < 0.00001) // identical genome?
+                                                              a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
                                 )
                         {
                             t_baby_exists_in_pop = true;
@@ -712,7 +714,7 @@ namespace NEAT
                 {
                     if (
                             (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
-                                                          a_Parameters) < 0.00001) // identical genome?
+                                                          a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
                             )
                     {
                         t_baby_exists_in_pop = true;
@@ -872,43 +874,44 @@ namespace NEAT
                 }
                     break;
 
-                case CHANGE_ACTIVATION_FUNCTION:t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case CHANGE_ACTIVATION_FUNCTION:
+                    t_mutation_success = t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_WEIGHTS:t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_WEIGHTS:
+                    t_mutation_success = t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_ACTIVATION_A:t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_ACTIVATION_A:
+                    t_mutation_success = t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_ACTIVATION_B:t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_ACTIVATION_B:
+                    t_mutation_success = t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_TIMECONSTS:t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_TIMECONSTS:
+                    t_mutation_success = t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_BIASES:t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_BIASES:
+                    t_mutation_success = t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_NEURON_TRAITS:t_baby.Mutate_NeuronTraits(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_NEURON_TRAITS:
+                    t_mutation_success = t_baby.Mutate_NeuronTraits(a_Parameters, a_RNG);
                     break;
 
-                case MUTATE_LINK_TRAITS:t_baby.Mutate_LinkTraits(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_LINK_TRAITS:
+                    t_mutation_success = t_baby.Mutate_LinkTraits(a_Parameters, a_RNG);
                     break;
     
-                case MUTATE_GENOME_TRAITS:t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
-                    t_mutation_success = true;
+                case MUTATE_GENOME_TRAITS:
+                    t_mutation_success = t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
                     break;
     
-                default:t_mutation_success = false;
+                default:
+                    t_mutation_success = false;
                     break;
             }
         }

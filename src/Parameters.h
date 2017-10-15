@@ -657,7 +657,7 @@ public:
             int ssize = bs::get<IntSetTraitParameters>(pms.m_Details).set.size();
             for(int i=0; i<ssize; i++)
             {
-                set.append(bs::get<IntSetTraitParameters>(pms.m_Details).set[i]);
+                set.append(bs::get<IntSetTraitParameters>(pms.m_Details).set[i].value);
                 probs.append(bs::get<IntSetTraitParameters>(pms.m_Details).probs[i]);
             }
 
@@ -672,7 +672,7 @@ public:
             int ssize = bs::get<FloatSetTraitParameters>(pms.m_Details).set.size();
             for(int i=0; i<ssize; i++)
             {
-                set.append(bs::get<FloatSetTraitParameters>(pms.m_Details).set[i]);
+                set.append(bs::get<FloatSetTraitParameters>(pms.m_Details).set[i].value);
                 probs.append(bs::get<FloatSetTraitParameters>(pms.m_Details).probs[i]);
             }
 

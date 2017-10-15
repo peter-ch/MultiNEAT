@@ -237,6 +237,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetLinkTraits", &Genome::GetLinkTraits)
             .def("GetGenomeTraits", &Genome::GetGenomeTraits)
 
+            .def("FailsConstraints", &Genome::FailsConstraints)
+
             .def("IsEvaluated", &Genome::IsEvaluated)
             .def("SetEvaluated", &Genome::SetEvaluated)
             .def("ResetEvaluated", &Genome::ResetEvaluated)
