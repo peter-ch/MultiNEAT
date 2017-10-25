@@ -38,7 +38,7 @@ rng = NEAT.RNG()
 rng.TimeSeed()
 
 g = NEAT.Genome(0, 4+1+1, 0, 1, False,
-                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params)
+                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
 
 

@@ -129,7 +129,7 @@ def main():
     generations = 10
 
     g = NEAT.Genome(0, 24 + 1 + 1, 0, 4, False,
-                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params)
+                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0)
     pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
     hof = []
     maxf_ever = 0

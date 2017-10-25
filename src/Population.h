@@ -270,7 +270,7 @@ public:
     // Novelty search
 
     // A pointer to the archive of PhenotypeBehaviors
-    // Not necessary to contain derived custom classes.
+    // Necessary to contain derived custom classes.
     std::vector< PhenotypeBehavior >* m_BehaviorArchive;
 
     // Call this function to allocate memory for your custom

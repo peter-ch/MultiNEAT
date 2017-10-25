@@ -72,7 +72,7 @@ trials = 15
 render_during_training = 0
 
 g = NEAT.Genome(0, 8 +1, 0, 4, False,
-                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params)
+                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
 
 
@@ -86,7 +86,7 @@ def interact_with_nn():
     inp = observation.tolist()
     net.Input(inp + [1.0])
     #print(inp)
-    net.Activate()
+    net.ActivateLeaky(0.1)
     out = list(net.Output())
     #print(np.argmax(list(out)))
     #out[0] *= 10.0
@@ -127,7 +127,7 @@ def do_trial():
 
 try:
 
-    for generation in range(100):
+    for generation in range(20):
 
         for i_episode, genome in enumerate(NEAT.GetGenomeList(pop)):
 
