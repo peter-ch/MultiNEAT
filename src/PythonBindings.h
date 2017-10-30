@@ -205,11 +205,29 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 // Genome class
 ///////////////////////////////////////////////////////////////////
 
-    def("GetRandomActivation", &GetRandomActivation);
+    //def("GetRandomActivation", &GetRandomActivation);
+    
+    class_<LinkGene>("LinkGene", init<>())
+            .def_readwrite("FromNeuronID", &LinkGene::m_FromNeuronID)
+            .def_readwrite("ToNeuronID", &LinkGene::m_ToNeuronID)
+            .def_readwrite("InnovationID", &LinkGene::m_InnovationID)
+            .def_readwrite("Weight", &LinkGene::m_Weight)
+            ;
+
+    class_<NeuronGene>("NeuronGene", init<>())
+            .def_readwrite("A", &NeuronGene::m_A)
+            .def_readwrite("B", &NeuronGene::m_B)
+            .def_readwrite("TimeConstant", &NeuronGene::m_TimeConstant)
+            .def_readwrite("Bias", &NeuronGene::m_Bias)
+            .def_readwrite("ActFunction", &NeuronGene::m_ActFunction)
+            .def_readwrite("Type", &NeuronGene::m_Type)
+            ;
 
     class_<Genome, Genome*>("Genome", init<>())
 
             .def(init<char*>())
+            .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
+                    ActivationFunction, ActivationFunction, Parameters>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     bool, ActivationFunction, ActivationFunction, int, Parameters, unsigned int>())
 
@@ -217,6 +235,9 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("NumLinks", &Genome::NumLinks)
             .def("NumInputs", &Genome::NumInputs)
             .def("NumOutputs", &Genome::NumOutputs)
+
+            .def_readwrite("NeuronGenes", &Genome::m_NeuronGenes)
+            .def_readwrite("LinkGenes", &Genome::m_LinkGenes)
 
             .def("GetFitness", &Genome::GetFitness)
             .def("SetFitness", &Genome::SetFitness)
@@ -233,6 +254,11 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
             .def("Randomize_Traits", &Genome::Randomize_Traits)
+            .def("Mutate_NeuronActivations_A", &Genome::Mutate_NeuronActivations_A)
+            .def("Mutate_NeuronActivations_B", &Genome::Mutate_NeuronActivations_B)
+            .def("Mutate_NeuronActivation_Type", &Genome::Mutate_NeuronActivation_Type)
+            .def("Mutate_NeuronTimeConstants", &Genome::Mutate_NeuronTimeConstants)
+            .def("Mutate_NeuronBiases", &Genome::Mutate_NeuronBiases)
             .def("GetNeuronTraits", &Genome::GetNeuronTraits)
             .def("GetLinkTraits", &Genome::GetLinkTraits)
             .def("GetGenomeTraits", &Genome::GetGenomeTraits)
@@ -368,7 +394,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("ClearNeuronTraitParameters", &Parameters::ClearNeuronTraitParameters)
             .def("ClearLinkTraitParameters", &Parameters::ClearLinkTraitParameters)
             .def("ClearGenomeTraitParameters", &Parameters::ClearGenomeTraitParameters)
-            // Now there are hell lot of variables
+
             .def_readwrite("PopulationSize", &Parameters::PopulationSize)
             .def_readwrite("DynamicCompatibility", &Parameters::DynamicCompatibility)
             .def_readwrite("MinSpecies", &Parameters::MinSpecies)
@@ -535,6 +561,14 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
     class_< std::vector<Connection> >("ConnectionList")
             .def(vector_indexing_suite< std::vector<Connection> >() )
+            ;
+
+    class_< std::vector<NeuronGene> >("NeuronGeneList")
+            .def(vector_indexing_suite< std::vector<NeuronGene> >() )
+            ;
+
+    class_< std::vector<LinkGene> >("LinkGeneList")
+            .def(vector_indexing_suite< std::vector<LinkGene> >() )
             ;
 
     // For dealing with Phenotype behaviors

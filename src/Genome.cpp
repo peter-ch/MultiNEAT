@@ -50,7 +50,7 @@ namespace NEAT
 {
 
     // forward
-    ActivationFunction GetRandomActivation(Parameters &a_Parameters, RNG &a_RNG);
+    ActivationFunction GetRandomActivation( const Parameters &a_Parameters, RNG &a_RNG);
 
     // squared x
     inline double sqr(double x)
@@ -114,6 +114,119 @@ namespace NEAT
         }
 
         return *this;
+    }
+    
+    // New constructor that creates a fully-connected CTRNN
+    Genome::Genome(unsigned int a_ID,
+                   unsigned int a_NumInputs,
+                   unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
+                   unsigned int a_NumOutputs, ActivationFunction a_OutputActType,
+                   ActivationFunction a_HiddenActType,
+                   const Parameters &a_Parameters)
+    {
+        ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
+        RNG t_RNG;
+        t_RNG.TimeSeed();
+    
+        m_ID = a_ID;
+        int t_innovnum = 1, t_nnum = 1;
+    
+        if (a_Parameters.DontUseBiasNeuron == false)
+        {
+        
+            // Create the input neurons.
+            // Warning! The last one is a bias!
+            // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
+            for (unsigned int i = 0; i < (a_NumInputs - 1); i++)
+            {
+                NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
+                // Initialize the traits
+                n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+                m_NeuronGenes.push_back(n);
+                t_nnum++;
+            }
+            // add the bias
+            NeuronGene n = NeuronGene(BIAS, t_nnum, 0.0);
+            // Initialize the traits
+            n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+        
+            m_NeuronGenes.push_back(n);
+            t_nnum++;
+        }
+        else
+        {
+            // Create the input neurons without marking the last node as bias.
+            // The order of the neurons is very important. It is the following: INPUTS, OUTPUTS, HIDDEN ... (no limit)
+            for (unsigned int i = 0; i < a_NumInputs; i++)
+            {
+                NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
+                // Initialize the traits
+                n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+            
+                m_NeuronGenes.push_back(n);
+                t_nnum++;
+            }
+        }
+    
+        // now the outputs
+        for (unsigned int i = 0; i < (a_NumOutputs); i++)
+        {
+            NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
+            // Initialize the neuron gene's properties
+            t_ngene.Init((a_Parameters.MinActivationA + a_Parameters.MaxActivationA) / 2.0f,
+                         (a_Parameters.MinActivationB + a_Parameters.MaxActivationB) / 2.0f,
+                         (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant) / 2.0f,
+                         (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias) / 2.0f,
+                         a_OutputActType);
+            // Initialize the traits
+            t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+        
+            m_NeuronGenes.push_back(t_ngene);
+            t_nnum++;
+        }
+        
+        for (unsigned int i = 0; i < a_NumHidden; i++)
+        {
+            NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
+            // Initialize the neuron gene's properties
+            t_ngene.Init((a_Parameters.MinActivationA + a_Parameters.MaxActivationA) / 2.0f,
+                         (a_Parameters.MinActivationB + a_Parameters.MaxActivationB) / 2.0f,
+                         (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant) / 2.0f,
+                         (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias) / 2.0f,
+                         a_HiddenActType);
+            // Initialize the traits
+            t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+            t_ngene.m_SplitY = 0.5;
+        
+            m_NeuronGenes.push_back(t_ngene);
+            t_nnum++;
+        }
+        
+        // Fully connect every neuron to every other. Only inputs don't receive output.
+        for (unsigned int i = a_NumInputs; i < (a_NumInputs+a_NumOutputs+a_NumHidden); i++)
+        {
+            for (unsigned int j = 0; j < (a_NumInputs+a_NumOutputs+a_NumHidden); j++)
+            {
+                // add the link
+                // created with zero weights. needs future random initialization. !!!!!!!!
+                LinkGene l = LinkGene(j + 1, i + 1, t_innovnum, 0.0, false);
+                l.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                m_LinkGenes.push_back(l);
+                t_innovnum++;
+            }
+        }
+    
+        // Also initialize the Genome's traits
+        m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, t_RNG);
+    
+        m_Evaluated = false;
+        m_NumInputs = a_NumInputs;
+        m_NumOutputs = a_NumOutputs;
+        m_Fitness = 0.0;
+        m_AdjustedFitness = 0.0;
+        m_OffspringAmount = 0.0;
+        m_Depth = 0;
+        m_PhenotypeBehavior = NULL;
     }
 
     Genome::Genome(unsigned int a_ID,
@@ -192,6 +305,7 @@ namespace NEAT
             m_NeuronGenes.push_back(t_ngene);
             t_nnum++;
         }
+        
         // Now add LEO
         if (a_Parameters.Leo)
         {
@@ -213,6 +327,8 @@ namespace NEAT
         // add and connect hidden neurons if seed type is != 0
         if ((a_SeedType != 0) && (a_NumHidden > 0))
         {
+            double lt_inc = 1.0 / (a_NumLayers+1);
+            double initlt = lt_inc;
             for (unsigned int n = 0; n < a_NumLayers; n++)
             {
                 for (unsigned int i = 0; i < a_NumHidden; i++)
@@ -226,11 +342,13 @@ namespace NEAT
                                  a_HiddenActType);
                     // Initialize the traits
                     t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-                    t_ngene.m_SplitY = 0.5;
+                    t_ngene.m_SplitY = initlt;
         
                     m_NeuronGenes.push_back(t_ngene);
                     t_nnum++;
                 }
+    
+                initlt += lt_inc;
             }
 
             if (!a_FS_NEAT)
@@ -1283,7 +1401,7 @@ namespace NEAT
 
 
     // Returns a random activation function from the canonical set based ot probabilities
-    ActivationFunction GetRandomActivation(Parameters &a_Parameters, RNG &a_RNG)
+    ActivationFunction GetRandomActivation(const Parameters &a_Parameters, RNG &a_RNG)
     {
         std::vector<double> t_probs;
 
@@ -1308,7 +1426,7 @@ namespace NEAT
 
     // Adds a new neuron to the genome
     // returns true if succesful
-    bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_AddNeuron(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG)
     {
         // No links to split - go away..
         if (NumLinks() == 0)
@@ -1599,7 +1717,7 @@ namespace NEAT
 
     // Adds a new link to the genome
     // returns true if succesful
-    bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_AddLink(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG)
     {
         // this variable tells where is the first noninput node
         int t_first_noninput = 0;
@@ -2177,7 +2295,7 @@ namespace NEAT
 
 
     // Perturbs the weights
-    bool Genome::Mutate_LinkWeights(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG)
     {
 #if 1
         // The end part of the genome
@@ -2329,7 +2447,7 @@ namespace NEAT
     }
 
     // Perturbs the A parameters of the neuron activation functions
-    bool Genome::Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronActivations_A(const Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2350,7 +2468,7 @@ namespace NEAT
 
 
     // Perturbs the B parameters of the neuron activation functions
-    bool Genome::Mutate_NeuronActivations_B(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronActivations_B(const Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2371,7 +2489,7 @@ namespace NEAT
 
 
     // Changes the activation function type for a random neuron
-    bool Genome::Mutate_NeuronActivation_Type(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronActivation_Type(const Parameters &a_Parameters, RNG &a_RNG)
     {
         // the first non-input neuron
         int t_first_idx = NumInputs();
@@ -2391,7 +2509,7 @@ namespace NEAT
     }
 
     // Perturbs the neuron time constants
-    bool Genome::Mutate_NeuronTimeConstants(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronTimeConstants(const Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2412,7 +2530,7 @@ namespace NEAT
     }
 
     // Perturbs the neuron biases
-    bool Genome::Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronBiases(const Parameters &a_Parameters, RNG &a_RNG)
     {
         // for all neurons..
         for (unsigned int i = 0; i < NumNeurons(); i++)
@@ -2431,7 +2549,7 @@ namespace NEAT
         return true;
     }
 
-    bool Genome::Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_NeuronTraits(const Parameters &a_Parameters, RNG &a_RNG)
     {
         bool did_mutate = false;
         for(auto it = m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
@@ -2448,7 +2566,7 @@ namespace NEAT
         return did_mutate;
     }
 
-    bool Genome::Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_LinkTraits(const Parameters &a_Parameters, RNG &a_RNG)
     {
         bool did_mutate = false;
         for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
@@ -2461,7 +2579,7 @@ namespace NEAT
         return did_mutate;
     }
     
-    bool Genome::Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG)
+    bool Genome::Mutate_GenomeTraits(const Parameters &a_Parameters, RNG &a_RNG)
     {
         return m_GenomeGene.MutateTraits(a_Parameters.GenomeTraits, a_RNG);
     }

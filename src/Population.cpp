@@ -79,6 +79,12 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
                 m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
                 // randomize the traits as well
                 m_Genomes[i].Randomize_Traits(a_Parameters, m_RNG);
+                // and mutate nodes one initial time
+                m_Genomes[i].Mutate_NeuronActivations_A(a_Parameters, m_RNG);
+                m_Genomes[i].Mutate_NeuronActivations_B(a_Parameters, m_RNG);
+                m_Genomes[i].Mutate_NeuronActivation_Type(a_Parameters, m_RNG);
+                m_Genomes[i].Mutate_NeuronTimeConstants(a_Parameters, m_RNG);
+                m_Genomes[i].Mutate_NeuronBiases(a_Parameters, m_RNG);
 
                 // check in the population if there is a clone of that genome
                 is_invalid = false;

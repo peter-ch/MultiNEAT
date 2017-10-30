@@ -471,7 +471,7 @@ namespace NEAT
         // Members
         /////////////////////
 
-    private:
+    public:
 
         // These variables are initialized once and cannot be changed
         // anymore
@@ -614,7 +614,7 @@ namespace NEAT
         // Members
         /////////////////////
 
-    private:
+    public:
         // These variables are initialized once and cannot be changed
         // anymore
 
@@ -698,6 +698,23 @@ namespace NEAT
         NeuronGene()
         {
 
+        }
+        
+        /*friend bool operator!=(const NeuronGene &a_lhs, const NeuronGene &a_rhs)
+        {
+            return (a_lhs.m_ID != a_rhs.m_ID);
+        }*/
+        
+        friend bool operator==(const NeuronGene &a_lhs, const NeuronGene &a_rhs)
+        {
+            return (a_lhs.m_ID == a_rhs.m_ID) &&
+                    (a_lhs.m_Type == a_rhs.m_Type) &&
+                    (a_lhs.m_SplitY == a_rhs.m_SplitY) &&
+                    (a_lhs.m_A == a_rhs.m_A) &&
+                    (a_lhs.m_B == a_rhs.m_B) &&
+                    (a_lhs.m_TimeConstant == a_rhs.m_TimeConstant) &&
+                    (a_lhs.m_Bias == a_rhs.m_Bias) &&
+                    (a_lhs.m_ActFunction == a_rhs.m_ActFunction);
         }
 
         NeuronGene(NeuronType a_type, int a_id, double a_splity)

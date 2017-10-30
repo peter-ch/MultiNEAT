@@ -84,6 +84,7 @@ namespace NEAT
         // Members
         /////////////////////
     private:
+    
         // ID of genome
         unsigned int m_ID;
         
@@ -175,7 +176,11 @@ namespace NEAT
         
         // Builds this genome from an opened file
         Genome(std::ifstream &a_DataFile);
-        
+    
+        // This creates a CTRNN fully-connected genome
+        Genome(unsigned int a_ID, unsigned int a_NumInputs, unsigned int a_NumHidden, unsigned int a_NumOutputs,
+               ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, const Parameters &a_Parameters);
+    
         // This creates a standart minimal genome - perceptron-like structure
         Genome(unsigned int a_ID,
                unsigned int a_NumInputs,
@@ -463,11 +468,11 @@ namespace NEAT
         
         // Adds a new neuron to the genome
         // returns true if succesful
-        bool Mutate_AddNeuron(InnovationDatabase &a_Innovs, Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_AddNeuron(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG);
         
         // Adds a new link to the genome
         // returns true if succesful
-        bool Mutate_AddLink(InnovationDatabase &a_Innovs, Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_AddLink(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG);
         
         // Remove a random link from the genome
         // A cleanup procedure is invoked so any dead-ends or stranded neurons are also deleted
@@ -479,7 +484,7 @@ namespace NEAT
         bool Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, RNG &a_RNG);
         
         // Perturbs the weights
-        bool Mutate_LinkWeights(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Set all link weights to random values between [-R .. R]
         void Randomize_LinkWeights(double a_Range, RNG &a_RNG);
@@ -488,28 +493,28 @@ namespace NEAT
         void Randomize_Traits(const Parameters& a_Parameters, RNG &a_RNG);
         
         // Perturbs the A parameters of the neuron activation functions
-        bool Mutate_NeuronActivations_A(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronActivations_A(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the B parameters of the neuron activation functions
-        bool Mutate_NeuronActivations_B(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronActivations_B(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Changes the activation function type for a random neuron
-        bool Mutate_NeuronActivation_Type(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronActivation_Type(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the neuron time constants
-        bool Mutate_NeuronTimeConstants(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronTimeConstants(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the neuron biases
-        bool Mutate_NeuronBiases(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronBiases(const Parameters &a_Parameters, RNG &a_RNG);
 
         // Perturbs the neuron traits
-        bool Mutate_NeuronTraits(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_NeuronTraits(const Parameters &a_Parameters, RNG &a_RNG);
 
         // Perturbs the link traits
-        bool Mutate_LinkTraits(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_LinkTraits(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the genome traits
-        bool Mutate_GenomeTraits(Parameters &a_Parameters, RNG &a_RNG);
+        bool Mutate_GenomeTraits(const Parameters &a_Parameters, RNG &a_RNG);
 
         ///////////
         // Mating
