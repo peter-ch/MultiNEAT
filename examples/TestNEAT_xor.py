@@ -3,7 +3,7 @@
 
 import os
 import sys
-sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
+#sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 import time
 import random as rnd
 import cv2
@@ -58,7 +58,8 @@ def evaluate(genome):
 params = NEAT.Parameters()
 params.PopulationSize = 150
 params.DynamicCompatibility = True
-params.WeightDiffCoeff = 4.0
+params.NormalizeGenomeSize = True
+params.WeightDiffCoeff = 0.02
 params.CompatTreshold = 2.0
 params.YoungAgeTreshold = 15
 params.SpeciesMaxStagnation = 15
@@ -69,14 +70,15 @@ params.RouletteWheelSelection = False
 params.RecurrentProb = 0.0
 params.OverallMutationRate = 0.8
 
-params.ArchiveEnforcement = True
+params.ArchiveEnforcement = False
 
 params.MutateWeightsProb = 0.90
 
 params.WeightMutationMaxPower = 2.5
 params.WeightReplacementMaxPower = 5.0
-params.MutateWeightsSevereProb = 0.5
-params.WeightMutationRate = 0.25
+params.MutateWeightsSevereProb = 0.2
+params.WeightMutationRate = 0.75
+params.WeightReplacementRate = 0.333
 
 params.MaxWeight = 8
 

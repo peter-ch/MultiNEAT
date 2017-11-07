@@ -51,7 +51,7 @@ class RNG
 
 public:
     // Seeds the random number generator with this value
-    void Seed(int seed);
+    void Seed(long seed);
 
     // Seeds the random number generator with time
     void TimeSeed();
@@ -60,7 +60,6 @@ public:
     int RandPosNeg();
 
     // Returns a random integer between X and Y
-    // in case of ( 0 .. 1 ) returns 0
     int RandInt(int x, int y);
 
     // Returns a random number from a uniform distribution in the range of [0 .. 1]

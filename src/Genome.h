@@ -148,6 +148,10 @@ namespace NEAT
         // used in steady state evolution
         bool m_Evaluated;
         
+        // the initial genome complexity
+        int m_initial_num_neurons;
+        int m_initial_num_links;
+        
         // A pointer to a class representing the phenotype's behavior
         // Used in novelty searches
         PhenotypeBehavior *m_PhenotypeBehavior;

@@ -92,6 +92,9 @@ public:
     // Keep an archive of genomes and don't allow any new genome to exist in the acrhive or the population
     bool ArchiveEnforcement;
     
+    // Normalize genome size when calculating compatibility
+    bool NormalizeGenomeSize;
+    
     // Pointer to a function that specifies custom topology constraints
     // Should return true if the genome FAILS to meet the constraints
     bool (*CustomConstraints)(Genome& g);
@@ -264,6 +267,9 @@ public:
 
     // Probability for a particular gene to be mutated. 1.0 = 100%
     double WeightMutationRate;
+    
+    // Probability for a particular gene to be mutated via replacement of the weight. 1.0 = 100%
+    double WeightReplacementRate;
 
     // Maximum perturbation for a weight mutation
     double WeightMutationMaxPower;
@@ -788,6 +794,7 @@ public:
         ar & MaxSpecies;
         ar & InnovationsForever;
         ar & AllowClones;
+        ar & NormalizeGenomeSize;
         ar & YoungAgeTreshold;
         ar & YoungAgeFitnessBoost;
         ar & SpeciesMaxStagnation;
@@ -832,6 +839,7 @@ public:
         ar & MutateWeightsSevereProb;
         ar & WeightMutationRate;
         ar & WeightMutationMaxPower;
+        ar & WeightReplacementRate;
         ar & WeightReplacementMaxPower;
         ar & MaxWeight;
         ar & MutateActivationAProb;

@@ -14,9 +14,10 @@ if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
-#include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${PYTHON_INCLUDE_DIRS})
 
-#add_definitions(-DUSE_BOOST_PYTHON)
+add_definitions(-DUSE_BOOST_PYTHON)
+add_definitions(-DUSE_BOOST_RANDOM)
 
 set(SOURCE_FILES
     src/Assert.h

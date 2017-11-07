@@ -73,6 +73,15 @@ namespace NEAT
         // Keep an archive of genomes and don't allow any new genome to exist in the archive or the population
         ArchiveEnforcement = false;
     
+        // When true, don't have a special bias neuron and treat all inputs equal
+        DontUseBiasNeuron = false;
+    
+        // When false, this prevents any recurrent pathways in the genomes from forming
+        AllowLoops = true;
+    
+        // Normalize genome size when calculating compatibility
+        NormalizeGenomeSize = true;
+    
         // Pointer to a function that specifies custom topology/trait constraints
         // Should return true if the genome FAILS to meet the constraints
         CustomConstraints = NULL;
@@ -255,6 +264,9 @@ namespace NEAT
 
         // Maximum perturbation for a weight mutation
         WeightMutationMaxPower = 1.0;
+    
+        // Probability for a particular gene to be mutated via replacement of the weight. 1.0 = 100%
+        WeightReplacementRate = 0.2;
 
         // Maximum magnitude of a replaced weight
         WeightReplacementMaxPower = 1.0;
@@ -358,13 +370,7 @@ namespace NEAT
         // Genome properties params
         /////////////////////////////
 
-        // When true, don't have a special bias neuron and treat all inputs equal
-        bool DontUseBiasNeuron = false;
-
-        // When false, this prevents any recurrent pathways in the genomes from forming
-        bool AllowLoops = true;
-
-
+    
         /////////////////////////////////////
         // Speciation parameters
         /////////////////////////////////////
@@ -513,7 +519,17 @@ namespace NEAT
                 else
                     AllowClones = false;
             }
-
+    
+            if (s == "NormalizeGenomeSize")
+            {
+                a_DataFile >> tf;
+                if (tf == "true" || tf == "1" || tf == "1.0")
+                    NormalizeGenomeSize = true;
+                else
+                    NormalizeGenomeSize = false;
+            }
+    
+    
             if (s == "YoungAgeTreshold")
                 a_DataFile >> YoungAgeTreshold;
 
@@ -684,7 +700,10 @@ namespace NEAT
 
             if (s == "WeightMutationMaxPower")
                 a_DataFile >> WeightMutationMaxPower;
-
+    
+            if (s == "WeightReplacementRate")
+                a_DataFile >> WeightReplacementRate;
+    
             if (s == "WeightReplacementMaxPower")
                 a_DataFile >> WeightReplacementMaxPower;
 
@@ -940,6 +959,7 @@ namespace NEAT
         fprintf(a_fstream, "MaxSpecies %d\n", MaxSpecies);
         fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever == true ? "true" : "false");
         fprintf(a_fstream, "AllowClones %s\n", AllowClones == true ? "true" : "false");
+        fprintf(a_fstream, "NormalizeGenomeSize %s\n", NormalizeGenomeSize == true ? "true" : "false");
         fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
         fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
         fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
@@ -987,6 +1007,7 @@ namespace NEAT
         fprintf(a_fstream, "MutateWeightsSevereProb %3.20f\n", MutateWeightsSevereProb);
         fprintf(a_fstream, "WeightMutationRate %3.20f\n", WeightMutationRate);
         fprintf(a_fstream, "WeightMutationMaxPower %3.20f\n", WeightMutationMaxPower);
+        fprintf(a_fstream, "WeightReplacementRate %3.20f\n", WeightReplacementRate);
         fprintf(a_fstream, "WeightReplacementMaxPower %3.20f\n", WeightReplacementMaxPower);
         fprintf(a_fstream, "MaxWeight %3.20f\n", MaxWeight);
         fprintf(a_fstream, "MutateActivationAProb %3.20f\n", MutateActivationAProb);
