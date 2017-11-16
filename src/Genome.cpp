@@ -705,7 +705,7 @@ namespace NEAT
         return false;
     }
 
-    bool Genome::HasLoops() const
+    bool Genome::HasLoops()
     {
         NeuralNetwork net;
         BuildPhenotype(net);
@@ -750,7 +750,7 @@ namespace NEAT
 
 
     // This builds a fastnetwork structure out from the genome
-    void Genome::BuildPhenotype(NeuralNetwork &a_Net) const
+    void Genome::BuildPhenotype(NeuralNetwork &a_Net)
     {
         // first clear out the network
         a_Net.Clear();
@@ -783,9 +783,35 @@ namespace NEAT
             t_c.m_recur_flag = m_LinkGenes[i].IsRecurrent();
 
             //////////////////////
-            // stupid hack
+            // default values
             t_c.m_hebb_rate = 0.3;
             t_c.m_hebb_pre_rate = 0.1;
+
+            // if a float trait "hebb_rate" exists
+            if (m_LinkGenes[i].m_Traits.count("hebb_rate") == 1)
+            {
+                try
+                {
+                    t_c.m_hebb_rate = boost::get<double>(m_LinkGenes[i].m_Traits["hebb_rate"].value);
+                }
+                catch(std::exception e)
+                {
+                    // do nothing
+                }
+            }
+            // if a float trait "hebb_pre_rate" exists
+            if (m_LinkGenes[i].m_Traits.count("hebb_pre_rate") == 1)
+            {
+                try
+                {
+                    t_c.m_hebb_pre_rate = boost::get<double>(m_LinkGenes[i].m_Traits["hebb_pre_rate"].value);
+                }
+                catch(std::exception e)
+                {
+                    // do nothing
+                }
+            }
+
             //////////////////////
 
             a_Net.AddConnection(t_c);
@@ -1457,23 +1483,23 @@ namespace NEAT
         int t_in = 0, t_out = 0;
         LinkGene t_chosenlink(0, 0, -1, 0, false); // to save it for later
 
-        // numer of tries to find a good link or give up
-        int t_tries = 32;
+        // number of tries to find a good link or give up
+        int t_tries = 64;
         while (!t_link_found)
         {
             if (NumLinks() == 1)
             {
                 t_link_num = 0;
             }
-            else if (NumLinks() == 2)
+            /*else if (NumLinks() == 2)
             {
                 t_link_num = Rounded(a_RNG.RandFloat());
-            }
+            }*/
             else
             {
                 //if (NumLinks() > 8)
                 {
-                    t_link_num = a_RNG.RandInt(0, static_cast<int>(NumLinks() - 1)); // random selection
+                    t_link_num = a_RNG.RandInt(0, NumLinks() - 1); // random selection
                 }
                 /*else
             {
@@ -2328,11 +2354,7 @@ namespace NEAT
     
         // This tells us if this mutation will shake things up
         bool t_severe_mutation;
-
-#if 0
-        double t_soft_mutation_point;
-        double t_hard_mutation_point;
-
+        
         if (a_RNG.RandFloat() < a_Parameters.MutateWeightsSevereProb)
         {
             t_severe_mutation = true;
@@ -2341,114 +2363,38 @@ namespace NEAT
         {
             t_severe_mutation = false;
         }
-
-        // The perturbations are taken from a normal (gaussian) distribution,
-        // so most of the mutations will likely be a weak ones.
-        // The weight replacements however are taken from a uniform distribution,
-        // to prevent most replaced weights to collapse around 0.0
-
+    
         // For all links..
-        for (unsigned int i = 0; i < NumLinks(); i++)
+        for(unsigned int i=0; i<m_LinkGenes.size(); i++)
         {
-            // The following if determines the probabilities of doing hard
-            // mutation, meaning the probability of replacing a link weight with
-            // another, entirely random weight.  It is meant to bias such mutations
-            // to the tail of a genome, because that is where less time-tested genes
-            // reside.  The soft point and  hard point represent values above
-            // which a random double will signify that kind of mutation.
-            
-            if (a_RNG.RandFloat() < a_Parameters.WeightMutationRate)
+            double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
+            if ((!t_severe_mutation) && (a_RNG.RandFloat() < a_Parameters.WeightMutationRate))
             {
-    
-                if (t_severe_mutation)
-                {
-                    // Should make these parameters
-                    t_soft_mutation_point = 0.3;
-                    t_hard_mutation_point = 0.1;
-                }
-                else if (i > t_genometail)
-                {
-                    // Very high probability to replace a link in the tail
-                    t_soft_mutation_point = 0.8;
-                    t_hard_mutation_point = 0.1;
-                }
-                else
-                {
-                    // Half the time don't replace any weights
-                    if (a_RNG.RandFloat() < 0.5)
-                    {
-                        t_soft_mutation_point = 1.0 - a_Parameters.WeightMutationRate;
-                        t_hard_mutation_point = 1.0 - a_Parameters.WeightMutationRate - 0.1;
-                    }
-                    else
-                    {
-                        t_soft_mutation_point = 1.0 - a_Parameters.WeightMutationRate;
-                        t_hard_mutation_point = 1.0 - a_Parameters.WeightMutationRate;
-                    }
-                }
-    
-                double t_random_choice = a_RNG.RandFloat();
-                double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
-                if (t_random_choice > t_soft_mutation_point)
-                {
-                    t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
-                }
-                else if (t_random_choice > t_hard_mutation_point)
+                bool ontail = (i >= t_genometail);
+                
+                if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
                     t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
                 }
-    
+                else
+                {
+                    t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
+                }
+        
                 Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
                 m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
+                
+                did_mutate = true;
             }
-        }
-
-        did_mutate = true;
-        return did_mutate;
-#else
-
-    if (a_RNG.RandFloat() < a_Parameters.MutateWeightsSevereProb)
-    {
-        t_severe_mutation = true;
-    }
-    else
-    {
-        t_severe_mutation = false;
-    }
-
-    // For all links..
-    did_mutate = false;
-    for(unsigned int i=0; i<m_LinkGenes.size(); i++)
-    {
-        double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
-        if ((!t_severe_mutation) && (a_RNG.RandFloat() <= a_Parameters.WeightMutationRate))
-        {
-            bool ontail = (i >= t_genometail);
-            
-            if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
+            else if (t_severe_mutation)
             {
                 t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                
+                did_mutate = true;
             }
-            else
-            {
-                t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
-            }
-    
-            Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
-            m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
-            
-            did_mutate = true;
         }
-        else if (t_severe_mutation)
-        {
-            t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
-            
-            did_mutate = true;
-        }
-    }
-    
-    return did_mutate;
-#endif
+        
+        return did_mutate;
     }
 
 
@@ -2459,7 +2405,7 @@ namespace NEAT
         for (unsigned int i = 0; i < NumLinks(); i++)
         {
             m_LinkGenes[i].SetWeight(
-                    a_RNG.RandFloatSigned() * a_Range);// * GlobalParameters.WeightReplacementMaxPower);
+                    a_RNG.RandFloatSigned() * a_Range);
         }
     }
 

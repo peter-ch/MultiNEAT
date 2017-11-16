@@ -706,7 +706,6 @@ void NeuralNetwork::Adapt(Parameters& a_Parameters)
         Clamp(m_connections[i].m_weight, -a_Parameters.MaxWeight,
                 a_Parameters.MaxWeight);
     }
-
 }
 
 int NeuralNetwork::ConnectionExists(int a_to, int a_from)

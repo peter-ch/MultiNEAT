@@ -25,9 +25,14 @@ def AlmostEqual(a, b, margin):
         return True
 
 try:
-    import cv2
     import numpy as np
     from numpy import array, clip
+except:
+    print('Install NumPy for visualization')
+
+
+try:
+    import cv2
     cvnumpy_installed = True
 except:
     print ('Tip: install the OpenCV computer vision library (2.0+) with '
@@ -296,7 +301,6 @@ else:
             thickness = conn.weight
             thickness = Scale(thickness, 0, max_weight, 1, max_line_thickness)
             thickness = Clamp(thickness, 1, max_line_thickness)
-            
 
             w = Scale(abs(conn.weight), 0.0, max_weight, 0.0, 1.0)
             w = Clamp(w, 0.75, 1.0)
@@ -350,7 +354,10 @@ else:
                 clr = (clr*255).astype(np.uint8)
             clr = tuple(int(x) for x in clr)
             a = Clamp(a, 0.3, 2.0)
-            
+
+            if np.isnan(a):
+                a = 0.0
+
             if neuron.type == NeuronType.INPUT:
                 cv2.circle(image, pt, int(neuron_radius*a), clr, thickness=-1) # filled 
                 cv2.circle(image, pt, neuron_radius, (0,255,0), thickness=2) # outline

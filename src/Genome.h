@@ -264,7 +264,7 @@ namespace NEAT
         bool HasDeadEnds() const;
         
         // Returns true if there is any looping path in the network
-        bool HasLoops() const;
+        bool HasLoops();
         
         bool FailsConstraints(const Parameters &a_Parameters)
         {
@@ -305,7 +305,7 @@ namespace NEAT
         void SetOffspringAmount(double a_oa);
         
         // This builds a fastnetwork structure out from the genome
-        void BuildPhenotype(NeuralNetwork &net) const;
+        void BuildPhenotype(NeuralNetwork &net);
         
         // Projects the phenotype's weights back to the genome
         void DerivePhenotypicChanges(NeuralNetwork &a_Net);

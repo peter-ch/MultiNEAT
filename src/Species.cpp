@@ -44,7 +44,19 @@
 namespace NEAT
 {
     RNG global_rng;
-
+    
+    // Sorts the members of this species by fitness
+    bool fitness_greater(Genome *ls, Genome *rs)
+    {
+        return ((ls->GetFitness()) > (rs->GetFitness()));
+    }
+    
+    bool genome_greater(Genome ls, Genome rs)
+    {
+        return (ls.GetFitness() > rs.GetFitness());
+    }
+    
+    
     // initializes a species with a representative genome and an ID number
     Species::Species(const Genome &a_Genome, int a_ID)
     {
@@ -133,19 +145,28 @@ namespace NEAT
 
         // Warning!!!! The individuals must be sorted by best fitness for this to work
         int t_chosen_one = 0;
+        
+        // then sort them here just to make sure
+        std::sort(t_Evaluated.begin(), t_Evaluated.end(), genome_greater);
 
         // Here might be introduced better selection scheme, but this works OK for now
         if (!a_Parameters.RouletteWheelSelection)
         {   //start with the last one just for comparison sake
-            int temp_genome;
+            //int temp_genome;
 
-
-            int t_num_parents = static_cast<int>( floor(
-                    (a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size()))) + 1.0));
-
+            //int t_num_parents = static_cast<int>( floor(
+            //        (a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size()))) + 1.0));
+            int t_num_parents = (int)(a_Parameters.SurvivalRate * (double)(t_Evaluated.size()));
+    
             ASSERT(t_num_parents > 0);
+            ASSERT(t_num_parents < t_Evaluated.size());
+            if (t_num_parents >= t_Evaluated.size())
+            {
+                t_num_parents = t_Evaluated.size() - 1;
+            }
             t_chosen_one = a_RNG.RandInt(0, t_num_parents);
-            for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
+            
+            /*for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
             {
                 temp_genome = a_RNG.RandInt(0, t_num_parents);
 
@@ -153,15 +174,16 @@ namespace NEAT
                 {
                     t_chosen_one = temp_genome;
                 }
-            }
-
+            }*/
         }
         else
         {
             // roulette wheel selection
             std::vector<double> t_probs;
             for (unsigned int i = 0; i < t_Evaluated.size(); i++)
+            {
                 t_probs.push_back(t_Evaluated[i].GetFitness());
+            }
             t_chosen_one = a_RNG.Roulette(t_probs);
         }
 
@@ -285,17 +307,6 @@ namespace NEAT
         }
     }
 
-
-    // Sorts the members of this species by fitness
-    bool fitness_greater(Genome *ls, Genome *rs)
-    {
-        return ((ls->GetFitness()) > (rs->GetFitness()));
-    }
-
-    bool genome_greater(Genome ls, Genome rs)
-    {
-        return (ls.GetFitness() > rs.GetFitness());
-    }
 
     void Species::SortIndividuals()
     {
@@ -755,6 +766,81 @@ namespace NEAT
     void
     Species::MutateGenome(bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters &a_Parameters, RNG &a_RNG)
     {
+#if 0
+        if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+        {
+            t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+        }
+        else if ((a_RNG.RandFloat() < a_Parameters.MutateAddLinkProb) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+        {
+            t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+        }
+        else if ((a_RNG.RandFloat() < a_Parameters.MutateRemSimpleNeuronProb) && (a_Pop.GetSearchMode() != COMPLEXIFYING))
+        {
+            t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_RNG);
+        }
+        else if ((a_RNG.RandFloat() < a_Parameters.MutateRemLinkProb) && (a_Pop.GetSearchMode() != COMPLEXIFYING))
+        {
+            // Keep doing this mutation until it is sure that the baby will not
+            // end up having dead ends or no links
+            Genome t_saved_baby = t_baby;
+            bool t_no_links = false, t_has_dead_ends = false;
+
+            int t_tries = 128;
+            do
+            {
+                t_tries--;
+                if (t_tries <= 0)
+                {
+                    t_saved_baby = t_baby;
+                    break; // give up
+                }
+    
+                t_saved_baby = t_baby;
+                t_saved_baby.Mutate_RemoveLink(a_RNG);
+    
+                t_no_links = t_has_dead_ends = false;
+    
+                if (t_saved_baby.NumLinks() == 0)
+                    t_no_links = true;
+    
+                t_has_dead_ends = t_saved_baby.HasDeadEnds();
+    
+            }
+            while (t_no_links || t_has_dead_ends);
+
+            t_baby = t_saved_baby;
+        }
+        else
+        {
+            if (a_RNG.RandFloat() < a_Parameters.MutateNeuronActivationTypeProb)
+                t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateWeightsProb)
+                t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateActivationAProb)
+                t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateActivationBProb)
+                t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateNeuronTimeConstantsProb)
+                t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateNeuronBiasesProb)
+                t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateNeuronTraitsProb)
+                t_baby.Mutate_NeuronTraits(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateLinkTraitsProb)
+                t_baby.Mutate_LinkTraits(a_Parameters, a_RNG);
+    
+            if (a_RNG.RandFloat() < a_Parameters.MutateGenomeTraitsProb)
+                t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
+        }
+#else
         // We will perform roulette wheel selection to choose the type of mutation and will mutate the baby
         // This method guarantees that the baby will be mutated at least with one mutation
         enum MutationTypes
@@ -765,46 +851,46 @@ namespace NEAT
         };
         std::vector<int> t_muts;
         std::vector<double> t_mut_probs;
-
+    
         // ADD_NODE;
         t_mut_probs.push_back(a_Parameters.MutateAddNeuronProb);
-
+    
         // ADD_LINK;
         t_mut_probs.push_back(a_Parameters.MutateAddLinkProb);
-
+    
         // REMOVE_NODE;
         t_mut_probs.push_back(a_Parameters.MutateRemSimpleNeuronProb);
-
+    
         // REMOVE_LINK;
         t_mut_probs.push_back(a_Parameters.MutateRemLinkProb);
-
+    
         // CHANGE_ACTIVATION_FUNCTION;
         t_mut_probs.push_back(a_Parameters.MutateNeuronActivationTypeProb);
-
+    
         // MUTATE_WEIGHTS;
         t_mut_probs.push_back(a_Parameters.MutateWeightsProb);
-
+    
         // MUTATE_ACTIVATION_A;
         t_mut_probs.push_back(a_Parameters.MutateActivationAProb);
-
+    
         // MUTATE_ACTIVATION_B;
         t_mut_probs.push_back(a_Parameters.MutateActivationBProb);
-
+    
         // MUTATE_TIMECONSTS;
         t_mut_probs.push_back(a_Parameters.MutateNeuronTimeConstantsProb);
-
+    
         // MUTATE_BIASES;
         t_mut_probs.push_back(a_Parameters.MutateNeuronBiasesProb);
-
+    
         // MUTATE_NEURON_TRAITS;
         t_mut_probs.push_back( a_Parameters.MutateNeuronTraitsProb );
-
+    
         // MUTATE_LINK_TRAITS;
         t_mut_probs.push_back( a_Parameters.MutateLinkTraitsProb );
     
         // MUTATE_GENOME_TRAITS;
         t_mut_probs.push_back( a_Parameters.MutateGenomeTraitsProb );
-
+    
         // Special consideration for phased searching - do not allow certain mutations depending on the search mode
         // also don't use additive mutations if we just want to get rid of the clones
         if ((a_Pop.GetSearchMode() == SIMPLIFYING) || t_baby_is_clone)
@@ -817,36 +903,36 @@ namespace NEAT
             t_mut_probs[REMOVE_NODE] = 0; // rem node
             t_mut_probs[REMOVE_LINK] = 0; // rem link
         }
-
+    
         bool t_mutation_success = false;
-
+    
         // repeat until successful
         while (t_mutation_success == false)
         {
             int ChosenMutation = a_RNG.Roulette(t_mut_probs);
-
+        
             // Now mutate based on the choice
             switch (ChosenMutation)
             {
                 case ADD_NODE:
                     t_mutation_success = t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
                     break;
-
+            
                 case ADD_LINK:
                     t_mutation_success = t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
                     break;
-
+            
                 case REMOVE_NODE:
                     t_mutation_success = t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_RNG);
                     break;
-
+            
                 case REMOVE_LINK:
                 {
                     // Keep doing this mutation until it is sure that the baby will not
                     // end up having dead ends or no links
                     Genome t_saved_baby = t_baby;
                     bool t_no_links = false, t_has_dead_ends = false;
-
+                
                     int t_tries = 128;
                     do
                     {
@@ -856,67 +942,67 @@ namespace NEAT
                             t_saved_baby = t_baby;
                             break; // give up
                         }
-
+                    
                         t_saved_baby = t_baby;
                         t_mutation_success = t_saved_baby.Mutate_RemoveLink(a_RNG);
-
+                    
                         t_no_links = t_has_dead_ends = false;
-
+                    
                         if (t_saved_baby.NumLinks() == 0)
                             t_no_links = true;
-
+                    
                         t_has_dead_ends = t_saved_baby.HasDeadEnds();
-
+                    
                     }
                     while (t_no_links || t_has_dead_ends);
-
+                
                     t_baby = t_saved_baby;
                 }
                     break;
-
+            
                 case CHANGE_ACTIVATION_FUNCTION:
                     t_mutation_success = t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_WEIGHTS:
                     t_mutation_success = t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_ACTIVATION_A:
                     t_mutation_success = t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_ACTIVATION_B:
                     t_mutation_success = t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_TIMECONSTS:
                     t_mutation_success = t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_BIASES:
                     t_mutation_success = t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_NEURON_TRAITS:
                     t_mutation_success = t_baby.Mutate_NeuronTraits(a_Parameters, a_RNG);
                     break;
-
+            
                 case MUTATE_LINK_TRAITS:
                     t_mutation_success = t_baby.Mutate_LinkTraits(a_Parameters, a_RNG);
                     break;
-    
+            
                 case MUTATE_GENOME_TRAITS:
                     t_mutation_success = t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
                     break;
-    
+            
                 default:
                     t_mutation_success = false;
                     break;
             }
         }
+#endif
     }
-
-
+    
 } // namespace NEAT
 
