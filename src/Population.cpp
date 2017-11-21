@@ -413,7 +413,7 @@ void Population::UpdateSpecies()
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         // Reset the species and update its age
-        m_Species[i].IncreaseAge();
+        m_Species[i].IncreaseAgeGens();
         m_Species[i].IncreaseGensNoImprovement();
         m_Species[i].SetOffspringRqd(0);
 
@@ -435,7 +435,7 @@ void Population::UpdateSpecies()
     // so it will die off anyway.
     if ((t_oldbestid != t_newbestid) && (t_oldbestid != -1))
     {
-        m_Species[t_oldbestidx].ResetAge();
+        m_Species[t_oldbestidx].ResetAgeGens();
     }
 }
 
@@ -562,8 +562,8 @@ void Population::Epoch()
                 }
 
                 // Now reset the stagnation counter and species age
-                m_Species[0].ResetAge();
-                m_Species[1].ResetAge();
+                m_Species[0].ResetAgeGens();
+                m_Species[1].ResetAgeGens();
                 m_GensSinceBestFitnessLastChanged = 0;
             }
         }
@@ -619,7 +619,7 @@ void Population::Epoch()
                     // reset the age of species
                     for(unsigned int i=0; i<m_Species.size(); i++)
                     {
-                        m_Species[i].ResetAge();
+                        m_Species[i].ResetAgeGens();
                     }
                 }
             }
@@ -639,7 +639,7 @@ void Population::Epoch()
                 // reset the age of species
                 for(unsigned int i=0; i<m_Species.size(); i++)
                 {
-                    m_Species[i].ResetAge();
+                    m_Species[i].ResetAgeGens();
                 }
             }
         }
@@ -934,7 +934,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     // Find and save the best genome and fitness
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].IncreaseGensNoImprovement();
+        m_Species[i].IncreaseEvalsNoImprovement();
 
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
@@ -949,7 +949,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 // Reset the stagnation counter only if the fitness jump is greater or equal to the delta.
                 if (fabs(t_Fitness - m_BestFitnessEver) >= m_Parameters.StagnationDelta)
                 {
-                    m_GensSinceBestFitnessLastChanged = 0;
+                    m_EvalsSinceBestFitnessLastChanged = 0;
                 }
 
                 m_BestFitnessEver = t_Fitness;
@@ -972,7 +972,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
             if (m_Species[i].m_Individuals[j].GetFitness() >= m_Species[i].GetBestFitness())
             {
                 m_Species[i].m_BestFitness = m_Species[i].m_Individuals[j].GetFitness();
-                m_Species[i].m_GensNoImprovement = 0;
+                m_Species[i].m_EvalsNoImprovement = 0;
             }
         }
     }

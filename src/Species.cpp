@@ -70,7 +70,7 @@ namespace NEAT
         // add the first and only one individual
         m_Individuals.push_back(a_Genome);
 
-        m_Age = 0;
+        m_AgeGenerations = 0;
         m_GensNoImprovement = 0;
         m_OffspringRqd = 0;
         m_BestFitness = a_Genome.GetFitness();
@@ -99,7 +99,7 @@ namespace NEAT
             m_WorstSpecies = a_S.m_WorstSpecies;
             m_BestFitness = a_S.m_BestFitness;
             m_GensNoImprovement = a_S.m_GensNoImprovement;
-            m_Age = a_S.m_Age;
+            m_AgeGenerations = a_S.m_AgeGenerations;
             m_OffspringRqd = a_S.m_OffspringRqd;
             m_R = a_S.m_R;
             m_G = a_S.m_G;
@@ -278,13 +278,13 @@ namespace NEAT
             }
 
             // boost the fitness up to some young age
-            if (m_Age < a_Parameters.YoungAgeTreshold)
+            if (m_AgeGenerations < a_Parameters.YoungAgeTreshold)
             {
                 t_fitness *= a_Parameters.YoungAgeFitnessBoost;
             }
 
             // penalty for old species
-            if (m_Age > a_Parameters.OldAgeTreshold)
+            if (m_AgeGenerations > a_Parameters.OldAgeTreshold)
             {
                 t_fitness *= a_Parameters.OldAgePenalty;
             }

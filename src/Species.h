@@ -67,8 +67,10 @@ private:
     bool m_WorstSpecies;
 
 
-    // age of species
-    unsigned int m_Age;
+    // age of species (in generations)
+    unsigned int m_AgeGenerations;
+    // age of species (in evaluations)
+    unsigned int m_AgeEvaluations;
 
     // how many of this species should be spawned for
     // the next population
@@ -86,6 +88,8 @@ public:
     // generations since fitness has improved, we can use
     // this info to kill off a species if required
     unsigned int m_GensNoImprovement;
+    // evaluations since fitness has improved
+    unsigned int m_EvalsNoImprovement;
 
     // Color. Useful for displaying
     // Safe to access directly.
@@ -117,16 +121,21 @@ public:
     double GetBestFitness() const { return m_BestFitness; }
     void SetBestSpecies(bool t) { m_BestSpecies = t; }
     void SetWorstSpecies(bool t) { m_WorstSpecies = t; }
-    void IncreaseAge() { m_Age++; }
-    void ResetAge() { m_Age = 0; m_GensNoImprovement = 0; }
+    void IncreaseAgeGens() { m_AgeGenerations++; }
+    void ResetAgeGens() { m_AgeGenerations = 0; m_GensNoImprovement = 0; }
     void IncreaseGensNoImprovement() { m_GensNoImprovement++; }
+    void IncreaseAgeEvals() { m_AgeEvaluations++; }
+    void ResetAgeEvals() { m_AgeEvaluations = 0; m_EvalsNoImprovement = 0; }
+    void IncreaseEvalsNoImprovement() { m_EvalsNoImprovement++; }
     void SetOffspringRqd(double a_ofs) { m_OffspringRqd = a_ofs; }
     double GetOffspringRqd() const { return m_OffspringRqd; }
     unsigned int NumIndividuals() { return m_Individuals.size(); }
     void ClearIndividuals() { m_Individuals.clear(); }
     int ID() { return m_ID; }
     int GensNoImprovement() { return m_GensNoImprovement; }
-    int Age() { return m_Age; }
+    int EvalsNoImprovement() { return m_EvalsNoImprovement; }
+    int AgeGens() { return m_AgeGenerations; }
+    int AgeEvals() { return m_AgeEvaluations; }
     Genome GetIndividualByIdx(int a_idx) const { return (m_Individuals[a_idx]); }
     bool IsBestSpecies() const { return m_BestSpecies; }
     bool IsWorstSpecies() const { return m_WorstSpecies; }

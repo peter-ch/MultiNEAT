@@ -108,7 +108,7 @@ public:
     // GA Parameters
     ////////////////////////////////
 
-    // Age treshold, meaning if a species is below it, it is considered young
+    // AgeGens treshold, meaning if a species is below it, it is considered young
     unsigned int YoungAgeTreshold;
 
     // Fitness boost multiplier for young species (1.0 means no boost)
@@ -122,7 +122,7 @@ public:
     // Setting this value to 0.0 makes the system to behave like regular NEAT.
     double StagnationDelta;
 
-    // Age threshold, meaning if a species if above it, it is considered old
+    // AgeGens threshold, meaning if a species if above it, it is considered old
     unsigned int OldAgeTreshold;
 
     // Multiplier that penalizes old species.

@@ -90,7 +90,7 @@ namespace NEAT
         // GA Parameters
         ////////////////////////////////
 
-        // Age treshold, meaning if a species is below it, it is considered young
+        // AgeGens treshold, meaning if a species is below it, it is considered young
         YoungAgeTreshold = 5;
 
         // Fitness boost multiplier for young species (1.0 means no boost)
@@ -104,7 +104,7 @@ namespace NEAT
         // Setting this value to 0.0 makes the system to behave like regular NEAT.
         StagnationDelta = 0.0;
 
-        // Age threshold, meaning if a species is above it, it is considered old
+        // AgeGens threshold, meaning if a species is above it, it is considered old
         OldAgeTreshold = 30;
 
         // Multiplier that penalizes old species.

@@ -984,7 +984,7 @@ cdef class Species:
         def __get__(self): return self.thisptr.ID()
 
     property Age:
-        def __get__(self): return self.thisptr.Age()
+        def __get__(self): return self.thisptr.AgeGens()
 
 
 cdef class Population:

@@ -118,6 +118,9 @@ private:
     // Number of generations since the best fitness changed
     unsigned int m_GensSinceBestFitnessLastChanged;
 
+    // Number of evaluations since the best fitness changed
+    unsigned int m_EvalsSinceBestFitnessLastChanged;
+
     // How many generations passed until the last change of MPC
     unsigned int m_GensSinceMPCLastChanged;
 
