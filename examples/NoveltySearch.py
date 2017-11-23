@@ -1,12 +1,8 @@
 #!/usr/bin/python3
 import sys
-sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
-
-import time
 import random as rnd
 import cv2
 import numpy as np
-import math
 import MultiNEAT as NEAT
 from MultiNEAT.viz import Draw
 import pygame
@@ -16,6 +12,26 @@ from pygame.color import *
 import pymunk as pm
 from pymunk import Vec2d
 from pymunk.pygame_util import draw, from_pygame
+import progressbar as pbar
+import pickle
+
+ns_on = 1
+
+ns_K = 15
+ns_recompute_sparseness_each = 20
+ns_P_min = 10.0
+ns_dynamic_Pmin = True
+ns_Pmin_min = 1.0
+ns_no_archiving_stagnation_threshold = 150
+ns_Pmin_lowering_multiplier = 0.9
+ns_Pmin_raising_multiplier = 1.1
+ns_quick_archiving_min_evals = 8
+
+
+max_evaluations = 2500
+
+screen_size_x, screen_size_y = 600, 600
+max_timesteps = 1500
 
 collision_type_wall = 0
 collision_type_nn = 1
@@ -26,6 +42,7 @@ params = NEAT.Parameters()
 params.PopulationSize = 150
 params.DynamicCompatibility = True
 params.AllowClones = False
+params.AllowLoops = True
 params.CompatTreshold = 5.0
 params.CompatTresholdModifier = 0.3
 params.YoungAgeTreshold = 15
@@ -34,7 +51,7 @@ params.OldAgeTreshold = 35
 params.MinSpecies = 3
 params.MaxSpecies = 10
 params.RouletteWheelSelection = True
-params.RecurrentProb = 0.0
+params.RecurrentProb = 0.2
 params.OverallMutationRate = 0.02
 params.MutateWeightsProb = 0.90
 params.WeightMutationMaxPower = 1.0
@@ -45,21 +62,7 @@ params.MaxWeight = 20
 params.MutateAddNeuronProb = 0.01
 params.MutateAddLinkProb = 0.02
 params.MutateRemLinkProb = 0.00
-params.DivisionThreshold = 0.5
-params.VarianceThreshold = 0.03
-params.BandThreshold = 0.3
-params.InitialDepth = 3
-params.MaxDepth = 4
-params.IterationLevel = 1
-params.Leo = True
-params.GeometrySeed = True
-params.LeoSeed = True
-params.LeoThreshold = 0.3
-params.CPPN_Bias = -3.0
-params.Qtree_X = 0.0
-params.Qtree_Y = 0.0
-params.Width = 1.
-params.Height = 1.
+
 params.Elitism = 0.1
 params.CrossoverRate = 0.5
 params.MutateWeightsSevereProb = 0.01
@@ -71,34 +74,11 @@ rng = NEAT.RNG()
 rng.TimeSeed()
 
 
-substrate = NEAT.Substrate([(-1., -1., 0.0), (-.5, -1., 0.0), (0.0, -1., 0.0),
-                            (.5, -1., 0.0), (1.0, -1., 0.0), (0.0, -1.0, -1.0),
-    ],
-                           [],
-                           [(-1., 1., 0.0), (1.0,1.0,0.0)])
-
-substrate.m_allow_input_hidden_links = False
-substrate.m_allow_input_output_links = False
-substrate.m_allow_hidden_hidden_links = False
-substrate.m_allow_hidden_output_links = False
-substrate.m_allow_output_hidden_links = False
-substrate.m_allow_output_output_links = False
-substrate.m_allow_looped_hidden_links = False
-substrate.m_allow_looped_output_links = False
-
-# let's set the activation functions
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
-
-# when to output a link and max weight
-substrate.m_link_threshold = 0.2
-substrate.m_max_weight_and_bias = 8.0
-
 class NN_agent:
-    def __init__(self, space, brain, start_x):
-        self.startpos = (start_x, 80)
-        self.radius = 20
-        self.mass = 50000
+    def __init__(self, space, brain):
+        self.startpos = (480, 80)
+        self.radius = 4
+        self.mass = 500
 
         self.inertia = pm.moment_for_circle(self.mass, 0, self.radius, (0,0))
         self.body = pm.Body(self.mass, self.inertia)
@@ -109,9 +89,9 @@ class NN_agent:
 
         space.add(self.body, self.shape)
 
-        self.body.velocity_limit = 1500
+        self.body.velocity_limit = 300
 
-        self.body.velocity = (230, 0)
+        self.body.velocity = (0, 0)
         self.force = (0,0)
 
         self.brain = brain
@@ -124,27 +104,18 @@ class NN_agent:
         self.in_air = True
         return True
 
-    def jump(self):
-        if not self.in_air:
-            cur_vel = self.body.velocity
-            self.body.velocity = (cur_vel[0], 300)
-
-    def move(self, x):
-        if not self.in_air:
-            #self.body.force = (x, 0)
-            self.body.velocity = (x, self.body.velocity[1])
+    def move(self, x, y):
+        self.body.velocity = (x, y)
 
     def interact(self, ball):
         """
-        inputs: x - ball_x, log(ball_y), log(y), ball_vx, ball_vy, in_air, 1
-        output: x velocity [-1 .. 1]*const, jump (if > 0.5 )
+        inputs: x - ball_x, y - ball_y, self_vx, self_vy, 1
+        output: x velocity [-1 .. 1]*const, y velocity [-1 .. 1]*const
         """
         inputs = [(self.body.position[0] - ball.body.position[0])/300,
-#                  math.log(ball.body.position[1]),
-                  math.log(self.body.position[1]),
-                  ball.body.velocity[0] / 300,
-                  ball.body.velocity[1] / 300,
-                  self.in_air,
+                  (self.body.position[1] - ball.body.position[1])/300,
+                  self.body.velocity[0] / 300,
+                  self.body.velocity[1] / 300,
                   1.0
                   ]
 
@@ -152,45 +123,42 @@ class NN_agent:
         self.brain.Activate()
         outputs = self.brain.Output()
 
-        self.move(outputs[0] * 500)
-        if outputs[1] > 0.5:
-            self.jump()
+        self.move(outputs[0] * 200, outputs[1] * 200)
+
 
 
 class Ball:
-    def __init__(self, space, start_x, start_vx):
+    def __init__(self, space):
         self.mass = 1500
-        self.radius = 30
+        self.radius = 10
         self.inertia = pm.moment_for_circle(self.mass, 0, self.radius, (0,0))
         self.body = pm.Body(self.mass, self.inertia)
         self.shape = pm.Circle(self.body, self.radius)
         self.shape.collision_type = collision_type_ball
         self.shape.elasticity = 1.0
         self.shape.friction = 0.0
-        self.body.position = (start_x, 450)
+        self.body.position = (520, 520)
         space.add(self.body, self.shape)
-        self.body.velocity = (start_vx, 0)
-        self.body.velocity_limit = 500
+        self.body.velocity = (0, 0)
+        self.body.velocity_limit = 5
         self.in_air = True
 
-    def touch_floor(self, space, arbiter):
-        self.in_air = False
-        return True
+class Behavior:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-    def leave_floor(self, space, arbiter):
-        self.in_air = True
-        return True
+    def distance_to(self, other):
+        return np.sqrt((other.x - self.x)**2 + (other.y - self.y)**2)
 
-
-screen_size_x, screen_size_y = 600, 600
-max_timesteps = 15000
 
 def flipy(y):
     """Small hack to convert chipmunk physics to pygame coordinates"""
     return -y+screen_size_y
 
 
-def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
+def evaluate(x):
+    gid, genome, space, screen, fast_mode = x
     # Setup the environment
     clock = pygame.time.Clock()
 
@@ -198,16 +166,11 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
     net = NEAT.NeuralNetwork()
     genome.BuildPhenotype(net)
 
-    agent = NN_agent(space, net, bot_startx)
-    ball = Ball(space, start_x, start_vx)
-
-    space.add_collision_handler(collision_type_nn,   collision_type_floor,
-                                agent.touch_floor, None, None, agent.leave_floor)
-    space.add_collision_handler(collision_type_ball, collision_type_floor,
-                                ball.touch_floor,  None, None, ball.leave_floor)
+    agent = NN_agent(space, net)
+    ball = Ball(space)
 
     tstep = 0
-    avg_ball_height = 0
+    bd = 1000000
     while tstep < max_timesteps:
         tstep += 1
         for event in pygame.event.get():
@@ -217,27 +180,14 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
                 exit()
             elif event.type == KEYDOWN and event.key == K_f:
                 fast_mode = not fast_mode
-            elif event.type == KEYDOWN and event.key == K_LEFT and not fast_mode:
-                ball.body.velocity = (ball.body.velocity[0] - 200, ball.body.velocity[1])
-            elif event.type == KEYDOWN and event.key == K_RIGHT and not fast_mode:
-                ball.body.velocity = (ball.body.velocity[0] + 200, ball.body.velocity[1])
-            elif event.type == KEYDOWN and event.key == K_UP and not fast_mode:
-                ball.body.velocity = (ball.body.velocity[0], ball.body.velocity[1] + 200)
 
         ### Update physics
         dt = 1.0/50.0
         space.step(dt)
 
-        # The NN interacts with the world on each 20 timesteps
-        if (tstep % 20) == 0:
+        # The NN interacts with the world on each 5 timesteps
+        if (tstep % 5) == 0:
             agent.interact(ball)
-        avg_ball_height += ball.body.position[1]
-
-        # stopping conditions
-        if not ball.in_air:
-            break
-        #if abs(agent.body.velocity[0]) < 50: # never stop on one place!
-        #    break
 
         if not fast_mode:
             # draw the phenotype
@@ -254,92 +204,220 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
             pygame.display.flip()
             clock.tick(50)
 
-    fitness = tstep #+ avg_ball_height/tstep
-    if ball.body.position[1] < 0:
-        fitness = 0
+        d = np.sqrt((ball.body.position[0] - agent.body.position[0])**2 + (ball.body.position[1] - agent.body.position[1])**2)
+
+        if bd > d: bd = d
+
+    fitness = 10000 - bd
+
+    # draw to the screen all genomes ever
+    ### Draw stuff
+    draw(screen, space)
+    ### Flip screen
+    pygame.display.flip()
 
     # remove objects from space
     space.remove(agent.shape, agent.body)
     space.remove(ball.shape, ball.body)
 
-    return fitness, fast_mode
+    return fast_mode, gid, fitness, Behavior(agent.body.position[0], agent.body.position[1])
 
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((600, 600))
-    pygame.display.set_caption("NEAT ball keeper [Press F to turn on/off fast mode, arrow keys to move ball]")
+    if ns_on:
+        pygame.display.set_caption("Novelty Search [Press F to turn on/off fast mode]")
+    else:
+        pygame.display.set_caption("Fitness Search [Press F to turn on/off fast mode]")
 
 
     ### Physics stuff
     space = pm.Space()
-    space.gravity = Vec2d(0.0, -500.0)
+    space.gravity = Vec2d(0.0, 0.0)
 
     # walls - the left-top-right walls
     body = pm.Body()
-    walls= [pm.Segment(body, (50, 50), (50, 1550), 10)
-            ,pm.Segment(body, (50, 1550), (560, 1550), 10)
-            ,pm.Segment(body, (560, 1550), (560, 50), 10)
-            ]
+    walls= [# the enclosure
+            pm.Segment(body, (50, 50), (50, 550), 5),
+            pm.Segment(body, (50, 550), (560, 550), 5),
+            pm.Segment(body, (560, 550), (560, 50), 5),
+            pm.Segment(body, (50, 50), (560, 50), 5),
 
-    floor = pm.Segment(body, (50, 50), (560, 50), 10)
-    floor.friction = 1.0
-    floor.elasticity = 0.0
-    floor.collision_type = collision_type_floor
+            # the obstacle walls
+            pm.Segment(body, (120, 480), (560, 480), 5),
+            pm.Segment(body, (180, 480), (180, 180), 5),
+            pm.Segment(body, (320, 50), (320, 360), 5),
+            pm.Segment(body, (440, 480), (440, 360), 5),
+            ]
 
     for s in walls:
         s.friction = 0
         s.elasticity = 0.99
         s.collision_type = collision_type_wall
     space.add(walls)
-    space.add(floor)
 
 
 
-
-    g = NEAT.Genome(0, 6, 0, 2, False, 
+    g = NEAT.Genome(0, 5, 0, 2, False,
                     NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0)
     pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
 
     best_genome_ever = None
+    best_ever = 0
     fast_mode = True
-    for generation in range(1000):
-        print("Generation:", generation)
+    evhist = []
+    best_gs = []
+    hof = []
 
-        now = time.time()
-        genome_list = []
-        for s in pop.Species:
-            for i in s.Individuals:
-                genome_list.append(i)
+    if not ns_on:
 
-        print('All individuals:', len(genome_list))
+        # rtNEAT mode
+        print('============================================================')
+        print("Please wait for the initial evaluation to complete.")
+        fitnesses = []
+        for _, genome in enumerate(NEAT.GetGenomeList(pop)):
+            print('Evaluating',_)
+            fast_mode, gid, fitness, bh = evaluate((genome.GetID(), genome, space, screen, fast_mode))
+            fitnesses.append(fitness)
+        for genome, fitness in zip(NEAT.GetGenomeList(pop), fitnesses):
+            genome.SetFitness(fitness)
+            genome.SetEvaluated()
+        maxf = max([x.GetFitness() for x in NEAT.GetGenomeList(pop)])
 
-        for i, g in enumerate(genome_list):
-            total_fitness = 0
-            for trial in range(20):
-                f, fast_mode = evaluate(g, space, screen, fast_mode, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
-                total_fitness += f
-            g.SetFitness(total_fitness / 20)
-        print()
+        print('======================')
+        print('rtNEAT phase')
+        pb = pbar.ProgressBar(max_value=max_evaluations)
 
-        best = max([x.GetLeader().GetFitness() for x in pop.Species])
-        print('Best fitness:', best, 'Species:', len(pop.Species))
+        for i in range(max_evaluations):
+            # get best fitness in population and print it
+            fitness_list = [x.GetFitness() for x in NEAT.GetGenomeList(pop)]
+            best = max(fitness_list)
+            evhist.append(best)
+            if best > best_ever:
+                sys.stdout.flush()
+                print()
+                print('NEW RECORD!')
+                print('Evaluations:', i, 'Species:', len(pop.Species), 'Fitness:', best)
+                best_gs.append(pop.GetBestGenome())
+                best_ever = best
+                hof.append(pickle.dumps(pop.GetBestGenome()))
 
+            # get the new baby
+            old = NEAT.Genome()
+            baby = pop.Tick(old)
 
-        # Draw the best genome's phenotype
-        if best >= 10000:
-            break # evolution is complete if an individual keeps the ball up for that many timesteps
+            # evaluate it
+            fast_mode, gid, f, bh = evaluate((baby.GetID(), baby, space, screen, fast_mode))
+            baby.SetFitness(f)
+            baby.SetEvaluated()
 
-        print("Evaluation took", time.time() - now, "seconds.")
-        print("Reproducing..")
-        now = time.time()
-        pop.Epoch()
-        print("Reproduction took", time.time() - now, "seconds.")
+            pb.update(i)
+            sys.stdout.flush()
+    else:
+
+        archive = []
+
+        # novelty search
+        print('============================================================')
+        print("Please wait for the initial evaluation to complete.")
+        fitnesses = []
+        for _, genome in enumerate(NEAT.GetGenomeList(pop)):
+            print('Evaluating',_)
+            fast_mode, gid, fitness, behavior = evaluate((genome.GetID(), genome, space, screen, fast_mode))
+            # associate the behavior with the genome
+            genome.behavior = behavior
+
+        # recompute sparseness
+        def sparseness(genome):
+            distances = []
+            for g in NEAT.GetGenomeList(pop):
+                d = genome.behavior.distance_to( g.behavior )
+                distances.append(d)
+            # get the distances from the archive as well
+            for ab in archive:
+                distances.append( genome.behavior.distance_to(ab) )
+            distances = sorted(distances)
+            sp = np.mean(distances[1:ns_K+1])
+            return sp
+
+        print('======================')
+        print('Novelty Search phase')
+        pb = pbar.ProgressBar(max_value=max_evaluations)
+
+        # Novelty Search variables
+        evaluations = 0
+        evals_since_last_archiving = 0
+        quick_add_counter = 0
+
+        # initial fitness assignment
+        for _, genome in enumerate(NEAT.GetGenomeList(pop)):
+            genome.SetFitness( sparseness(genome) )
+            genome.SetEvaluated()
+
+        # the Novelty Search tick
+        while evaluations < max_evaluations:
+
+            global ns_P_min
+            evaluations += 1
+            pb.update(evaluations)
+
+            # recompute sparseness for each individual
+            if evaluations % ns_recompute_sparseness_each == 0:
+                for _, genome in enumerate(NEAT.GetGenomeList(pop)):
+                    genome.SetFitness( sparseness(genome) )
+                    genome.SetEvaluated()
+
+            # tick
+            old = NEAT.Genome()
+            new = pop.Tick(old)
+
+            # compute the new behavior
+            fast_mode, gid, fitness, behavior = evaluate((new.GetID(), new, space, screen, fast_mode))
+            new.behavior = behavior
+
+            # compute sparseness
+            sp = sparseness(new)
+
+            # add behavior to archive if above threshold
+            evals_since_last_archiving += 1
+            if sp > ns_P_min:
+                archive.append(new.behavior)
+                evals_since_last_archiving = 0
+                quick_add_counter += 1
+            else:
+                quick_add_counter = 0
+
+            if ns_dynamic_Pmin:
+                if evals_since_last_archiving > ns_no_archiving_stagnation_threshold:
+                    ns_P_min *= ns_Pmin_lowering_multiplier
+                    if ns_P_min < ns_Pmin_min:
+                        ns_P_min = ns_Pmin_min
+
+                # too much additions one after another?
+                if quick_add_counter > ns_quick_archiving_min_evals:
+                    ns_P_min *= ns_Pmin_raising_multiplier
+
+            # set the fitness of the new individual
+            new.SetFitness(sp)
+            new.SetEvaluated()
+
+            # still use the objective search's fitness to know which genome is best
+            if fitness > best_ever:
+                sys.stdout.flush()
+                print()
+                print('NEW RECORD!')
+                print('Evaluations:', evaluations, 'Species:', len(pop.Species), 'Fitness:', fitness)
+                hof.append(pickle.dumps(new))
+                best_ever = fitness
+
+        pb.finish()
 
     # Show the best genome's performance forever
     pygame.display.set_caption("Best genome ever")
     while True:
-        evaluate(pop.Species[0].GetLeader(), space, screen, False, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
+        hg = pickle.loads(hof[-1])
+        evaluate((hg.GetID(), hg, space, screen, False))
 
 main()
 

@@ -238,6 +238,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             .def_readwrite("NeuronGenes", &Genome::m_NeuronGenes)
             .def_readwrite("LinkGenes", &Genome::m_LinkGenes)
+            .def_readwrite("behavior", &Genome::m_behavior)
 
             .def("GetFitness", &Genome::GetFitness)
             .def("SetFitness", &Genome::SetFitness)

@@ -155,6 +155,10 @@ namespace NEAT
         // A pointer to a class representing the phenotype's behavior
         // Used in novelty searches
         PhenotypeBehavior *m_PhenotypeBehavior;
+        // A Python object behavior
+#ifdef USE_BOOST_PYTHON
+        py::object m_behavior;
+#endif
         
         ////////////////////////////
         // Constructors
