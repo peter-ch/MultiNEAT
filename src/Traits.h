@@ -6,6 +6,7 @@
 #define MULTINEAT_TRAITS_H
 
 #include <string>
+#include <vector>
 #include <boost/any.hpp>
 #include <boost/variant.hpp>
 #include <cmath>
