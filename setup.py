@@ -91,6 +91,6 @@ def getExtensions():
 
 
 setup(name='MultiNEAT',
-      version='0.4',
+      version='0.5',
       packages=['MultiNEAT'],
       ext_modules=getExtensions())
