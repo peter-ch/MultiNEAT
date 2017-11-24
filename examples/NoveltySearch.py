@@ -28,10 +28,10 @@ ns_Pmin_raising_multiplier = 1.1
 ns_quick_archiving_min_evals = 8
 
 
-max_evaluations = 2500
+max_evaluations = 10000
 
 screen_size_x, screen_size_y = 600, 600
-max_timesteps = 1500
+max_timesteps = 1200
 
 collision_type_wall = 0
 collision_type_nn = 1
