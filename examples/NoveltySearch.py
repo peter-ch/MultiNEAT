@@ -58,7 +58,7 @@ params.WeightMutationMaxPower = 1.0
 params.WeightReplacementMaxPower = 5.0
 params.MutateWeightsSevereProb = 0.5
 params.WeightMutationRate = 0.75
-params.MaxWeight = 20
+params.MaxWeight = 8
 params.MutateAddNeuronProb = 0.01
 params.MutateAddLinkProb = 0.02
 params.MutateRemLinkProb = 0.00
@@ -262,6 +262,9 @@ def main():
     g = NEAT.Genome(0, 5, 0, 2, False,
                     NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0)
     pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
+
+    print('NumLinks:', g.NumLinks())
+    #sys.exit(0)
 
     best_genome_ever = None
     best_ever = 0
