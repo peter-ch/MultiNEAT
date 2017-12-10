@@ -2418,13 +2418,13 @@ namespace NEAT
     // Randomize traits
     void Genome::Randomize_Traits(const Parameters &a_Parameters, RNG &a_RNG)
     {
-        for(auto it = m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
+        for (auto &m_NeuronGene : m_NeuronGenes)
         {
-            it->InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            m_NeuronGene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
         }
-        for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
+        for (auto &m_LinkGene : m_LinkGenes)
         {
-            it->InitTraits(a_Parameters.LinkTraits, a_RNG);
+            m_LinkGene.InitTraits(a_Parameters.LinkTraits, a_RNG);
         }
         
         m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, a_RNG);

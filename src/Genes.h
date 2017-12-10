@@ -168,6 +168,11 @@ namespace NEAT
                     int idx = a_RNG.Roulette(probs);
                     t = itp.set[idx];
                 }
+                if (it->second.type == "pyobject")
+                {
+                    py::object itp = bs::get<py::object>(it->second.m_Details);
+                    t = itp(); // details is a function that returns a random instance of the trait
+                }
 
                 Trait tr;
                 tr.value = t;
@@ -181,7 +186,7 @@ namespace NEAT
         // Traits are merged with this other parent
         void MateTraits(const std::map<std::string, Trait> &t, RNG &a_RNG)
         {
-            for (auto it = t.begin(); it != t.end(); it++)
+            for(auto it = t.begin(); it != t.end(); it++)
             {
                 TraitType mine = m_Traits[it->first].value;
                 TraitType yours = it->second.value;
@@ -191,43 +196,53 @@ namespace NEAT
                     throw std::runtime_error("Types of traits doesn't match");
                 }
 
-                if (a_RNG.RandFloat() < 0.5) // pick either one
+                // if generic python object, forward all processing to its method
+                if (mine.type() == typeid(py::object))
                 {
-                    m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5)? mine : yours;
+                    // call mating function
+                    m_Traits[it->first].value = bs::get<py::object>(mine).attr("mate")(bs::get<py::object>(yours));
                 }
                 else
                 {
-                    // try to average
-                    if (mine.type() == typeid(int))
-                    {
-                        int m1 = bs::get<int>(mine);
-                        int m2 = bs::get<int>(yours);
-                        m_Traits[it->first].value = (m1 + m2) / 2;
-                    }
 
-                    if (mine.type() == typeid(double))
+                    if (a_RNG.RandFloat() < 0.5) // pick either one
                     {
-                        double m1 = bs::get<double>(mine);
-                        double m2 = bs::get<double>(yours);
-                        m_Traits[it->first].value = (m1 + m2) / 2.0;
-                    }
-
-                    if (mine.type() == typeid(std::string))
-                    {
-                        // strings are always either-or
                         m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
                     }
-
-                    if (mine.type() == typeid(intsetelement))
+                    else
                     {
-                        // int sets are always either-or
-                        m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
-                    }
+                        // try to average
+                        if (mine.type() == typeid(int))
+                        {
+                            int m1 = bs::get<int>(mine);
+                            int m2 = bs::get<int>(yours);
+                            m_Traits[it->first].value = (m1 + m2) / 2;
+                        }
 
-                    if (mine.type() == typeid(floatsetelement))
-                    {
-                        // float sets are always either-or
-                        m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                        if (mine.type() == typeid(double))
+                        {
+                            double m1 = bs::get<double>(mine);
+                            double m2 = bs::get<double>(yours);
+                            m_Traits[it->first].value = (m1 + m2) / 2.0;
+                        }
+
+                        if (mine.type() == typeid(std::string))
+                        {
+                            // strings are always either-or
+                            m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                        }
+
+                        if (mine.type() == typeid(intsetelement))
+                        {
+                            // int sets are always either-or
+                            m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                        }
+
+                        if (mine.type() == typeid(floatsetelement))
+                        {
+                            // float sets are always either-or
+                            m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
+                        }
                     }
                 }
             }
@@ -373,6 +388,11 @@ namespace NEAT
                         if(cur.value != itp.set[idx].value)
                             did_mutate = true;
                     }
+                    if (it->second.type == "pyobject")
+                    {
+                        m_Traits[it->first].value = bs::get<py::object>(m_Traits[it->first].value).attr("mutate")();
+                        did_mutate = true;
+                    }
                 }
             }
 
@@ -453,12 +473,16 @@ namespace NEAT
                         // distance between floats - calculate directly
                         dist[it->first] = abs((bs::get<floatsetelement>(mine)).value - (bs::get<floatsetelement>(yours)).value);
                     }
+                    if (mine.type() == typeid(py::object))
+                    {
+                        // distance between objects - calculate via method
+                        dist[it->first] = py::extract<double>(bs::get<py::object>(mine).attr("distance_to")(bs::get<py::object>(yours)));
+                    }
                 }
             }
 
             return dist;
         }
-
     };
 
 

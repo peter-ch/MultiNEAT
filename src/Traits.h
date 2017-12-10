@@ -11,7 +11,14 @@
 #include <boost/variant.hpp>
 #include <cmath>
 
+#include <boost/python.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/shared_ptr.hpp>
+
 namespace bs = boost;
+namespace py = bs::python;
 
 namespace NEAT
 {
@@ -37,7 +44,8 @@ namespace NEAT
 
         double value;
     };
-    typedef bs::variant<int, double, std::string, intsetelement, floatsetelement> TraitType;
+    
+    typedef bs::variant<int, double, std::string, intsetelement, floatsetelement, py::object> TraitType;
 
     class IntTraitParameters
     {
@@ -49,6 +57,7 @@ namespace NEAT
         IntTraitParameters()
         {
             min = 0; max = 0;
+            mut_power = 0;
             mut_replace_prob = 0;
         }
     };
@@ -62,6 +71,7 @@ namespace NEAT
         FloatTraitParameters()
         {
             min = 0; max = 0;
+            mut_power = 0;
             mut_replace_prob = 0;
         }
     };
@@ -91,8 +101,13 @@ namespace NEAT
         double m_ImportanceCoeff;
         double m_MutationProb;
 
-        std::string type; // can be "int", "float", "string", "intset", "floatset"
-        bs::variant<IntTraitParameters, FloatTraitParameters, StringTraitParameters, IntSetTraitParameters, FloatSetTraitParameters> m_Details;
+        std::string type; // can be "int", "float", "string", "intset", "floatset", "pyobject"
+        bs::variant<IntTraitParameters,
+                    FloatTraitParameters,
+                    StringTraitParameters,
+                    IntSetTraitParameters,
+                    FloatSetTraitParameters,
+                    py::object> m_Details;
 
         std::string dep_key; // counts only if this other trait exists..
         std::vector<TraitType> dep_values; // and has one of these values

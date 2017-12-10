@@ -372,6 +372,10 @@ namespace NEAT
                     {
                         traits[tit->first] = (bs::get<floatsetelement>(t)).value;
                     }
+                    if (t.type() == typeid(py::object))
+                    {
+                        traits[tit->first] = bs::get<py::object>(t);
+                    }
                 }
             }
             

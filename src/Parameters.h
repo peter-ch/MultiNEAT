@@ -614,6 +614,11 @@ public:
             }
             t.m_Details = itp;
         }
+        else if (t.type == "pyobject")
+        {
+            py::object itp = py::extract<py::object>(trait_params["details"]);
+            t.m_Details = itp;
+        }
 
         return t;
     }
@@ -623,9 +628,11 @@ public:
         py::dict t;
         t["importance_coeff"] = pms.m_ImportanceCoeff;
         t["mutation_prob"] = pms.m_MutationProb;
-        py::dict dt;
+        py::object dt;
         if (pms.type == "int")
         {
+            dt = py::dict();
+
             t["type"] = "int";
             dt["min"] = bs::get<IntTraitParameters>(pms.m_Details).min;
             dt["max"] = bs::get<IntTraitParameters>(pms.m_Details).max;
@@ -634,6 +641,8 @@ public:
         }
         if (pms.type == "float")
         {
+            dt = py::dict();
+
             t["type"] = "float";
             dt["min"] = bs::get<FloatTraitParameters>(pms.m_Details).min;
             dt["max"] = bs::get<FloatTraitParameters>(pms.m_Details).max;
@@ -642,6 +651,8 @@ public:
         }
         if (pms.type == "str")
         {
+            dt = py::dict();
+
             t["type"] = "str";
             py::list set;
             py::list probs;
@@ -657,6 +668,8 @@ public:
         }
         if (pms.type == "intset")
         {
+            dt = py::dict();
+
             t["type"] = "intset";
             py::list set;
             py::list probs;
@@ -672,6 +685,8 @@ public:
         }
         if (pms.type == "floatset")
         {
+            dt = py::dict();
+
             t["type"] = "floatset";
             py::list set;
             py::list probs;
@@ -685,8 +700,12 @@ public:
             dt["set"] = set;
             dt["probs"] = probs;
         }
+        if (pms.type == "pyobject")
+        {
+            t["type"] = "pyobject";
+            dt = bs::get<py::object>(pms.m_Details);
+        }
 
-        
         t["details"] = dt;
         
         return t;

@@ -465,11 +465,10 @@ namespace NEAT
 
     Parameters::Parameters()
     {
+        Py_Initialize();
+
         Reset();
     }
-
-    //void Parameters::
-
 
     int Parameters::Load(std::ifstream &a_DataFile)
     {
