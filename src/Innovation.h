@@ -91,6 +91,14 @@ public:
         m_NeuronID   = a_NID;
     }
 
+    Innovation()
+    {
+        m_ID           = 0;
+        m_FromNeuronID = 0;
+        m_ToNeuronID = 0;
+        m_NeuronID   = 0;
+    }
+
     ////////////////////////////
     // Destructor
     ////////////////////////////
@@ -124,7 +132,22 @@ public:
     {
         return m_NeuronType;
     }
-};
+
+#ifdef USE_BOOST_PYTHON
+        // Serialization
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & m_ID;
+            ar & m_InnovType;
+            ar & m_FromNeuronID;
+            ar & m_ToNeuronID;
+            ar & m_NeuronType;
+            ar & m_NeuronID;
+        }
+#endif
+    };
 
 
 // forward
@@ -212,7 +235,20 @@ public:
 
     // Saves the database to an already opened file
     void Save(FILE* a_file);
-};
+
+#ifdef USE_BOOST_PYTHON
+        // Serialization
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & m_NextNeuronID;
+            ar & m_NextInnovationNum;
+            ar & m_Innovations;
+        }
+#endif
+
+    };
 
 
 

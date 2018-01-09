@@ -95,9 +95,26 @@ public:
     // Safe to access directly.
     int m_R, m_G, m_B;
 
+    double m_AverageFitness;
+
     ////////////////////////////
     // Constructors
     ////////////////////////////
+
+    Species()
+    {
+        m_ID = 0;
+        m_BestSpecies = false;
+        m_WorstSpecies = false;
+        m_OffspringRqd = 0;
+        m_AgeGenerations = 0;
+        m_AgeEvaluations = 0;
+        m_BestFitness = 0;
+        m_GensNoImprovement = 0;
+        m_EvalsNoImprovement = 0;
+        m_R = m_G = m_B = 0;
+
+    };
 
     // initializes a species with a leader genome and an ID number
     Species(const Genome& a_Seed, int a_id);
@@ -191,7 +208,6 @@ public:
     ////////////////////////////////////////
     // Real-time methods
 
-    double m_AverageFitness;
 
     // Computes an estimate of the average fitness
     void CalculateAverageFitness();
@@ -200,6 +216,32 @@ public:
     Genome ReproduceOne(Population& a_Pop, Parameters& a_Parameters, RNG& a_RNG);
 
     void RemoveIndividual(unsigned int a_idx);
+
+#ifdef USE_BOOST_PYTHON
+        // Serialization
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & m_ID;
+            ar & m_Representative;
+            ar & m_BestSpecies;
+            ar & m_WorstSpecies;
+            ar & m_AgeGenerations;
+            ar & m_AgeEvaluations;
+            ar & m_OffspringRqd;
+            ar & m_BestFitness;
+            ar & m_BestGenome;
+            ar & m_GensNoImprovement;
+            ar & m_EvalsNoImprovement;
+            ar & m_R;
+            ar & m_G;
+            ar & m_B;
+            ar & m_Individuals;
+            ar & m_AverageFitness;
+        }
+#endif
+
 };
 
 } // namespace NEAT

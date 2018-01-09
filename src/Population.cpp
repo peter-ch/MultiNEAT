@@ -145,8 +145,10 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
 }
 
 
-Population::Population(const char *a_FileName)
+Population::Population(const std::string a_sFileName)
 {
+
+    auto a_FileName = a_sFileName.c_str();
     m_BestFitnessEver = 0.0;
 
     m_Generation = 0;

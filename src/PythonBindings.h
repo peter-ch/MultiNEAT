@@ -354,7 +354,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 ///////////////////////////////////////////////////////////////////
 
     class_<Population>("Population", init<Genome, Parameters, bool, double, int>())
-            .def(init<char*>())
+            .def(init<const std::string>())
+            .def(init<>())
             .def("Epoch", &Population::Epoch)
             .def("Tick", &Population::Tick, return_value_policy<reference_existing_object>())
             .def("InitPhenotypeBehaviorData", &Population::InitPhenotypeBehaviorData)
@@ -373,6 +374,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
             .def_readwrite("RNG", &Population::m_RNG)
+
+            .def_pickle(Population_pickle_suite())
             ;
 
 ///////////////////////////////////////////////////////////////////

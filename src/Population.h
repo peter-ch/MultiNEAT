@@ -157,7 +157,9 @@ public:
 
 
     // Loads a population from a file.
-    Population(const char* a_FileName);
+    Population(const std::string a_FileName);
+
+    Population() {};
 
     ////////////////////////////
     // Destructor
@@ -207,9 +209,6 @@ public:
 
         return m_Species[idx_species].m_Individuals[idx_genome];
     }
-
-
-    
 
     unsigned int GetStagnation() const { return m_GensSinceBestFitnessLastChanged; }
     unsigned int GetMPCStagnation() const { return m_GensSinceMPCLastChanged; }
@@ -294,7 +293,68 @@ public:
     // counters for archive stagnation
     unsigned int m_GensSinceLastArchiving;
     unsigned int m_QuickAddCounter;
+
+#ifdef USE_BOOST_PYTHON
+        // Serialization
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & m_InnovationDatabase;
+            ar & m_NextGenomeID;
+            ar & m_NextSpeciesID;
+            ar & m_SearchMode;
+            ar & m_CurrentMPC;
+            ar & m_OldMPC;
+            ar & m_BaseMPC;
+            ar & m_BestFitnessEver;
+            ar & m_BestGenome;
+            ar & m_BestGenomeEver;
+            ar & m_GensSinceBestFitnessLastChanged;
+            ar & m_EvalsSinceBestFitnessLastChanged;
+            ar & m_GensSinceMPCLastChanged;
+            ar & m_Genomes;
+            ar & m_GenomeArchive;
+            //ar & m_RNG;
+            ar & m_Parameters;
+            ar & m_Generation;
+            ar & m_Species;
+            ar & m_NumEvaluations;
+            ar & m_GensSinceLastArchiving;
+            ar & m_QuickAddCounter;
+
+            //ar & m_TempSpecies;
+            //ar & m_BehaviorArchive;
+        }
+#endif
+
 };
+
+#ifdef USE_BOOST_PYTHON
+
+struct Population_pickle_suite : py::pickle_suite
+{
+    static py::object getstate(const Population& a)
+    {
+        std::ostringstream os;
+        boost::archive::text_oarchive oa(os);
+        oa << a;
+        return py::str (os.str());
+    }
+
+    static void setstate(Population& a, py::object entries)
+    {
+        py::str s = py::extract<py::str> (entries)();
+        std::string st = py::extract<std::string> (s)();
+        std::istringstream is (st);
+
+        boost::archive::text_iarchive ia (is);
+        ia >> a;
+    }
+};
+
+#endif
+
 
 } // namespace NEAT
 
