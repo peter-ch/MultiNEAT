@@ -382,6 +382,27 @@ namespace NEAT
             return traits;
         }
         
+        std::map< std::string, Trait> Dict2TraitMap(py::dict d)
+        {
+            py::list ks = d.keys();
+            std::map< std::string, Trait> ts;
+            
+            for(int i=0 ; i<py::len(ks); i++)
+            {
+                py::object key = ks[i];
+                py::object po = d[key];
+                
+                Trait t;
+                t.value = po;
+                
+                ts[py::extract<std::string>(key)] = t;
+            }
+            
+            return ts;
+        };
+        
+        
+        
         py::object GetNeuronTraits()
         {
             py::list neurons;
@@ -436,6 +457,11 @@ namespace NEAT
         py::dict GetGenomeTraits()
         {
             return TraitMap2Dict(m_GenomeGene.m_Traits);
+        }
+        
+        void SetGenomeTraits(py::dict traits)
+        {
+            m_GenomeGene.m_Traits = Dict2TraitMap(traits);
         }
 
 #endif

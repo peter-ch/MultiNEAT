@@ -263,6 +263,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetNeuronTraits", &Genome::GetNeuronTraits)
             .def("GetLinkTraits", &Genome::GetLinkTraits)
             .def("GetGenomeTraits", &Genome::GetGenomeTraits)
+            
+            .def("SetGenomeTraits", &Genome::SetGenomeTraits) // experimental
 
             .def("FailsConstraints", &Genome::FailsConstraints)
 
