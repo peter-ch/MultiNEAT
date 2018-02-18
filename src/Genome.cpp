@@ -2380,7 +2380,7 @@ namespace NEAT
                 
                 if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
-                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                    t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
                 }
                 else
                 {
@@ -2394,7 +2394,7 @@ namespace NEAT
             }
             else if (t_severe_mutation)
             {
-                t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
                 
                 did_mutate = true;
             }
@@ -2526,7 +2526,7 @@ namespace NEAT
 
                 m_NeuronGenes[i].m_Bias += t_randnum;
 
-                Clamp(m_NeuronGenes[i].m_TimeConstant, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
+                Clamp(m_NeuronGenes[i].m_Bias, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
             }
         }
 

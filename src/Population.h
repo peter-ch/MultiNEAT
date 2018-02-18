@@ -107,7 +107,6 @@ private:
     // Calculates the current mean population complexity
     void CalculateMPC();
 
-
     // best fitness ever achieved
     double m_BestFitnessEver;
 
