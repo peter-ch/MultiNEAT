@@ -1,0 +1,21 @@
+package:
+  name: multineat
+  version: 1.0.0
+
+build:
+  number: 1
+
+source:
+  path: ..
+
+requirements:
+  build:
+    - python==3.6
+    - boost==1.61.0
+  run:
+    - python==3.6
+    - boost==1.61.0
+
+about:
+  summary: 
+    Portable NeuroEvolution Library http://MultiNEAT.com

@@ -37,10 +37,15 @@ def getExtensions():
                'src/Utils.cpp']
 
     extra = ['-march=native',
-             '-std=gnu++11',
              '-g',
              '-Wall'
              ]
+
+    if platform == 'darwin':
+        extra += ['-stdlib=libc++',
+             '-std=c++11',]
+    else:
+        extra += ['-std=gnu++11']
 
     if 'win' in platform and platform != 'darwin':
         extra.append('/EHsc')
