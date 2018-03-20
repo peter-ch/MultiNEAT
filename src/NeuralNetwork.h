@@ -33,7 +33,7 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-#include <boost/python/numeric.hpp>
+#include <boost/python/numpy.hpp>
 #include <boost/python/tuple.hpp>
 #include <math.h>
 #include <cmath>
@@ -157,7 +157,7 @@ public:
 #ifdef USE_BOOST_PYTHON
 
     void Input_python_list(py::list& a_Inputs);
-    void Input_numpy(py::numeric::array& a_Inputs);
+    void Input_numpy(py::numpy::ndarray& a_Inputs);
 
 #endif
 

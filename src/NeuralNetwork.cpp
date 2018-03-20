@@ -625,7 +625,7 @@ void NeuralNetwork::Input_python_list(py::list& a_Inputs)
     Input(inp);
 }
 
-void NeuralNetwork::Input_numpy(py::numeric::array& a_Inputs)
+void NeuralNetwork::Input_numpy(py::numpy::ndarray& a_Inputs)
 {
     int len = py::len(a_Inputs);
     std::vector<double> inp;
