@@ -11,10 +11,10 @@ source:
 
 requirements:
   build:
-    - python=3.6*
+    - python
     - boost=1.65*
   run:
-    - python=3.6*
+    - python
     - boost=1.65*
     - numpy=1.9*
     - matplotlib=2.2*
