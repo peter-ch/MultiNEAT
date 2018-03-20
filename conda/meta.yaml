@@ -3,7 +3,8 @@ package:
   version: 0.5  # Update version in setup.py as well
 
 build:
-  number: 2
+  number: 
+    {{ environ.get('TRAVIS_BUILD_NUMBER', 1) }}
 
 source:
   path: ..
