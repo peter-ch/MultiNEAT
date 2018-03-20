@@ -31,13 +31,13 @@ source $HOME/miniconda/etc/profile.d/conda.sh
 
 conda config --set always_yes yes --set changeps1 no
 conda config --set anaconda_upload no
-miniconda login --username $CONDA_LOGIN_USERNAME --password $CONDA_LOGIN_PASSWORD
 
 conda update -q conda
 
 # Useful for debugging any issues with conda
 conda info -a
 
-conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
+conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION anaconda-client
 conda activate test-environment
 
+anaconda login --username $CONDA_LOGIN_USERNAME --password $CONDA_LOGIN_PASSWORD
