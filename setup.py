@@ -96,7 +96,7 @@ def getExtensions():
     return extensionsList
 
 
-setup(name='MultiNEAT',
+setup(name='multineat',
       version='0.5', # Update version in conda/meta.yaml as well
-      packages=['MultiNEAT'],
+      packages=['multineat'],
       ext_modules=getExtensions())
