@@ -21,4 +21,4 @@ python:
 install:
   ./travis/install.sh
 script:
-  - conda build conda/
+  ./travis/run.sh

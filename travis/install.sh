@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-
-
 set -e
 set -x
 
@@ -30,7 +28,6 @@ bash miniconda.sh -b -p $HOME/miniconda
 source $HOME/miniconda/etc/profile.d/conda.sh
 
 conda config --set always_yes yes --set changeps1 no
-conda config --set anaconda_upload no
 
 conda update -q conda
 
@@ -40,4 +37,3 @@ conda info -a
 conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION anaconda-client
 conda activate test-environment
 
-anaconda login --username $CONDA_LOGIN_USERNAME --password $CONDA_LOGIN_PASSWORD
