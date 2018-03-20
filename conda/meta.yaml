@@ -1,6 +1,6 @@
 package:
   name: multineat
-  version: 1.0.0
+  version: 0.5  # Update version in setup.py as well
 
 build:
   number: 1
