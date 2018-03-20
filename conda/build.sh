@@ -2,5 +2,7 @@
 
 export MN_BUILD=boost
 
-python ${SRC_DIR}/setup.py build_ext
-python ${SRC_DIR}/setup.py install
+SOURCE_CODE_DIR=${SRC_DIR:-$(dirname $0)/..}
+
+python ${SOURCE_CODE_DIR}/setup.py build_ext
+python ${SOURCE_CODE_DIR}/setup.py install
