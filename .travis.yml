@@ -1,5 +1,7 @@
 os: linux
 sudo: required
+services:
+  - docker
 
 language: python
 python:
