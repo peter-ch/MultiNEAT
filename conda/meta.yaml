@@ -11,10 +11,14 @@ source:
 requirements:
   build:
     - python==3.6
-    - boost==1.61.0
+    - boost=1.65*
   run:
     - python==3.6
-    - boost==1.61.0
+    - boost=1.65*
+    - numpy>=1.9.3
+    - matplotlib=2*
+    - opencv=3.3*
+    # - progressbar # Python 2.7 only, needs to be replaced in main library code
 
 about:
   summary: 
