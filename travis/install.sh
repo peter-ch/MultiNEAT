@@ -27,7 +27,7 @@ wget $MINICONDA_URL -O miniconda.sh;
 
 bash miniconda.sh -b -p $HOME/miniconda
 
-source $HOME/miniconda3/etc/profile.d/conda.sh
+source $HOME/miniconda/etc/profile.d/conda.sh
 
 conda config --set always_yes yes --set changeps1 no
 conda config --set anaconda_upload no
