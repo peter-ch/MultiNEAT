@@ -3,20 +3,20 @@ package:
   version: 0.5  # Update version in setup.py as well
 
 build:
-  number: 1
+  number: 2
 
 source:
   path: ..
 
 requirements:
   build:
-    - python==3.6
+    - python=3.6*
     - boost=1.65*
   run:
-    - python==3.6
+    - python=3.6*
     - boost=1.65*
-    - numpy>=1.9.3
-    - matplotlib=2*
+    - numpy=1.9*
+    - matplotlib=2.2*
     - opencv=3.3*
     # - progressbar # Python 2.7 only, needs to be replaced in main library code
 
