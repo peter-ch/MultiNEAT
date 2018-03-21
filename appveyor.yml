@@ -7,7 +7,6 @@ environment:
 
 init:
   - "ECHO %MINICONDA%"
-  - "tree %MINICONDA%"
 
 install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
@@ -15,7 +14,7 @@ install:
   - conda update -q conda
   - conda info -a
   - conda install anaconda-client conda-build
-  - yes | anaconda login --username %CONDA_LOGIN_USERNAME% --password %CONDA_LOGIN_PASSWORD%
+  - yes | anaconda login --username %CONDA_LOGIN_USERNAME% --password %CONDA_LOGIN_PASSWORD% --hostname MultiNEAT-APPVYR-WIN-BUILD-%APPVEYOR_BUILD_NUMBER%
   - conda config --set anaconda_upload %CONDA_UPLOAD%
 
 build: false
