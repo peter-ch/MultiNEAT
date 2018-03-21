@@ -1,0 +1,25 @@
+
+environment:
+  matrix:
+    - image: Visual Studio 2017
+      MINICONDA: C:\Miniconda36
+
+
+init:
+  - "ECHO %MINICONDA%"
+
+install:
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n test-environment python=3.6 anaconda-client conda-build
+  - conda activate test-environment
+  - yes | anaconda login --username %CONDA_LOGIN_USERNAME% --password %CONDA_LOGIN_PASSWORD%
+  - conda config --set anaconda_upload %CONDA_UPLOAD%
+
+build: false
+
+test_script:
+  - conda activate test-environment
+  - conda build conda/
