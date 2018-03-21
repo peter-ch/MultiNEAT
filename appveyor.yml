@@ -14,7 +14,7 @@ install:
   - conda update -q conda
   - conda info -a
   - conda install anaconda-client conda-build
-  - anaconda login --username %CONDA_LOGIN_USERNAME% --password %CONDA_LOGIN_PASSWORD%
+  - no | anaconda login --username %CONDA_LOGIN_USERNAME% --password %CONDA_LOGIN_PASSWORD%
   - conda config --set anaconda_upload %CONDA_UPLOAD%
 
 build: false
