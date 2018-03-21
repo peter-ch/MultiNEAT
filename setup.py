@@ -54,7 +54,7 @@ def getExtensions():
         extra.append('-w')
 
     prefix = os.getenv('PREFIX')
-    if len(prefix) > 0:
+    if prefix and len(prefix) > 0:
         extra += ["-I{}/include".format(prefix)]
 
     build_sys = os.getenv('MN_BUILD')
