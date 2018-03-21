@@ -578,6 +578,18 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             ;
 };
 
+namespace boost
+{
+    // Fix Visual Studio 2015 linker bug affecting linking wiht boost-python
+    // https://stackoverflow.com/questions/38261530/unresolved-external-symbols-since-visual-studio-2015-update-3-boost-python-link
+    template <>
+    NEAT::PhenotypeBehavior const volatile * get_pointer<class NEAT::PhenotypeBehavior const volatile >(
+      class NEAT::PhenotypeBehavior const volatile *c)
+    {
+        return c;
+    }
+}
+
 #endif // USE_BOOST_PYTHON
 
 #endif /* PYTHONBINDINGS_H_ */
