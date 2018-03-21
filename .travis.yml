@@ -1,6 +1,10 @@
 os: 
   - linux
   - osx
+osx_image: xcode9.2
+sudo: required
+services:
+  - docker
 
 language: python
 python:
@@ -13,16 +17,6 @@ branches:
   only:
     - master
     - stable
-
-matrix:
-  include:
-    - os: linux
-      sudo: required
-      services:
-        - docker
-
-    - os: osx
-      osx_image: xcode9.2
 
 install:
   ./travis/install.sh
