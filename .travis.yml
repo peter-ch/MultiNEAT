@@ -1,7 +1,6 @@
-os: linux
-sudo: required
-services:
-  - docker
+os: 
+  - linux
+  - osx
 
 language: python
 python:
@@ -12,19 +11,18 @@ python:
 
 branches:
   only:
-  - master
-  - stable
+    - master
+    - stable
 
 matrix:
   include:
+    - os: linux
+      sudo: required
+      services:
+        - docker
+
     - os: osx
       osx_image: xcode9.2
-      language: python
-      python:
-        # We don't actually use the Travis Python, but this keeps it organized.
-        - "2.7"
-        - "3.5"
-        - "3.6"
 
 install:
   ./travis/install.sh
