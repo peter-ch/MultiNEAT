@@ -13,7 +13,7 @@ cxx_compiler:
   - vs2015                     # [win]
 
 vc:     # [win]
-  - 9   # [win]
+  - 14   # [win]
   - 14  # [win]
   - 14  # [win]
 
@@ -23,4 +23,3 @@ zip_keys:
     - c_compiler                # [win]
     - cxx_compiler              # [win]
     - python                    # [win]
-    
