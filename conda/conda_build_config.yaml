@@ -4,16 +4,16 @@ python:
     - 3.6
 
 c_compiler:
-  - vs2008                     # [win]
+  - vs2015                     # [win]
   - vs2015                     # [win]
   - vs2015                     # [win]
 cxx_compiler:
-  - vs2008                     # [win]
+  - vs2015                     # [win]
   - vs2015                     # [win]
   - vs2015                     # [win]
 
 vc:     # [win]
-  - 14   # [win]
+  - 14  # [win]
   - 14  # [win]
   - 14  # [win]
 
