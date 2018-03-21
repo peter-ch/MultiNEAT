@@ -34,6 +34,6 @@ conda update -q conda
 # Useful for debugging any issues with conda
 conda info -a
 
-conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION anaconda-client conda-build
+conda create -q -n test-environment python=3.6 anaconda-client conda-build
 conda activate test-environment
 
