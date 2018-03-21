@@ -48,7 +48,8 @@ def getExtensions():
     else:
         extra += ['-std=gnu++11']
 
-    if 'win' in platform and platform != 'darwin':
+    is_windows = 'win' in platform and platform != 'darwin'
+    if is_windows:
         extra.append('/EHsc')
     else:
         extra.append('-w')
@@ -84,7 +85,7 @@ def getExtensions():
         sources.insert(0, 'src/PythonBindings.cpp')
         libs = [lb, 'boost_system', 'boost_serialization']
 
-        if 'win' in platform:
+        if is_windows:
             libs = ["libboost_python3-vc140-mt-1_65_1",
                 "libboost_numpy3-vc140-mt-1_65_1",
                 "libboost_system-vc140-mt-1_65_1",
