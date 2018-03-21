@@ -2,7 +2,7 @@
 environment:
   matrix:
     - image: Visual Studio 2017
-      MINICONDA: C:\Miniconda36
+      MINICONDA: C:\Miniconda36-x64
 
 
 init:
