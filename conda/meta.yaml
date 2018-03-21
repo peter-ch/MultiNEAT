@@ -4,7 +4,7 @@ package:
 
 build:
   number: 
-    {{ environ.get('TRAVIS_BUILD_NUMBER', 1) }}
+    {{ environ.get('TRAVIS_BUILD_NUMBER', environ.get('APPVEYOR_BUILD_NUMBER', 0)) }}
 
 source:
   path: ..
