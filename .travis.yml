@@ -6,8 +6,6 @@ sudo: required
 services:
   - docker
 
-language: python
-
 branches:
   only:
     - master
