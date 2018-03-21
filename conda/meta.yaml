@@ -13,9 +13,11 @@ requirements:
   build:
     - python
     - boost=1.65*
+    - py-boost=1.65*
   run:
     - python
     - boost=1.65*
+    - py-boost=1.65*
     - numpy=1.9*
     - matplotlib=2.2*
     - opencv=3.3*
