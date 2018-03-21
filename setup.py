@@ -83,6 +83,14 @@ def getExtensions():
     elif build_sys == 'boost':
         sources.insert(0, 'src/PythonBindings.cpp')
         libs = [lb, 'boost_system', 'boost_serialization']
+
+        if 'win' in platform:
+            libs = ["libboost_python3-vc140-mt-1_65_1",
+                "libboost_numpy3-vc140-mt-1_65_1",
+                "libboost_system-vc140-mt-1_65_1",
+                "libboost_serialization-vc140-mt-1_65_1",
+                ]
+
         # for Windows
         # libraries= ['libboost_python-mgw48-mt-1_58',
         #            'libboost_serialization-mgw48-mt-1_58'],
