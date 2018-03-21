@@ -40,7 +40,6 @@ def getExtensions():
              '-g',
              '-Wall'
              ]
-    link_args = []
 
     if platform == 'darwin':
         extra += ['-stdlib=libc++',
@@ -57,7 +56,6 @@ def getExtensions():
     prefix = os.getenv('PREFIX')
     if len(prefix) > 0:
         extra += ["-I{}/include".format(prefix)]
-        link_args += ["-L{0}/lib -Wl,-rpath,{0}/lib".format(prefix)]
 
     build_sys = os.getenv('MN_BUILD')
 
@@ -94,8 +92,7 @@ def getExtensions():
         extensionsList.append(Extension('MultiNEAT._MultiNEAT',
                                         sources,
                                         libraries=libs,
-                                        extra_compile_args=extra,
-                                        extra_link_args=link_args)
+                                        extra_compile_args=extra)
                               )
     else:
         raise AttributeError('Unknown tool: {}'.format(build_sys))
