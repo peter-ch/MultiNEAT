@@ -51,6 +51,8 @@ using namespace py;
 
 BOOST_PYTHON_MODULE(_MultiNEAT)
 {
+    Py_Initialize();
+
     boost::python::numpy::initialize();
 
 ///////////////////////////////////////////////////////////////////

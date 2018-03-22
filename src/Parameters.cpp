@@ -465,8 +465,6 @@ namespace NEAT
 
     Parameters::Parameters()
     {
-        Py_Initialize();
-
         Reset();
     }
 
