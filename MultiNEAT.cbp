@@ -64,7 +64,6 @@
 		<Unit filename="src/Population.cpp" />
 		<Unit filename="src/Population.h" />
 		<Unit filename="src/PythonBindings.cpp" />
-		<Unit filename="src/PythonBindings.h" />
 		<Unit filename="src/Random.cpp" />
 		<Unit filename="src/Random.h" />
 		<Unit filename="src/Species.cpp" />

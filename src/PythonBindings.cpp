@@ -5,7 +5,6 @@
  *      Author: peter
  */
 
-#include "PythonBindings.h"
 ///////////////////////////////////////////////////////////////////////////////////////////
 //    MultiNEAT - Python/C++ NeuroEvolution of Augmenting Topologies Library
 //

@@ -45,7 +45,6 @@
     <File Name="src/Population.cpp"/>
     <File Name="src/Population.h"/>
     <File Name="src/PythonBindings.cpp"/>
-    <File Name="src/PythonBindings.h"/>
     <File Name="src/Random.cpp"/>
     <File Name="src/Random.h"/>
     <File Name="src/Species.cpp"/>

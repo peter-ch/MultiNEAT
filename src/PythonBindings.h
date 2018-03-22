@@ -1,5 +1,0 @@
-#ifndef PYTHONBINDINGS_H_
-#define PYTHONBINDINGS_H_
-
-
-#endif /* PYTHONBINDINGS_H_ */

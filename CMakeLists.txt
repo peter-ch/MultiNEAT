@@ -36,7 +36,6 @@ set(SOURCE_FILES
     src/Population.cpp
     src/Population.h
     src/PythonBindings.cpp
-    src/PythonBindings.h
     src/Random.cpp
     src/Random.h
     src/Species.cpp
