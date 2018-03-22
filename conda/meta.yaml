@@ -24,5 +24,10 @@ requirements:
     # - progressbar # Python 2.7 only, needs to be replaced in main library code
 
 about:
+  home: http://MultiNEAT.com
+  license: LGPL (>= 3)
+  license_family: LGPL
   summary: 
-    Portable NeuroEvolution Library http://MultiNEAT.com
+    Portable NeuroEvolution Library. Implements NEAT, rtNETA, HyperNEAT, Novelty Search and others.
+  description: |
+    MultiNEAT is a portable software library for performing neuroevolution, a form of machine learning that trains neural networks with a genetic algorithm. It is based on NEAT, an advanced method for evolving neural networks through complexification. The neural networks in NEAT begin evolution with very simple genomes which grow over successive generations. The individuals in the evolving population are grouped by similarity into species, and each of them can compete only with the individuals in the same species.
