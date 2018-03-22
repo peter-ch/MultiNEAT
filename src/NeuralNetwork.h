@@ -156,8 +156,8 @@ public:
 
 #ifdef USE_BOOST_PYTHON
 
-    void Input_python_list(py::list& a_Inputs);
-    void Input_numpy(py::numpy::ndarray& a_Inputs);
+    void Input_python_list(const py::list& a_Inputs);
+    void Input_numpy(const py::numpy::ndarray& a_Inputs);
 
 #endif
 
