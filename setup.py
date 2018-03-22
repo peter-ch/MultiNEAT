@@ -96,7 +96,7 @@ def getExtensions():
                 libs = ['boost_python']
             else:
                 libs = ['boost_python3']  # in Ubuntu 14 there is only 'boost_python-py34'
-            libs += ['boost_system', 'boost_serialization']
+            libs += ['boost_numpy3', 'boost_system', 'boost_serialization']
 
         # for Windows with mingw
         # libraries= ['libboost_python-mgw48-mt-1_58',
