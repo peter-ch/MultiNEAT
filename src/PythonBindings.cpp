@@ -54,6 +54,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     Py_Initialize();
 
     boost::python::numpy::initialize();
+    PyErr_Print(); // Print possible error from initialize call as otherwise it will crash if another error occurs
+    // On MacOS with 'ImportError: numpy.core.umath failed to import' error is produced, but NEAT still works
 
 ///////////////////////////////////////////////////////////////////
 // Enums
