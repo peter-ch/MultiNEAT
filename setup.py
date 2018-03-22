@@ -20,10 +20,7 @@ also insert this on top of boost/python.hpp :
 
 def getExtensions():
     platform = sys.platform
-    if sys.version_info[0] < 3:
-        lb = 'boost_python'
-    else:
-        lb = 'boost_python3'  # in Ubuntu 14 there is only 'boost_python-py34'
+
     extensionsList = []
     sources = ['src/Genome.cpp',
                'src/Innovation.cpp',
@@ -82,17 +79,26 @@ def getExtensions():
                                                    extra_compile_args=extra)],
                                         ))
     elif build_sys == 'boost':
+        is_python_2 = sys.version_info[0] < 3
+
         sources.insert(0, 'src/PythonBindings.cpp')
-        libs = [lb, 'boost_system', 'boost_serialization']
 
         if is_windows:
+            if is_python_2:
+                raise RuntimeError("Python prior to version 3 is not supported on Windows due to limits of VC++ compiler version")
             libs = ["libboost_python3-vc140-mt-1_65_1",
                 "libboost_numpy3-vc140-mt-1_65_1",
                 "libboost_system-vc140-mt-1_65_1",
                 "libboost_serialization-vc140-mt-1_65_1",
                 ]
+        else:
+            if is_python_2:
+                libs = ['boost_python']
+            else:
+                libs = ['boost_python3']  # in Ubuntu 14 there is only 'boost_python-py34'
+            libs += ['boost_system', 'boost_serialization']
 
-        # for Windows
+        # for Windows with mingw
         # libraries= ['libboost_python-mgw48-mt-1_58',
         #            'libboost_serialization-mgw48-mt-1_58'],
         # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
