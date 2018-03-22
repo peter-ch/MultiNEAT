@@ -42,7 +42,7 @@ def getExtensions():
         extra += ['-stdlib=libc++',
              '-std=c++11',]
     else:
-        extra += ['-std=gnu++11', '-D_GLIBCXX_USE_CXX11_ABI=0']
+        extra += ['-std=gnu++11']
 
     is_windows = 'win' in platform and platform != 'darwin'
     if is_windows:
