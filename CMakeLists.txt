@@ -43,7 +43,10 @@ set(SOURCE_FILES
     src/Substrate.cpp
     src/Substrate.h
     src/Utils.cpp
-    src/Utils.h src/Traits.h src/Traits.cpp)
+    src/Utils.h
+    src/Traits.h
+    src/Traits.cpp)
+
 
 add_executable(MultiNEAT ${SOURCE_FILES})
 target_link_libraries(MultiNEAT ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} pthread)
