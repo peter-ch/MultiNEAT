@@ -43,7 +43,7 @@ def getExtensions():
              '-std=c++11',]
         os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.9'
     else:
-        extra += ['-std=gnu++11']
+        extra += ['-std=gnu++11', '-D_GLIBCXX_USE_CXX11_ABI=0']
 
     is_windows = 'win' in platform and platform != 'darwin'
     if is_windows:
