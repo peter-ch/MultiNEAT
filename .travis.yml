@@ -16,4 +16,4 @@ matrix:
         - docker
 
 script:
-  docker run -it --rm continuumio/miniconda3 /bin/bash -c "./travis/install.sh && ./travis/run.sh"
+  docker run -it --rm continuumio/miniconda3 -v "$PWD:/neat" /bin/bash -c "/neat/travis/install.sh && /neat/travis/run.sh"
