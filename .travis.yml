@@ -29,8 +29,8 @@ matrix:
 
 install:
   - eval "${MATRIX_EVAL}"
-  ./travis/install.sh
+  - ./travis/install.sh
 
 script:
   - eval "${MATRIX_EVAL}"
-  ./travis/run.sh
+  - ./travis/run.sh
