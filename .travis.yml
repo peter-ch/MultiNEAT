@@ -11,8 +11,6 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.2
-      env:
-        - MATRIX_EVAL=""
 
     - os: linux
       sudo: required
@@ -25,10 +23,8 @@ matrix:
             - gcc-7
             - g++-7
       env:
-        - MATRIX_EVAL="export CC=gcc-7 && export CXX=g++-7"
-
-before_install:
-    - eval "${MATRIX_EVAL}"
+        - CC=gcc-7
+        - CXX=g++-7
 
 install:
   ./travis/install.sh
