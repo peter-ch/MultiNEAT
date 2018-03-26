@@ -12,8 +12,8 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - libstdc++-6-dev
-      - g++-6
+      - libstdc++-7-dev
+      - g++-7
       
 branches:
   only:
