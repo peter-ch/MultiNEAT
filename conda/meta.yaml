@@ -22,6 +22,8 @@ requirements:
     - psutil
     - boost=1.65*
     - py-boost=1.65*
+    - {{compiler('C++')}}
+    - jinja2
   run:
     - python
     - psutil
