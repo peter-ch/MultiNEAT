@@ -19,7 +19,6 @@ test:
 requirements:
   build:
     - python
-    - {{ compiler('cxx') }}
     - psutil
     - boost=1.65*
     - py-boost=1.65*
