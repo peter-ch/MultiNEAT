@@ -172,7 +172,7 @@ def getbest(i):
 
 
 gens = []
-for run in range(100):
+for run in range(20):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)
