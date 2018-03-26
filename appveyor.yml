@@ -9,7 +9,7 @@ init:
   - "ECHO %MINICONDA%"
 
 install:
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - "%MINICONDA%\\Scripts\\Activate.bat"
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
@@ -20,5 +20,5 @@ install:
 build: false
 
 test_script:
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - "%MINICONDA%\\Scripts\\Activate.bat"
   - conda build conda/ -c defaults -c conda-forge
