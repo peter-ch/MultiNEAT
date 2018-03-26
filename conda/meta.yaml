@@ -19,10 +19,13 @@ test:
 requirements:
   build:
     - python
+    - ccache
+    - psutil
     - boost=1.65*
     - py-boost=1.65*
   run:
     - python
+    - psutil
     - boost=1.65*
     - py-boost=1.65*
     - numpy>=1.11.3

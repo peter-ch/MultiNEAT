@@ -21,4 +21,4 @@ build: false
 
 test_script:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda build conda/
+  - conda build conda/ -c defaults -c conda-forge
