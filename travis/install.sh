@@ -18,7 +18,7 @@ else
   fi
 
   sudo apt-get update
-  sudo apt-get install wget gcc g++
+  sudo apt-get install wget
 fi
 
 wget $MINICONDA_URL -O miniconda.sh;
