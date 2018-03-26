@@ -27,6 +27,9 @@ requirements:
     - psutil
     - boost=1.65*
     - py-boost=1.65*
+    - libboost
+    - libstdcxx-ng
+    - libgcc-ng     # [linux]
     - numpy>=1.11.3
     - matplotlib=2.2*
     - opencv=3.3*

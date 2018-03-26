@@ -1,24 +1,33 @@
-os: 
-  - linux
-  - osx
-osx_image: xcode9.2
-sudo: required
-services:
-  - docker
+
+# services:
+#   - docker
 language: cpp
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libstdc++-7-dev
-      - g++-7
-      
 branches:
   only:
     - master
     - stable
+
+- os: osx
+  osx_image: xcode9.2
+  env:
+    - MATRIX_EVAL=""
+
+- os: linux
+  sudo: required
+  addons:
+    apt:
+      sources:
+        - ubuntu-toolchain-r-test
+      packages:
+        - libstdc++-7-dev
+        - gcc-7
+        - g++-7
+  env:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+before_install:
+    - eval "${MATRIX_EVAL}"
 
 install:
   ./travis/install.sh
