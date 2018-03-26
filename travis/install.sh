@@ -16,12 +16,6 @@ else
   else
     MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
   fi
-
-  sudo apt-get update
-  sudo apt-get install wget
-
-  g++ --version
-  gcc --version
 fi
 
 wget $MINICONDA_URL -O miniconda.sh;
