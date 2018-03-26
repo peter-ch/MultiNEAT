@@ -1,6 +1,4 @@
 
-# services:
-#   - docker
 language: cpp
 
 branches:
@@ -11,26 +9,11 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.2
-      env:
-        - MATRIX_EVAL=""
 
     - os: linux
       sudo: required
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libstdc++-7-dev
-            - gcc-7
-            - g++-7
-      env:
-        - MATRIX_EVAL="export CC=gcc-7 && export CXX=g++-7"
-
-install:
-  - eval "${MATRIX_EVAL}"
-  - ./travis/install.sh
+      services:
+        - docker
 
 script:
-  - eval "${MATRIX_EVAL}"
-  - ./travis/run.sh
+  docker run -it --rm continuumio/miniconda3 /bin/bash -c "./travis/install.sh && ./travis/run.sh"
