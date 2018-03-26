@@ -4,8 +4,12 @@
 set -e
 
 export MN_BUILD=boost
-export CC="ccache gcc"
-export CXX="ccache g++"
+
+
+if [[ "$(uname -s)" == 'Darwin' ]]; then
+  export CC="ccache gcc"
+  export CXX="ccache g++"
+fi
 
 SOURCE_CODE_DIR=${SRC_DIR:-$(dirname $0)/..}
 
