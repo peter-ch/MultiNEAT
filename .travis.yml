@@ -5,6 +5,7 @@ osx_image: xcode9.2
 sudo: required
 services:
   - docker
+language: cpp
 
 branches:
   only:
