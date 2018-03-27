@@ -9,14 +9,15 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.2
+      env:
+        - MAIN_SCRIPT=./travis/macos.sh
 
     - os: linux
       sudo: required
       services:
         - docker
-
-install:
-  ./travis/build_docker.sh
+      env:
+        - MAIN_SCRIPT=./travis/linux.sh
 
 script:
-  ./travis/run_in_docker.sh
+  $MAIN_SCRIPT
