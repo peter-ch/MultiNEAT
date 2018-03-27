@@ -57,8 +57,7 @@ def getExtensions():
                'src/Utils.cpp']
 
     extra = ['-march=native',
-             '-g',
-             '-Wall'
+             '-g'
              ]
 
     if platform == 'darwin':
