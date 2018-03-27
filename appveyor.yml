@@ -1,9 +1,24 @@
+image: Visual Studio 2017
 
+# We always use a 64-bit machine, but can build x86 distributions
+# with the TARGET_ARCH variable.
+platform:
+    - x64
+    
 environment:
-  matrix:
-    - image: Visual Studio 2017
-      MINICONDA: C:\Miniconda36-x64
+  MINICONDA: C:\Miniconda36-x64
 
+  matrix:
+    # Unfortunately, compiler/SDK configuration for 64 bit builds depends on
+    # python version. Right now conda build does not configure the SDK, and
+    # the appveyor setup only sets up the SDK once, so separate by python
+    # versions.
+    # - TARGET_ARCH: "x64"
+    #   PYTHON_BUILD_RESTRICTIONS: "3.5*"
+    #   CONDA_PY: "35"
+    - TARGET_ARCH: "x64"
+      PYTHON_BUILD_RESTRICTIONS: "3.6*"
+      CONDA_PY: "36"
 
 init:
   - "ECHO %MINICONDA%"
