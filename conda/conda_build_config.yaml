@@ -1,3 +1,4 @@
 python:
-    - 3.5
+    - 2.7 # [not win]
+    - 3.5 # [not win]
     - 3.6
