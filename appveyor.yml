@@ -22,3 +22,9 @@ build: false
 test_script:
   - "%MINICONDA%\\Scripts\\Activate.bat"
   - conda build conda/ -c defaults -c conda-forge
+
+skip_commits:
+  files:
+    - docs/*
+    - travis/*
+    - .travis.yml
