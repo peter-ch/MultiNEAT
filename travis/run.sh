@@ -4,8 +4,8 @@ set -x
 
 script_dir=$(dirname $0)
 
-pushd
-cd "$script_dir"
+pushd .
+cd "$script_dir/.."
 
 source $HOME/miniconda/etc/profile.d/conda.sh
 conda activate test-environment
