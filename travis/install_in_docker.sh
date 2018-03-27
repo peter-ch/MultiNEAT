@@ -5,6 +5,7 @@ set -x
 conda config --set always_yes yes --set changeps1 no
 
 conda update -q conda
+source /opt/conda/etc/profile.d/conda.sh
 
 conda info -a
 
