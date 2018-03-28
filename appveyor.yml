@@ -15,17 +15,17 @@ environment:
     # versions.
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
-      MINICONDA: "C:\Miniconda%CONDA_PY%-%TARGET_ARCH%"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%-%TARGET_ARCH%"
     - TARGET_ARCH: "x86"
       CONDA_PY: "35"
-      MINICONDA: "C:\Miniconda%CONDA_PY%"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%"
 
     - TARGET_ARCH: "x64"
       CONDA_PY: "36"
-      MINICONDA: "C:\Miniconda%CONDA_PY%-%TARGET_ARCH%"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%-%TARGET_ARCH%"
     - TARGET_ARCH: "x86"
       CONDA_PY: "36"
-      MINICONDA: "C:\Miniconda%CONDA_PY%"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%"
 
 init:
   - "ECHO %MINICONDA%"
