@@ -7,7 +7,6 @@ platform:
 
 environment:
   fast_finish: true
-  MINICONDA: C:\Miniconda36-x64
 
   matrix:
     # Unfortunately, compiler/SDK configuration for 64 bit builds depends on
@@ -16,13 +15,17 @@ environment:
     # versions.
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
+      MINICONDA: "C:\Miniconda%CONDA_PY%-%TARGET_ARCH%"
     - TARGET_ARCH: "x86"
       CONDA_PY: "35"
+      MINICONDA: "C:\Miniconda%CONDA_PY%"
 
     - TARGET_ARCH: "x64"
       CONDA_PY: "36"
+      MINICONDA: "C:\Miniconda%CONDA_PY%-%TARGET_ARCH%"
     - TARGET_ARCH: "x86"
       CONDA_PY: "36"
+      MINICONDA: "C:\Miniconda%CONDA_PY%"
 
 init:
   - "ECHO %MINICONDA%"
