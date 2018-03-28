@@ -6,6 +6,7 @@ platform:
     - x64
 
 environment:
+  fast_finish: true
   MINICONDA: C:\Miniconda36-x64
 
   matrix:
@@ -14,17 +15,13 @@ environment:
     # the appveyor setup only sets up the SDK once, so separate by python
     # versions.
     - TARGET_ARCH: "x64"
-      PYTHON_BUILD_RESTRICTIONS: "3.5*"
       CONDA_PY: "35"
     - TARGET_ARCH: "x86"
-      PYTHON_BUILD_RESTRICTIONS: "3.5*"
       CONDA_PY: "35"
 
     - TARGET_ARCH: "x64"
-      PYTHON_BUILD_RESTRICTIONS: "3.6*"
       CONDA_PY: "36"
     - TARGET_ARCH: "x86"
-      PYTHON_BUILD_RESTRICTIONS: "3.6*"
       CONDA_PY: "36"
 
 init:
@@ -43,7 +40,7 @@ build: false
 
 test_script:
   - "%MINICONDA%\\Scripts\\Activate.bat"
-  - conda build conda/ -c defaults -c conda-forge --matrix-conditions "python $PYTHON_BUILD_RESTRICTIONS"
+  - conda build conda/ -c defaults -c conda-forge
 
 skip_commits:
   files:
