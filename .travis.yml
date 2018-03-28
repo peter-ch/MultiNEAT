@@ -6,24 +6,45 @@ branches:
     - master
     - stable
 
-env:
-  - CONDA_PY=27
-  - CONDA_PY=35
-  - CONDA_PY=36
-
 matrix:
   include:
     - os: osx
       osx_image: xcode9.2
       env:
-        - MAIN_SCRIPT=./travis/macos.sh
+        - CONDA_PY=27
+
+    - os: osx
+      osx_image: xcode9.2
+      env:
+        - CONDA_PY=35
+
+    - os: osx
+      osx_image: xcode9.2
+      env:
+        - CONDA_PY=36
+
+
 
     - os: linux
       sudo: required
       services:
         - docker
       env:
-        - MAIN_SCRIPT=./travis/linux.sh
+        - CONDA_PY=27
+
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      env:
+        - CONDA_PY=35
+
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      env:
+        - CONDA_PY=36
 
 script:
   ./travis/main.sh
