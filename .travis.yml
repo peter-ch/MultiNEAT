@@ -26,4 +26,4 @@ matrix:
         - MAIN_SCRIPT=./travis/linux.sh
 
 script:
-  $MAIN_SCRIPT
+  ./travis/main.sh
