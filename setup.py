@@ -107,12 +107,12 @@ def getExtensions():
         if is_windows:
             if is_python_2:
                 raise RuntimeError("Python prior to version 3 is not supported on Windows due to limits of VC++ compiler version")
+
+        libs = ['boost_system', 'boost_serialization']
+        if is_python_2:
+            libs += ['boost_python', "boost_numpy"]
         else:
-            if is_python_2:
-                libs = ['boost_python', "boost_numpy"]
-            else:
-                libs = ['boost_python3', "boost_numpy3"]  # in Ubuntu 14 there is only 'boost_python-py34'
-            libs += ['boost_system', 'boost_serialization']
+            libs += ['boost_python3', "boost_numpy3"]  # in Ubuntu 14 there is only 'boost_python-py34'
 
         # for Windows with mingw
         # libraries= ['libboost_python-mgw48-mt-1_58',
