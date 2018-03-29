@@ -20,15 +20,15 @@ requirements:
   build:
     - python
     - psutil
-    - boost=1.65*
-    - py-boost=1.65*
+    - boost=1.66*
+    - boost-cpp=1.66*
     # - {{ compiler('cxx') }} # This results in issues with headers discovery of boost and python. On all platforms
     # - jinja2
   run:
     - python
     - psutil
-    - boost=1.65*
-    - py-boost=1.65*
+    - boost=1.66*
+    - boost-cpp=1.66*
     - numpy>=1.11.3
     - matplotlib=2.2*
     - opencv=3.3*
