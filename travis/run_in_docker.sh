@@ -9,5 +9,8 @@ docker run \
   -e CONDA_UPLOAD \
   -e CONDA_LOGIN_USERNAME \
   -e CONDA_LOGIN_PASSWORD  \
+  -e TRAVIS_OS_NAME \
+  -e TRAVIS_BUILD_NUMBER \
+  -e CONDA_PY \
   multineat:latest \
   /bin/bash -c "/neat/travis/run.sh"
