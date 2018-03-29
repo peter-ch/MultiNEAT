@@ -12,5 +12,5 @@ docker run \
   -e TRAVIS_OS_NAME \
   -e TRAVIS_BUILD_NUMBER \
   -e CONDA_PY \
-  multineat:latest \
+  multineat:4.8 \
   /bin/bash -c "/neat/travis/run.sh"

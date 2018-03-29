@@ -4,4 +4,4 @@ set -x
 
 script_dir=$(dirname $0)
 
-docker build "$script_dir/.."  -f "$script_dir/Dockerfile" -t multineat
+docker build "$script_dir/.."  -f "$script_dir/Dockerfile" -t multineat:4.8
