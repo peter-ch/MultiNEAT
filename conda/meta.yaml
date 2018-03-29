@@ -22,8 +22,8 @@ requirements:
     - psutil
     - boost=1.66*
     - boost-cpp=1.66*
-    # - {{ compiler('cxx') }} # This results in issues with headers discovery of boost and python. On all platforms
-    # - jinja2
+    - {{ compiler('cxx') }} # This results in issues with headers discovery of boost and python. On all platforms
+    - jinja2
   run:
     - python
     - psutil
