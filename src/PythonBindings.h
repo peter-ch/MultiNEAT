@@ -28,7 +28,14 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-#include <boost/python/numeric.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 106500
+    #include <boost/python/numeric.hpp>
+#else
+    #include <boost/python/numpy.hpp>
+#endif
+
 #include <boost/python/tuple.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
@@ -44,10 +51,17 @@ namespace py = boost::python;
 using namespace NEAT;
 using namespace py;
 
+#if BOOST_VERSION < 106500
+    typedef typename numeric::array pyndarray;
+#else
+    typedef typename numpy::ndarray pyndarray;
+#endif
 
 BOOST_PYTHON_MODULE(_MultiNEAT)
 {
-    numeric::array::set_module_and_type("numpy", "ndarray");
+    #if BOOST_VERSION < 106500
+        numeric::array::set_module_and_type("numpy", "ndarray");
+    #endif
 
 ///////////////////////////////////////////////////////////////////
 // Enums
@@ -132,7 +146,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     bool (NeuralNetwork::*NN_Load)(const char*) = &NeuralNetwork::Load;
     void (Genome::*Genome_Save)(const char*) = &Genome::Save;
     void (NeuralNetwork::*NN_Input)(py::list&) = &NeuralNetwork::Input_python_list;
-    void (NeuralNetwork::*NN_Input_numpy)(numeric::array&) = &NeuralNetwork::Input_numpy;
+    void (NeuralNetwork::*NN_Input_numpy)(pyndarray&) = &NeuralNetwork::Input_numpy;
     void (Parameters::*Parameters_Save)(const char*) = &Parameters::Save;
     int (Parameters::*Parameters_Load)(const char*) = &Parameters::Load;
 
