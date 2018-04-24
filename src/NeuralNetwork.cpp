@@ -605,7 +605,7 @@ void NeuralNetwork::Input(std::vector<double>& a_Inputs)
 
 #ifdef USE_BOOST_PYTHON
 
-void NeuralNetwork::Input_python_list(py::list& a_Inputs)
+void NeuralNetwork::Input_python_list(const py::list& a_Inputs)
 {
     int len = py::len(a_Inputs);
     std::vector<double> inp;
@@ -625,7 +625,7 @@ void NeuralNetwork::Input_python_list(py::list& a_Inputs)
     Input(inp);
 }
 
-void NeuralNetwork::Input_numpy(pyndarray& a_Inputs)
+void NeuralNetwork::Input_numpy(const pyndarray& a_Inputs)
 {
     int len = py::len(a_Inputs);
     std::vector<double> inp;

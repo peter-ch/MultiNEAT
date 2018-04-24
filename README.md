@@ -24,7 +24,7 @@ GNU Lesser General Public License v3.0
 * Set the required system (boost or cython) by setting an environment variable with name MN_BUILD.
 Example in Linux:
   ```bash
-  export MN_BUILD=cython
+  export MN_BUILD=boost
   ```
 
 * then, the usual:

@@ -1,8 +1,31 @@
 #!/usr/bin/python
+
 from __future__ import print_function
 from setuptools import setup, Extension
 import sys
 import os
+import psutil
+
+# monkey-patch for parallel compilation
+def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None):
+    # those lines are copied from distutils.ccompiler.CCompiler directly
+    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(output_dir, macros, include_dirs, sources, depends, extra_postargs)
+    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+    # parallel code
+    
+    N = psutil.cpu_count(logical=False) # number of parallel compilations
+    import multiprocessing.pool
+    def _single_compile(obj):
+        try: src, ext = build[obj]
+        except KeyError: return
+        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+    # convert to list, imap is evaluated on-demand
+    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
+    return objects
+
+import distutils.ccompiler
+distutils.ccompiler.CCompiler.compile=parallelCCompile
+
 
 ''' Note:
 
@@ -20,10 +43,7 @@ also insert this on top of boost/python.hpp :
 
 def getExtensions():
     platform = sys.platform
-    if sys.version_info[0] < 3:
-        lb = 'boost_python'
-    else:
-        lb = 'boost_python3'  # in Ubuntu 14 there is only 'boost_python-py34'
+
     extensionsList = []
     sources = ['src/Genome.cpp',
                'src/Innovation.cpp',
@@ -37,15 +57,24 @@ def getExtensions():
                'src/Utils.cpp']
 
     extra = ['-march=native',
-             '-std=gnu++11',
-             '-g',
-             '-Wall'
+             '-g'
              ]
 
-    if 'win' in platform and platform != 'darwin':
+    if platform == 'darwin':
+        extra += ['-stdlib=libc++',
+             '-std=c++11',]
+    else:
+        extra += ['-std=gnu++11']
+
+    is_windows = 'win' in platform and platform != 'darwin'
+    if is_windows:
         extra.append('/EHsc')
     else:
         extra.append('-w')
+
+    prefix = os.getenv('PREFIX')
+    if prefix and len(prefix) > 0:
+        extra += ["-I{}/include".format(prefix)]
 
     build_sys = os.getenv('MN_BUILD')
 
@@ -71,9 +100,21 @@ def getExtensions():
                                                    extra_compile_args=extra)],
                                         ))
     elif build_sys == 'boost':
+        is_python_2 = sys.version_info[0] < 3
+
         sources.insert(0, 'src/PythonBindings.cpp')
-        libs = [lb, 'boost_system', 'boost_serialization']
-        # for Windows
+
+        if is_windows:
+            if is_python_2:
+                raise RuntimeError("Python prior to version 3 is not supported on Windows due to limits of VC++ compiler version")
+
+        libs = ['boost_system', 'boost_serialization']
+        if is_python_2:
+            libs += ['boost_python', "boost_numpy"]
+        else:
+            libs += ['boost_python3', "boost_numpy3"]  # in Ubuntu 14 there is only 'boost_python-py34'
+
+        # for Windows with mingw
         # libraries= ['libboost_python-mgw48-mt-1_58',
         #            'libboost_serialization-mgw48-mt-1_58'],
         # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
@@ -90,7 +131,7 @@ def getExtensions():
     return extensionsList
 
 
-setup(name='MultiNEAT',
-      version='0.5',
+setup(name='multineat',
+      version='0.5', # Update version in conda/meta.yaml as well
       packages=['MultiNEAT'],
       ext_modules=getExtensions())

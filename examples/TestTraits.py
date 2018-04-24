@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from __future__ import print_function
 
 import time
 import random as rnd
@@ -140,7 +141,7 @@ def PrintGenomeTraits(g):
         print()
     print()
 
-for generation in range(1000):
+for generation in range(100):
 
     genome_list = NEAT.GetGenomeList(pop)
     fitness_list = NEAT.EvaluateGenomeList_Serial(genome_list, evaluate, display=False)

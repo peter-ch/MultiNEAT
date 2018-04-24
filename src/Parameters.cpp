@@ -465,10 +465,6 @@ namespace NEAT
 
     Parameters::Parameters()
     {
-#ifdef USE_BOOST_PYTHON
-        Py_Initialize();
-#endif
-
         Reset();
     }
 

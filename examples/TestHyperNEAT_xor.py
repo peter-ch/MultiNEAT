@@ -1,11 +1,12 @@
 #!/usr/bin/python3
+from __future__ import print_function
+
 import os
 import sys
 sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 import time
 import random as rnd
 import subprocess as comm
-import cv2
 import numpy as np
 import pickle as pickle
 import MultiNEAT as NEAT
@@ -172,7 +173,7 @@ def getbest(i):
 
 
 gens = []
-for run in range(100):
+for run in range(20):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)

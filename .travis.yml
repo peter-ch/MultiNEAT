@@ -1,0 +1,23 @@
+os:
+  - osx
+  - linux
+
+osx_image: xcode9.2
+sudo: required
+services:
+  - docker
+
+language: cpp
+
+branches:
+  only:
+    - master
+    - stable
+
+env: # Don't forget to pass env to docker in run_in_docker.sh
+  - CONDA_PY=27
+  - CONDA_PY=35
+  - CONDA_PY=36
+
+script:
+  ./travis/main.sh

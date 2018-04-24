@@ -3028,7 +3028,7 @@ namespace NEAT
         if (a_Depth > 16384)
         {
             // oops! a possible loop in the network!
-            std::cout << std::endl << " ERROR! Trying to get the depth of a looped network!" << std::endl;
+            // DBG(" ERROR! Trying to get the depth of a looped network!");
             return 16384;
         }
 

@@ -950,7 +950,7 @@ cdef class Species:
             del self.thisptr
 
     def __repr__(self):
-        return 'ID {} Age {}'.format(self.thisptr.ID(), self.thisptr.AgeGens())
+        return 'ID {} AgeGens {}'.format(self.thisptr.ID(), self.thisptr.AgeGens())
 
     def GetBestFitness(self):
         return self.thisptr.GetBestFitness()
