@@ -33,12 +33,25 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-#include <boost/python/numpy.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 106500
+    #include <boost/python/numeric.hpp>
+#else
+    #include <boost/python/numpy.hpp>
+#endif
+
 #include <boost/python/tuple.hpp>
 #include <math.h>
 #include <cmath>
 
 namespace py = boost::python;
+
+#if BOOST_VERSION < 106500
+    typedef typename py::numeric::array pyndarray;
+#else
+    typedef typename py::numpy::ndarray pyndarray;
+#endif
 
 #endif
 
@@ -157,7 +170,7 @@ public:
 #ifdef USE_BOOST_PYTHON
 
     void Input_python_list(const py::list& a_Inputs);
-    void Input_numpy(const py::numpy::ndarray& a_Inputs);
+    void Input_numpy(const pyndarray& a_Inputs);
 
 #endif
 

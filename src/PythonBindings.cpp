@@ -32,7 +32,14 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-#include <boost/python/numpy.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 106500
+    #include <boost/python/numeric.hpp>
+#else
+    #include <boost/python/numpy.hpp>
+#endif
+
 #include <boost/python/tuple.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
@@ -48,14 +55,23 @@ namespace py = boost::python;
 using namespace NEAT;
 using namespace py;
 
+#if BOOST_VERSION < 106500
+    typedef typename numeric::array pyndarray;
+#else
+    typedef typename numpy::ndarray pyndarray;
+#endif
 
 BOOST_PYTHON_MODULE(_MultiNEAT)
 {
     Py_Initialize();
 
-    boost::python::numpy::initialize();
-    PyErr_Print(); // Print possible error from initialize call as otherwise it will crash if another error occurs
-    // On MacOS with 'ImportError: numpy.core.umath failed to import' error is produced, but NEAT still works
+    #if BOOST_VERSION < 106500
+        numeric::array::set_module_and_type("numpy", "ndarray");
+    #else
+        boost::python::numpy::initialize();
+        PyErr_Print(); // Print possible error from initialize call as otherwise it will crash if another error occurs
+        // On MacOS with 'ImportError: numpy.core.umath failed to import' error is produced, but NEAT still works
+    #endif
 
 ///////////////////////////////////////////////////////////////////
 // Enums
@@ -140,7 +156,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     bool (NeuralNetwork::*NN_Load)(const char*) = &NeuralNetwork::Load;
     void (Genome::*Genome_Save)(const char*) = &Genome::Save;
     void (NeuralNetwork::*NN_Input)(const py::list&) = &NeuralNetwork::Input_python_list;
-    void (NeuralNetwork::*NN_Input_numpy)(const numpy::ndarray&) = &NeuralNetwork::Input_numpy;
+    void (NeuralNetwork::*NN_Input_numpy)(const pyndarray&) = &NeuralNetwork::Input_numpy;
     void (Parameters::*Parameters_Save)(const char*) = &Parameters::Save;
     int (Parameters::*Parameters_Load)(const char*) = &Parameters::Load;
 
