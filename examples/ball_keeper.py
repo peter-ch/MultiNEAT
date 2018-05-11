@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import sys
-sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
+# sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 
 import time
 import random as rnd

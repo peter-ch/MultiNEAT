@@ -756,7 +756,7 @@ namespace NEAT
 
 #endif
 
-#define DBG(x) { std::cerr << x << "\n"; }
+#define DBG(x) { std::cerr << x << std::endl; }
     
     
 } // namespace NEAT

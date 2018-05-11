@@ -1,0 +1,44 @@
+package:
+  name: multineat
+  version: 0.5  # Update version in setup.py as well
+
+build:
+  number: 
+    {{ environ.get('TRAVIS_BUILD_NUMBER', environ.get('APPVEYOR_BUILD_NUMBER', 0)) }}
+
+source:
+  path: ..
+
+test:
+  source_files:
+    - examples/TestTraits.py
+    - examples/NoveltySearch.py
+    - examples/TestNEAT_xor.py
+    - examples/TestHyperNEAT_xor.py
+
+requirements:
+  build:
+    - python
+    - psutil
+    - boost=1.66*
+    - boost-cpp=1.66*
+    # - {{ compiler('cxx') }} # This results in issues with headers discovery of boost and python. On all platforms
+    # - jinja2
+  run:
+    - python
+    - psutil
+    - boost=1.66*
+    - boost-cpp=1.66*
+    - numpy>=1.11.3
+    - matplotlib=2.2*
+    - opencv=3.3*
+    # - progressbar # Python 2.7 only, needs to be replaced in main library code
+
+about:
+  home: http://MultiNEAT.com
+  license: LGPL (>= 3)
+  license_family: LGPL
+  summary: 
+    Portable NeuroEvolution Library. Implements NEAT, rtNETA, HyperNEAT, Novelty Search and others.
+  description: |
+    MultiNEAT is a portable software library for performing neuroevolution, a form of machine learning that trains neural networks with a genetic algorithm. It is based on NEAT, an advanced method for evolving neural networks through complexification. The neural networks in NEAT begin evolution with very simple genomes which grow over successive generations. The individuals in the evolving population are grouped by similarity into species, and each of them can compete only with the individuals in the same species.

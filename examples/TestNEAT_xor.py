@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-
+from __future__ import print_function
 
 import os
 import sys
 #sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 import time
 import random as rnd
-import cv2
 import numpy as np
 import pickle as pickle
 import MultiNEAT as NEAT

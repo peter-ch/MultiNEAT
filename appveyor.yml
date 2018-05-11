@@ -1,0 +1,52 @@
+image: Visual Studio 2017
+
+# We always use a 64-bit machine, but can build x86 distributions
+# with the TARGET_ARCH variable.
+platform:
+    - x64
+
+environment:
+  fast_finish: true
+
+  matrix:
+    # Unfortunately, compiler/SDK configuration for 64 bit builds depends on
+    # python version. Right now conda build does not configure the SDK, and
+    # the appveyor setup only sets up the SDK once, so separate by python
+    # versions.
+    - TARGET_ARCH: "x64"
+      CONDA_PY: "35"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%-%TARGET_ARCH%"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "35"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%"
+
+    - TARGET_ARCH: "x64"
+      CONDA_PY: "36"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%-%TARGET_ARCH%"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "36"
+      MINICONDA: "C:\\Miniconda%CONDA_PY%"
+
+init:
+  - "ECHO %MINICONDA%"
+
+install:
+  - "%MINICONDA%\\Scripts\\Activate.bat"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda install anaconda-client conda-build
+  - yes | anaconda login --username %CONDA_LOGIN_USERNAME% --password %CONDA_LOGIN_PASSWORD% --hostname MultiNEAT-APPVYR-WIN-BUILD-%APPVEYOR_BUILD_NUMBER%-%CONDA_PY%-%TARGET_ARCH%
+  - conda config --set anaconda_upload %CONDA_UPLOAD%
+
+build: false
+
+test_script:
+  - "%MINICONDA%\\Scripts\\Activate.bat"
+  - conda build conda/ -c defaults -c conda-forge
+
+skip_commits:
+  files:
+    - docs/*
+    - travis/*
+    - .travis.yml

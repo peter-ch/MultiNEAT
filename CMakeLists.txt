@@ -9,7 +9,12 @@ include(FindPythonLibs)
 set(Boost_USE_STATIC_LIBS       OFF) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost COMPONENTS date_time system filesystem python3 serialization)
+find_package(Boost COMPONENTS
+    date_time
+    system
+    filesystem
+    python3
+    serialization)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 endif()
@@ -36,7 +41,6 @@ set(SOURCE_FILES
     src/Population.cpp
     src/Population.h
     src/PythonBindings.cpp
-    src/PythonBindings.h
     src/Random.cpp
     src/Random.h
     src/Species.cpp
@@ -44,7 +48,10 @@ set(SOURCE_FILES
     src/Substrate.cpp
     src/Substrate.h
     src/Utils.cpp
-    src/Utils.h src/Traits.h src/Traits.cpp)
+    src/Utils.h
+    src/Traits.h
+    src/Traits.cpp)
+
 
 add_executable(MultiNEAT ${SOURCE_FILES})
 target_link_libraries(MultiNEAT ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} pthread)
