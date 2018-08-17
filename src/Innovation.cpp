@@ -76,7 +76,7 @@ void InnovationDatabase::Init(const Genome& a_Genome)
     for(unsigned int i=0; i<a_Genome.NumLinks(); i++)
     {
         Innovation t_innov( a_Genome.GetLinkByIndex(i).InnovationID(), NEW_LINK, a_Genome.GetLinkByIndex(i).FromNeuronID(), a_Genome.GetLinkByIndex(i).ToNeuronID(), NONE, -1);
-        m_Innovations.push_back(t_innov);
+        m_Innovations.emplace_back(t_innov);
     }
 
     m_NextNeuronID = a_Genome.GetLastNeuronID();
@@ -123,7 +123,7 @@ void InnovationDatabase::Init(std::ifstream& a_DataFile)
             a_DataFile >> t_neurontype;
             a_DataFile >> t_nid;
 
-            m_Innovations.push_back( Innovation(t_id, static_cast<InnovationType>(t_innovtype), t_from, t_to, static_cast<NeuronType>(t_neurontype), t_nid) );
+            m_Innovations.emplace_back( Innovation(t_id, static_cast<InnovationType>(t_innovtype), t_from, t_to, static_cast<NeuronType>(t_neurontype), t_nid) );
         }
 
     }
@@ -207,7 +207,7 @@ std::vector<int> InnovationDatabase::CheckAllInnovations(int a_In, int a_Out, In
         if ((m_Innovations[i].FromNeuronID() == a_In) && (m_Innovations[i].ToNeuronID() == a_Out) && (m_Innovations[i].InnovType() == a_Type))
         {
             // match found?
-            t_idxs.push_back( i );
+            t_idxs.emplace_back( i );
         }
     }
 
@@ -261,7 +261,7 @@ int InnovationDatabase::AddLinkInnovation(int a_In, int a_Out)
 {
     ASSERT((a_In > 0) && (a_Out > 0));
 
-    m_Innovations.push_back( Innovation(m_NextInnovationNum, NEW_LINK, a_In, a_Out, NONE, -1) );
+    m_Innovations.emplace_back( Innovation(m_NextInnovationNum, NEW_LINK, a_In, a_Out, NONE, -1) );
     m_NextInnovationNum++;
 
     return (m_NextInnovationNum - 1);
@@ -279,7 +279,7 @@ int InnovationDatabase::AddNeuronInnovation(int a_In, int a_Out, NeuronType a_NT
     ASSERT((a_In > 0) && (a_Out > 0));
     ASSERT(!((a_NType == INPUT) || (a_NType == BIAS) || (a_NType == OUTPUT)));
 
-    m_Innovations.push_back( Innovation(m_NextInnovationNum, NEW_NEURON, a_In, a_Out, a_NType, m_NextNeuronID) );
+    m_Innovations.emplace_back( Innovation(m_NextInnovationNum, NEW_NEURON, a_In, a_Out, a_NType, m_NextNeuronID) );
     m_NextInnovationNum++;
     m_NextNeuronID++;
 

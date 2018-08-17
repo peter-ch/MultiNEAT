@@ -24,6 +24,7 @@
 //    Peter Chervenski < spookey@abv.bg >
 //    Shane Ryan < shane.mcdonald.ryan@gmail.com >
 ///////////////////////////////////////////////////////////////////////////////////////////
+#if 0
 
 #ifdef USE_BOOST_PYTHON
 
@@ -285,6 +286,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetLeader", &Species::GetLeader)
             .def("NumIndividuals", &Species::NumIndividuals)
             .def("GensNoImprovement", &Species::GensNoImprovement)
+            .def("EvalsNoImprovement", &Species::EvalsNoImprovement)
             .def("ID", &Species::ID)
             .def("AgeGens", &Species::AgeGens)
             .def("IsBestSpecies", &Species::IsBestSpecies)
@@ -588,3 +590,5 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 #endif // USE_BOOST_PYTHON
 
 #endif /* PYTHONBINDINGS_H_ */
+
+#endif

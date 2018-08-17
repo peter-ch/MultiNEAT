@@ -314,6 +314,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readonly("Red", &Species::m_R)
             .def_readonly("Green", &Species::m_G)
             .def_readonly("Blue", &Species::m_B)
+            .def_readwrite("EvalsNoImprovement", &Species::m_EvalsNoImprovement)
+            .def_readwrite("BestFitness", &Species::m_BestFitness)
             ;
 
 ///////////////////////////////////////////////////////////////////
@@ -397,6 +399,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
             .def_readwrite("RNG", &Population::m_RNG)
+        
+            .def_pickle(Population_pickle_suite())
             ;
 
 ///////////////////////////////////////////////////////////////////

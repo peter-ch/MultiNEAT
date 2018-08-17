@@ -46,6 +46,17 @@ class Population;
 // The Species class
 //////////////////////////////////////////////
 
+enum SelectionMode
+{
+    TRUNCATION,
+    ROULETTE,
+    RANK_LINEAR,
+    RANK_EXP,
+    TOURNAMENT,
+    STOCHASTIC,
+    BOLTZMAN
+};
+
 class Species
 {
 
@@ -96,6 +107,10 @@ public:
     int m_R, m_G, m_B;
 
     double m_AverageFitness;
+    
+    // Current selection mode (method)
+    SelectionMode m_SelectionMode;
+    bool AlwaysTruncate; // whether truncation will be performed regardless of the selection mode
 
     ////////////////////////////
     // Constructors
@@ -113,7 +128,8 @@ public:
         m_GensNoImprovement = 0;
         m_EvalsNoImprovement = 0;
         m_R = m_G = m_B = 0;
-
+        m_SelectionMode = SelectionMode::TRUNCATION;
+        AlwaysTruncate = false;
     };
 
     // initializes a species with a leader genome and an ID number

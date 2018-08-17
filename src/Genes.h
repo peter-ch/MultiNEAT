@@ -87,7 +87,6 @@ namespace NEAT
 
         RELU,                 // Rectifiers
         SOFTPLUS
-
     };
 
     //////////////////////////////////

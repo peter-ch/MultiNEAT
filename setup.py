@@ -112,7 +112,8 @@ def getExtensions():
         if is_python_2:
             libs += ['boost_python', "boost_numpy"]
         else:
-            libs += ['boost_python3', "boost_numpy3"]  # in Ubuntu 14 there is only 'boost_python-py34'
+            # with boost 1.67 you need boost_python3x and boost_numpy3x where x is python version 3.x 
+            libs += ['boost_python35', "boost_numpy35"]  # in Ubuntu 14 there is only 'boost_python-py34'
 
         # for Windows with mingw
         # libraries= ['libboost_python-mgw48-mt-1_58',

@@ -124,7 +124,7 @@ int main()
     params.MutateNeuronTraitsProb = 0.2;
     params.MutateLinkTraitsProb = 0.2;
 
-    params.ArchiveEnforcement = true;
+    params.ArchiveEnforcement = false;
     
     params.CustomConstraints = constraints;
 
@@ -220,7 +220,7 @@ int main()
 
     Population pop(s, params, true, 1.0, time(0));
 
-    for(int k=0; k<5000; k++)
+    for(int k=0; k<5; k++)
     {
         double bestf = -999999;
         for(unsigned int i=0; i < pop.m_Species.size(); i++)

@@ -132,7 +132,7 @@ namespace NEAT
             type = "int";
             m_Details = IntTraitParameters();
             dep_key = "";
-            dep_values.push_back( std::string("") );
+            dep_values.emplace_back( std::string("") );
         }
     };
 
@@ -144,7 +144,7 @@ namespace NEAT
         Trait()
         {
             value = 0;
-            dep_values.push_back(0);
+            dep_values.emplace_back(0);
             dep_key = "";
         }
 

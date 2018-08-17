@@ -173,11 +173,11 @@ NeuralNetwork::NeuralNetwork(bool a_Minimal)
         // The hidden neuron       // index 4
         Neuron t_h1;
 
-        m_neurons.push_back(t_i1);
-        m_neurons.push_back(t_i2);
-        m_neurons.push_back(t_i3);
-        m_neurons.push_back(t_o1);
-        m_neurons.push_back(t_h1);
+        m_neurons.emplace_back(t_i1);
+        m_neurons.emplace_back(t_i2);
+        m_neurons.emplace_back(t_i3);
+        m_neurons.emplace_back(t_o1);
+        m_neurons.emplace_back(t_h1);
 
         // The connections
         Connection t_c;
@@ -185,37 +185,37 @@ NeuralNetwork::NeuralNetwork(bool a_Minimal)
         t_c.m_source_neuron_idx = 0;
         t_c.m_target_neuron_idx = 3;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         t_c.m_source_neuron_idx = 1;
         t_c.m_target_neuron_idx = 3;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         t_c.m_source_neuron_idx = 2;
         t_c.m_target_neuron_idx = 3;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         t_c.m_source_neuron_idx = 0;
         t_c.m_target_neuron_idx = 4;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         t_c.m_source_neuron_idx = 1;
         t_c.m_target_neuron_idx = 4;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         t_c.m_source_neuron_idx = 2;
         t_c.m_target_neuron_idx = 4;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         t_c.m_source_neuron_idx = 4;
         t_c.m_target_neuron_idx = 3;
         t_c.m_weight = 0;
-        m_connections.push_back(t_c);
+        m_connections.emplace_back(t_c);
 
         m_num_inputs = 3;
         m_num_outputs = 1;
@@ -652,7 +652,7 @@ std::vector<double> NeuralNetwork::Output()
     std::vector<double> t_output;
     for (int i = 0; i < m_num_outputs; i++)
     {
-        t_output.push_back(m_neurons[i + m_num_inputs].m_activation);
+        t_output.emplace_back(m_neurons[i + m_num_inputs].m_activation);
     }
     return t_output;
 }
@@ -902,7 +902,7 @@ bool NeuralNetwork::Load(std::ifstream& a_DataFile)
             t_n.m_type = static_cast<NEAT::NeuronType>(t_type);
             t_n.m_activation_function_type = static_cast<NEAT::ActivationFunction>(t_aftype);
 
-            m_neurons.push_back(t_n);
+            m_neurons.emplace_back(t_n);
         }
 
         // a connection?
@@ -922,7 +922,7 @@ bool NeuralNetwork::Load(std::ifstream& a_DataFile)
 
             t_c.m_recur_flag = static_cast<bool>(t_isrecur);
 
-            m_connections.push_back(t_c);
+            m_connections.emplace_back(t_c);
         }
 
 

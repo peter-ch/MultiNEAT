@@ -65,7 +65,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     {
         Genome t_clone = a_Seed;
         t_clone.SetID(i);
-        m_Genomes.push_back( t_clone );
+        m_Genomes.emplace_back( t_clone );
     }
 
     // Now now initialize each genome's weights
@@ -172,7 +172,7 @@ Population::Population(const std::string a_sFileName)
     for(unsigned int i=0; i<m_Parameters.PopulationSize; i++)
     {
         Genome t_genome(t_DataFile);
-        m_Genomes.push_back( t_genome );
+        m_Genomes.emplace_back( t_genome );
     }
     t_DataFile.close();
 
@@ -284,7 +284,7 @@ void Population::Speciate()
         if (!t_added)
         {
             // didn't find compatible species, create new species
-            m_Species.push_back( Species(m_Genomes[i], m_NextSpeciesID));
+            m_Species.emplace_back( Species(m_Genomes[i], m_NextSpeciesID));
             m_NextSpeciesID++;
         }
     }
@@ -883,7 +883,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     if (t_cur_species == m_Species.end())
     {
         // create the first species and place the baby there
-        m_Species.push_back( Species(t_genome, GetNextSpeciesID()));
+        m_Species.emplace_back( Species(t_genome, GetNextSpeciesID()));
         IncrementNextSpeciesID();
     }
     else
@@ -914,7 +914,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
         // if couldn't find a match, make a new species
         if (!t_found)
         {
-            m_Species.push_back( Species(t_genome, GetNextSpeciesID()));
+            m_Species.emplace_back( Species(t_genome, GetNextSpeciesID()));
             IncrementNextSpeciesID();
         }
     }
@@ -934,9 +934,10 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     m_NumEvaluations++;
 
     // Find and save the best genome and fitness
+    m_EvalsSinceBestFitnessLastChanged++;
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].IncreaseEvalsNoImprovement();
+        //m_Species[i].IncreaseEvalsNoImprovement();
 
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
@@ -955,7 +956,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 }
 
                 m_BestFitnessEver = t_Fitness;
-                m_BestGenomeEver  = m_Species[i].m_Individuals[j];
+                m_BestGenomeEver = m_Species[i].m_Individuals[j];
             }
         }
     }
@@ -971,7 +972,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 m_BestGenome = m_Species[i].m_Individuals[j];
             }
 
-            if (m_Species[i].m_Individuals[j].GetFitness() >= m_Species[i].GetBestFitness())
+            if (m_Species[i].m_Individuals[j].GetFitness() > m_Species[i].GetBestFitness())
             {
                 m_Species[i].m_BestFitness = m_Species[i].m_Individuals[j].GetFitness();
                 m_Species[i].m_EvalsNoImprovement = 0;
@@ -1032,13 +1033,13 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
     // Add the baby to its proper species
     bool t_found = false;
-    std::vector<Species>::iterator t_cur_species = m_Species.begin();
+    auto t_cur_species = m_Species.begin();
 
     // No species yet?
     if (t_cur_species == m_Species.end())
     {
         // create the first species and place the baby there
-        m_Species.push_back( Species(t_baby, GetNextSpeciesID()) );
+        m_Species.emplace_back( Species(t_baby, GetNextSpeciesID()) );
         // the last one
         t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
         IncrementNextSpeciesID();
@@ -1057,6 +1058,9 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 t_cur_species->AddIndividual(t_baby);
                 t_to_return = &(t_cur_species->m_Individuals[ t_cur_species->m_Individuals.size() - 1]);
                 t_found = true; // the search is over
+
+                // increase the evals counter for the new species
+                t_cur_species->IncreaseEvalsNoImprovement();
             }
             else
             {
@@ -1072,7 +1076,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         // if couldn't find a match, make a new species
         if (!t_found)
         {
-            m_Species.push_back( Species(t_baby, GetNextSpeciesID()));
+            m_Species.emplace_back( Species(t_baby, GetNextSpeciesID()) );
             // the last one
             t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
             IncrementNextSpeciesID();
@@ -1178,14 +1182,14 @@ double Population::ComputeSparseness(Genome& genome)
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
             double distance = genome.m_PhenotypeBehavior->Distance_To( m_Species[i].m_Individuals[j].m_PhenotypeBehavior );
-            t_distances_list.push_back( distance );
+            t_distances_list.emplace_back( distance );
         }
     }
 
     // then add all distances from the archive
     for(unsigned int i=0; i<m_BehaviorArchive->size(); i++)
     {
-        t_distances_list.push_back( genome.m_PhenotypeBehavior->Distance_To( &((*m_BehaviorArchive)[i])));
+        t_distances_list.emplace_back( genome.m_PhenotypeBehavior->Distance_To( &((*m_BehaviorArchive)[i])));
     }
 
     // sort the list, smaller first
@@ -1268,7 +1272,7 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
 
         if (!present)
         {
-            m_BehaviorArchive->push_back( *(t_new_baby->m_PhenotypeBehavior) );
+            m_BehaviorArchive->emplace_back( *(t_new_baby->m_PhenotypeBehavior) );
             m_GensSinceLastArchiving = 0;
             m_QuickAddCounter++;
         }

@@ -31,7 +31,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <map>
+//#include "Genes.h"
 #include "Traits.h"
+//#include "Species.h"
 
 #ifdef USE_BOOST_PYTHON
 
@@ -155,6 +157,14 @@ public:
     // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
     // The default if the Average mating.
     double MultipointCrossoverRate;
+    
+    // Selection scheme
+    // 0 - normal (single mode of selection for all species all the time)
+    // 1 - selection mode picked randomly for each species each N evaluations/generations
+    // 2 - selection mode changes randomly when a species stagnates
+    int SelectionScheme;
+    // Probabilities for each selection mode
+    //std::map< SelectionMode, double > SelectionModeProbs;
 
     // Performing roulette wheel selection or not?
     bool RouletteWheelSelection;
@@ -973,4 +983,3 @@ struct Parameters_pickle_suite : py::pickle_suite
 
 
 #endif
-

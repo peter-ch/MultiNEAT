@@ -68,10 +68,11 @@ namespace NEAT
         m_BestGenome = a_Genome;
 
         // add the first and only one individual
-        m_Individuals.push_back(a_Genome);
+        m_Individuals.emplace_back(a_Genome);
 
         m_AgeGenerations = 0;
         m_GensNoImprovement = 0;
+        m_EvalsNoImprovement = 0;
         m_OffspringRqd = 0;
         m_BestFitness = a_Genome.GetFitness();
         m_BestSpecies = true;
@@ -99,6 +100,7 @@ namespace NEAT
             m_WorstSpecies = a_S.m_WorstSpecies;
             m_BestFitness = a_S.m_BestFitness;
             m_GensNoImprovement = a_S.m_GensNoImprovement;
+            m_EvalsNoImprovement = a_S.m_EvalsNoImprovement;
             m_AgeGenerations = a_S.m_AgeGenerations;
             m_OffspringRqd = a_S.m_OffspringRqd;
             m_R = a_S.m_R;
@@ -115,7 +117,7 @@ namespace NEAT
     // adds a new member to the species and updates variables
     void Species::AddIndividual(Genome &a_Genome)
     {
-        m_Individuals.push_back(a_Genome);
+        m_Individuals.emplace_back(a_Genome);
     }
 
 
@@ -129,7 +131,7 @@ namespace NEAT
         for (unsigned int i = 0; i < m_Individuals.size(); i++)
         {
             if (m_Individuals[i].IsEvaluated())
-                t_Evaluated.push_back(m_Individuals[i]);
+                t_Evaluated.emplace_back(m_Individuals[i]);
         }
 
         ASSERT(t_Evaluated.size() > 0);
@@ -182,7 +184,7 @@ namespace NEAT
             std::vector<double> t_probs;
             for (unsigned int i = 0; i < t_Evaluated.size(); i++)
             {
-                t_probs.push_back(t_Evaluated[i].GetFitness());
+                t_probs.emplace_back(t_Evaluated[i].GetFitness());
             }
             t_chosen_one = a_RNG.Roulette(t_probs);
         }
@@ -314,7 +316,7 @@ namespace NEAT
     }
 
 
-// Removes an individual from the species by its index within the species
+    // Removes an individual from the species by its index within the species
     void Species::RemoveIndividual(unsigned int a_idx)
     {
         ASSERT(a_idx < m_Individuals.size());
@@ -512,7 +514,7 @@ namespace NEAT
             // Archive the baby if needed
             if (a_Parameters.ArchiveEnforcement)
             {
-                a_Pop.m_GenomeArchive.push_back(t_baby);
+                a_Pop.m_GenomeArchive.emplace_back(t_baby);
             }
 
             //////////////////////////////////
@@ -525,13 +527,13 @@ namespace NEAT
             // after all reproduction completes, the original species will be replaced back
 
             bool t_found = false;
-            std::vector<Species>::iterator t_cur_species = a_Pop.m_TempSpecies.begin();
+            auto t_cur_species = a_Pop.m_TempSpecies.begin();
 
             // No species yet?
             if (t_cur_species == a_Pop.m_TempSpecies.end())
             {
                 // create the first species and place the baby there
-                a_Pop.m_TempSpecies.push_back(Species(t_baby, a_Pop.GetNextSpeciesID()));
+                a_Pop.m_TempSpecies.emplace_back(Species(t_baby, a_Pop.GetNextSpeciesID()));
                 a_Pop.IncrementNextSpeciesID();
             }
             else
@@ -562,7 +564,7 @@ namespace NEAT
                 // if couldn't find a match, make a new species
                 if (!t_found)
                 {
-                    a_Pop.m_TempSpecies.push_back(Species(t_baby, a_Pop.GetNextSpeciesID()));
+                    a_Pop.m_TempSpecies.emplace_back(Species(t_baby, a_Pop.GetNextSpeciesID()));
                     a_Pop.IncrementNextSpeciesID();
                 }
             }
@@ -755,7 +757,7 @@ namespace NEAT
         // In case of archiving, add the new baby to the archive
         if (a_Parameters.ArchiveEnforcement)
         {
-            a_Pop.m_GenomeArchive.push_back(t_baby);
+            a_Pop.m_GenomeArchive.emplace_back(t_baby);
         }
 
         return t_baby;
@@ -853,43 +855,43 @@ namespace NEAT
         std::vector<double> t_mut_probs;
     
         // ADD_NODE;
-        t_mut_probs.push_back(a_Parameters.MutateAddNeuronProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateAddNeuronProb);
     
         // ADD_LINK;
-        t_mut_probs.push_back(a_Parameters.MutateAddLinkProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateAddLinkProb);
     
         // REMOVE_NODE;
-        t_mut_probs.push_back(a_Parameters.MutateRemSimpleNeuronProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateRemSimpleNeuronProb);
     
         // REMOVE_LINK;
-        t_mut_probs.push_back(a_Parameters.MutateRemLinkProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateRemLinkProb);
     
         // CHANGE_ACTIVATION_FUNCTION;
-        t_mut_probs.push_back(a_Parameters.MutateNeuronActivationTypeProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateNeuronActivationTypeProb);
     
         // MUTATE_WEIGHTS;
-        t_mut_probs.push_back(a_Parameters.MutateWeightsProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateWeightsProb);
     
         // MUTATE_ACTIVATION_A;
-        t_mut_probs.push_back(a_Parameters.MutateActivationAProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateActivationAProb);
     
         // MUTATE_ACTIVATION_B;
-        t_mut_probs.push_back(a_Parameters.MutateActivationBProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateActivationBProb);
     
         // MUTATE_TIMECONSTS;
-        t_mut_probs.push_back(a_Parameters.MutateNeuronTimeConstantsProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateNeuronTimeConstantsProb);
     
         // MUTATE_BIASES;
-        t_mut_probs.push_back(a_Parameters.MutateNeuronBiasesProb);
+        t_mut_probs.emplace_back(a_Parameters.MutateNeuronBiasesProb);
     
         // MUTATE_NEURON_TRAITS;
-        t_mut_probs.push_back( a_Parameters.MutateNeuronTraitsProb );
+        t_mut_probs.emplace_back( a_Parameters.MutateNeuronTraitsProb );
     
         // MUTATE_LINK_TRAITS;
-        t_mut_probs.push_back( a_Parameters.MutateLinkTraitsProb );
+        t_mut_probs.emplace_back( a_Parameters.MutateLinkTraitsProb );
     
         // MUTATE_GENOME_TRAITS;
-        t_mut_probs.push_back( a_Parameters.MutateGenomeTraitsProb );
+        t_mut_probs.emplace_back( a_Parameters.MutateGenomeTraitsProb );
     
         // Special consideration for phased searching - do not allow certain mutations depending on the search mode
         // also don't use additive mutations if we just want to get rid of the clones

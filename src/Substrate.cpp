@@ -121,17 +121,17 @@ Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
     for(int i=0; i<inp; i++)
     {
         for(int j=0; j<py::len(a_inputs[i]); j++)
-            m_input_coords[i].push_back(py::extract<double>(a_inputs[i][j]));
+            m_input_coords[i].emplace_back(py::extract<double>(a_inputs[i][j]));
     }
     for(int i=0; i<hid; i++)
     {
         for(int j=0; j<py::len(a_hidden[i]); j++)
-            m_hidden_coords[i].push_back(py::extract<double>(a_hidden[i][j]));
+            m_hidden_coords[i].emplace_back(py::extract<double>(a_hidden[i][j]));
     }
     for(int i=0; i<out; i++)
     {
         for(int j=0; j<py::len(a_outputs[i]); j++)
-            m_output_coords[i].push_back(py::extract<double>(a_outputs[i][j]));
+            m_output_coords[i].emplace_back(py::extract<double>(a_outputs[i][j]));
     }
 }
 
@@ -154,21 +154,21 @@ void Substrate::SetNeurons(py::list a_inputs, py::list a_hidden, py::list a_outp
     {
         for(int j=0; j<py::len(a_inputs[i]); j++)
         {
-            m_input_coords[i].push_back(py::extract<double>(a_inputs[i][j]));
+            m_input_coords[i].emplace_back(py::extract<double>(a_inputs[i][j]));
         }
     }
     for(int i=0; i<hid; i++)
     {
         for(int j=0; j<py::len(a_hidden[i]); j++)
         {
-            m_hidden_coords[i].push_back(py::extract<double>(a_hidden[i][j]));
+            m_hidden_coords[i].emplace_back(py::extract<double>(a_hidden[i][j]));
         }
     }
     for(int i=0; i<out; i++)
     {
         for(int j=0; j<py::len(a_outputs[i]); j++)
         {
-            m_output_coords[i].push_back(py::extract<double>(a_outputs[i][j]));
+            m_output_coords[i].emplace_back(py::extract<double>(a_outputs[i][j]));
         }
     }
 }
@@ -187,12 +187,12 @@ void Substrate::SetCustomConnectivity(py::list a_conns)
     	int dst_idx = py::extract<int>(a_conns[i][3]);
 
     	std::vector<int> c;
-    	c.push_back(src_type);
-    	c.push_back(src_idx);
-    	c.push_back(dst_type);
-    	c.push_back(dst_idx);
+    	c.emplace_back(src_type);
+    	c.emplace_back(src_idx);
+    	c.emplace_back(dst_type);
+    	c.emplace_back(dst_idx);
 
-    	m_custom_connectivity.push_back( c );
+    	m_custom_connectivity.emplace_back( c );
     }
 }
 
@@ -208,12 +208,12 @@ void Substrate::SetCustomConnectivity(std::vector< std::vector<int> >& a_conns)
     	int dst_idx = a_conns[i][3];
 
     	std::vector<int> c;
-    	c.push_back(src_type);
-    	c.push_back(src_idx);
-    	c.push_back(dst_type);
-    	c.push_back(dst_idx);
+    	c.emplace_back(src_type);
+    	c.emplace_back(src_idx);
+    	c.emplace_back(dst_type);
+    	c.emplace_back(dst_idx);
 
-    	m_custom_connectivity.push_back( c );
+    	m_custom_connectivity.emplace_back( c );
     }
 }
 
