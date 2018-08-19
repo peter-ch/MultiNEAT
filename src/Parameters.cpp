@@ -403,10 +403,10 @@ namespace NEAT
         CompatTreshold = 5.0;
 
         // Minumal value of the compatibility treshold
-        MinCompatTreshold = 0.2;
+        MinCompatTreshold = 0.1;
 
         // Modifier per generation for keeping the species stable
-        CompatTresholdModifier = 0.3;
+        CompatTresholdModifier = 0.1;
 
         // Per how many generations to change the treshold
         // (used in generational mode)
@@ -414,7 +414,10 @@ namespace NEAT
 
         // Per how many evaluations to change the treshold
         // (used in steady state mode)
-        CompatTreshChangeInterval_Evaluations = 10;
+        CompatTreshChangeInterval_Evaluations = 1;
+        
+        // Minimal distance for two individuals to be considered different (as in clones or not)
+        MinDeltaCompatEqualGenomes = 0.0001;
 
 
 
@@ -852,7 +855,10 @@ namespace NEAT
 
             if (s == "CompatTreshChangeInterval_Evaluations")
                 a_DataFile >> CompatTreshChangeInterval_Evaluations;
-
+    
+            if (s == "MinDeltaCompatEqualGenomes")
+                a_DataFile >> MinDeltaCompatEqualGenomes;
+            
             if (s == "DivisionThreshold")
                 a_DataFile >> DivisionThreshold;
 
@@ -1054,6 +1060,7 @@ namespace NEAT
         fprintf(a_fstream, "CompatTresholdModifier %3.20f\n", CompatTresholdModifier);
         fprintf(a_fstream, "CompatTreshChangeInterval_Generations %d\n", CompatTreshChangeInterval_Generations);
         fprintf(a_fstream, "CompatTreshChangeInterval_Evaluations %d\n", CompatTreshChangeInterval_Evaluations);
+        fprintf(a_fstream, "MinDeltaCompatEqualGenomes %3.20f\n", MinDeltaCompatEqualGenomes);
 
 
         fprintf(a_fstream, "DivisionThreshold %3.20f\n", DivisionThreshold);

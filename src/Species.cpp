@@ -39,7 +39,7 @@
 #include "Parameters.h"
 #include "assert.h"
 
-#define COMPAT_EQUALITY_DELTA 0.0000001
+//#define COMPAT_EQUALITY_DELTA 0.0000001
 
 namespace NEAT
 {
@@ -58,7 +58,7 @@ namespace NEAT
     
     
     // initializes a species with a representative genome and an ID number
-    Species::Species(const Genome &a_Genome, int a_ID)
+    Species::Species(const Genome &a_Genome, const Parameters& a_Parameters, int a_ID)
     {
         m_ID = a_ID;
         //m_Individuals.reserve(50); wtf is this?
@@ -78,6 +78,7 @@ namespace NEAT
         m_BestSpecies = true;
         m_WorstSpecies = false;
         m_AverageFitness = 0;
+        m_Parameters = a_Parameters;
 
         // Choose a random color
         //RNG rng;
@@ -106,6 +107,7 @@ namespace NEAT
             m_R = a_S.m_R;
             m_G = a_S.m_G;
             m_B = a_S.m_B;
+            m_Parameters = a_S.m_Parameters;
 
             m_Individuals = a_S.m_Individuals;
         }
@@ -412,7 +414,7 @@ namespace NEAT
                                 if (!a_Parameters.AllowClones)
                                 {
                                     while (((t_mom.GetID() == t_dad.GetID()) ||
-                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < COMPAT_EQUALITY_DELTA)) &&
+                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes)) &&
                                            (t_tries--))
                                     {
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
@@ -467,7 +469,7 @@ namespace NEAT
                             {
                                 if (
                                         (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j],
-                                                                      a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
+                                                                      a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                         )
                                 {
                                     t_baby_exists_in_pop = true;
@@ -484,7 +486,7 @@ namespace NEAT
                         {
                             if (
                                     (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
-                                                                  a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
+                                                                  a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                     )
                             {
                                 t_baby_exists_in_pop = true;
@@ -533,13 +535,13 @@ namespace NEAT
             if (t_cur_species == a_Pop.m_TempSpecies.end())
             {
                 // create the first species and place the baby there
-                a_Pop.m_TempSpecies.emplace_back(Species(t_baby, a_Pop.GetNextSpeciesID()));
+                a_Pop.m_TempSpecies.emplace_back(Species(t_baby, m_Parameters, a_Pop.GetNextSpeciesID()));
                 a_Pop.IncrementNextSpeciesID();
             }
             else
             {
                 // try to find a compatible species
-                Genome t_to_compare = t_cur_species->GetRepresentative();
+                Genome t_to_compare = t_cur_species->GetRandomIndividual(a_RNG); // was GetRepresentative()
 
                 t_found = false;
                 while ((t_cur_species != a_Pop.m_TempSpecies.end()) && (!t_found))
@@ -556,7 +558,7 @@ namespace NEAT
                         t_cur_species++;
                         if (t_cur_species != a_Pop.m_TempSpecies.end())
                         {
-                            t_to_compare = t_cur_species->GetRepresentative();
+                            t_to_compare = t_cur_species->GetRandomIndividual(a_RNG); // was GetRepresentative()
                         }
                     }
                 }
@@ -564,7 +566,7 @@ namespace NEAT
                 // if couldn't find a match, make a new species
                 if (!t_found)
                 {
-                    a_Pop.m_TempSpecies.emplace_back(Species(t_baby, a_Pop.GetNextSpeciesID()));
+                    a_Pop.m_TempSpecies.emplace_back(Species(t_baby, m_Parameters, a_Pop.GetNextSpeciesID()));
                     a_Pop.IncrementNextSpeciesID();
                 }
             }
@@ -654,7 +656,7 @@ namespace NEAT
                         if (!a_Parameters.AllowClones)
                         {
                             while (((t_mom.GetID() == t_dad.GetID()) ||
-                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < COMPAT_EQUALITY_DELTA)) &&
+                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes)) &&
                                    (t_tries--))
                             {
                                 t_dad = GetIndividual(a_Parameters, a_RNG);
@@ -710,7 +712,7 @@ namespace NEAT
                     {
                         if (
                                 (t_baby.CompatibilityDistance(a_Pop.m_Species[i].m_Individuals[j],
-                                                              a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
+                                                              a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                 )
                         {
                             t_baby_exists_in_pop = true;
@@ -727,7 +729,7 @@ namespace NEAT
                 {
                     if (
                             (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
-                                                          a_Parameters) < COMPAT_EQUALITY_DELTA) // identical genome?
+                                                          a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                             )
                     {
                         t_baby_exists_in_pop = true;

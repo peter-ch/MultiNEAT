@@ -303,7 +303,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 // Species class
 ///////////////////////////////////////////////////////////////////
 
-    class_<Species>("Species", init<Genome, int>())
+    class_<Species>("Species", init<Genome, Parameters, int>())
             .def("GetLeader", &Species::GetLeader)
             .def("NumIndividuals", &Species::NumIndividuals)
             .def("GensNoImprovement", &Species::GensNoImprovement)
@@ -316,6 +316,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readonly("Blue", &Species::m_B)
             .def_readwrite("EvalsNoImprovement", &Species::m_EvalsNoImprovement)
             .def_readwrite("BestFitness", &Species::m_BestFitness)
+            .def_readwrite("Parameters", &Species::m_Parameters)
             ;
 
 ///////////////////////////////////////////////////////////////////
@@ -525,6 +526,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("CompatTresholdModifier", &Parameters::CompatTresholdModifier)
             .def_readwrite("CompatTreshChangeInterval_Generations", &Parameters::CompatTreshChangeInterval_Generations)
             .def_readwrite("CompatTreshChangeInterval_Evaluations", &Parameters::CompatTreshChangeInterval_Evaluations)
+            .def_readwrite("MinDeltaCompatEqualGenomes", &Parameters::MinDeltaCompatEqualGenomes)
 
             .def_readwrite("DivisionThreshold", &Parameters::DivisionThreshold)
             .def_readwrite("VarianceThreshold", &Parameters::VarianceThreshold)

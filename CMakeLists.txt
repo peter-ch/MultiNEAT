@@ -13,7 +13,8 @@ find_package(Boost COMPONENTS
     date_time
     system
     filesystem
-    python3
+    python35
+    numpy35
     serialization)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})

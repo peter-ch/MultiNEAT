@@ -393,6 +393,9 @@ public:
     // Per how many evaluations to change the treshold
     unsigned int CompatTreshChangeInterval_Evaluations;
     
+    // What is the minimal difference needed for not to be a clone
+    double MinDeltaCompatEqualGenomes;
+    
     /////////////////////////////
     // Genome properties params
     /////////////////////////////
@@ -943,11 +946,12 @@ public:
         ar & EliteFraction;
 
         ar & ArchiveEnforcement;
+        ar & MinDeltaCompatEqualGenomes;
     }
     
 #endif
 
-};
+    };
 
 
 #ifdef USE_BOOST_PYTHON

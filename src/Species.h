@@ -111,6 +111,10 @@ public:
     // Current selection mode (method)
     SelectionMode m_SelectionMode;
     bool AlwaysTruncate; // whether truncation will be performed regardless of the selection mode
+    
+    // The species has its own parameters
+    // it inherits them from the population when created
+    Parameters m_Parameters;
 
     ////////////////////////////
     // Constructors
@@ -133,7 +137,7 @@ public:
     };
 
     // initializes a species with a leader genome and an ID number
-    Species(const Genome& a_Seed, int a_id);
+    Species(const Genome& a_Seed, const Parameters& a_Parameters, int a_id);
 
     // assignment operator
     Species& operator=(const Species& a_g);

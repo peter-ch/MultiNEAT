@@ -270,7 +270,7 @@ void Population::Speciate()
         // if not compatible, create a new species.
         for(unsigned int j=0; j<m_Species.size(); j++)
         {
-            Genome tmp = m_Species[j].GetRepresentative();
+            Genome tmp = m_Species[j].GetRandomIndividual(m_RNG); // was GetRepresentative()
             if (m_Genomes[i].IsCompatibleWith( tmp, m_Parameters ))
             {
                 // Compatible, add to species
@@ -284,7 +284,7 @@ void Population::Speciate()
         if (!t_added)
         {
             // didn't find compatible species, create new species
-            m_Species.emplace_back( Species(m_Genomes[i], m_NextSpeciesID));
+            m_Species.emplace_back( Species(m_Genomes[i], m_Parameters, m_NextSpeciesID));
             m_NextSpeciesID++;
         }
     }
@@ -316,7 +316,7 @@ void Population::AdjustFitness()
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].AdjustFitness(m_Parameters);
+        m_Species[i].AdjustFitness(m_Species[i].m_Parameters);
     }
 }
 
@@ -531,12 +531,7 @@ void Population::Epoch()
         if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
     }
 
-
-
-
-
-
-
+    
 
 
 
@@ -570,12 +565,7 @@ void Population::Epoch()
             }
         }
     }
-
-
-
-
-
-
+    
 
 
     //////////////////////////////////
@@ -674,7 +664,7 @@ void Population::Epoch()
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].Reproduce(*this, m_Parameters, m_RNG);
+        m_Species[i].Reproduce(*this, m_Species[i].m_Parameters, m_RNG);
     }
     m_Species = m_TempSpecies;
 
@@ -694,15 +684,11 @@ void Population::Epoch()
             i--;
         }
     }
-
     // Now reassign the representatives for each species
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         m_Species[i].SetRepresentative( m_Species[i].m_Individuals[0] );
     }
-
-
-
 
     // If the total amount of genomes reproduced is less than the population size,
     // due to some floating point rounding error,
@@ -723,8 +709,6 @@ void Population::Epoch()
             m_Species[0].AddIndividual(t_tg);
         }
     }
-
-
 
     // Increase generation number
     m_Generation++;
@@ -883,13 +867,13 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     if (t_cur_species == m_Species.end())
     {
         // create the first species and place the baby there
-        m_Species.emplace_back( Species(t_genome, GetNextSpeciesID()));
+        m_Species.emplace_back( Species(t_genome, m_Parameters, GetNextSpeciesID()));
         IncrementNextSpeciesID();
     }
     else
     {
         // try to find a compatible species
-        Genome t_to_compare = t_cur_species->GetRepresentative();
+        Genome t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -906,7 +890,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
                 t_cur_species++;
                 if (t_cur_species != m_Species.end())
                 {
-                    t_to_compare = t_cur_species->GetRepresentative();
+                    t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
                 }
             }
         }
@@ -914,7 +898,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
         // if couldn't find a match, make a new species
         if (!t_found)
         {
-            m_Species.emplace_back( Species(t_genome, GetNextSpeciesID()));
+            m_Species.emplace_back( Species(t_genome, m_Parameters, GetNextSpeciesID()));
             IncrementNextSpeciesID();
         }
     }
@@ -1025,7 +1009,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
     // Now spawn the new offspring
     unsigned int t_parent_species_index = ChooseParentSpecies();
-    Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this, m_Parameters, m_RNG);
+    Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this, m_Species[t_parent_species_index].m_Parameters, m_RNG);
     ASSERT(t_baby.NumInputs() > 0);
     ASSERT(t_baby.NumOutputs() > 0);
     Genome* t_to_return = NULL;
@@ -1039,7 +1023,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     if (t_cur_species == m_Species.end())
     {
         // create the first species and place the baby there
-        m_Species.emplace_back( Species(t_baby, GetNextSpeciesID()) );
+        m_Species.emplace_back( Species(t_baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
         // the last one
         t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
         IncrementNextSpeciesID();
@@ -1047,7 +1031,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     else
     {
         // try to find a compatible species
-        Genome t_to_compare = t_cur_species->GetRepresentative();
+        Genome t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -1068,7 +1052,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 t_cur_species++;
                 if (t_cur_species != m_Species.end())
                 {
-                    t_to_compare = t_cur_species->GetRepresentative();
+                    t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
                 }
             }
         }
@@ -1076,7 +1060,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         // if couldn't find a match, make a new species
         if (!t_found)
         {
-            m_Species.emplace_back( Species(t_baby, GetNextSpeciesID()) );
+            m_Species.emplace_back( Species(t_baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
             // the last one
             t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
             IncrementNextSpeciesID();
