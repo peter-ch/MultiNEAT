@@ -69,6 +69,9 @@ public:
 
     // Size of population
     unsigned int PopulationSize;
+    
+    // Controls the use of speciation. When off, the population will consist of only one species.
+    bool Speciation;
 
     // If true, this enables dynamic compatibility thresholding
     // It will keep the number of species between MinSpecies and MaxSpecies
@@ -821,6 +824,7 @@ public:
     void serialize(Archive & ar, const unsigned int version)
     {
         ar & PopulationSize;
+        ar & Speciation;
         ar & DynamicCompatibility;
         ar & MinSpecies;
         ar & MaxSpecies;

@@ -1036,7 +1036,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
         {
-            if (t_baby.IsCompatibleWith( t_to_compare, m_Parameters))
+            if (t_baby.IsCompatibleWith( t_to_compare, m_Parameters ))
             {
                 // found a compatible species
                 t_cur_species->AddIndividual(t_baby);

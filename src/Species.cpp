@@ -183,8 +183,22 @@ namespace NEAT
         else
         {
             // roulette wheel selection
-            std::vector<double> t_probs;
+            /*std::vector<double> t_probs;
             for (unsigned int i = 0; i < t_Evaluated.size(); i++)
+            {
+                t_probs.emplace_back(t_Evaluated[i].GetFitness());
+            }
+            t_chosen_one = a_RNG.Roulette(t_probs);*/
+            int t_num_parents = (int)(a_Parameters.SurvivalRate * (double)(t_Evaluated.size()));
+    
+            ASSERT(t_num_parents > 0);
+            ASSERT(t_num_parents < t_Evaluated.size());
+            if (t_num_parents > t_Evaluated.size())
+            {
+                t_num_parents = t_Evaluated.size();
+            }
+            std::vector<double> t_probs;
+            for (unsigned int i = 0; i < t_num_parents; i++)
             {
                 t_probs.emplace_back(t_Evaluated[i].GetFitness());
             }
@@ -384,13 +398,12 @@ namespace NEAT
                         // else we can mate
                     else
                     {
-                        Genome t_mom = GetIndividual(a_Parameters, a_RNG);
-
                         // choose whether to mate at all
                         // Do not allow crossover when in simplifying phase
                         if ((a_RNG.RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
                         {
                             // get the father
+                            Genome t_mom;
                             Genome t_dad;
                             bool t_interspecies = false;
 
@@ -400,30 +413,35 @@ namespace NEAT
                             {
                                 // Find different species (random one) // !!!!!!!!!!!!!!!!!
                                 int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size() - 1));
+                                
+                                t_mom = GetIndividual(a_Parameters, a_RNG);
                                 t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
                                 t_interspecies = true;
                             }
                             else
                             {
                                 // Mate within species
+                                t_mom = GetIndividual(a_Parameters, a_RNG);
                                 t_dad = GetIndividual(a_Parameters, a_RNG);
 
                                 // The other parent should be a different one
                                 // number of tries to find different parent
                                 int t_tries = 1024;
-                                if (!a_Parameters.AllowClones)
+                                /*if (!a_Parameters.AllowClones)
                                 {
                                     while (((t_mom.GetID() == t_dad.GetID()) ||
                                             (t_mom.CompatibilityDistance(t_dad, a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes)) &&
                                            (t_tries--))
                                     {
+                                        t_mom = GetIndividual(a_Parameters, a_RNG);
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
                                     }
                                 }
-                                else
+                                else*/ // we can mate the same mom & dad and still get different baby
                                 {
                                     while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
                                     {
+                                        t_mom = GetIndividual(a_Parameters, a_RNG);
                                         t_dad = GetIndividual(a_Parameters, a_RNG);
                                     }
                                 }
@@ -443,10 +461,10 @@ namespace NEAT
 
                             t_mated = true;
                         }
-                            // don't mate - reproduce the mother asexually
+                            // don't mate - reproduce one individual asexually
                         else
                         {
-                            t_baby = t_mom;
+                            t_baby = GetIndividual(a_Parameters, a_RNG);
                             t_mated = false;
                         }
                     }
@@ -626,13 +644,14 @@ namespace NEAT
                 // else we can mate
             else
             {
-                Genome t_mom = GetIndividual(a_Parameters, a_RNG);
+                
             
                 // choose whether to mate at all
                 // Do not allow crossover when in simplifying phase
                 if ((a_RNG.RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))
                 {
-                    // get the father
+                    // get the mother and father
+                    Genome t_mom;
                     Genome t_dad;
                     bool t_interspecies = false;
                 
@@ -642,18 +661,20 @@ namespace NEAT
                     {
                         // Find different species (random one) // !!!!!!!!!!!!!!!!!
                         int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size() - 1));
+                        t_mom = GetIndividual(a_Parameters, a_RNG);
                         t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
                         t_interspecies = true;
                     }
                     else
                     {
                         // Mate within species
+                        t_mom = GetIndividual(a_Parameters, a_RNG);
                         t_dad = GetIndividual(a_Parameters, a_RNG);
                     
                         // The other parent should be a different one
                         // number of tries to find different parent
                         int t_tries = 1024;
-                        if (!a_Parameters.AllowClones)
+                        /*if (!a_Parameters.AllowClones)
                         {
                             while (((t_mom.GetID() == t_dad.GetID()) ||
                                     (t_mom.CompatibilityDistance(t_dad, a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes)) &&
@@ -662,10 +683,11 @@ namespace NEAT
                                 t_dad = GetIndividual(a_Parameters, a_RNG);
                             }
                         }
-                        else
+                        else*/ // we can mate the same mom and dad and still get different baby
                         {
                             while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
                             {
+                                t_mom = GetIndividual(a_Parameters, a_RNG);
                                 t_dad = GetIndividual(a_Parameters, a_RNG);
                             }
                         }
@@ -685,10 +707,10 @@ namespace NEAT
                 
                     t_mated = true;
                 }
-                    // don't mate - reproduce the mother asexually
+                    // don't mate - reproduce one individual asexually
                 else
                 {
-                    t_baby = t_mom;
+                    t_baby = GetIndividual(a_Parameters, a_RNG);
                     t_mated = false;
                 }
             }

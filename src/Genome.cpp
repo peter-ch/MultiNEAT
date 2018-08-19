@@ -1226,11 +1226,24 @@ namespace NEAT
         // TODO: if neuron parameters were changed, derive them
         // * in future expansions
     }
-
-
+    
+    //std::map<std::pair<int,int>, double> distance_cache;
+    
     // Returns the absolute distance between this genome and a_G
     double Genome::CompatibilityDistance(Genome &a_G, Parameters &a_Parameters)
     {
+        // first check if in cache, if so, return that
+        /*auto q1 = std::make_pair(this->GetID(), a_G.GetID());
+        auto q2 = std::make_pair(a_G.GetID(), this->GetID());
+        if (distance_cache.count(q1) > 0)
+        {
+            return distance_cache[q1];
+        }
+        else if (distance_cache.count(q2) > 0)
+        {
+            return distance_cache[q2];
+        }*/
+        
         // iterators for moving through the genomes' genes
         std::vector<LinkGene>::iterator t_g1;
         std::vector<LinkGene>::iterator t_g2;
@@ -1422,6 +1435,9 @@ namespace NEAT
         {
             t_total_distance += (a_Parameters.GenomeTraits[it->first].m_ImportanceCoeff * it->second);
         }
+        
+        // store in cache
+        //distance_cache[std::make_pair(this->GetID(), a_G.GetID())] = t_total_distance;
 
         return t_total_distance;
     }

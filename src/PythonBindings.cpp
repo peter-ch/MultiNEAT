@@ -426,6 +426,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("ClearGenomeTraitParameters", &Parameters::ClearGenomeTraitParameters)
 
             .def_readwrite("PopulationSize", &Parameters::PopulationSize)
+            .def_readwrite("Speciation", &Parameters::Speciation)
             .def_readwrite("DynamicCompatibility", &Parameters::DynamicCompatibility)
             .def_readwrite("MinSpecies", &Parameters::MinSpecies)
             .def_readwrite("MaxSpecies", &Parameters::MaxSpecies)

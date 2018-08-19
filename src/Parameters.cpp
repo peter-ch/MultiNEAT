@@ -48,6 +48,9 @@ namespace NEAT
 
         // Size of population
         PopulationSize = 300;
+        
+        // Speciation on/off
+        Speciation = true;
 
         // If true, this enables dynamic compatibility thresholding
         // It will keep the number of species between MinSpecies and MaxSpecies
@@ -486,6 +489,15 @@ namespace NEAT
 
             if (s == "PopulationSize")
                 a_DataFile >> PopulationSize;
+    
+            if (s == "Speciation")
+            {
+                a_DataFile >> tf;
+                if (tf == "true" || tf == "1" || tf == "1.0")
+                    Speciation = true;
+                else
+                    Speciation = false;
+            }
 
             if (s == "DynamicCompatibility")
             {
@@ -957,6 +969,7 @@ namespace NEAT
         fprintf(a_fstream, "NEAT_ParametersStart\n");
 
         fprintf(a_fstream, "PopulationSize %d\n", PopulationSize);
+        fprintf(a_fstream, "Speciation %s\n", Speciation == true ? "true" : "false");
         fprintf(a_fstream, "DynamicCompatibility %s\n", DynamicCompatibility == true ? "true" : "false");
         fprintf(a_fstream, "MinSpecies %d\n", MinSpecies);
         fprintf(a_fstream, "MaxSpecies %d\n", MaxSpecies);
