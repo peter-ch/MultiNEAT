@@ -61,7 +61,7 @@ namespace NEAT
     Species::Species(const Genome &a_Genome, const Parameters& a_Parameters, int a_ID)
     {
         m_ID = a_ID;
-        //m_Individuals.reserve(50); wtf is this?
+        
         // copy the initializing genome locally.
         // it is now the representative of the species.
         m_Representative = a_Genome;
@@ -107,9 +107,8 @@ namespace NEAT
             m_R = a_S.m_R;
             m_G = a_S.m_G;
             m_B = a_S.m_B;
-            m_Parameters = a_S.m_Parameters;
-
             m_Individuals = a_S.m_Individuals;
+            m_Parameters = a_S.m_Parameters;
         }
 
         return *this;
@@ -559,7 +558,7 @@ namespace NEAT
             else
             {
                 // try to find a compatible species
-                Genome t_to_compare = t_cur_species->GetRandomIndividual(a_RNG); // was GetRepresentative()
+                Genome t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
 
                 t_found = false;
                 while ((t_cur_species != a_Pop.m_TempSpecies.end()) && (!t_found))
@@ -576,7 +575,7 @@ namespace NEAT
                         t_cur_species++;
                         if (t_cur_species != a_Pop.m_TempSpecies.end())
                         {
-                            t_to_compare = t_cur_species->GetRandomIndividual(a_RNG); // was GetRepresentative()
+                            t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
                         }
                     }
                 }
@@ -644,8 +643,6 @@ namespace NEAT
                 // else we can mate
             else
             {
-                
-            
                 // choose whether to mate at all
                 // Do not allow crossover when in simplifying phase
                 if ((a_RNG.RandFloat() < a_Parameters.CrossoverRate) && (a_Pop.GetSearchMode() != SIMPLIFYING))

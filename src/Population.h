@@ -253,7 +253,9 @@ public:
     // Removes worst member of the whole population that has been around for a minimum amount of time
     // returns the genome that was just deleted (may be useful)
     Genome RemoveWorstIndividual();
-
+    
+    void ClearEmptySpecies();
+    
     // The main reaitime tick. Analog to Epoch(). Replaces the worst evaluated individual with a new one.
     // Returns a pointer to the new baby.
     // and copies the genome that was deleted to a_geleted_genome
@@ -326,8 +328,8 @@ public:
             //ar & m_BehaviorArchive;
         }
 #endif
-
-};
+        
+    };
 
 #ifdef USE_BOOST_PYTHON
 

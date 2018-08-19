@@ -260,8 +260,8 @@ void Population::Speciate()
 
     bool t_added = false;
 
-    // NOTE: we are comparing the new generation's genomes to the representatives from the previous generation!
-    // Any new species that is created is assigned a representative from the new generation.
+    // NOTE: we are comparing the new generation's genomes to the representatives from species creation time!
+    //
     for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
         t_added = false;
@@ -270,7 +270,7 @@ void Population::Speciate()
         // if not compatible, create a new species.
         for(unsigned int j=0; j<m_Species.size(); j++)
         {
-            Genome tmp = m_Species[j].GetRandomIndividual(m_RNG); // was GetRepresentative()
+            Genome tmp = m_Species[j].GetRepresentative(); // was GetRepresentative()
             if (m_Genomes[i].IsCompatibleWith( tmp, m_Parameters ))
             {
                 // Compatible, add to species
@@ -290,20 +290,7 @@ void Population::Speciate()
     }
 
     // Remove all empty species (cleanup routine for every case..)
-    std::vector<Species>::iterator t_cs = m_Species.begin();
-    while(t_cs != m_Species.end())
-    {
-        if (t_cs->NumIndividuals() == 0)
-        {
-            // remove the dead species
-            t_cs = m_Species.erase( t_cs );
-
-            if (t_cs != m_Species.begin()) // in case the first species are dead
-                t_cs--;
-        }
-
-        t_cs++;
-    }
+    ClearEmptySpecies();
 }
 
 
@@ -854,10 +841,10 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     m_Species[t_species_idx].RemoveIndividual(t_genome_rel_idx);
 
     // If the species becomes empty, remove the species as well
-    if (m_Species[t_species_idx].m_Individuals.size() == 0)
+    /*if (m_Species[t_species_idx].m_Individuals.size() == 0)
     {
         m_Species.erase(m_Species.begin() + t_species_idx);
-    }
+    }*/
 
     // Find a new species for this genome
     bool t_found = false;
@@ -873,7 +860,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     else
     {
         // try to find a compatible species
-        Genome t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
+        Genome t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -882,6 +869,10 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
             {
                 // found a compatible species
                 t_cur_species->AddIndividual(t_genome);
+                if (t_cur_species->m_Individuals.size() == 0)
+                {
+                    t_cur_species->SetRepresentative(t_genome); // also set it as representative if the species is empty
+                }
                 t_found = true; // the search is over
             }
             else
@@ -890,7 +881,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
                 t_cur_species++;
                 if (t_cur_species != m_Species.end())
                 {
-                    t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
+                    t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
                 }
             }
         }
@@ -993,6 +984,9 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         {
             ReassignSpecies(i);
         }
+        
+        // After reassigning, some empty species may be left, so delete them
+        ClearEmptySpecies();
     }
 
     // Sort individuals within species by fitness
@@ -1031,7 +1025,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     else
     {
         // try to find a compatible species
-        Genome t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
+        Genome t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -1052,7 +1046,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 t_cur_species++;
                 if (t_cur_species != m_Species.end())
                 {
-                    t_to_compare = t_cur_species->GetRandomIndividual(m_RNG); // was GetRepresentative()
+                    t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
                 }
             }
         }
@@ -1071,10 +1065,27 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
     return t_to_return;
 }
-
-
-
-Genome Population::RemoveWorstIndividual()
+    
+void Population::ClearEmptySpecies()
+{
+    auto t_cs = m_Species.begin();
+    while(t_cs != m_Species.end())
+        {
+            if (t_cs->NumIndividuals() == 0)
+            {
+                // remove the dead species
+                t_cs = m_Species.erase(t_cs );
+            
+                if (t_cs != m_Species.begin()) // in case the first species are dead
+                    t_cs--;
+            }
+        
+            t_cs++;
+        }
+}
+    
+    
+    Genome Population::RemoveWorstIndividual()
 {
     unsigned int t_worst_idx=0; // within the species
     //unsigned int t_worst_absolute_idx=0; // within the population
