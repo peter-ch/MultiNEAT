@@ -107,6 +107,9 @@ public:
 #ifdef USE_BOOST_PYTHON
     // same as above, but for Python
     py::object pyCustomConstraints;
+    
+    // This one computes a behavior based on a genome, for use in behavior speciation
+    py::object pyBehaviorGetter;
 #endif
     
     ////////////////////////////////
@@ -398,6 +401,9 @@ public:
     
     // What is the minimal difference needed for not to be a clone
     double MinDeltaCompatEqualGenomes;
+    
+    // How many times to test a genome for constraint failure or being a clone (when AllowClones=False)
+    int ConstraintTrials;
     
     /////////////////////////////
     // Genome properties params
@@ -835,6 +841,7 @@ public:
         ar & YoungAgeFitnessBoost;
         ar & SpeciesMaxStagnation;
         ar & StagnationDelta;
+        ar & ConstraintTrials;
         ar & OldAgeTreshold;
         ar & OldAgePenalty;
         ar & DetectCompetetiveCoevolutionStagnation;

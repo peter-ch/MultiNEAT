@@ -1244,6 +1244,16 @@ namespace NEAT
             return distance_cache[q2];
         }*/
         
+        // New - if there is a behavior in the genomes, return their distance
+#ifdef USE_BOOST_PYTHON
+        // is it not None?
+        if ((m_behavior.ptr() != py::object().ptr()) && (a_G.m_behavior.ptr() != py::object().ptr()))
+        {
+            return py::extract<double>(m_behavior.attr("distance_to")(a_G.m_behavior));
+        }
+#endif
+        
+        
         // iterators for moving through the genomes' genes
         std::vector<LinkGene>::iterator t_g1;
         std::vector<LinkGene>::iterator t_g2;

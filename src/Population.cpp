@@ -68,7 +68,18 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
         m_Genomes.emplace_back( t_clone );
     }
 
-    // Now now initialize each genome's weights
+#ifdef USE_BOOST_PYTHON
+    // is it not None?
+    if (a_Parameters.pyBehaviorGetter.ptr() != py::object().ptr())
+    {
+        for(int i=0; i<m_Genomes.size(); i++)
+        {
+            m_Genomes[i].m_behavior = a_Parameters.pyBehaviorGetter(m_Genomes[i]);
+        }
+    }
+#endif
+        
+        // Now now initialize each genome's weights
     for(unsigned int i=0; i<m_Genomes.size(); i++)
     {
         if (a_RandomizeWeights)
@@ -85,7 +96,16 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
                 m_Genomes[i].Mutate_NeuronActivation_Type(a_Parameters, m_RNG);
                 m_Genomes[i].Mutate_NeuronTimeConstants(a_Parameters, m_RNG);
                 m_Genomes[i].Mutate_NeuronBiases(a_Parameters, m_RNG);
-
+    
+                // Acquire behaviors if possible
+#ifdef USE_BOOST_PYTHON
+                // is it not None?
+                if (a_Parameters.pyBehaviorGetter.ptr() != py::object().ptr())
+                {
+                    m_Genomes[i].m_behavior = a_Parameters.pyBehaviorGetter(m_Genomes[i]);
+                }
+#endif
+                
                 // check in the population if there is a clone of that genome
                 is_invalid = false;
                 if (!m_Parameters.AllowClones)
@@ -94,7 +114,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
                     {
                         if (i != j) // don't compare the same genome
                         {
-                            if (m_Genomes[i].CompatibilityDistance(m_Genomes[j], m_Parameters) < 0.000001) // equal genomes?
+                            if (m_Genomes[i].CompatibilityDistance(m_Genomes[j], m_Parameters) < m_Parameters.MinDeltaCompatEqualGenomes) // equal genomes?
                             {
                                 is_invalid = true;
                                 break;

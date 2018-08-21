@@ -148,6 +148,9 @@ namespace NEAT
 
         // Fraction of individuals to be copied unchanged
         EliteFraction = 0.01;
+    
+        // How many times to test a genome for constraint failure or being a clone (when AllowClones=False)
+        ConstraintTrials = 2000000;
 
 
 
@@ -541,7 +544,9 @@ namespace NEAT
                     NormalizeGenomeSize = false;
             }
     
-    
+            if (s == "ConstraintTrials")
+                a_DataFile >> ConstraintTrials;
+            
             if (s == "YoungAgeTreshold")
                 a_DataFile >> YoungAgeTreshold;
 
@@ -976,6 +981,7 @@ namespace NEAT
         fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever == true ? "true" : "false");
         fprintf(a_fstream, "AllowClones %s\n", AllowClones == true ? "true" : "false");
         fprintf(a_fstream, "NormalizeGenomeSize %s\n", NormalizeGenomeSize == true ? "true" : "false");
+        fprintf(a_fstream, "ConstraintTrials %d\n", ConstraintTrials);
         fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
         fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
         fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);

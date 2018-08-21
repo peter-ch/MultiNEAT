@@ -379,6 +379,8 @@ namespace NEAT
             }
             else
             {
+                int t_constraint_trials = a_Parameters.ConstraintTrials; // to prevent infinite loops
+                
                 do // - while the baby already exists somewhere in the new population or turned invalid in some way
                 {
                     // this tells us if the baby is a result of mating
@@ -425,25 +427,13 @@ namespace NEAT
 
                                 // The other parent should be a different one
                                 // number of tries to find different parent
-                                int t_tries = 1024;
-                                /*if (!a_Parameters.AllowClones)
+                                int t_tries = 10;
+                                while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
                                 {
-                                    while (((t_mom.GetID() == t_dad.GetID()) ||
-                                            (t_mom.CompatibilityDistance(t_dad, a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes)) &&
-                                           (t_tries--))
-                                    {
-                                        t_mom = GetIndividual(a_Parameters, a_RNG);
-                                        t_dad = GetIndividual(a_Parameters, a_RNG);
-                                    }
+                                    t_mom = GetIndividual(a_Parameters, a_RNG);
+                                    t_dad = GetIndividual(a_Parameters, a_RNG);
                                 }
-                                else*/ // we can mate the same mom & dad and still get different baby
-                                {
-                                    while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
-                                    {
-                                        t_mom = GetIndividual(a_Parameters, a_RNG);
-                                        t_dad = GetIndividual(a_Parameters, a_RNG);
-                                    }
-                                }
+                                
                                 t_interspecies = false;
                             }
 
@@ -512,7 +502,7 @@ namespace NEAT
                         }
                     }
                 }
-                while (t_baby_exists_in_pop || (t_baby.FailsConstraints(a_Parameters))); // end do
+                while ((t_baby_exists_in_pop || (t_baby.FailsConstraints(a_Parameters))) && (t_constraint_trials--)); // end do
             }
 
             // We have a new offspring now
@@ -529,7 +519,16 @@ namespace NEAT
             t_baby.SetOffspringAmount(0);
 
             t_baby.ResetEvaluated();
-
+            
+            // Compute the baby's behavior if possible, before it's added to the species
+#ifdef USE_BOOST_PYTHON
+            // is it not None?
+            if (a_Parameters.pyBehaviorGetter.ptr() != py::object().ptr())
+            {
+                t_baby.m_behavior = a_Parameters.pyBehaviorGetter(t_baby);
+            }
+#endif
+    
             // Archive the baby if needed
             if (a_Parameters.ArchiveEnforcement)
             {
@@ -617,12 +616,13 @@ namespace NEAT
 
     Genome Species::ReproduceOne(Population &a_Pop, Parameters &a_Parameters, RNG &a_RNG)
     {
-        Genome t_baby; // for storing the result
+        Genome t_baby = GetRandomIndividual(a_RNG); // for storing the result
 
         //////////////////////////
         // Reproduction
         bool t_baby_exists_in_pop = false;
         bool t_baby_is_clone = false;
+        int t_constraint_trials = a_Parameters.ConstraintTrials;
 
         // Spawn only one baby
         do // - while the baby turned invalid in some way
@@ -670,23 +670,12 @@ namespace NEAT
                     
                         // The other parent should be a different one
                         // number of tries to find different parent
-                        int t_tries = 1024;
-                        /*if (!a_Parameters.AllowClones)
+                        // we can mate the same mom and dad and still get different baby
+                        int t_tries=10;
+                        while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
                         {
-                            while (((t_mom.GetID() == t_dad.GetID()) ||
-                                    (t_mom.CompatibilityDistance(t_dad, a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes)) &&
-                                   (t_tries--))
-                            {
-                                t_dad = GetIndividual(a_Parameters, a_RNG);
-                            }
-                        }
-                        else*/ // we can mate the same mom and dad and still get different baby
-                        {
-                            while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
-                            {
-                                t_mom = GetIndividual(a_Parameters, a_RNG);
-                                t_dad = GetIndividual(a_Parameters, a_RNG);
-                            }
+                            t_mom = GetIndividual(a_Parameters, a_RNG);
+                            t_dad = GetIndividual(a_Parameters, a_RNG);
                         }
                         t_interspecies = false;
                     }
@@ -757,7 +746,7 @@ namespace NEAT
                 }
             }
         }
-        while (t_baby_exists_in_pop || t_baby.FailsConstraints(a_Parameters)); // end do
+        while ((t_baby_exists_in_pop || t_baby.FailsConstraints(a_Parameters)) && (t_constraint_trials--)); // end do
 
 
         // We have a new offspring now
@@ -774,6 +763,15 @@ namespace NEAT
         t_baby.SetOffspringAmount(0);
 
         t_baby.ResetEvaluated();
+    
+        // Compute the baby's behavior if possible, before it's added to the species
+#ifdef USE_BOOST_PYTHON
+        // is it not None?
+        if (a_Parameters.pyBehaviorGetter.ptr() != py::object().ptr())
+        {
+            t_baby.m_behavior = a_Parameters.pyBehaviorGetter(t_baby);
+        }
+#endif
 
         // In case of archiving, add the new baby to the archive
         if (a_Parameters.ArchiveEnforcement)
