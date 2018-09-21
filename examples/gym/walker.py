@@ -14,26 +14,26 @@ substrate = NEAT.Substrate([(-1, -1), (-1, 0), (-1, 1)],
                            [(0, -1), (0, 0), (0, 1)],
                            [(1, 0)])
 
-substrate.m_allow_input_hidden_links = False;
-substrate.m_allow_input_output_links = False;
-substrate.m_allow_hidden_hidden_links = False;
-substrate.m_allow_hidden_output_links = False;
-substrate.m_allow_output_hidden_links = False;
-substrate.m_allow_output_output_links = False;
-substrate.m_allow_looped_hidden_links = False;
-substrate.m_allow_looped_output_links = False;
+substrate.m_allow_input_hidden_links = False
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_hidden_links = False
+substrate.m_allow_hidden_output_links = False
+substrate.m_allow_output_hidden_links = False
+substrate.m_allow_output_output_links = False
+substrate.m_allow_looped_hidden_links = False
+substrate.m_allow_looped_output_links = False
 
-substrate.m_allow_input_hidden_links = True;
-substrate.m_allow_input_output_links = False;
-substrate.m_allow_hidden_output_links = True;
-substrate.m_allow_hidden_hidden_links = False;
+substrate.m_allow_input_hidden_links = True
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_output_links = True
+substrate.m_allow_hidden_hidden_links = False
 
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID;
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID;
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
-substrate.m_with_distance = True;
+substrate.m_with_distance = True
 
-substrate.m_max_weight_and_bias = 8.0;
+substrate.m_max_weight_and_bias = 8.0
 
 try:
     x = pickle.dumps(substrate)

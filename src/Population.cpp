@@ -178,8 +178,7 @@ Population::Population(const std::string a_sFileName)
     m_GensSinceMPCLastChanged = 0;
 
     std::ifstream t_DataFile(a_FileName);
-    if (!t_DataFile.is_open())
-        throw std::exception();
+    if (!t_DataFile.is_open()) throw std::exception();
     std::string t_str;
 
     // Load the parameters
@@ -796,6 +795,7 @@ unsigned int Population::ChooseParentSpecies()
         t_total_fitness += m_Species[i].m_AverageFitness;
     }
 
+    int giveup = 100;
     do
     {
         t_marble = m_RNG.RandFloat() * t_total_fitness;
@@ -807,7 +807,7 @@ unsigned int Population::ChooseParentSpecies()
             t_spin += m_Species[t_curspecies].m_AverageFitness;
         }
     }
-    while(m_Species[t_curspecies].m_AverageFitness == 0); // prevent species with no evaluated members to be chosen
+    while((m_Species[t_curspecies].m_AverageFitness == 0) && (giveup--)); // prevent species with no evaluated members to be chosen
 
     return t_curspecies;
 }
@@ -1019,15 +1019,17 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     // If the average species fitness of a species is 0,
     // then there are no evaluated individuals in it.
     for(unsigned int i=0; i<m_Species.size(); i++)
+    {
         m_Species[i].CalculateAverageFitness();
+    }
 
     // Now spawn the new offspring
     unsigned int t_parent_species_index = ChooseParentSpecies();
+
     Genome t_baby = m_Species[t_parent_species_index].ReproduceOne(*this, m_Species[t_parent_species_index].m_Parameters, m_RNG);
     ASSERT(t_baby.NumInputs() > 0);
     ASSERT(t_baby.NumOutputs() > 0);
     Genome* t_to_return = NULL;
-
 
     // Add the baby to its proper species
     bool t_found = false;
@@ -1090,18 +1092,18 @@ void Population::ClearEmptySpecies()
 {
     auto t_cs = m_Species.begin();
     while(t_cs != m_Species.end())
+    {
+        if (t_cs->NumIndividuals() == 0)
         {
-            if (t_cs->NumIndividuals() == 0)
-            {
-                // remove the dead species
-                t_cs = m_Species.erase(t_cs );
-            
-                if (t_cs != m_Species.begin()) // in case the first species are dead
-                    t_cs--;
-            }
-        
-            t_cs++;
+            // remove the dead species
+            t_cs = m_Species.erase(t_cs );
+
+            if (t_cs != m_Species.begin()) // in case the first species are dead
+                t_cs--;
         }
+
+        t_cs++;
+    }
 }
     
     
@@ -1326,14 +1328,7 @@ bool Population::NoveltySearchTick(Genome& a_SuccessfulGenome)
     a_SuccessfulGenome = *t_new_baby;
 
     // OK now last thing, check if this behavior is the one we're looking for.
-    if (t_new_baby->m_PhenotypeBehavior->Successful())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return t_new_baby->m_PhenotypeBehavior->Successful();
 }
 
 

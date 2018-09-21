@@ -137,6 +137,11 @@ namespace NEAT
 
         ASSERT(t_Evaluated.size() > 0);
 
+        // None are evaluated - fall back to random individual
+        if (t_Evaluated.size() == 0)
+        {
+            return GetRandomIndividual(a_RNG);
+        }
         if (t_Evaluated.size() == 1)
         {
             return (t_Evaluated[0]);
