@@ -681,6 +681,22 @@ namespace NEAT
                 children.reserve(c1.size());
                 children.clear();
             }
+            
+            // if we only are passed a single set of coords we know this is the root
+            // so we will loop for each dimension of the coordinate setting our coord2
+            // dimension to the value 1, this should affectively make our cppn query input
+            // an affine transformation from our original coordinate, seems like as good a spot
+            // as any to start
+            nTree(std::vector<double> c1){
+                coords_1 = c1;
+                for(unsigned int x = 0; x < c1.size(); x++){
+                    coords2.push_back(1.0);
+                }
+                children.reserve(c1.size());
+                children.clear();
+                weight = 0.0;
+                varience = 0.0;
+            }
         }
         
         void BuildESHyperNEATPhenotype(NeuralNetwork &a_net, Substrate &subst, Parameters &params);
@@ -694,6 +710,16 @@ namespace NEAT
                           boost::shared_ptr<QuadPoint> &root, NeuralNetwork &cppn,
                           Parameters &params, std::vector<Genome::TempConnection> &connections,
                           const bool &outgoing);
+        void DivideInitialize(const std::vector<double> &node,
+                              boost::shared_ptr<nTree> &root,
+                              NeuralNetwork &cppn, Parameters &params,
+                              const bool &outgoing, const double &z_coord);
+        
+        void PruneExpress(const std::vector<double> &node,
+                          boost::shared_ptr<nTree> &root, NeuralNetwork &cppn,
+                          Parameters &params, std::vector<Genome::TempConnection> &connections,
+                          const bool &outgoing);
+        
         
         void CollectValues(std::vector<double> &vals, boost::shared_ptr<QuadPoint> &point);
         

@@ -3367,26 +3367,32 @@ namespace NEAT
     // and I dont have mathematical proofs other than a wikepedia page I will post below, but here they are:
     ///// option 1
     // for a coordinate of size n: n > 2 
-    // set the root at the top of the middle cube of the cubes
+    // find a good coord to use for the root 
     // contained in the cppn hypercube and use that to start querying
+    // with a Quadtree structure that holds to coords of n length
+    // this is the method I will try to implement
     //// option 2
     // if coordinate of size n: n > 2:
     // take two times to the difference between 2n and 4, times this by the binomial 
     // coefficient of 2n and 4
     // this will yield the number of 4cubes in any higher dimensional hypercube
+    // I imagine someone more skilled than I could then search those cubes based on 
+    // the incoming coord
     ///////////////////////////////////////////
 
     /* Given an empty net, a substrate and parameters constructs a phenotype.
     You can use any subsstrate, but the hidden nodes in it will not be used for the generation.
     Relies on the Divide Initialize, PruneExpress and CleanNet methods.
     */
+    
+    /*
     unsigned int Genome::get_factorial(unsigned int f){
         for(unsigned int ix = 1; ix <= f; ix++){
             f += ix;
         }
         return f;
     }
-    
+
     void Genome::fine_sub_four_cubes(double cppn_coord_size){
         if(cppn_coord_size <= 4){
             return 1;
@@ -3397,6 +3403,7 @@ namespace NEAT
         unsigned int search_factorial = get_factorial(cppn_coord_size);
         unsigned int num_4d_cubes = (2**diff) / (search_factorial/(diff_factorial * sub_factorial));
     }
+    */
 
     void Genome::BuildESHyperNEATPhenotype(NeuralNetwork &net, Substrate &subst, Parameters &params)
     {
