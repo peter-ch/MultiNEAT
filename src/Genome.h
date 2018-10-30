@@ -661,6 +661,28 @@ namespace NEAT
             };
         };
         
+        
+        struct nTree {
+            std::vector<double> coords_1;
+            std::vector<double> coords_1;
+            double weight;
+            double varience;
+            std::vector<boost::shared_ptr<QuadPoint> > children;
+            
+            nTree(){
+                
+            }
+            
+            nTree(std::vector<double> c1, std::vector<double> c2){
+                coords_1 = c1;
+                coords_2 = c2;
+                weight = 0.0;
+                varience = 0.0;
+                children.reserve(c1.size());
+                children.clear();
+            }
+        }
+        
         void BuildESHyperNEATPhenotype(NeuralNetwork &a_net, Substrate &subst, Parameters &params);
         
         void DivideInitialize(const std::vector<double> &node,

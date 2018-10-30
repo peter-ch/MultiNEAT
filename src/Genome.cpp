@@ -3374,7 +3374,6 @@ namespace NEAT
     // take two times to the difference between 2n and 4, times this by the binomial 
     // coefficient of 2n and 4
     // this will yield the number of 4cubes in any higher dimensional hypercube
-    // 
     ///////////////////////////////////////////
 
     /* Given an empty net, a substrate and parameters constructs a phenotype.
