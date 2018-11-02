@@ -664,7 +664,6 @@ namespace NEAT
         
         struct nTree {
             std::vector<double> coords_1;
-            std::vector<double> coords_1;
             double weight;
             double varience;
             std::vector<boost::shared_ptr<QuadPoint> > children;
@@ -673,9 +672,15 @@ namespace NEAT
                 
             }
             
-            nTree(std::vector<double> c1, std::vector<double> c2){
-                coords_1 = c1;
-                coords_2 = c2;
+            nTree(int size_of_coord){
+                for(unsigned int ix = 0; ix < size_of_coord; ix++){
+                    if(ix < size_of_coord){
+                        this.c1.push_back(0.0); //set the root to zero
+                    } else {
+                        this.c1.push_back(1.0); //apply affine transformation from root into 2x dimension 
+                    }
+                    
+                }
                 weight = 0.0;
                 varience = 0.0;
                 children.reserve(c1.size());
