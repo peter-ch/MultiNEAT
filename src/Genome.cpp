@@ -3355,48 +3355,9 @@ namespace NEAT
     // For more info on the algorithm check: http://eplex.cs.ucf.edu/ESHyperNEAT/
     ////////////////////////////////////////////
     
-    ////////////////////////////////////////////
-    // I will be testing a few functions here that will allow for arbitrary amounts of dimensions
-    // in both the cppn and substrate, and while the psuedo z may handle 3d substrates 
-    // without currently I do not see how to
-    // a ismorphic transformation from the cppn to the substrate using a psuedo z index at dimensions greater than 3,
-    // assuming that, as described in Ken's paper, a 2d substrate ((0, 1),(1,1), ... ) 
-    // is isomorphic with therefore encoded by a 4d hypercube, and in the hyperneat paper 
-    // express that this means a 3d substrate ((0, 0, 0), (0, 0, 1), ..) is encoded by querying a 
-    // 6d substrate, so if we wish to be able to handle for n > 3 we have some options, these are off the cuff
-    // and I dont have mathematical proofs other than a wikepedia page I will post below, but here they are:
-    ///// option 1
-    // for a coordinate of size n: n > 2 
-    // set the root at the top of the middle cube of the cubes
-    // contained in the cppn hypercube and use that to start querying
-    //// option 2
-    // if coordinate of size n: n > 2:
-    // take two times to the difference between 2n and 4, times this by the binomial 
-    // coefficient of 2n and 4
-    // this will yield the number of 4cubes in any higher dimensional hypercube
-    ///////////////////////////////////////////
-
-    /* Given an empty net, a substrate and parameters constructs a phenotype.
-    You can use any subsstrate, but the hidden nodes in it will not be used for the generation.
-    Relies on the Divide Initialize, PruneExpress and CleanNet methods.
-    */
-    unsigned int Genome::get_factorial(unsigned int f){
-        for(unsigned int ix = 1; ix <= f; ix++){
-            f += ix;
-        }
-        return f;
-    }
     
-    void Genome::fine_sub_four_cubes(double cppn_coord_size){
-        if(cppn_coord_size <= 4){
-            return 1;
-        }
-        unsigned int diff = cppn_coord_size - 4;
-        unsigned int diff_factorial = get_factorial(diff);
-        unsigned int sub_factorial = 24; //factorial of 4 == 24
-        unsigned int search_factorial = get_factorial(cppn_coord_size);
-        unsigned int num_4d_cubes = (2**diff) / (search_factorial/(diff_factorial * sub_factorial));
-    }
+    //divide and init for n dimensions
+    
 
     void Genome::BuildESHyperNEATPhenotype(NeuralNetwork &net, Substrate &subst, Parameters &params)
     {
