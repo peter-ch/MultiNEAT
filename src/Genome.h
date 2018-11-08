@@ -663,28 +663,37 @@ namespace NEAT
         
         
         struct nTree {
-            std::vector<double> coords_1;
+            std::vector<double> coord;
             double weight;
             double varience;
-            std::vector<boost::shared_ptr<QuadPoint> > children;
+            int lvl;
+            double width;
+            std::vector<string> signs;
+            std::vector<boost::shared_ptr<nTree> > children;
             
-            nTree(){
-                
+            nTree(std::vector<double> coord_in, double level, double wdth){
+                this.width = wdth;
+                this.lvl = level;
+                this.coord = coord_in;
             }
             
-            nTree(int size_of_coord){
-                for(unsigned int ix = 0; ix < size_of_coord; ix++){
-                    if(ix < size_of_coord){
-                        this.c1.push_back(0.0); //set the root to zero
-                    } else {
-                        this.c1.push_back(1.0); //apply affine transformation from root into 2x dimension 
-                    }
-                    
+            public void set_signs(){
+                for(unsigned int ix = 0; ix < 2**this.coord.size(); ix++){
+                    this.signs.push_back(this.toBinary(ix, this.coord.size()));
                 }
-                weight = 0.0;
-                varience = 0.0;
-                children.reserve(c1.size());
-                children.clear();
+            }
+            
+            string toBinary(unsigned int n, int min_len)
+            {
+                std::string r;
+                while(n!=0) {r=(n%2==0 ?"0":"1")+r; n/=2;}
+                if(r.length() < min_len){
+                    int diff = min_len - r.length();
+                    for(unsigned int x = 0; x < diff; x++){
+                        r = '0' +r;
+                    }
+                }
+                return r;
             }
         }
         
