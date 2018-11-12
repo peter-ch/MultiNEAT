@@ -127,7 +127,7 @@ namespace NEAT
 
         return *this;
     }
-    
+
     // New constructor that creates a fully-connected CTRNN
     Genome::Genome(unsigned int a_ID,
                    unsigned int a_NumInputs,
@@ -139,13 +139,13 @@ namespace NEAT
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
         RNG t_RNG;
         t_RNG.TimeSeed();
-    
+
         m_ID = a_ID;
         int t_innovnum = 1, t_nnum = 1;
-    
+
         if (a_Parameters.DontUseBiasNeuron == false)
         {
-        
+
             // Create the input neurons.
             // Warning! The last one is a bias!
             // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
@@ -161,7 +161,7 @@ namespace NEAT
             NeuronGene n = NeuronGene(BIAS, t_nnum, 0.0);
             // Initialize the traits
             n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-        
+
             m_NeuronGenes.push_back(n);
             t_nnum++;
         }
@@ -174,12 +174,12 @@ namespace NEAT
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
                 n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-            
+
                 m_NeuronGenes.push_back(n);
                 t_nnum++;
             }
         }
-    
+
         // now the outputs
         for (unsigned int i = 0; i < (a_NumOutputs); i++)
         {
@@ -192,11 +192,11 @@ namespace NEAT
                          a_OutputActType);
             // Initialize the traits
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-        
+
             m_NeuronGenes.push_back(t_ngene);
             t_nnum++;
         }
-        
+
         for (unsigned int i = 0; i < a_NumHidden; i++)
         {
             NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
@@ -209,11 +209,11 @@ namespace NEAT
             // Initialize the traits
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
             t_ngene.m_SplitY = 0.5;
-        
+
             m_NeuronGenes.push_back(t_ngene);
             t_nnum++;
         }
-        
+
         // Fully connect every neuron to every other. Only inputs don't receive output.
         for (unsigned int i = a_NumInputs; i < (a_NumInputs+a_NumOutputs+a_NumHidden); i++)
         {
@@ -227,10 +227,10 @@ namespace NEAT
                 t_innovnum++;
             }
         }
-    
+
         // Also initialize the Genome's traits
         m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, t_RNG);
-    
+
         m_Evaluated = false;
         m_NumInputs = a_NumInputs;
         m_NumOutputs = a_NumOutputs;
@@ -239,7 +239,7 @@ namespace NEAT
         m_OffspringAmount = 0.0;
         m_Depth = 0;
         m_PhenotypeBehavior = NULL;
-        
+
         m_initial_num_neurons = NumNeurons();
         m_initial_num_links = NumLinks();
     }
@@ -260,7 +260,7 @@ namespace NEAT
 
         m_ID = a_ID;
         int t_innovnum = 1, t_nnum = 1;
-        
+
         // override seed_type if 0 hidden units are specified
         if ((a_SeedType == 1) && (a_NumHidden == 0))
         {
@@ -320,7 +320,7 @@ namespace NEAT
             m_NeuronGenes.push_back(t_ngene);
             t_nnum++;
         }
-        
+
         // Now add LEO
         if (a_Parameters.Leo)
         {
@@ -358,11 +358,11 @@ namespace NEAT
                     // Initialize the traits
                     t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
                     t_ngene.m_SplitY = initlt;
-        
+
                     m_NeuronGenes.push_back(t_ngene);
                     t_nnum++;
                 }
-    
+
                 initlt += lt_inc;
             }
 
@@ -371,7 +371,7 @@ namespace NEAT
                 int last_dest_id = a_NumInputs + a_NumOutputs + 1;
                 int last_src_id = 1;
                 int prev_layer_size = a_NumInputs;
-                
+
                 for (unsigned int n = 0; n < a_NumLayers; n++)
                 {
                     // The links from each previous layer to this hidden node
@@ -388,7 +388,7 @@ namespace NEAT
                             t_innovnum++;
                         }
                     }
-    
+
                     last_dest_id += a_NumHidden;
                     if (n == 0)
                     {
@@ -401,9 +401,9 @@ namespace NEAT
                     }
                     prev_layer_size = a_NumHidden;
                 }
-    
+
                 last_dest_id = a_NumInputs + 1;
-    
+
                 // The links from each previous layer to this output node
                 for (unsigned int i = 0; i < a_NumOutputs; i++)
                 {
@@ -418,7 +418,7 @@ namespace NEAT
                         t_innovnum++;
                     }
                 }
-    
+
                 /*if (a_Parameters.DontUseBiasNeuron == false)
                 {
                     // Connect the bias as well
@@ -477,7 +477,7 @@ namespace NEAT
                 }
             }
         }
-        
+
         // Also initialize the Genome's traits
         m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, t_RNG);
 
@@ -489,7 +489,7 @@ namespace NEAT
         m_OffspringAmount = 0.0;
         m_Depth = 0;
         m_PhenotypeBehavior = NULL;
-    
+
         m_initial_num_neurons = NumNeurons();
         m_initial_num_links = NumLinks();
     }
@@ -545,7 +545,11 @@ namespace NEAT
         ASSERT(a_idx < m_NeuronGenes.size());
         m_NeuronGenes[a_idx].x = a_x;
     }
-
+    void Genome::SetNeuronNDCoord(std::vector<double> n_coord)
+    {
+      ASSERT(a_idx < m_NeuronGene.size());
+      ND_m_NueronGenes[a_idx].coord = n_coord;
+    }
     void Genome::SetNeuronXY(unsigned int a_idx, int a_x, int a_y)
     {
         ASSERT(a_idx < m_NeuronGenes.size());
@@ -1254,7 +1258,7 @@ namespace NEAT
         double t_num_disjoint = 0;
         double t_num_matching_links = 0;
         double t_num_matching_neurons = 0;
-    
+
         // calculate genome trait difference here
         t_genome_link_trait_difference = m_GenomeGene.GetTraitDistances(a_G.m_GenomeGene.m_Traits);
 
@@ -2355,12 +2359,12 @@ namespace NEAT
         {
             t_genometail = m_initial_num_links;
         }
-    
+
         bool did_mutate = false;
-    
+
         // This tells us if this mutation will shake things up
         bool t_severe_mutation;
-        
+
         if (a_RNG.RandFloat() < a_Parameters.MutateWeightsSevereProb)
         {
             t_severe_mutation = true;
@@ -2369,7 +2373,7 @@ namespace NEAT
         {
             t_severe_mutation = false;
         }
-    
+
         // For all links..
         for(unsigned int i=0; i<m_LinkGenes.size(); i++)
         {
@@ -2377,7 +2381,7 @@ namespace NEAT
             if ((!t_severe_mutation) && (a_RNG.RandFloat() < a_Parameters.WeightMutationRate))
             {
                 bool ontail = (i >= t_genometail);
-                
+
                 if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
                     t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
@@ -2386,20 +2390,20 @@ namespace NEAT
                 {
                     t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
                 }
-        
+
                 Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
                 m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
-                
+
                 did_mutate = true;
             }
             else if (t_severe_mutation)
             {
                 t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
-                
+
                 did_mutate = true;
             }
         }
-        
+
         return did_mutate;
     }
 
@@ -2426,7 +2430,7 @@ namespace NEAT
         {
             m_LinkGene.InitTraits(a_Parameters.LinkTraits, a_RNG);
         }
-        
+
         m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, a_RNG);
     }
 
@@ -2562,7 +2566,7 @@ namespace NEAT
         }
         return did_mutate;
     }
-    
+
     bool Genome::Mutate_GenomeTraits(const Parameters &a_Parameters, RNG &a_RNG)
     {
         return m_GenomeGene.MutateTraits(a_Parameters.GenomeTraits, a_RNG);
@@ -2597,7 +2601,7 @@ namespace NEAT
 
         // this will hold a copy of the gene we wish to add at each step
         LinkGene t_selectedgene(0, 0, -1, 0, false);
-        
+
         // Mate the GenomeGene first
         // Determine if it will pick either gene or mate it
         if (a_RNG.RandFloat() < 0.5)
@@ -2613,8 +2617,8 @@ namespace NEAT
             n.MateTraits(a_Dad.m_GenomeGene.m_Traits, a_RNG);
             t_baby.m_GenomeGene = n;
         }
-    
-    
+
+
         // Make sure all inputs/outputs are present in the baby
         // Essential to FS-NEAT
 
@@ -3242,7 +3246,7 @@ namespace NEAT
 
         fprintf(a_file, "GenomeEnd\n\n");
     }
-    
+
     void Genome::PrintTraits(std::map< std::string, Trait>& traits)
     {
         for(auto t = traits.begin(); t != traits.end(); t++)
@@ -3270,7 +3274,7 @@ namespace NEAT
                         b1 = bs::get<double>((t->second.dep_values));
                     if ((t->second.dep_values).type() == typeid(std::string))
                         c1 = bs::get<std::string>((t->second.dep_values));*/
-                
+
                     // and it has the right value?
                     for(int ix=0; ix<t->second.dep_values.size(); ix++)
                     {
@@ -3286,7 +3290,7 @@ namespace NEAT
             {
                 doit = true;
             }
-        
+
             if (doit)
             {
                 std::cout << t->first << " - ";
@@ -3310,7 +3314,7 @@ namespace NEAT
                 {
                     std::cout << (bs::get<floatsetelement>(t->second.value)).value;
                 }
-            
+
                 std::cout << ", ";
             }
         }
@@ -3322,9 +3326,9 @@ namespace NEAT
         std::cout << "Genome:\n"
                   << "==================================\n";
         PrintTraits(m_GenomeGene.m_Traits);
-    
+
         std::cout << "\n";
-    
+
         std::cout << "====================================================================\n";
         std::cout << "Neurons:\n"
                   << "==================================\n";
