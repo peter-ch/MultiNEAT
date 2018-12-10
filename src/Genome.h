@@ -696,7 +696,7 @@ namespace NEAT
                 return r;
             }
         }
-        
+        void BuildESHyperNEATPhenotypeND(NeuralNetwork &a_net, Substrate &subst, Parameters &params);
         void BuildESHyperNEATPhenotype(NeuralNetwork &a_net, Substrate &subst, Parameters &params);
         
         void DivideInitialize(const std::vector<double> &node,
