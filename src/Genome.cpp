@@ -3788,7 +3788,17 @@ namespace NEAT
         // Clean the generated network from dangling connections and we're good to go.
         Clean_Net(net.m_connections, input_count, output_count, hidden_nodes.size());
     }
-
+    // uses n dimensional sub division tree to determine placement of hidden nodes in the substrate
+    void Genome::DivideInitializeND(const std::vector<double> &node,
+                                  boost::shared_ptr<nTree> &root,
+                                  NeuralNetwork &cppn,
+                                  Parameters &params,
+                                  const bool &outgoing,
+                                  const double &z_coord)
+    {
+        int cpp_depth = 8;
+        
+    }
     // Used to determine the placement of hidden neurons in the Evolvable Substrate.
     void Genome::DivideInitialize(const std::vector<double> &node,
                                   boost::shared_ptr<QuadPoint> &root,
@@ -4024,6 +4034,17 @@ namespace NEAT
         return;
     }
 
+    double Genome::Variance(boost::shared_ptr<nTree> &point){
+        if(point->children.size() == 0){
+            return 0.0;
+        }
+        
+        boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::variance> > acc;
+        for (unsigned int i = 0; i < point->children.size(); i++){
+            acc(point->children[i]->weight);)
+        }
+        return boost::accumulators::variance(acc);
+    }
     // Calculates the variance of a given Quadpoint.
     // Maybe an alternative solution would be to add this in the Quadpoint const.
     double Genome::Variance(boost::shared_ptr<QuadPoint> &point)

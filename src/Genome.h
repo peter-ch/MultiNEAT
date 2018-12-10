@@ -671,7 +671,7 @@ namespace NEAT
             std::vector<string> signs;
             std::vector<boost::shared_ptr<nTree> > children;
             
-            nTree(std::vector<double> coord_in, double level, double wdth){
+            nTree(std::vector<double> coord_in, double wdth, double level){
                 this.width = wdth;
                 this.lvl = level;
                 this.coord = coord_in;
