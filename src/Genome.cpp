@@ -3798,6 +3798,20 @@ namespace NEAT
     {
         int cpp_depth = 8;
         
+        // some of the division, the permutation of center points in particular
+        // has been included with the tree struct
+        // and will simply be called here
+        std::vector<double> t_inputs;
+        
+        boost::shared_ptr<nTree> p;
+        std::queue<boost::shared_ptr<nTree> > q;
+        q.push(p);
+        while(!q.empty())
+        {
+            p = q.front();
+            for(unsigned int ix = 0; ix < p->)
+        }
+        
     }
     // Used to determine the placement of hidden neurons in the Evolvable Substrate.
     void Genome::DivideInitialize(const std::vector<double> &node,
