@@ -4034,7 +4034,7 @@ namespace NEAT
         return;
     }
 
-    double Genome::Variance(boost::shared_ptr<nTree> &point){
+    double Genome::VarianceND(boost::shared_ptr<nTree> &point){
         if(point->children.size() == 0){
             return 0.0;
         }
