@@ -662,7 +662,8 @@ namespace NEAT
         };
         
         
-        struct nTree {
+        struct nTree 
+        {
             std::vector<double> coord;
             double weight;
             double varience;
@@ -671,13 +672,15 @@ namespace NEAT
             std::vector<string> signs;
             std::vector<boost::shared_ptr<nTree> > children;
             
-            nTree(std::vector<double> coord_in, double wdth, double level){
+            nTree(std::vector<double> coord_in, double wdth, double level)
+            {
                 this.width = wdth;
                 this.lvl = level;
                 this.coord = coord_in;
             }
             
-            public void set_signs(){
+            public void set_signs()
+            {
                 for(unsigned int ix = 0; ix < 2**this.coord.size(); ix++){
                     this.signs.push_back(this.toBinary(ix, this.coord.size()));
                 }
@@ -686,10 +689,16 @@ namespace NEAT
             string toBinary(unsigned int n, int min_len)
             {
                 std::string r;
-                while(n!=0) {r=(n%2==0 ?"0":"1")+r; n/=2;}
-                if(r.length() < min_len){
+                while(n!=0) 
+                {
+                    r=(n%2==0 ?"0":"1")+r; n/=2;
+                    
+                }
+                if(r.length() < min_len)
+                {
                     int diff = min_len - r.length();
-                    for(unsigned int x = 0; x < diff; x++){
+                    for(unsigned int x = 0; x < diff; x++)
+                    {
                         r = '0' +r;
                     }
                 }
