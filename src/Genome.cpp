@@ -3812,6 +3812,15 @@ namespace NEAT
             for (unsigned int i = 0; i < p->children.size(); i++)
             {
                 t_inputs.clear();
+                t_inputs.reserve(cppn.NumInputs());
+                if(outgoing)
+                {
+                    
+                }
+                else
+                {
+                    
+                }
             }
         }
         

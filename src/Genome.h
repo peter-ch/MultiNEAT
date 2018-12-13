@@ -731,12 +731,12 @@ namespace NEAT
                           boost::shared_ptr<QuadPoint> &root, NeuralNetwork &cppn,
                           Parameters &params, std::vector<Genome::TempConnection> &connections,
                           const bool &outgoing);
-        void DivideInitialize(const std::vector<double> &node,
+        void DivideInitializeND(const std::vector<double> &node,
                               boost::shared_ptr<nTree> &root,
                               NeuralNetwork &cppn, Parameters &params,
                               const bool &outgoing, const double &z_coord);
         
-        void PruneExpress(const std::vector<double> &node,
+        void PruneExpressND(const std::vector<double> &node,
                           boost::shared_ptr<nTree> &root, NeuralNetwork &cppn,
                           Parameters &params, std::vector<Genome::TempConnection> &connections,
                           const bool &outgoing);
