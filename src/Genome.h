@@ -669,7 +669,6 @@ namespace NEAT
             double varience;
             int lvl;
             double width;
-            std::vector<string> signs;
             std::vector<boost::shared_ptr<nTree> > children;
             
             nTree(std::vector<double> coord_in, double wdth, double level)
@@ -679,10 +678,25 @@ namespace NEAT
                 this.coord = coord_in;
             }
             
-            public void set_signs()
+            public void set_children()
             {
                 for(unsigned int ix = 0; ix < 2**this.coord.size(); ix++){
-                    this.signs.push_back(this.toBinary(ix, this.coord.size()));
+                    std::string sum_permute = this.toBinary(ix, this.coord.size());
+                    std::vector<double> child_coords;
+                    int child_param_len = sum_permute.length();
+                    child_coords.reserve(child_param_len);
+                    for(unsigned int sign_ix = 0; sign_ix < child_param_len; sign_ix++)
+                    {
+                        if(sum_permute[sign_ix] == "0")
+                        {
+                            child_coords.push_back(this.coord[sign_ix] + this.width/2.0);
+                        }
+                        else
+                        {
+                            child_coords.push_back(this.coord[sign_ix] - this.width/2.0);
+                        }
+                        this.children.push_back(new nTree(child_coords, this.width/2.0, this.lvl+1));
+                    }
                 }
             }
             

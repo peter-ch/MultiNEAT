@@ -3793,8 +3793,7 @@ namespace NEAT
                                   boost::shared_ptr<nTree> &root,
                                   NeuralNetwork &cppn,
                                   Parameters &params,
-                                  const bool &outgoing,
-                                  const double &z_coord)
+                                  const bool &outgoing)
     {
         int cpp_depth = 8;
         
@@ -3809,7 +3808,11 @@ namespace NEAT
         while(!q.empty())
         {
             p = q.front();
-            for(unsigned int ix = 0; ix < p->)
+            p.set_children();
+            for (unsigned int i = 0; i < p->children.size(); i++)
+            {
+                t_inputs.clear();
+            }
         }
         
     }
