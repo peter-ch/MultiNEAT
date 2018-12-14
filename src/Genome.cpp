@@ -3815,11 +3815,19 @@ namespace NEAT
                 t_inputs.reserve(cppn.NumInputs());
                 if(outgoing)
                 {
-                    
+                    t_inputs = node;
+                    for(unsigned int ci = 0; ci < node.size(); i++)
+                    {
+                        t_inputs.push_back(p->children[i]->coord[ci]);
+                    }
                 }
                 else
                 {
-                    
+                    t_inputs = p->children[i]->coord;
+                    for(unsigned int ci = 0; ci < node.size(); i++)
+                    {
+                        t_inputs.push_back(node[ci]);
+                    }
                 }
             }
         }
