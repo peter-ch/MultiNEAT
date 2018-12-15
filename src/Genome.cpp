@@ -3829,8 +3829,34 @@ namespace NEAT
                         t_inputs.push_back(node[ci]);
                     }
                 }
+                t_inputs[t_inputs.size() - 1] = (params.CPPN_Bias);
+                                cppn.Flush();
+                cppn.Input(t_inputs);
+
+                for (int d = 0; d < cppn_depth; d++)
+                {
+                    cppn.Activate();
+                }
+                p->children[i]->weight = cppn.Output()[0];
+                if (params.Leo)
+                {
+                    p->children[i]->leo = cppn.Output()[cppn.Output().size() - 1];
+                }
+                cppn.Flush();
+
             }
+
+            if ((p->level < params.InitialDepth) ||
+                ((p->level < params.MaxDepth) && Variance(p) > params.DivisionThreshold))
+            {
+                for(unsigned int add_idx = 0; add_idx < p->children.size(); add_idx)
+                {
+                    q.push(p->children[add_idx]);   
+                }
+            }
+            q.pop();
         }
+        return;
         
     }
     // Used to determine the placement of hidden neurons in the Evolvable Substrate.
