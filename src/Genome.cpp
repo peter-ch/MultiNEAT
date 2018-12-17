@@ -3957,6 +3957,54 @@ namespace NEAT
         return;
     }
 
+    void Genome::PruneExpressND(const std::vector<double> &node,
+                              boost::shared_ptr<nTree> &root,
+                              NeuralNetwork &cppn,
+                              Parameters &params,
+                              std::vector<Genome::TempConnection> &connections,
+                              const bool &outgoing)
+    {
+        if (root->children[0] == NULL)
+        {
+            return;
+        }
+
+        else
+        {
+            for (unsigned int i = 0; i < root->children.size(); i++)
+            {
+                if(Variance(root->children[i]) > params.VarianceThreshold)
+                {
+                    PruneExpressND(node, root->children[i], cppn, params, connections, outgoing);
+                }
+                
+                else if(!params.Leo || (params.Leo && root->children[i]->leo > params.LeoThreshold))
+                {
+                    int cpp_depth = 8;
+
+                    std::vector<double> subcubes;
+                    std::vector<double> inputs;
+                    int root_index = 0;
+                    if(outgoing)
+                    {
+                        inputs = node;
+                        for (unsigned int xx = 0; xx < root->children[i]->coord.size(); xx++)
+                        {
+                            inputs.push_back(root->children[i]->coord[xx]);
+                        }
+                    }
+                    else
+                    {
+                        inputs = root->children[i]->coord;
+                        for (unsigned int xx = 0; xx < root->children[i]->coord.size(); xx++)
+                        {
+                            inputs.push_back(node[xx]);
+                        }
+                    }
+
+                }
+            }
+        }
     // We take the tree generated above and see which connections can be expressed on the basis of Variance threshold,
     // Band threshold and LEO.
     void Genome::PruneExpress(const std::vector<double> &node,

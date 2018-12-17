@@ -669,6 +669,7 @@ namespace NEAT
             double varience;
             int lvl;
             double width;
+            double leo = 0.0;
             std::vector<boost::shared_ptr<nTree> > children;
             
             nTree(std::vector<double> coord_in, double wdth, double level)
