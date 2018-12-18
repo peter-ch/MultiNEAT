@@ -3982,26 +3982,16 @@ namespace NEAT
                 {
                     int cpp_depth = 8;
 
-                    std::vector<double> subcubes;
+                    std::vector<double> inputs2;
                     std::vector<double> inputs;
                     int root_index = 0;
-                    if(outgoing)
+                    int sign = -1; // this is used for [+,-] * [coord] 
+                    for(unsigned int c_ix = 0; c_ix < root->children[i]->coord.size(); c_ix++)
                     {
-                        inputs = node;
-                        for (unsigned int xx = 0; xx < root->children[i]->coord.size(); xx++)
-                        {
-                            inputs.push_back(root->children[i]->coord[xx]);
-                        }
+                        double dimen_split1 = root->children[i]->coord[c_ix] - root->width;
+                        double dimen_split2 = root->children[i]->coord[c_ix] + root->width;
                     }
-                    else
-                    {
-                        inputs = root->children[i]->coord;
-                        for (unsigned int xx = 0; xx < root->children[i]->coord.size(); xx++)
-                        {
-                            inputs.push_back(node[xx]);
-                        }
-                    }
-
+                    
                 }
             }
         }
