@@ -3980,16 +3980,30 @@ namespace NEAT
                 
                 else if(!params.Leo || (params.Leo && root->children[i]->leo > params.LeoThreshold))
                 {
-                    int cpp_depth = 8;
-
-                    std::vector<double> inputs2;
-                    std::vector<double> inputs;
-                    int root_index = 0;
-                    int sign = -1; // this is used for [+,-] * [coord] 
+                    int cpp_depth = 8; //seems to be hard coded across the codebase, seems like plenty of depth to me!
+                    std::vector<double> child_array;
                     for(unsigned int c_ix = 0; c_ix < root->children[i]->coord.size(); c_ix++)
                     {
+                        std::vector<double> inputs2;
+                        std::vector<double> inputs;
+                        int root_index = 0;
+                        int sign = -1;
                         double dimen_split1 = root->children[i]->coord[c_ix] - root->width;
                         double dimen_split2 = root->children[i]->coord[c_ix] + root->width;
+                        for(unsigned int c2_ix = 0; c2_ix < node.size(); c2_ix++)
+                        {
+                            if(c2_ix == c_ix)
+                            {
+                                inputs.append(root->children[i].coord.at(c2_ix));
+                                inputs2.append(root->children[i]->coord.at(c2_ix));
+                            } else {
+                                inputs.append(dimen_split2);
+                                inputs2.append(dimen_split1);
+                            }
+                            
+                            child_array.append(Abs(root->children[i]->weight - cppn.))
+
+                        }
                     }
                     
                 }
