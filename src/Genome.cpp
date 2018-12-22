@@ -3984,6 +3984,8 @@ namespace NEAT
                     std::vector<double> child_array;
                     for(unsigned int c_ix = 0; c_ix < root->children[i]->coord.size(); c_ix++)
                     {
+                        std::vector<double> full_in;
+                        std::vector<double> full_in2;
                         std::vector<double> inputs2;
                         std::vector<double> inputs;
                         int root_index = 0;
@@ -4000,9 +4002,20 @@ namespace NEAT
                                 inputs.append(dimen_split2);
                                 inputs2.append(dimen_split1);
                             }
-                            
-                            child_array.append(Abs(root->children[i]->weight - cppn.))
-
+                        }
+                        if(outgoing)
+                        {
+                            full_in.insert(child_array.end(), node.begin(), node.end());
+                            full_in2 = full_in;
+                            fulll_in.insert(full_in.end(), inputs.begin(), inputs.end());
+                            full_in2.insert(full_in2.end(), input2.begin(), inputs.end());
+                        }
+                        else
+                        {
+                            full_in2.insert(full_in2.end(), input2.begin(), input2.end());
+                            full_in.insert(full_in.end(), inputs.begin(), inputs.end());
+                            full_in2.insert(full_in2.end(), node.begin(), node.end());
+                            full_in.insert(full_in.end(), node.begin(), node.end());
                         }
                     }
                     
