@@ -4005,19 +4005,35 @@ namespace NEAT
                         }
                         if(outgoing)
                         {
-                            full_in.insert(child_array.end(), node.begin(), node.end());
+                            full_in = node;
                             full_in2 = full_in;
                             fulll_in.insert(full_in.end(), inputs.begin(), inputs.end());
-                            full_in2.insert(full_in2.end(), input2.begin(), inputs.end());
+                            full_in2.insert(full_in2.end(), inputs2.begin(), inputs2.end());
                         }
                         else
                         {
-                            full_in2.insert(full_in2.end(), input2.begin(), input2.end());
-                            full_in.insert(full_in.end(), inputs.begin(), inputs.end());
+                            full_in2 = inputs2;
+                            full_in = inputs;
                             full_in2.insert(full_in2.end(), node.begin(), node.end());
                             full_in.insert(full_in.end(), node.begin(), node.end());
                         }
+                        cppn.Inputs(full_in);
+                        child_array.append(cppn.Activate()[0]);
+                        for (int d = 0; d < cppn_depth; d++)
+                        {
+                            cppn.Activate();
+                        }
+                        child_array.append(Abs(root->child[i]->weight - Output()[0]));
+                        cppn.Flush();
+                        cppn.Inputs(full_in2);
+                        child_array.append(cppn.Activate()[0]);
+                        for (int d = 0; d < cppn_depth; d++)
+                        {
+                            cppn.Activate();
+                        }
+                        child_array.append(Abs(root->child[i]->weight - Output()[0]));
                     }
+                    double biggest_smallest = 0.0;
                     
                 }
             }
