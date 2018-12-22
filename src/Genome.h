@@ -12,7 +12,7 @@
 //    (at your option) any later version.
 //
 //    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    but WITHOUT ANY WARRbbbbbbbbbbANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //    GNU General Public License for more details.
 //
@@ -584,6 +584,13 @@ namespace NEAT
                 weight = t_weight;
                 source.reserve(3);
                 target.reserve(3);
+            }
+
+            TempConnection(std::vector<double> t_source, std::vector<double> t_target, double t_weight, unsigned int coord_size)
+            {
+                source = t_source;
+                target = t_target;
+                weight = t_weight;
             }
             
             ~TempConnection()

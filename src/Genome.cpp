@@ -4017,6 +4017,8 @@ namespace NEAT
                             full_in2.insert(full_in2.end(), node.begin(), node.end());
                             full_in.insert(full_in.end(), node.begin(), node.end());
                         }
+                        full_in.push_back(params.CPPN_Bias);
+                        full_in2.push_back(params.CPPN_Bias);
                         cppn.Inputs(full_in);
                         child_array.append(cppn.Activate()[0]);
                         for (int d = 0; d < cppn_depth; d++)
@@ -4033,8 +4035,28 @@ namespace NEAT
                         }
                         child_array.append(Abs(root->child[i]->weight - Output()[0]));
                     }
-                    double biggest_smallest = 0.0;
-                    
+                    double biggest_smallest = std::min(child_array[0], child_array[1]);
+                    unsigned int pair_idx = 2;
+                    while(pair_idx < child_array.size()/2)
+                    {
+                        unsigned int new_min = std::min(child_array[pair_idx], child_array[pair_idx + 1]);
+                        if(new_min > biggest_smallest)
+                        {
+                            biggest_smallest = new_min;
+                        }
+                        pair_idx += 2;
+                    }
+                    if(biggest_smallest > params.BandThreshold)
+                    {
+                        if(outgoing)
+                        {
+                            TempConnection tc(node, root->children[i]->coord, root->children[i]->weight, node.size());
+                        }
+                        else
+                        {
+                            TempConnection tc(root->children[i]->coord, node, root->children[i]->weight, node.size());
+                        }
+                    }
                 }
             }
         }
