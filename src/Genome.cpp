@@ -4056,6 +4056,7 @@ namespace NEAT
                         {
                             TempConnection tc(root->children[i]->coord, node, root->children[i]->weight, node.size());
                         }
+                        connections.push_back(tc);
                     }
                 }
             }
