@@ -3451,7 +3451,7 @@ namespace NEAT
             for (itr_hid = unexplored_nodes.begin(); itr_hid != unexplored_nodes.end(); itr_hid++)
             {
                 root = boost::shared_ptr<nTree>(
-                        new QuadPoint(params.nTreeCoord, params.Width, params.Height, 1));
+                        new nTree(params.nTreeCoord, params.Width, params.Height, 1));
                 DivideInitializeND(itr_hid->first, root, t_temp_phenotype, params, true, 0.0);
                 TempConnections.clear();
                 PruneExpress(itr_hid->first, root, t_temp_phenotype, params, TempConnections, true);
@@ -3499,8 +3499,8 @@ namespace NEAT
         // existing hidden nodes and no new nodes are added.
         for (unsigned int i = 0; i < output_count; i++)
         {
-            root = boost::shared_ptr<QuadPoint>(
-                    new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
+            root = boost::shared_ptr<nTree>(
+                    new nTree(params.nTreeCoord, params.Width, params.Height, 1));
             DivideInitialize(subst.m_output_coords[i], root, t_temp_phenotype, params, false, 0.0);
             TempConnections.clear();
             PruneExpress(subst.m_output_coords[i], root, t_temp_phenotype, params, TempConnections, false);
