@@ -3410,9 +3410,9 @@ namespace NEAT
             }
             root = boost::shared_ptr<nTree>(
                     new nTree(params.nTreeCoord, params.Width, params.Height, 1));
-            DivideInitialize(subst.m_input_coords[i], root, t_temp_phenotype, params, true, 0.0);
+            DivideInitializeND(subst.m_input_coords[i], root, t_temp_phenotype, params, true, 0.0);
             TempConnections.clear();
-            PruneExpress(subst.m_input_coords[i], root, t_temp_phenotype, params, TempConnections, true);
+            PruneExpressND(subst.m_input_coords[i], root, t_temp_phenotype, params, TempConnections, true);
 
             for (unsigned int j = 0; j < TempConnections.size(); j++)
             {
@@ -3450,9 +3450,9 @@ namespace NEAT
             boost::unordered_map<std::vector<double>, int>::iterator itr_hid;
             for (itr_hid = unexplored_nodes.begin(); itr_hid != unexplored_nodes.end(); itr_hid++)
             {
-                root = boost::shared_ptr<QuadPoint>(
-                        new QuadPoint(params.Qtree_X, params.Qtree_Y, params.Width, params.Height, 1));
-                DivideInitialize(itr_hid->first, root, t_temp_phenotype, params, true, 0.0);
+                root = boost::shared_ptr<nTree>(
+                        new QuadPoint(params.nTreeCoord, params.Width, params.Height, 1));
+                DivideInitializeND(itr_hid->first, root, t_temp_phenotype, params, true, 0.0);
                 TempConnections.clear();
                 PruneExpress(itr_hid->first, root, t_temp_phenotype, params, TempConnections, true);
                 //root.reset();
@@ -3468,7 +3468,7 @@ namespace NEAT
                         target_index = hidden_counter++;
                         hidden_nodes.insert(std::make_pair(TempConnections[k].target, target_index));
                     }
-                    else // TODO: This can be skipped if building a feed forwad network.
+                    else if(!params.feed_forward) // TODO: This can be skipped if building a feed forwad network.
                     {
                         target_index = hidden_nodes.find(TempConnections[k].target)->second;
                     }
