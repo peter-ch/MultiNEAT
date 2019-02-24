@@ -792,7 +792,7 @@ namespace NEAT
     void
     Species::MutateGenome(bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters &a_Parameters, RNG &a_RNG)
     {
-#if 0
+#if 1
         if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && (a_Pop.GetSearchMode() != SIMPLIFYING))
         {
             t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
@@ -866,6 +866,7 @@ namespace NEAT
             if (a_RNG.RandFloat() < a_Parameters.MutateGenomeTraitsProb)
                 t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
         }
+        
 #else
         // We will perform roulette wheel selection to choose the type of mutation and will mutate the baby
         // This method guarantees that the baby will be mutated at least with one mutation

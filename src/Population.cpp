@@ -372,7 +372,7 @@ void Population::CountOffspring()
 // This little tool function helps ordering the genomes by fitness
 bool species_greater(Species ls, Species rs)
 {
-    return ((ls.GetBestFitness()) > (rs.GetBestFitness()));
+    return ((ls.GetActualBestFitness()) > (rs.GetActualBestFitness()));
 }
 void Population::Sort()
 {

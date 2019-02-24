@@ -156,6 +156,21 @@ public:
 
     // Access
     double GetBestFitness() const { return m_BestFitness; }
+    double GetActualBestFitness() const
+    {
+        double f = std::numeric_limits<double>::min();
+        for(int i=0; i<m_Individuals.size(); i++)
+        {
+            if (m_Individuals[i].IsEvaluated())
+            {
+                if (m_Individuals[i].GetFitness() > f)
+                {
+                    f = m_Individuals[i].GetFitness();
+                }
+            }
+        }
+        return f;
+    }
     void SetBestSpecies(bool t) { m_BestSpecies = t; }
     void SetWorstSpecies(bool t) { m_WorstSpecies = t; }
     void IncreaseAgeGens() { m_AgeGenerations++; }

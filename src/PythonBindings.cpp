@@ -287,6 +287,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("GetNeuronTraits", &Genome::GetNeuronTraits)
             .def("GetLinkTraits", &Genome::GetLinkTraits)
             .def("GetGenomeTraits", &Genome::GetGenomeTraits)
+        
+            .def("SetGenomeTraits", &Genome::SetGenomeTraits) // experimental
 
             .def("FailsConstraints", &Genome::FailsConstraints)
 
@@ -514,6 +516,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("ActivationFunction_Linear_Prob", &Parameters::ActivationFunction_Linear_Prob)
             .def_readwrite("DontUseBiasNeuron", &Parameters::DontUseBiasNeuron)
             .def_readwrite("AllowLoops", &Parameters::AllowLoops)
+            .def_readwrite("MutateGenomeTraitsProb", &Parameters::MutateGenomeTraitsProb)
             .def_readwrite("MutateNeuronTraitsProb", &Parameters::MutateNeuronTraitsProb)
             .def_readwrite("MutateLinkTraitsProb", &Parameters::MutateLinkTraitsProb)
             .def_readwrite("DisjointCoeff", &Parameters::DisjointCoeff)
