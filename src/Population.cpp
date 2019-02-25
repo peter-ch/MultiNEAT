@@ -990,7 +990,9 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
             double t_fitness = m_Species[i].m_Individuals[j].GetFitness();
             if (std::isnan(t_fitness) || std::isinf(t_fitness))
+            {
                 t_fitness = 0;
+            }
             
             if (t_fitness > m_BestFitnessEver)
             {

@@ -458,6 +458,8 @@ namespace NEAT
                 // Start very minimally - connect a random input to each output
                 // Also connect the bias to every output
                 
+                std::vector< std::pair<int, int> > made_already;
+                
                 // do this a few times for more initial links created
                 // TODO: make sure the innovations don't repeat for the same input/output pairs
                 for(unsigned int nl=0; nl<a_FS_NEAT_links; nl++)
@@ -467,6 +469,13 @@ namespace NEAT
                         int t_inp_id = t_RNG.RandInt(1, a_NumInputs - 1);
                         int t_bias_id = a_NumInputs;
                         int t_outp_id = a_NumInputs + 1 + i;
+                        
+                        // check if there already
+                        bool there=false;
+                        for(auto it = made_already.begin(); it != made_already.end(); it++)
+                        {
+                        
+                        }
         
                         // created with zero weights. needs future random initialization. !!!!!!!!
                         LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
