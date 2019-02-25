@@ -1384,7 +1384,7 @@ namespace NEAT
         }
 
         // find matching neuron IDs
-        for (unsigned int i = 0; i < NumNeurons(); i++)
+        for (unsigned int i = NumInputs(); i < NumNeurons(); i++)
         {
             // no inputs considered for comparison
             if ((m_NeuronGenes[i].Type() != INPUT) && (m_NeuronGenes[i].Type() != BIAS))
@@ -2724,7 +2724,7 @@ namespace NEAT
             for (i = 0; i < m_NumInputs - 1; i++)
             {
                 // Determine if it will pick either gene or mate it
-                if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
+                /*if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                 {
                     // pick
                     NeuronGene n;
@@ -2742,15 +2742,14 @@ namespace NEAT
                     t_baby.m_NeuronGenes.emplace_back(n);
                 }
                 else
-                {
+                {*/
                     // mate
-                    NeuronGene n = m_NeuronGenes[i];
-                    n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
-                    t_baby.m_NeuronGenes.emplace_back(n);
-                }
+                    //n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                    t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[i]);
+                //}
 
             }
-            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
+            /*if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
             {
                 // the bias
                 NeuronGene nb;
@@ -2765,19 +2764,18 @@ namespace NEAT
                 t_baby.m_NeuronGenes.emplace_back(nb);
             }
             else
-            {
+            {*/
                 // mate
-                NeuronGene nb = m_NeuronGenes[i];
-                nb.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
-                t_baby.m_NeuronGenes.emplace_back(nb);
-            }
+                //nb.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[i]);
+            //}
         }
         else
         {
             // the inputs
             for (unsigned int i = 0; i < m_NumInputs; i++)
             {
-                if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
+                /*if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                 {
                     NeuronGene n;
                     if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
@@ -2791,11 +2789,10 @@ namespace NEAT
                     t_baby.m_NeuronGenes.emplace_back(n);
                 }
                 else
-                {
-                    NeuronGene n = m_NeuronGenes[i];
-                    n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
-                    t_baby.m_NeuronGenes.emplace_back(n);
-                }
+                {*/
+                    //n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                    t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[i]);
+                //}
             }
         }
 

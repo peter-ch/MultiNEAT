@@ -783,15 +783,14 @@ namespace NEAT
         // assigment operator
         NeuronGene &operator=(const NeuronGene &a_g)
         {
-            if (this != &a_g)//(this->m_ID != a_g.m_ID)
+            if (this != &a_g)
             {
                 m_ID = a_g.m_ID;
                 m_Type = a_g.m_Type;
                 m_SplitY = a_g.m_SplitY;
-                m_Traits = a_g.m_Traits;
                 
                 // maybe inputs don't need that
-                //if ((m_Type != NeuronType::INPUT) && (m_Type != NeuronType::BIAS))
+                if ((m_Type != NeuronType::INPUT) && (m_Type != NeuronType::BIAS))
                 {
                     x = a_g.x;
                     y = a_g.y;
@@ -800,6 +799,7 @@ namespace NEAT
                     m_TimeConstant = a_g.m_TimeConstant;
                     m_Bias = a_g.m_Bias;
                     m_ActFunction = a_g.m_ActFunction;
+                    m_Traits = a_g.m_Traits;
                 }
             }
 
