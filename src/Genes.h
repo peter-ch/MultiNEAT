@@ -788,8 +788,9 @@ namespace NEAT
                 m_ID = a_g.m_ID;
                 m_Type = a_g.m_Type;
                 m_SplitY = a_g.m_SplitY;
+                m_Traits = a_g.m_Traits;
                 
-                // inputs don't need that
+                // maybe inputs don't need that
                 if ((m_Type != NeuronType::INPUT) && (m_Type != NeuronType::BIAS))
                 {
                     x = a_g.x;
@@ -799,7 +800,6 @@ namespace NEAT
                     m_TimeConstant = a_g.m_TimeConstant;
                     m_Bias = a_g.m_Bias;
                     m_ActFunction = a_g.m_ActFunction;
-                    m_Traits = a_g.m_Traits;
                 }
             }
 

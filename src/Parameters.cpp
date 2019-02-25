@@ -139,6 +139,10 @@ namespace NEAT
         // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
         // The default is the Average mating.
         MultipointCrossoverRate = 0.75;
+    
+        // Probability that when doing multipoint crossover,
+        // the gene of the fitter parent will be prefered, instead of choosing one at random
+        PreferFitterParentRate = 0.25;
 
         // Performing roulette wheel selection or not?
         RouletteWheelSelection = false;
@@ -592,6 +596,9 @@ namespace NEAT
 
             if (s == "MultipointCrossoverRate")
                 a_DataFile >> MultipointCrossoverRate;
+            
+            if (s == "PreferFitterParentRate")
+                a_DataFile >> PreferFitterParentRate;
 
             if (s == "RouletteWheelSelection")
             {
@@ -995,6 +1002,7 @@ namespace NEAT
         fprintf(a_fstream, "OverallMutationRate %3.20f\n", OverallMutationRate);
         fprintf(a_fstream, "InterspeciesCrossoverRate %3.20f\n", InterspeciesCrossoverRate);
         fprintf(a_fstream, "MultipointCrossoverRate %3.20f\n", MultipointCrossoverRate);
+        fprintf(a_fstream, "PreferFitterParentRate %3.20f\n", PreferFitterParentRate);
         fprintf(a_fstream, "RouletteWheelSelection %s\n", RouletteWheelSelection == true ? "true" : "false");
         fprintf(a_fstream, "PhasedSearching %s\n", PhasedSearching == true ? "true" : "false");
         fprintf(a_fstream, "DeltaCoding %s\n", DeltaCoding == true ? "true" : "false");
