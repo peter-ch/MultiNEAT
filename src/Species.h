@@ -194,18 +194,18 @@ public:
     void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
 
     // returns the leader (the member having the best fitness, representing the species)
-    Genome GetLeader() const;
+    Genome& GetLeader();// const;
 
-    Genome GetRepresentative() const;
+    Genome& GetRepresentative();// const;
 
     // adds a new member to the species and updates variables
     void AddIndividual(Genome& a_New);
 
     // returns an individual randomly selected from the best N%
-    Genome GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const;
+    Genome& GetIndividual(Parameters& a_Parameters, RNG& a_RNG);// const;
 
     // returns a completely random individual
-    Genome GetRandomIndividual(RNG& a_RNG) const;
+    Genome& GetRandomIndividual(RNG& a_RNG);// const;
 
     // calculates how many babies this species will spawn in total
     void CountOffspring();

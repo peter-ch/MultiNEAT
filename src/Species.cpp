@@ -46,14 +46,19 @@ namespace NEAT
     RNG global_rng;
     
     // Sorts the members of this species by fitness
-    bool fitness_greater(Genome *ls, Genome *rs)
+    /*bool fitness_greater(Genome *ls, Genome *rs)
     {
         return ((ls->GetFitness()) > (rs->GetFitness()));
-    }
+    }*/
     
-    bool genome_greater(Genome ls, Genome rs)
+    bool genome_greater(Genome& ls, Genome& rs)
     {
         return (ls.GetFitness() > rs.GetFitness());
+    }
+    
+    bool idxfitnesspair_greater(std::pair<int, double>& ls, std::pair<int, double>& rs)
+    {
+        return (ls.second > rs.second);
     }
     
     
@@ -123,16 +128,16 @@ namespace NEAT
 
 
     // returns an individual randomly selected from the best N%
-    Genome Species::GetIndividual(Parameters &a_Parameters, RNG &a_RNG) const
+    Genome& Species::GetIndividual(Parameters &a_Parameters, RNG &a_RNG) //const
     {
         ASSERT(m_Individuals.size() > 0);
 
         // Make a pool of only evaluated individuals!
-        std::vector<Genome> t_Evaluated;
+        std::vector< std::pair<int, double> > t_Evaluated;
         for (unsigned int i = 0; i < m_Individuals.size(); i++)
         {
             if (m_Individuals[i].IsEvaluated())
-                t_Evaluated.emplace_back(m_Individuals[i]);
+                t_Evaluated.emplace_back(std::make_pair(i, m_Individuals[i].GetFitness()));
         }
 
         ASSERT(t_Evaluated.size() > 0);
@@ -144,18 +149,18 @@ namespace NEAT
         }
         if (t_Evaluated.size() == 1)
         {
-            return (t_Evaluated[0]);
+            return (m_Individuals[t_Evaluated[0].first]);
         }
         else if (t_Evaluated.size() == 2)
         {
-            return (t_Evaluated[Rounded(a_RNG.RandFloat())]);
+            return (m_Individuals[t_Evaluated[Rounded(a_RNG.RandFloat())].first]);
         }
 
         // Warning!!!! The individuals must be sorted by best fitness for this to work
         int t_chosen_one = 0;
         
         // then sort them here just to make sure
-        std::sort(t_Evaluated.begin(), t_Evaluated.end(), genome_greater);
+        std::sort(t_Evaluated.begin(), t_Evaluated.end(), idxfitnesspair_greater);
 
         // Here might be introduced better selection scheme, but this works OK for now
         if (!a_Parameters.RouletteWheelSelection)
@@ -193,10 +198,10 @@ namespace NEAT
                 t_probs.emplace_back(t_Evaluated[i].GetFitness());
             }
             t_chosen_one = a_RNG.Roulette(t_probs);*/
-            int t_num_parents = (int)(a_Parameters.SurvivalRate * (double)(t_Evaluated.size()));
+            int t_num_parents = t_Evaluated.size();//(int)(a_Parameters.SurvivalRate * (double)(t_Evaluated.size()));
     
-            ASSERT(t_num_parents > 0);
-            ASSERT(t_num_parents < t_Evaluated.size());
+            //ASSERT(t_num_parents > 0);
+            //ASSERT(t_num_parents < t_Evaluated.size());
             if (t_num_parents > t_Evaluated.size())
             {
                 t_num_parents = t_Evaluated.size();
@@ -204,17 +209,17 @@ namespace NEAT
             std::vector<double> t_probs;
             for (unsigned int i = 0; i < t_num_parents; i++)
             {
-                t_probs.emplace_back(t_Evaluated[i].GetFitness());
+                t_probs.emplace_back(t_Evaluated[i].second);
             }
             t_chosen_one = a_RNG.Roulette(t_probs);
         }
 
-        return (t_Evaluated[t_chosen_one]);
+        return (m_Individuals[t_Evaluated[t_chosen_one].first]);
     }
 
 
     // returns a completely random individual
-    Genome Species::GetRandomIndividual(RNG &a_RNG) const
+    Genome& Species::GetRandomIndividual(RNG &a_RNG) //const
     {
         if (m_Individuals.size() == 0) // no members yet, return representative
         {
@@ -229,7 +234,7 @@ namespace NEAT
     }
 
     // returns the leader (the member having the best fitness)
-    Genome Species::GetLeader() const
+    Genome& Species::GetLeader() //const
     {
         // Don't store the leader any more
         // Perform a search over the members and return the most fit member
@@ -257,7 +262,7 @@ namespace NEAT
     }
 
 
-    Genome Species::GetRepresentative() const
+    Genome& Species::GetRepresentative() //const
     {
         return m_Representative;
     }

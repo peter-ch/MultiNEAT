@@ -306,7 +306,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 ///////////////////////////////////////////////////////////////////
 
     class_<Species>("Species", init<Genome, Parameters, int>())
-            .def("GetLeader", &Species::GetLeader)
+            .def("GetLeader", &Species::GetLeader, return_value_policy<reference_existing_object>())
             .def("NumIndividuals", &Species::NumIndividuals)
             .def("GensNoImprovement", &Species::GensNoImprovement)
             .def("ID", &Species::ID)

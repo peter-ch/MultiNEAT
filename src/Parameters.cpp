@@ -153,9 +153,7 @@ namespace NEAT
         ConstraintTrials = 2000000;
 
 
-
-
-
+        
         ///////////////////////////////////
         // Phased Search parameters   //
         ///////////////////////////////////

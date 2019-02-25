@@ -25,34 +25,31 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 add_definitions(-DUSE_BOOST_PYTHON)
 add_definitions(-DUSE_BOOST_RANDOM)
 
-set(SOURCE_FILES
-    src/Assert.h
-    src/Genes.h
-    src/Genome.cpp
-    src/Genome.h
-    src/Innovation.cpp
-    src/Innovation.h
-    src/Main.cpp
-    src/NeuralNetwork.cpp
-    src/NeuralNetwork.h
-    src/Parameters.cpp
-    src/Parameters.h
-    src/PhenotypeBehavior.cpp
-    src/PhenotypeBehavior.h
-    src/Population.cpp
-    src/Population.h
-    src/PythonBindings.cpp
-    src/Random.cpp
-    src/Random.h
-    src/Species.cpp
-    src/Species.h
-    src/Substrate.cpp
-    src/Substrate.h
-    src/Utils.cpp
-    src/Utils.h
-    src/Traits.h
-    src/Traits.cpp)
+add_executable(MultiNEAT ${PROJECT_SOURCE_DIR}/src/Assert.h
+                         ${PROJECT_SOURCE_DIR}/src/Genes.h
+                         ${PROJECT_SOURCE_DIR}/src/Genome.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Genome.h
+                         ${PROJECT_SOURCE_DIR}/src/Innovation.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Innovation.h
+                         ${PROJECT_SOURCE_DIR}/src/Main.cpp
+                         ${PROJECT_SOURCE_DIR}/src/NeuralNetwork.cpp
+                         ${PROJECT_SOURCE_DIR}/src/NeuralNetwork.h
+                         ${PROJECT_SOURCE_DIR}/src/Parameters.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Parameters.h
+                         ${PROJECT_SOURCE_DIR}/src/PhenotypeBehavior.cpp
+                         ${PROJECT_SOURCE_DIR}/src/PhenotypeBehavior.h
+                         ${PROJECT_SOURCE_DIR}/src/Population.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Population.h
+                         ${PROJECT_SOURCE_DIR}/src/PythonBindings.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Random.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Random.h
+                         ${PROJECT_SOURCE_DIR}/src/Species.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Species.h
+                         ${PROJECT_SOURCE_DIR}/src/Substrate.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Substrate.h
+                         ${PROJECT_SOURCE_DIR}/src/Utils.cpp
+                         ${PROJECT_SOURCE_DIR}/src/Utils.h
+                         ${PROJECT_SOURCE_DIR}/src/Traits.h
+                         ${PROJECT_SOURCE_DIR}/src/Traits.cpp)
 
-
-add_executable(MultiNEAT ${SOURCE_FILES})
 target_link_libraries(MultiNEAT ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} pthread)

@@ -303,7 +303,7 @@ void Population::Speciate()
         if (!t_added)
         {
             // didn't find compatible species, create new species
-            m_Species.emplace_back( Species(m_Genomes[i], m_Parameters, m_NextSpeciesID));
+            m_Species.push_back( Species(m_Genomes[i], m_Parameters, m_NextSpeciesID));
             m_NextSpeciesID++;
         }
     }
@@ -374,7 +374,7 @@ void Population::CountOffspring()
 
 
 // This little tool function helps ordering the genomes by fitness
-bool species_greater(Species ls, Species rs)
+bool species_greater(Species& ls, Species& rs)
 {
     return ((ls.GetBestFitness()) > (rs.GetBestFitness()));
 }
@@ -823,7 +823,7 @@ unsigned int Population::ChooseParentSpecies()
         t_total_fitness += m_Species[i].m_AverageFitness;
     }
 
-    int giveup = 5000;
+    int giveup = 3;
     do
     {
         t_marble = m_RNG.RandFloat() * t_total_fitness;
@@ -861,30 +861,43 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
         t_genome_rel_idx = 0;
-        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
+        if ((t_counter + m_Species[i].m_Individuals.size()) > a_genome_idx)
+        {
+            // it's here
+            t_genome_rel_idx = a_genome_idx - t_counter;
+            break;
+        }
+        else
+        {
+            t_counter += m_Species[i].m_Individuals.size();
+            t_species_idx++;
+        }
+        /*for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
             if (t_counter == a_genome_idx)
             {
                 // get the genome and break
-                t_genome = m_Species[i].m_Individuals[j];
+                //t_genome = m_Species[i].m_Individuals[j];
                 t_f = true;
                 break;
             }
 
             t_counter++;
             t_genome_rel_idx++;
-        }
+        }*/
 
-        if (!t_f)
+       /* if (!t_f)
         {
             t_species_idx++;
         }
         else
         {
             break;
-        }
+        }*/
     }
-
+    
+    t_genome = m_Species[t_species_idx].m_Individuals[t_genome_rel_idx];
+    
     // Remove it from its species
     m_Species[t_species_idx].RemoveIndividual(t_genome_rel_idx);
 
@@ -908,7 +921,7 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
     else
     {
         // try to find a compatible species
-        Genome t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
+        Genome& t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -1026,7 +1039,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     }
 
     // If the compatibility treshold was changed, reassign all individuals by species
-    if (t_changed)
+    /*if (t_changed)
     {
         for(unsigned int i=0; i<m_Genomes.size(); i++)
         {
@@ -1035,7 +1048,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         
         // After reassigning, some empty species may be left, so delete them
         ClearEmptySpecies();
-    }
+    }*/
 
     // Sort individuals within species by fitness
     Sort();
@@ -1067,7 +1080,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     if (t_cur_species == m_Species.end())
     {
         // create the first species and place the baby there
-        m_Species.emplace_back( Species(t_baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
+        m_Species.push_back( Species(t_baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
         // the last one
         t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
         IncrementNextSpeciesID();
@@ -1075,7 +1088,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     else
     {
         // try to find a compatible species
-        Genome t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
+        Genome& t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -1104,7 +1117,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         // if couldn't find a match, make a new species
         if (!t_found)
         {
-            m_Species.emplace_back( Species(t_baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
+            m_Species.push_back( Species(t_baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
             // the last one
             t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
             IncrementNextSpeciesID();
@@ -1135,7 +1148,7 @@ void Population::ClearEmptySpecies()
 }
     
     
-    Genome Population::RemoveWorstIndividual()
+Genome Population::RemoveWorstIndividual()
 {
     unsigned int t_worst_idx=0; // within the species
     //unsigned int t_worst_absolute_idx=0; // within the population

@@ -78,7 +78,7 @@ int main()
 {
     Parameters params;
 
-    params.PopulationSize = 32;
+    params.PopulationSize = 1500;
     params.DynamicCompatibility = true;
     params.WeightDiffCoeff = 0.0;
     params.CompatTreshold = 3.0;
@@ -117,7 +117,7 @@ int main()
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
 
-    params.AllowClones = false;
+    params.AllowClones = true;
     params.AllowLoops = false;
     params.DontUseBiasNeuron = true;
 
@@ -219,11 +219,34 @@ int main()
              2);
 
     Population pop(s, params, true, 1.0, time(0));
+    
+    for(unsigned int i=0; i < pop.m_Species.size(); i++)
+    {
+        for (unsigned int j = 0; j < pop.m_Species[i].m_Individuals.size(); j++)
+        {
+            double f = xortest(pop.m_Species[i].m_Individuals[j]);
+            pop.m_Species[i].m_Individuals[j].SetFitness(pop.m_RNG.RandFloat());
+            pop.m_Species[i].m_Individuals[j].SetEvaluated();
+        }
+    }
 
     for(int k=0; k<5; k++)
     {
         double bestf = -999999;
-        for(unsigned int i=0; i < pop.m_Species.size(); i++)
+        Genome gx;
+        
+        Genome* baby;
+        baby = pop.Tick(gx);
+    
+        double f = xortest(*baby);
+        baby->SetFitness(f);
+        baby->SetEvaluated();
+        if (f > bestf)
+        {
+            bestf = f;
+        }
+        
+        /*for(unsigned int i=0; i < pop.m_Species.size(); i++)
         {
             for(unsigned int j=0; j < pop.m_Species[i].m_Individuals.size(); j++)
             {
@@ -241,14 +264,14 @@ int main()
                     bestf = f;
                 }
             }
-        }
+        }*/
 
         Genome g = pop.GetBestGenome();
         g.PrintAllTraits();
 
         printf("Generation: %d, best fitness: %3.5f\n", k, bestf);
         printf("Species: %d\n", pop.m_Species.size());
-        pop.Epoch();
+        //pop.Epoch();
     }
 
     return 0;

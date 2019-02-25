@@ -1484,18 +1484,18 @@ namespace NEAT
     bool Genome::IsCompatibleWith(Genome &a_G, Parameters &a_Parameters)
     {
         // full compatibility cases
-        if (this == &a_G)
+        /*if (this == &a_G)
             return true;
 
         if (GetID() == a_G.GetID())
             return true;
 
         if ((NumLinks() == 0) && (a_G.NumLinks() == 0))
-            return true;
+            return true;*/
 
         double t_total_distance = CompatibilityDistance(a_G, a_Parameters);
 
-        if (t_total_distance <= a_Parameters.CompatTreshold)
+        if (t_total_distance < a_Parameters.CompatTreshold)
             return true;  // compatible
         else
             return false; // incompatible
@@ -3058,12 +3058,12 @@ namespace NEAT
 
     // Sorts the genes of the genome
     // The neurons by IDs and the links by innovation numbers.
-    bool neuron_compare(NeuronGene a_ls, NeuronGene a_rs)
+    bool neuron_compare(NeuronGene& a_ls, NeuronGene& a_rs)
     {
         return a_ls.ID() < a_rs.ID();
     }
 
-    bool link_compare(LinkGene a_ls, LinkGene a_rs)
+    bool link_compare(LinkGene& a_ls, LinkGene& a_rs)
     {
         return a_ls.InnovationID() < a_rs.InnovationID();
     }
