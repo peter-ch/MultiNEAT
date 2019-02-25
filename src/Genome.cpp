@@ -459,10 +459,12 @@ namespace NEAT
                 // Also connect the bias to every output
                 
                 std::vector< std::pair<int, int> > made_already;
+                bool there=false;
+                int linksmade = 0;
                 
                 // do this a few times for more initial links created
                 // TODO: make sure the innovations don't repeat for the same input/output pairs
-                for(unsigned int nl=0; nl<a_FS_NEAT_links; nl++)
+                while(linksmade < a_FS_NEAT_links)
                 {
                     for (unsigned int i = 0; i < a_NumOutputs; i++)
                     {
@@ -471,24 +473,34 @@ namespace NEAT
                         int t_outp_id = a_NumInputs + 1 + i;
                         
                         // check if there already
-                        bool there=false;
+                        there=false;
                         for(auto it = made_already.begin(); it != made_already.end(); it++)
                         {
-                        
+                            if ((it->first == t_inp_id) && (it->second == t_outp_id))
+                            {
+                                there = true;
+                                break;
+                            }
                         }
-        
-                        // created with zero weights. needs future random initialization. !!!!!!!!
-                        LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
-                        l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.emplace_back(l);
-                        t_innovnum++;
-        
-                        if (a_Parameters.DontUseBiasNeuron == false)
+                        
+                        if (!there)
                         {
-                            LinkGene bl = LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false);
-                            bl.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                            m_LinkGenes.emplace_back(bl);
+                            // created with zero weights. needs future random initialization. !!!!!!!!
+                            LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
+                            l.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                            m_LinkGenes.emplace_back(l);
                             t_innovnum++;
+    
+                            if (a_Parameters.DontUseBiasNeuron == false)
+                            {
+                                LinkGene bl = LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false);
+                                bl.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                                m_LinkGenes.emplace_back(bl);
+                                t_innovnum++;
+                            }
+                            
+                            linksmade++;
+                            made_already.push_back(std::make_pair(t_inp_id, t_outp_id));
                         }
                     }
                 }
