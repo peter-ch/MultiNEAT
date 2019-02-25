@@ -2678,10 +2678,19 @@ namespace NEAT
         
         // Mate the GenomeGene first
         // Determine if it will pick either gene or mate it
-        if (a_RNG.RandFloat() < 0.5)
+        if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
         {
             // pick
-            Gene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_GenomeGene : a_Dad.m_GenomeGene;
+            Gene n;
+            
+            if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+            {
+                n = (GetFitness() > a_Dad.GetFitness()) ? m_GenomeGene : a_Dad.m_GenomeGene;
+            }
+            else
+            {
+                n = (a_RNG.RandFloat() < 0.5) ? m_GenomeGene : a_Dad.m_GenomeGene;
+            }
             t_baby.m_GenomeGene = n;
         }
         else
@@ -2703,10 +2712,21 @@ namespace NEAT
             for (i = 0; i < m_NumInputs - 1; i++)
             {
                 // Determine if it will pick either gene or mate it
-                if (a_RNG.RandFloat() < 0.5)
+                if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                 {
                     // pick
-                    NeuronGene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    NeuronGene n;
+                    // most of the time pick from the fitter parent
+                    if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                    {
+                        n = (GetFitness() > a_Dad.GetFitness())? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    else
+                    {
+                        // pick randomly
+                        n = (a_RNG.RandFloat() < 0.5)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    
                     t_baby.m_NeuronGenes.emplace_back(n);
                 }
                 else
@@ -2718,10 +2738,18 @@ namespace NEAT
                 }
 
             }
-            if (a_RNG.RandFloat() < 0.5)
+            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
             {
                 // the bias
-                NeuronGene nb = ((a_RNG.RandFloat() < 0.5f) == 0) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                NeuronGene nb;
+                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                {
+                    nb = (GetFitness() > a_Dad.GetFitness())? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                }
+                else
+                {
+                    nb = (a_RNG.RandFloat() < 0.5) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                }
                 t_baby.m_NeuronGenes.emplace_back(nb);
             }
             else
@@ -2737,9 +2765,17 @@ namespace NEAT
             // the inputs
             for (unsigned int i = 0; i < m_NumInputs; i++)
             {
-                if (a_RNG.RandFloat() < 0.5)
+                if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                 {
-                    NeuronGene n = ((a_RNG.RandFloat() < 0.5f) == 0) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    NeuronGene n;
+                    if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                    {
+                        n = (GetFitness() > a_Dad.GetFitness())? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    else
+                    {
+                        n = (a_RNG.RandFloat() < 0.5) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
                     t_baby.m_NeuronGenes.emplace_back(n);
                 }
                 else
@@ -2756,18 +2792,34 @@ namespace NEAT
         {
             NeuronGene t_tempneuron(OUTPUT, 0, 1);
 
-            if (a_RNG.RandFloat() < 0.5)
+            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
             {
-                // random pick
-                if (a_RNG.RandFloat() < 0.5f)
+                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
                 {
-                    // from mother
-                    t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                    if (GetFitness() > a_Dad.GetFitness())
+                    {
+                        // from mother
+                        t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                    }
+                    else
+                    {
+                        // from father
+                        t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                    }
                 }
                 else
                 {
-                    // from father
-                    t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                    // random pick
+                    if (a_RNG.RandFloat() < 0.5)
+                    {
+                        // from mother
+                        t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                    }
+                    else
+                    {
+                        // from father
+                        t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                    }
                 }
             }
             else
@@ -2783,13 +2835,13 @@ namespace NEAT
 
         // if they are of equal fitness use the shorter (because we want to keep
         // the networks as small as possible)
-        if (m_Fitness == a_Dad.m_Fitness)
+        if (GetFitness() == a_Dad.GetFitness())
         {
             // if they are of equal fitness and length just choose one at
             // random
             if (NumLinks() == a_Dad.NumLinks())
             {
-                if (a_RNG.RandFloat() < 0.5f)
+                if (a_RNG.RandFloat() < 0.5)
                 {
                     t_better = MOM;
                 }
@@ -2812,7 +2864,7 @@ namespace NEAT
         }
         else
         {
-            if (m_Fitness > a_Dad.m_Fitness)
+            if (GetFitness() > a_Dad.GetFitness())
             {
                 t_better = MOM;
             }
@@ -2879,15 +2931,29 @@ namespace NEAT
                 if (t_innov_mom == t_innov_dad)
                 {
                     // get a gene from either parent or average
-                    if (!a_MateAverage)
+                    if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                     {
-                        if (a_RNG.RandFloat() < 0.5)
+                        if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
                         {
-                            t_selectedgene = *t_curMom;
+                            if (GetFitness() < a_Dad.GetFitness())
+                            {
+                                t_selectedgene = *t_curMom;
+                            }
+                            else
+                            {
+                                t_selectedgene = *t_curDad;
+                            }
                         }
                         else
                         {
-                            t_selectedgene = *t_curDad;
+                            if (a_RNG.RandFloat() < 0.5)
+                            {
+                                t_selectedgene = *t_curMom;
+                            }
+                            else
+                            {
+                                t_selectedgene = *t_curDad;
+                            }
                         }
                     }
                     else
@@ -2946,8 +3012,8 @@ namespace NEAT
                     // Check if we already have the nodes referred to in t_selectedgene.
                     // If not, they need to be added.
 
-                    NeuronGene t_ngene1(NONE, 0, 0);
-                    NeuronGene t_ngene2(NONE, 0, 0);
+                    //NeuronGene t_ngene1(NONE, 0, 0);
+                    //NeuronGene t_ngene2(NONE, 0, 0);
 
                     // mom has a neuron ID not present in the baby?
                     // From
@@ -2958,17 +3024,48 @@ namespace NEAT
                         if (a_Dad.HasNeuronID(t_selectedgene.FromNeuronID()))
                         {
                             // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() > a_Dad.GetFitness())
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                // mate the neurons
+                                NeuronGene t_1 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                NeuronGene t_2 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
@@ -2986,18 +3083,47 @@ namespace NEAT
                         // See if dad has the same neuron.
                         if (a_Dad.HasNeuronID(t_selectedgene.ToNeuronID()))
                         {
-                            // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() > a_Dad.GetFitness())
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    // if so, then choose randomly which neuron the baby shoud inherit
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                // mate the neurons
+                                NeuronGene t_1 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                NeuronGene t_2 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
@@ -3015,18 +3141,49 @@ namespace NEAT
                         // See if mom has the same neuron
                         if (HasNeuronID(t_selectedgene.FromNeuronID()))
                         {
-                            // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() < a_Dad.GetFitness())
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    // if so, then choose randomly which neuron the baby shoud inherit
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                // mate the neurons
+                                NeuronGene t_1 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                NeuronGene t_2 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
@@ -3044,18 +3201,47 @@ namespace NEAT
                         // See if mom has the same neuron
                         if (HasNeuronID(t_selectedgene.ToNeuronID()))
                         {
-                            // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() < a_Dad.GetFitness())
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    // if so, then choose randomly which neuron the baby shoud inherit
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.emplace_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                // mate neurons
+                                NeuronGene t_1 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                NeuronGene t_2 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
@@ -3067,7 +3253,6 @@ namespace NEAT
                     }
                 }
             }
-
         } //end while
 
         t_baby.m_NumInputs = m_NumInputs;

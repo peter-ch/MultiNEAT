@@ -160,9 +160,13 @@ public:
     // Probability for a baby to result from inter-species mating.
     double InterspeciesCrossoverRate;
 
-    // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
+    // Probability for a baby gene to result from Multipoint Crossover when mating. 1.0 = 100%
     // The default if the Average mating.
     double MultipointCrossoverRate;
+    
+    // Probability that when doing multipoint crossover,
+    // the gene of the fitter parent will be prefered, instead of choosing one at random
+    double PreferFitterParentRate;
     
     // Selection scheme
     // 0 - normal (single mode of selection for all species all the time)
@@ -852,6 +856,7 @@ public:
         ar & OverallMutationRate;
         ar & InterspeciesCrossoverRate;
         ar & MultipointCrossoverRate;
+        ar & PreferFitterParentRate;
         ar & RouletteWheelSelection;
         ar & PhasedSearching;
         ar & DeltaCoding;
