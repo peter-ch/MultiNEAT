@@ -194,6 +194,7 @@ namespace NEAT
 
                 if (!(mine.type() == yours.type()))
                 {
+                    //std::cout << "t1:" << mine << " t2:" << yours << "\n";
                     throw std::runtime_error("Types of traits doesn't match");
                 }
 
@@ -207,7 +208,6 @@ namespace NEAT
                 else
 #endif
                 {
-
                     if (a_RNG.RandFloat() < 0.5) // pick either one
                     {
                         m_Traits[it->first].value = (a_RNG.RandFloat() < 0.5) ? mine : yours;
@@ -783,7 +783,7 @@ namespace NEAT
         // assigment operator
         NeuronGene &operator=(const NeuronGene &a_g)
         {
-            if (this->m_ID != a_g.m_ID)
+            if (this != &a_g)//(this->m_ID != a_g.m_ID)
             {
                 m_ID = a_g.m_ID;
                 m_Type = a_g.m_Type;
