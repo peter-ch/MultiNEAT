@@ -455,24 +455,30 @@ namespace NEAT
             {
                 // Start very minimally - connect a random input to each output
                 // Also connect the bias to every output
-                for (unsigned int i = 0; i < a_NumOutputs; i++)
+                
+                // do this a few times for more initial links created
+                // TODO: make sure the innovations don't repeat for the same input/output pairs
+                for(unsigned int nl=0; nl<3; nl++)
                 {
-                    int t_inp_id = t_RNG.RandInt(1, a_NumInputs - 1);
-                    int t_bias_id = a_NumInputs;
-                    int t_outp_id = a_NumInputs + 1 + i;
-
-                    // created with zero weights. needs future random initialization. !!!!!!!!
-                    LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
-                    l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                    m_LinkGenes.emplace_back(l);
-                    t_innovnum++;
-
-                    if (a_Parameters.DontUseBiasNeuron == false)
+                    for (unsigned int i = 0; i < a_NumOutputs; i++)
                     {
-                        LinkGene bl = LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false);
-                        bl.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.emplace_back(bl);
+                        int t_inp_id = t_RNG.RandInt(1, a_NumInputs - 1);
+                        int t_bias_id = a_NumInputs;
+                        int t_outp_id = a_NumInputs + 1 + i;
+        
+                        // created with zero weights. needs future random initialization. !!!!!!!!
+                        LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
+                        l.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                        m_LinkGenes.emplace_back(l);
                         t_innovnum++;
+        
+                        if (a_Parameters.DontUseBiasNeuron == false)
+                        {
+                            LinkGene bl = LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false);
+                            bl.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                            m_LinkGenes.emplace_back(bl);
+                            t_innovnum++;
+                        }
                     }
                 }
             }
@@ -1315,10 +1321,13 @@ namespace NEAT
                 if (t_g1innov == t_g2innov)
                 {
                     t_num_matching_links++;
-
-                    double t_wdiff = (t_g1->GetWeight() - t_g2->GetWeight());
-                    if (t_wdiff < 0) t_wdiff = -t_wdiff; // make sure it is positive
-                    t_total_weight_difference += t_wdiff;
+                    
+                    if (a_Parameters.WeightDiffCoeff > 0.0)
+                    {
+                        double t_wdiff = (t_g1->GetWeight() - t_g2->GetWeight());
+                        if (t_wdiff < 0) t_wdiff = -t_wdiff; // make sure it is positive
+                        t_total_weight_difference += t_wdiff;
+                    }
 
                     // calculate link trait difference here
                     std::map<std::string, double> link_trait_difference = t_g1->GetTraitDistances(t_g2->m_Traits);
@@ -1362,28 +1371,44 @@ namespace NEAT
                 {
                     t_num_matching_neurons++;
 
-                    double t_A_difference = m_NeuronGenes[i].m_A - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_A;
-                    if (t_A_difference < 0.0f) t_A_difference = -t_A_difference;
-                    t_total_A_difference += t_A_difference;
-
-                    double t_B_difference = m_NeuronGenes[i].m_B - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_B;
-                    if (t_B_difference < 0.0f) t_B_difference = -t_B_difference;
-                    t_total_B_difference += t_B_difference;
-
-                    double t_time_constant_difference =
-                            m_NeuronGenes[i].m_TimeConstant - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_TimeConstant;
-                    if (t_time_constant_difference < 0.0f) t_time_constant_difference = -t_time_constant_difference;
-                    t_total_timeconstant_difference += t_time_constant_difference;
-
-                    double t_bias_difference =
-                            m_NeuronGenes[i].m_Bias - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_Bias;
-                    if (t_bias_difference < 0.0f) t_bias_difference = -t_bias_difference;
-                    t_total_bias_difference += t_bias_difference;
+                    if (a_Parameters.ActivationADiffCoeff > 0.0)
+                    {
+                        double t_A_difference = m_NeuronGenes[i].m_A - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_A;
+                        if (t_A_difference < 0.0f) t_A_difference = -t_A_difference;
+                        t_total_A_difference += t_A_difference;
+                    }
+    
+                    if (a_Parameters.ActivationBDiffCoeff > 0.0)
+                    {
+                        double t_B_difference = m_NeuronGenes[i].m_B - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_B;
+                        if (t_B_difference < 0.0f) t_B_difference = -t_B_difference;
+                        t_total_B_difference += t_B_difference;
+                    }
+    
+                    if (a_Parameters.TimeConstantDiffCoeff > 0.0)
+                    {
+                        double t_time_constant_difference =
+                                m_NeuronGenes[i].m_TimeConstant -
+                                a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_TimeConstant;
+                        if (t_time_constant_difference < 0.0f) t_time_constant_difference = -t_time_constant_difference;
+                        t_total_timeconstant_difference += t_time_constant_difference;
+                    }
+    
+                    if (a_Parameters.BiasDiffCoeff > 0.0)
+                    {
+                        double t_bias_difference =
+                                m_NeuronGenes[i].m_Bias - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_Bias;
+                        if (t_bias_difference < 0.0f) t_bias_difference = -t_bias_difference;
+                        t_total_bias_difference += t_bias_difference;
+                    }
 
                     // Activation function type difference is found
-                    if (m_NeuronGenes[i].m_ActFunction != a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_ActFunction)
+                    if (a_Parameters.ActivationFunctionDiffCoeff > 0.0)
                     {
-                        t_total_num_activation_difference++;
+                        if (m_NeuronGenes[i].m_ActFunction != a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_ActFunction)
+                        {
+                            t_total_num_activation_difference++;
+                        }
                     }
 
                     // calculate and add node trait difference here
@@ -1411,16 +1436,10 @@ namespace NEAT
             t_normalizer = static_cast<double>(t_max_genome_size);
         }
 
-        // if there are no matching links, make it 1.0 to avoid divide error
-        if (t_num_matching_links <= 0)
-            t_num_matching_links = 1;
-
-        // if there are no matching neurons, make it 1.0 to avoid divide error
-        if (t_num_matching_neurons <= 0)
-            t_num_matching_neurons = 1;
-
-        if (t_normalizer <= 0.0)
-            t_normalizer = 1.0;
+        // if there are no matching links or neurons, make it 1.0 to avoid divide error
+        if (t_num_matching_links <= 0) t_num_matching_links = 1;
+        if (t_num_matching_neurons <= 0) t_num_matching_neurons = 1;
+        if (t_normalizer <= 0.0) t_normalizer = 1.0;
 
         t_total_distance =
                 (a_Parameters.ExcessCoeff * (t_num_excess / t_normalizer)) +
@@ -1433,17 +1452,26 @@ namespace NEAT
                 (a_Parameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference / t_num_matching_neurons));
 
         // add trait differences according to each one's coeff
+        double tnml = 1.0/t_num_matching_links;
+        double tnmn = 1.0/t_num_matching_neurons;
+        
         for(auto it = t_total_link_trait_difference.begin(); it != t_total_link_trait_difference.end(); it++)
         {
-            t_total_distance += (a_Parameters.LinkTraits[it->first].m_ImportanceCoeff * it->second) / t_num_matching_links;
+            double n = (a_Parameters.LinkTraits[it->first].m_ImportanceCoeff * it->second) * tnml;
+            if (std::isnan(n) || std::isinf(n)) n = 0.0;
+            t_total_distance += n;
         }
         for(auto it = t_total_neuron_trait_difference.begin(); it != t_total_neuron_trait_difference.end(); it++)
         {
-            t_total_distance += (a_Parameters.NeuronTraits[it->first].m_ImportanceCoeff * it->second) / t_num_matching_neurons;
+            double n = (a_Parameters.NeuronTraits[it->first].m_ImportanceCoeff * it->second) * tnmn;
+            if (std::isnan(n) || std::isinf(n)) n = 0.0;
+            t_total_distance += n;
         }
         for(auto it = t_genome_link_trait_difference.begin(); it != t_genome_link_trait_difference.end(); it++)
         {
-            t_total_distance += (a_Parameters.GenomeTraits[it->first].m_ImportanceCoeff * it->second);
+            double n = (a_Parameters.GenomeTraits[it->first].m_ImportanceCoeff * it->second);
+            if (std::isnan(n) || std::isinf(n)) n = 0.0;
+            t_total_distance += n;
         }
         
         // store in cache

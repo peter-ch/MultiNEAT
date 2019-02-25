@@ -1,4 +1,4 @@
-#from ._MultiNEAT import *
+from ._MultiNEAT import *
 
 def Scale(a, a_min, a_max, a_tr_min, a_tr_max):
     t_a_r = a_max - a_min

@@ -287,10 +287,14 @@ namespace NEAT
 
             // the fitness must be positive
             //DBG(t_fitness);
-            ASSERT(t_fitness >= 0);
+            ASSERT(t_fitness >= 0.0);
 
             // this prevents the fitness to be below zero
-            if (t_fitness <= 0) t_fitness = 0.0001;
+            if (t_fitness <= 0.0) t_fitness = 0.0000000001;
+            
+            // this prevents nan or infinity to be fitness
+            if (std::isnan(t_fitness)) t_fitness = 0.0000000001;
+            if (std::isinf(t_fitness)) t_fitness = 0.0000000001;
 
             // update the best fitness and stagnation counter
             if (t_fitness > m_BestFitness)
@@ -298,7 +302,7 @@ namespace NEAT
                 m_BestFitness = t_fitness;
                 m_GensNoImprovement = 0;
             }
-
+            
             // boost the fitness up to some young age
             if (m_AgeGenerations < a_Parameters.YoungAgeTreshold)
             {
@@ -323,9 +327,16 @@ namespace NEAT
                     t_fitness *= 0.0000001;
                 }
             }
+            
+            unsigned int ms = m_Individuals.size();
+            ASSERT(ms > 0);
+            if (ms == 0)
+            {
+                ms = 1;
+            }
 
             // Compute the adjusted fitness for this member
-            m_Individuals[i].SetAdjFitness(t_fitness / m_Individuals.size());
+            m_Individuals[i].SetAdjFitness(t_fitness / (double)(ms));
         }
     }
 
@@ -352,14 +363,14 @@ namespace NEAT
     {
         Genome t_baby; // temp genome for reproduction
 
-        int t_offspring_count = Rounded(GetOffspringRqd());
-        int elite_offspring = Rounded(a_Parameters.EliteFraction * m_Individuals.size());
+        unsigned int t_offspring_count = Rounded(GetOffspringRqd());
+        unsigned int elite_offspring = 1;//Rounded(a_Parameters.EliteFraction * m_Individuals.size());
         if (elite_offspring < 1) // can't be 0
         {
             elite_offspring = 1;
         }
         // ensure we have a champ
-        int elite_count = 0;
+        unsigned int elite_count = 0;
         // no offspring?! yikes.. dead species!
         if (t_offspring_count == 0)
         {
@@ -384,7 +395,10 @@ namespace NEAT
             }
             else
             {
-                int t_constraint_trials = a_Parameters.ConstraintTrials; // to prevent infinite loops
+                unsigned int t_constraint_trials = a_Parameters.ConstraintTrials; // to prevent infinite loops
+                
+                //std::cout << "offspring count:" << t_offspring_count << "\n";
+                //std::cout << "making baby\n";
                 
                 do // - while the baby already exists somewhere in the new population or turned invalid in some way
                 {
@@ -393,6 +407,8 @@ namespace NEAT
 
                     // There must be individuals there..
                     ASSERT(NumIndividuals() > 0);
+    
+                    //std::cout << "trying to mate..";
 
                     // for a species of size 1 we can only mutate
                     // NOTE: but does it make sense since we know this is the champ?
@@ -462,12 +478,18 @@ namespace NEAT
                             t_mated = false;
                         }
                     }
+                    
+                    //std::cout << "mated:" << t_mated << "\n";
+                    
+                    //std::cout << "trying to mutate..";
 
                     // Mutate the baby
                     if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
                     {
                         MutateGenome(t_baby_exists_in_pop, a_Pop, t_baby, a_Parameters, a_RNG);
                     }
+    
+                    //std::cout << "mutated." << "\n";
 
                     // Check if this baby is already present somewhere in the offspring
                     // we don't want that
@@ -506,8 +528,13 @@ namespace NEAT
                             }
                         }
                     }
+                    
+                    //std::cout << "baby exists in pop:" << t_baby_exists_in_pop << "\n";
                 }
                 while ((t_baby_exists_in_pop || (t_baby.FailsConstraints(a_Parameters))) && (t_constraint_trials--)); // end do
+                
+                //std::cout << "done after " << a_Parameters.ConstraintTrials - t_constraint_trials << "\n";
+                //std::cout << "fails constraints:" << t_baby.FailsConstraints(a_Parameters) << "\n\n";
             }
 
             // We have a new offspring now
@@ -607,15 +634,24 @@ namespace NEAT
         {
             if (m_Individuals[i].m_Evaluated)
             {
-                t_total_fitness += m_Individuals[i].GetFitness();
+                double tf = m_Individuals[i].GetFitness();
+                if (std::isinf(tf) || std::isnan(tf)) // nan/inf guard
+                {
+                    tf = 0.0;
+                }
+                t_total_fitness += tf;
                 t_num_individuals++;
             }
         }
 
         if (t_num_individuals > 0)
+        {
             m_AverageFitness = t_total_fitness / static_cast<double>(t_num_individuals);
+        }
         else
+        {
             m_AverageFitness = 0;
+        }
     }
 
 

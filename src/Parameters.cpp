@@ -423,7 +423,7 @@ namespace NEAT
         CompatTreshChangeInterval_Evaluations = 1;
         
         // Minimal distance for two individuals to be considered different (as in clones or not)
-        MinDeltaCompatEqualGenomes = 0.0001;
+        MinDeltaCompatEqualGenomes = 0.0000001;
 
 
 

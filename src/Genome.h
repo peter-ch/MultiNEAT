@@ -716,6 +716,7 @@ namespace NEAT
             ar & m_ID;
             ar & m_NeuronGenes;
             ar & m_LinkGenes;
+            //ar & m_GenomeGene;
             ar & m_NumInputs;
             ar & m_NumOutputs;
             ar & m_Fitness;
@@ -723,11 +724,14 @@ namespace NEAT
             ar & m_Depth;
             ar & m_OffspringAmount;
             ar & m_Evaluated;
+    
+            ar & m_initial_num_neurons;
+            ar & m_initial_num_links;
+            
             //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
         }
 
 #endif
-        
     };
 
 

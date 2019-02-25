@@ -334,8 +334,8 @@ void Population::CountOffspring()
     ASSERT(m_Genomes.size() > 0);
     ASSERT(m_Genomes.size() == m_Parameters.PopulationSize);
 
-    double t_total_adjusted_fitness = 0;
-    double t_average_adjusted_fitness = 0;
+    double t_total_adjusted_fitness = 0.0;
+    double t_average_adjusted_fitness = 0.0;
     Genome t_t;
 
     // get the total adjusted fitness for all individuals
@@ -344,13 +344,17 @@ void Population::CountOffspring()
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
             t_total_adjusted_fitness += m_Species[i].m_Individuals[j].GetAdjFitness();
+            
+            //std::cout << m_Species[i].m_Individuals[j].GetFitness() << " " << m_Species[i].m_Individuals[j].GetAdjFitness() << "\n";
         }
     }
 
     // must be above 0
-    ASSERT(t_total_adjusted_fitness > 0);
+    ASSERT(t_total_adjusted_fitness > 0.0);
 
     t_average_adjusted_fitness = t_total_adjusted_fitness / static_cast<double>(m_Parameters.PopulationSize);
+    
+    //std::cout << t_average_adjusted_fitness << "\n";
 
     // Calculate how much offspring each individual should have
     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -460,23 +464,34 @@ void Population::Epoch()
             m_Species[i].m_Individuals[j].SetEvaluated();
         }
     }
+    
+    //std::cout << "reached place 1\n";
 
     // Sort each species's members by fitness and the species by fitness
     Sort();
-
+    
+    //std::cout << "reached place 2\n";
+    
     // Update species stagnation info & stuff
     UpdateSpecies();
-
+    
+    //std::cout << "reached place 3\n";
+    
     ///////////////////
     // Preparation
     ///////////////////
 
     // Adjust the species's fitness
     AdjustFitness();
-
+    
+    //std::cout << "reached place 4\n";
+    
     // Count the offspring of each individual and species
     CountOffspring();
-
+    
+    //std::cout << "reached place 5\n";
+    
+    
     // Incrementing the global stagnation counter, we can check later for global stagnation
     m_GensSinceBestFitnessLastChanged++;
     // Find and save the best genome and fitness
@@ -504,7 +519,9 @@ void Population::Epoch()
             }
         }
     }
-
+    
+    //std::cout << "reached place 6\n";
+    
     // Find and save the current best genome
     double t_bestf = std::numeric_limits<double>::min();
     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -518,7 +535,9 @@ void Population::Epoch()
             }
         }
     }
-
+    
+    //std::cout << "reached place 7\n";
+    
     // adjust the compatibility threshold
     if (m_Parameters.DynamicCompatibility == true)
     {
@@ -536,12 +555,10 @@ void Population::Epoch()
 
         if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
     }
+    
+    //std::cout << "reached place 8\n";
 
     
-
-
-
-
     // A special case for global stagnation.
     // Delta coding - if there is a global stagnation
     // for dropoff age + 10 generations, focus the search on the top 2 species,
@@ -572,7 +589,7 @@ void Population::Epoch()
         }
     }
     
-
+    //std::cout << "reached place 9\n";
 
     //////////////////////////////////
     // Phased searching core logic
@@ -642,14 +659,9 @@ void Population::Epoch()
             }
         }
     }
-
-
-
-
-
-
-
-
+    
+    //std::cout << "reached place 10\n";
+    
     /////////////////////////////
     // Reproduction
     /////////////////////////////
@@ -673,8 +685,11 @@ void Population::Epoch()
         m_Species[i].Reproduce(*this, m_Species[i].m_Parameters, m_RNG);
     }
     m_Species = m_TempSpecies;
-
-
+    
+    
+//    std::cout << "reached place 11\n";
+    
+    
     // Now we kill off the old parents
     // Todo: this baby/adult scheme is complicated and basically sucks,
     // I should remove it completely.
@@ -695,7 +710,10 @@ void Population::Epoch()
     {
         m_Species[i].SetRepresentative( m_Species[i].m_Individuals[0] );
     }
-
+    
+//    std::cout << "reached place 12\n";
+    
+    
     // If the total amount of genomes reproduced is less than the population size,
     // due to some floating point rounding error,
     // we will add some bonus clones of the first species's leader to it
@@ -715,7 +733,10 @@ void Population::Epoch()
             m_Species[0].AddIndividual(t_tg);
         }
     }
-
+    
+//    std::cout << "reached place 13\n";
+    
+    
     // Increase generation number
     m_Generation++;
 
@@ -726,6 +747,9 @@ void Population::Epoch()
     {
         m_InnovationDatabase.Flush();
     }
+    
+//    std::cout << "reached place 14\n";
+    
 }
 
 
@@ -795,7 +819,7 @@ unsigned int Population::ChooseParentSpecies()
         t_total_fitness += m_Species[i].m_AverageFitness;
     }
 
-    int giveup = 100;
+    int giveup = 5000;
     do
     {
         t_marble = m_RNG.RandFloat() * t_total_fitness;
