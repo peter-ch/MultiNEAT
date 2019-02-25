@@ -297,23 +297,27 @@ namespace NEAT
                             if (a_RNG.RandFloat() < itp.mut_replace_prob)
                             {
                                 // replace
-                                int val = 0;
-                                int cur = bs::get<int>(m_Traits[it->first].value);
-                                val = a_RNG.RandInt(itp.min, itp.max);
+                                int val = bs::get<int>(m_Traits[it->first].value);
+                                int cur = val;
+                                while(cur==val)
+                                {
+                                    val = a_RNG.RandInt(itp.min, itp.max);
+                                }
                                 m_Traits[it->first].value = val;
-                                if (cur != val)
-                                    did_mutate = true;
+                                did_mutate = true;
                             }
                             else
                             {
                                 // modify
                                 int val = bs::get<int>(m_Traits[it->first].value);
                                 int cur = val;
-                                val += a_RNG.RandInt(-itp.mut_power, itp.mut_power);
-                                Clamp(val, itp.min, itp.max);
+                                while(cur==val)
+                                {
+                                    val += a_RNG.RandInt(-itp.mut_power, itp.mut_power);
+                                    Clamp(val, itp.min, itp.max);
+                                }
                                 m_Traits[it->first].value = val;
-                                if (cur != val)
-                                    did_mutate = true;
+                                did_mutate = true;
                             }
                         }
                     }
@@ -328,24 +332,28 @@ namespace NEAT
                             if (a_RNG.RandFloat() < itp.mut_replace_prob)
                             {
                                 // replace
-                                double val = 0;
-                                double cur = bs::get<double>(m_Traits[it->first].value);
-                                val = a_RNG.RandFloat();
-                                Scale(val, 0.0, 1.0, itp.min, itp.max);
+                                double val = bs::get<double>(m_Traits[it->first].value);
+                                double cur = val;
+                                while(cur==val)
+                                {
+                                    val = a_RNG.RandFloat();
+                                    Scale(val, 0.0, 1.0, itp.min, itp.max);
+                                }
                                 m_Traits[it->first].value = val;
-                                if (cur != val)
-                                    did_mutate = true;
+                                did_mutate = true;
                             }
                             else
                             {
                                 // modify
                                 double val = bs::get<double>(m_Traits[it->first].value);
                                 double cur = val;
-                                val += a_RNG.RandFloatSigned() * itp.mut_power;
-                                Clamp(val, itp.min, itp.max);
+                                while(cur==val)
+                                {
+                                    val += a_RNG.RandFloatSigned() * itp.mut_power;
+                                    Clamp(val, itp.min, itp.max);
+                                }
                                 m_Traits[it->first].value = val;
-                                if (cur != val)
-                                    did_mutate = true;
+                                did_mutate = true;
                             }
                         }
                     }
@@ -354,42 +362,48 @@ namespace NEAT
                         StringTraitParameters itp = bs::get<StringTraitParameters>(it->second.m_Details);
                         std::vector<double> probs = itp.probs;
                         probs.resize(itp.set.size());
-
-                        int idx = a_RNG.Roulette(probs);
                         std::string cur = bs::get<std::string>(m_Traits[it->first].value);
-
+                        int idx= a_RNG.Roulette(probs);
+                        
+                        while(cur==itp.set[idx])
+                        {
+                            idx = a_RNG.Roulette(probs);
+                        }
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
-                        if (cur != itp.set[idx])
-                            did_mutate = true;
+                        did_mutate = true;
                     }
                     if (it->second.type == "intset")
                     {
                         IntSetTraitParameters itp = bs::get<IntSetTraitParameters>(it->second.m_Details);
                         std::vector<double> probs = itp.probs;
                         probs.resize(itp.set.size());
-
-                        int idx = a_RNG.Roulette(probs);
                         intsetelement cur = bs::get<intsetelement>(m_Traits[it->first].value);
-
+                        int idx= a_RNG.Roulette(probs);
+                        
+                        while(cur.value == itp.set[idx].value)
+                        {
+                            idx = a_RNG.Roulette(probs);
+                        }
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
-                        if(cur.value != itp.set[idx].value)
-                            did_mutate = true;
+                        did_mutate = true;
                     }
                     if (it->second.type == "floatset")
                     {
                         FloatSetTraitParameters itp = bs::get<FloatSetTraitParameters>(it->second.m_Details);
                         std::vector<double> probs = itp.probs;
                         probs.resize(itp.set.size());
-
-                        int idx = a_RNG.Roulette(probs);
                         floatsetelement cur = bs::get<floatsetelement>(m_Traits[it->first].value);
-
+                        int idx= a_RNG.Roulette(probs);
+    
+                        while(cur.value == itp.set[idx].value)
+                        {
+                            idx = a_RNG.Roulette(probs);
+                        }
                         // now choose the new idx from the set
                         m_Traits[it->first].value = itp.set[idx];
-                        if(cur.value != itp.set[idx].value)
-                            did_mutate = true;
+                        did_mutate = true;
                     }
 #ifdef USE_BOOST_PYTHON
                     if (it->second.type == "pyobject")
