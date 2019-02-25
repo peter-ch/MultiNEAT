@@ -68,9 +68,9 @@ double xortest(Genome& g)
     if (boost::get<std::string>(g.m_GenomeGene.m_Traits["y"].value) == "c")
         f += 1 * (double)(boost::get<int>(g.m_GenomeGene.m_Traits["v"].value));
     else
-        f = 0.1;
+        f += 1 * (double)(boost::get<double>(g.m_GenomeGene.m_Traits["x"].value));
 
-    return f;
+    return f+1000;
 }
 
 
@@ -185,11 +185,11 @@ int main()
     itps.set.push_back("c");
     itps.set.push_back("d");
     itps.set.push_back("e");
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
+    itps.probs.push_back(0.02);
+    itps.probs.push_back(0.9);
+    itps.probs.push_back(0.1);
+    itps.probs.push_back(0.1);
+    itps.probs.push_back(0.8);
     tps.m_Details = itps;
 
     /*TraitParameters tp3;
@@ -273,6 +273,12 @@ int main()
         printf("Species: %d\n", pop.m_Species.size());
         //pop.Epoch();
     }
+    
+    for(int i=0; i<100; i++)
+    {
+        std::cout << pop.m_RNG.Roulette(itps.probs) << " ";
+    }
+    std::cout << "\n";
 
     return 0;
 }

@@ -137,7 +137,9 @@ namespace NEAT
         for (unsigned int i = 0; i < m_Individuals.size(); i++)
         {
             if (m_Individuals[i].IsEvaluated())
-                t_Evaluated.emplace_back(std::make_pair(i, m_Individuals[i].GetFitness()));
+            {
+                t_Evaluated.push_back(std::make_pair(i, m_Individuals[i].GetFitness()));
+            }
         }
 
         ASSERT(t_Evaluated.size() > 0);
@@ -161,6 +163,8 @@ namespace NEAT
         
         // then sort them here just to make sure
         std::sort(t_Evaluated.begin(), t_Evaluated.end(), idxfitnesspair_greater);
+        //for(int i=0; i<t_Evaluated.size(); i++) std::cout << t_Evaluated[i].second << " ";
+        //std::cout << "\n\n";
 
         // Here might be introduced better selection scheme, but this works OK for now
         if (!a_Parameters.RouletteWheelSelection)
@@ -169,7 +173,7 @@ namespace NEAT
 
             //int t_num_parents = static_cast<int>( floor(
             //        (a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size()))) + 1.0));
-            int t_num_parents = (int)(a_Parameters.SurvivalRate * (double)(t_Evaluated.size()));
+            int t_num_parents = (int)(a_Parameters.SurvivalRate * (double)(m_Individuals.size()));
     
             ASSERT(t_num_parents > 0);
             ASSERT(t_num_parents < t_Evaluated.size());
@@ -177,7 +181,12 @@ namespace NEAT
             {
                 t_num_parents = t_Evaluated.size() - 1;
             }
-            t_chosen_one = a_RNG.RandInt(0, t_num_parents);
+            if (t_num_parents < 1)
+            {
+                t_num_parents = 1;
+            }
+            
+            t_chosen_one = t_Evaluated[a_RNG.RandInt(0, t_num_parents)].first;
             
             /*for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
             {
@@ -202,19 +211,19 @@ namespace NEAT
     
             //ASSERT(t_num_parents > 0);
             //ASSERT(t_num_parents < t_Evaluated.size());
-            if (t_num_parents > t_Evaluated.size())
-            {
-                t_num_parents = t_Evaluated.size();
-            }
+            //if (t_num_parents > t_Evaluated.size())
+            //{
+            ///    t_num_parents = t_Evaluated.size();
+            //}
             std::vector<double> t_probs;
             for (unsigned int i = 0; i < t_num_parents; i++)
             {
-                t_probs.emplace_back(t_Evaluated[i].second);
+                t_probs.push_back(t_Evaluated[i].second);
             }
-            t_chosen_one = a_RNG.Roulette(t_probs);
+            t_chosen_one = t_Evaluated[a_RNG.Roulette(t_probs)].first;
         }
 
-        return (m_Individuals[t_Evaluated[t_chosen_one].first]);
+        return (m_Individuals[t_chosen_one]);
     }
 
 
@@ -391,6 +400,9 @@ namespace NEAT
         bool t_baby_exists_in_pop = false;
         while (t_offspring_count--)
         {
+            // clear baby just in case
+            t_baby = Genome();
+            
             // Select the elite first..
 
             if (elite_count < elite_offspring)
@@ -664,8 +676,6 @@ namespace NEAT
 
     Genome Species::ReproduceOne(Population &a_Pop, Parameters &a_Parameters, RNG &a_RNG)
     {
-        Genome t_baby = GetRandomIndividual(a_RNG); // for storing the result
-
         //////////////////////////
         // Reproduction
         bool t_baby_exists_in_pop = false;
@@ -673,8 +683,12 @@ namespace NEAT
         int t_constraint_trials = a_Parameters.ConstraintTrials;
 
         // Spawn only one baby
+        Genome t_baby;// = GetRandomIndividual(a_RNG); // for storing the result
+    
         do // - while the baby turned invalid in some way
         {
+            t_baby = Genome(); // clear baby
+    
             // this tells us if the baby is a result of mating
             bool t_mated = false;
         
@@ -836,7 +850,7 @@ namespace NEAT
     void
     Species::MutateGenome(bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters &a_Parameters, RNG &a_RNG)
     {
-#if 1
+#if 0
         if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && (a_Pop.GetSearchMode() != SIMPLIFYING))
         {
             t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
@@ -881,7 +895,7 @@ namespace NEAT
 
             t_baby = t_saved_baby;
         }
-        //else
+        else
         {
             if (a_RNG.RandFloat() < a_Parameters.MutateNeuronActivationTypeProb)
                 t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);

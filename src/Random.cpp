@@ -163,6 +163,7 @@ int RNG::Roulette(std::vector<double>& a_probs)
     boost::random::discrete_distribution<> d_dist(a_probs);
     return d_dist(gen);
 #else
+
     double t_marble = 0, t_spin = 0, t_total_score = 0;
     for(unsigned int i=0; i<a_probs.size(); i++)
     {

@@ -101,7 +101,7 @@ namespace NEAT
         YoungAgeFitnessBoost = 1.1;
 
         // Number of generations without improvement (stagnation) allowed for a species
-        SpeciesMaxStagnation = 50;
+        SpeciesMaxStagnation = 5000;
 
         // Minimum jump in fitness necessary to be considered as improvement.
         // Setting this value to 0.0 makes the system to behave like regular NEAT.
@@ -134,7 +134,7 @@ namespace NEAT
         OverallMutationRate = 0.25;
 
         // Probability for a baby to result from inter-species mating.
-        InterspeciesCrossoverRate = 0.0001;
+        InterspeciesCrossoverRate = 0.0;
 
         // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
         // The default is the Average mating.
@@ -147,7 +147,7 @@ namespace NEAT
         TournamentSize = 4;
 
         // Fraction of individuals to be copied unchanged
-        EliteFraction = 0.01;
+        EliteFraction = 0.000001;
     
         // How many times to test a genome for constraint failure or being a clone (when AllowClones=False)
         ConstraintTrials = 2000000;
@@ -222,10 +222,10 @@ namespace NEAT
         MutateAddNeuronProb = 0.01;
 
         // Allow splitting of any recurrent links
-        SplitRecurrent = true;
+        SplitRecurrent = false;
 
         // Allow splitting of looped recurrent links
-        SplitLoopedRecurrent = true;
+        SplitLoopedRecurrent = false;
 
         // Probability for a baby to be mutated with the Add-Link mutation
         MutateAddLinkProb = 0.03;
@@ -241,7 +241,7 @@ namespace NEAT
         MutateRemSimpleNeuronProb = 0.0;
 
         // Maximum number of tries to find 2 neurons to add/remove a link
-        LinkTries = 32;
+        LinkTries = 64;
 
         // Probability that a link mutation will be made recurrent
         RecurrentProb = 0.25;

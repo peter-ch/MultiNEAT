@@ -160,6 +160,17 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     CalculateMPC();
     m_BaseMPC = m_CurrentMPC;
     m_OldMPC = m_BaseMPC;
+    
+    // Reset IDs to be sure
+    int cid=0;
+    for(int i=0; i<m_Species.size(); i++)
+    {
+        for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+        {
+            m_Species[i].m_Individuals[j].SetID(cid);
+            cid++;
+        }
+    }
 
     m_InnovationDatabase.m_Innovations.reserve(50000);
 }
@@ -791,13 +802,23 @@ unsigned int Population::ChooseParentSpecies()
 {
     ASSERT(m_Species.size() > 0);
 
-    unsigned int t_curspecies = 0;
-    std::vector<double> probs;
-    for(int i=0; i<m_Species.size(); i++)
+    if (m_Species.size() == 1)
     {
-        probs.push_back(m_Species[i].m_AverageFitness);
+        return 0;
     }
-    t_curspecies = m_RNG.Roulette(probs);
+    
+    int giveup = 16;
+    unsigned int t_curspecies = 0;
+    do
+    {
+        std::vector<double> probs;
+        for(int i=0; i<m_Species.size(); i++)
+        {
+            probs.push_back(m_Species[i].m_AverageFitness);
+        }
+        t_curspecies = m_RNG.Roulette(probs);
+    }
+    while((m_Species[t_curspecies].m_AverageFitness == 0) && (giveup--));
     
     /*double t_total_fitness = 0;
     double t_marble=0, t_spin=0; // roulette wheel variables
@@ -962,21 +983,24 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
-            if (m_Species[i].m_Individuals[j].GetFitness() <= 0.0)
-            {
-                m_Species[i].m_Individuals[j].SetFitness(0.00001);
-            }
+            //if (m_Species[i].m_Individuals[j].GetFitness() <= 0.0)
+            //{
+            //    m_Species[i].m_Individuals[j].SetFitness(0.00001);
+            //}
 
-            const double  t_Fitness = m_Species[i].m_Individuals[j].GetFitness();
-            if (t_Fitness > m_BestFitnessEver)
+            double t_fitness = m_Species[i].m_Individuals[j].GetFitness();
+            if (std::isnan(t_fitness) || std::isinf(t_fitness))
+                t_fitness = 0;
+            
+            if (t_fitness > m_BestFitnessEver)
             {
                 // Reset the stagnation counter only if the fitness jump is greater or equal to the delta.
-                if (fabs(t_Fitness - m_BestFitnessEver) >= m_Parameters.StagnationDelta)
+                if (fabs(t_fitness - m_BestFitnessEver) >= m_Parameters.StagnationDelta)
                 {
                     m_EvalsSinceBestFitnessLastChanged = 0;
                 }
 
-                m_BestFitnessEver = t_Fitness;
+                m_BestFitnessEver = t_fitness;
                 m_BestGenomeEver = m_Species[i].m_Individuals[j];
             }
         }

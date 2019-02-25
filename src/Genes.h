@@ -331,7 +331,7 @@ namespace NEAT
                                 double val = 0;
                                 double cur = bs::get<double>(m_Traits[it->first].value);
                                 val = a_RNG.RandFloat();
-                                Scale(val, 0, 1, itp.min, itp.max);
+                                Scale(val, 0.0, 1.0, itp.min, itp.max);
                                 m_Traits[it->first].value = val;
                                 if (cur != val)
                                     did_mutate = true;

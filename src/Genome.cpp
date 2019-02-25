@@ -1535,6 +1535,19 @@ namespace NEAT
         // No links to split - go away..
         if (NumLinks() == 0)
             return false;
+        
+        // Also we need at least one neuron with 2 incoming links before we split any
+        /*bool good=false;
+        for (int i=NumInputs(); i<m_NeuronGenes.size(); i++)
+        {
+            if (LinksOutputtingTo(m_NeuronGenes[i].ID()) > 1)
+            {
+                good = true;
+                break;
+            }
+        }
+        if (!good)
+            return false;*/
 
         // First find a link that to be split
         ////////////////////
@@ -1546,7 +1559,7 @@ namespace NEAT
         LinkGene t_chosenlink(0, 0, -1, 0, false); // to save it for later
 
         // number of tries to find a good link or give up
-        int t_tries = 64;
+        int t_tries = 256;
         while (!t_link_found)
         {
             if (NumLinks() == 1)

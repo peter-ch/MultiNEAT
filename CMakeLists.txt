@@ -23,7 +23,7 @@ endif()
 include_directories(${PYTHON_INCLUDE_DIRS})
 
 add_definitions(-DUSE_BOOST_PYTHON)
-add_definitions(-DUSE_BOOST_RANDOM)
+#add_definitions(-DUSE_BOOST_RANDOM)
 
 add_executable(MultiNEAT ${PROJECT_SOURCE_DIR}/src/Assert.h
                          ${PROJECT_SOURCE_DIR}/src/Genes.h
