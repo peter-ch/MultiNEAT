@@ -739,13 +739,14 @@ namespace NEAT
         friend bool operator==(const NeuronGene &a_lhs, const NeuronGene &a_rhs)
         {
             return (a_lhs.m_ID == a_rhs.m_ID) &&
-                    (a_lhs.m_Type == a_rhs.m_Type) &&
-                    (a_lhs.m_SplitY == a_rhs.m_SplitY) &&
-                    (a_lhs.m_A == a_rhs.m_A) &&
-                    (a_lhs.m_B == a_rhs.m_B) &&
-                    (a_lhs.m_TimeConstant == a_rhs.m_TimeConstant) &&
-                    (a_lhs.m_Bias == a_rhs.m_Bias) &&
-                    (a_lhs.m_ActFunction == a_rhs.m_ActFunction);
+                    (a_lhs.m_Type == a_rhs.m_Type)
+                    //(a_lhs.m_SplitY == a_rhs.m_SplitY) &&
+                    //(a_lhs.m_A == a_rhs.m_A) &&
+                    //(a_lhs.m_B == a_rhs.m_B) &&
+                    //(a_lhs.m_TimeConstant == a_rhs.m_TimeConstant) &&
+                    //(a_lhs.m_Bias == a_rhs.m_Bias) &&
+                    //(a_lhs.m_ActFunction == a_rhs.m_ActFunction)
+                    ;
         }
 
         NeuronGene(NeuronType a_type, int a_id, double a_splity)
@@ -768,20 +769,24 @@ namespace NEAT
         // assigment operator
         NeuronGene &operator=(const NeuronGene &a_g)
         {
-            if (this != &a_g)
+            if (this->m_ID != a_g.m_ID)
             {
                 m_ID = a_g.m_ID;
                 m_Type = a_g.m_Type;
                 m_SplitY = a_g.m_SplitY;
-                x = a_g.x;
-                y = a_g.y;
-                m_A = a_g.m_A;
-                m_B = a_g.m_B;
-                m_TimeConstant = a_g.m_TimeConstant;
-                m_Bias = a_g.m_Bias;
-                m_ActFunction = a_g.m_ActFunction;
-
-                m_Traits = a_g.m_Traits;
+                
+                // inputs don't need that
+                if ((m_Type != NeuronType::INPUT) && (m_Type != NeuronType::BIAS))
+                {
+                    x = a_g.x;
+                    y = a_g.y;
+                    m_A = a_g.m_A;
+                    m_B = a_g.m_B;
+                    m_TimeConstant = a_g.m_TimeConstant;
+                    m_Bias = a_g.m_Bias;
+                    m_ActFunction = a_g.m_ActFunction;
+                    m_Traits = a_g.m_Traits;
+                }
             }
 
             return *this;

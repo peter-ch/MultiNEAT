@@ -35,12 +35,12 @@ double abs(double x)
 
 bool constraints(Genome& g)
 {
-    for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
+    /*for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
     {
         
         if (boost::get<intsetelement>(it->m_Traits["z"].value).value == 64) // don't allow 4 to appear anywhere
             return true;
-    }
+    }*/
     
     return false;
 }
@@ -208,7 +208,7 @@ int main()
     params.GenomeTraits["y"] = tps;
     params.NeuronTraits["z"] = tp3;
 
-    Genome s(0, 1,
+    Genome s(0, 50,
              1,
              1,
              false,
@@ -230,7 +230,7 @@ int main()
         }
     }
 
-    for(int k=0; k<5; k++)
+    for(int k=0; k<25; k++)
     {
         double bestf = -999999;
         Genome gx;

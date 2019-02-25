@@ -469,17 +469,11 @@ void Population::Epoch()
         }
     }
     
-    //std::cout << "reached place 1\n";
-
     // Sort each species's members by fitness and the species by fitness
     Sort();
     
-    //std::cout << "reached place 2\n";
-    
     // Update species stagnation info & stuff
     UpdateSpecies();
-    
-    //std::cout << "reached place 3\n";
     
     ///////////////////
     // Preparation
@@ -488,13 +482,8 @@ void Population::Epoch()
     // Adjust the species's fitness
     AdjustFitness();
     
-    //std::cout << "reached place 4\n";
-    
     // Count the offspring of each individual and species
     CountOffspring();
-    
-    //std::cout << "reached place 5\n";
-    
     
     // Incrementing the global stagnation counter, we can check later for global stagnation
     m_GensSinceBestFitnessLastChanged++;
@@ -524,8 +513,6 @@ void Population::Epoch()
         }
     }
     
-    //std::cout << "reached place 6\n";
-    
     // Find and save the current best genome
     double t_bestf = std::numeric_limits<double>::min();
     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -539,8 +526,6 @@ void Population::Epoch()
             }
         }
     }
-    
-    //std::cout << "reached place 7\n";
     
     // adjust the compatibility threshold
     if (m_Parameters.DynamicCompatibility == true)
@@ -559,9 +544,6 @@ void Population::Epoch()
 
         if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
     }
-    
-    //std::cout << "reached place 8\n";
-
     
     // A special case for global stagnation.
     // Delta coding - if there is a global stagnation
@@ -593,8 +575,6 @@ void Population::Epoch()
         }
     }
     
-    //std::cout << "reached place 9\n";
-
     //////////////////////////////////
     // Phased searching core logic
     //////////////////////////////////
@@ -663,8 +643,6 @@ void Population::Epoch()
             }
         }
     }
-    
-    //std::cout << "reached place 10\n";
     
     /////////////////////////////
     // Reproduction
@@ -1049,6 +1027,80 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         // After reassigning, some empty species may be left, so delete them
         ClearEmptySpecies();
     }*/
+    
+    // Faster reassign
+    if (t_changed)
+    {
+        // Perform reproduction for each species
+        m_TempSpecies.clear();
+        m_TempSpecies = m_Species;
+        for(unsigned int i=0; i<m_TempSpecies.size(); i++)
+        {
+            m_TempSpecies[i].Clear();
+        }
+        
+        std::vector<Genome*> allgenomes;
+        for(int i=0; i<m_Species.size();i++)
+        {
+            for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
+            {
+                allgenomes.push_back(&m_Species[i].m_Individuals[j]);
+            }
+        }
+        
+        for(int i=0; i<allgenomes.size(); i++)
+        {
+            // Add the baby to its proper species
+            bool t_found = false;
+            auto t_cur_species = m_TempSpecies.begin();
+            Genome& baby = *(allgenomes[i]);
+    
+            // No species yet?
+            if (t_cur_species == m_TempSpecies.end())
+            {
+                // create the first species and place the baby there
+                m_TempSpecies.push_back( Species(baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
+                IncrementNextSpeciesID();
+            }
+            else
+            {
+                // try to find a compatible species
+                Genome& t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
+        
+                t_found = false;
+                while((t_cur_species != m_TempSpecies.end()) && (!t_found))
+                {
+                    if (baby.IsCompatibleWith( t_to_compare, m_Parameters ))
+                    {
+                        // found a compatible species
+                        t_cur_species->AddIndividual(baby);
+                        t_found = true; // the search is over
+                    }
+                    else
+                    {
+                        // keep searching for a matching species
+                        t_cur_species++;
+                        if (t_cur_species != m_TempSpecies.end())
+                        {
+                            t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
+                        }
+                    }
+                }
+        
+                // if couldn't find a match, make a new species
+                if (!t_found)
+                {
+                    m_TempSpecies.push_back( Species(baby, m_Parameters, GetNextSpeciesID()) ); // clone the pop's parameters when creating species
+                    IncrementNextSpeciesID();
+                }
+            }
+        }
+        
+        m_Species = m_TempSpecies;
+        
+        // After reassigning, some empty species may be left, so delete them
+        ClearEmptySpecies();
+    }
 
     // Sort individuals within species by fitness
     Sort();
