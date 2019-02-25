@@ -791,7 +791,7 @@ namespace NEAT
                 m_Traits = a_g.m_Traits;
                 
                 // maybe inputs don't need that
-                if ((m_Type != NeuronType::INPUT) && (m_Type != NeuronType::BIAS))
+                //if ((m_Type != NeuronType::INPUT) && (m_Type != NeuronType::BIAS))
                 {
                     x = a_g.x;
                     y = a_g.y;
