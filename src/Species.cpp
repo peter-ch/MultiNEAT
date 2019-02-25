@@ -484,9 +484,10 @@ namespace NEAT
                     //std::cout << "trying to mutate..";
 
                     // Mutate the baby
+                    bool dummy=false;
                     if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
                     {
-                        MutateGenome(t_baby_exists_in_pop, a_Pop, t_baby, a_Parameters, a_RNG);
+                        MutateGenome(dummy, a_Pop, t_baby, a_Parameters, a_RNG);
                     }
     
                     //std::cout << "mutated." << "\n";
@@ -744,9 +745,10 @@ namespace NEAT
             
             // Mutate the baby
             t_baby_is_clone = false;
+            bool dummy=false;
             if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
             {
-                MutateGenome(t_baby_is_clone, a_Pop, t_baby, a_Parameters, a_RNG);
+                MutateGenome(dummy, a_Pop, t_baby, a_Parameters, a_RNG);
             }
 
             // Check if this baby is already present somewhere in the offspring
@@ -772,7 +774,7 @@ namespace NEAT
             }
 
             // In case we want to enforce always new individuals
-            if (a_Parameters.ArchiveEnforcement)
+            if (a_Parameters.ArchiveEnforcement && (!t_baby_exists_in_pop))
             {
                 for (unsigned int i = 0; i < a_Pop.m_GenomeArchive.size(); i++)
                 {
@@ -873,7 +875,7 @@ namespace NEAT
 
             t_baby = t_saved_baby;
         }
-        else
+        //else
         {
             if (a_RNG.RandFloat() < a_Parameters.MutateNeuronActivationTypeProb)
                 t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);

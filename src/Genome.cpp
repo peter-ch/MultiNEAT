@@ -458,7 +458,7 @@ namespace NEAT
                 
                 // do this a few times for more initial links created
                 // TODO: make sure the innovations don't repeat for the same input/output pairs
-                for(unsigned int nl=0; nl<3; nl++)
+                for(unsigned int nl=0; nl<6; nl++)
                 {
                     for (unsigned int i = 0; i < a_NumOutputs; i++)
                     {

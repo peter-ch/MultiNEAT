@@ -376,7 +376,7 @@ void Population::CountOffspring()
 // This little tool function helps ordering the genomes by fitness
 bool species_greater(Species ls, Species rs)
 {
-    return ((ls.GetActualBestFitness()) > (rs.GetActualBestFitness()));
+    return ((ls.GetBestFitness()) > (rs.GetBestFitness()));
 }
 void Population::Sort()
 {
@@ -391,6 +391,10 @@ void Population::Sort()
 
     // Now sort the species by fitness (best first)
     std::sort(m_Species.begin(), m_Species.end(), species_greater);
+    
+    //for(int i=0;i<m_Species.size();i++)
+    //std::cout << m_Species[i].GetBestFitness() << "\n";
+    //std::cout << "\n\n";
 }
 
 
@@ -1144,23 +1148,31 @@ void Population::ClearEmptySpecies()
     int t_abs_counter = 0;
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
+        double adjinv = 1.0 / static_cast<double>(m_Species[i].m_Individuals.size());
         for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
-            double t_adjusted_fitness = m_Species[i].m_Individuals[j].GetFitness() / static_cast<double>(m_Species[i].m_Individuals.size());
+            double t_adjusted_fitness = m_Species[i].m_Individuals[j].GetFitness() * adjinv;
+            if (std::isnan(t_adjusted_fitness) || std::isinf(t_adjusted_fitness))
+            {
+                t_adjusted_fitness = 0;
+            }
 
-            // only only evaluated individuals can be removed
+            // only evaluated individuals can be removed
             if ((t_adjusted_fitness < t_worst_fitness) && (m_Species[i].m_Individuals[j].IsEvaluated()))
             {
                 t_worst_fitness = t_adjusted_fitness;
                 t_worst_idx = j;
                 t_worst_species_idx = i;
                 //t_worst_absolute_idx = t_abs_counter;
-                t_genome = m_Species[i].m_Individuals[j];
+                
+                //t_genome = m_Species[i].m_Individuals[j];
             }
 
             t_abs_counter++;
         }
     }
+    
+    t_genome = m_Species[t_worst_species_idx].m_Individuals[t_worst_idx];
 
     // The individual is now removed
     m_Species[t_worst_species_idx].RemoveIndividual(t_worst_idx);
