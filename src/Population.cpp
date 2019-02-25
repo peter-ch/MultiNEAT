@@ -154,7 +154,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
 
     m_BestGenome = m_Species[0].GetLeader();
 
-    Sort();
+    //Sort();
 
     // Set up the rest of the phased search variables
     CalculateMPC();
@@ -209,7 +209,7 @@ Population::Population(const std::string a_sFileName)
     Speciate();
     m_BestGenome = m_Species[0].GetLeader();
 
-    Sort();
+    //Sort();
 
     // Set up the phased search variables
     CalculateMPC();
@@ -470,7 +470,7 @@ void Population::Epoch()
     }
     
     // Sort each species's members by fitness and the species by fitness
-    Sort();
+    //Sort();
     
     // Update species stagnation info & stuff
     UpdateSpecies();
@@ -508,7 +508,7 @@ void Population::Epoch()
                 }
 
                 m_BestFitnessEver = t_Fitness;
-                m_BestGenomeEver  = m_Species[i].m_Individuals[j];
+                m_BestGenomeEver = m_Species[i].m_Individuals[j];
             }
         }
     }
@@ -791,9 +791,16 @@ unsigned int Population::ChooseParentSpecies()
 {
     ASSERT(m_Species.size() > 0);
 
-    double t_total_fitness = 0;
-    double t_marble=0, t_spin=0; // roulette wheel variables
     unsigned int t_curspecies = 0;
+    std::vector<double> probs;
+    for(int i=0; i<m_Species.size(); i++)
+    {
+        probs.push_back(m_Species[i].m_AverageFitness);
+    }
+    t_curspecies = m_RNG.Roulette(probs);
+    
+    /*double t_total_fitness = 0;
+    double t_marble=0, t_spin=0; // roulette wheel variables
 
     // sum the average estimated fitness for the roulette
     for(unsigned int i=0; i<m_Species.size(); i++)
@@ -813,7 +820,7 @@ unsigned int Population::ChooseParentSpecies()
             t_spin += m_Species[t_curspecies].m_AverageFitness;
         }
     }
-    while((m_Species[t_curspecies].m_AverageFitness == 0) && (giveup--)); // prevent species with no evaluated members to be chosen
+    while((m_Species[t_curspecies].m_AverageFitness == 0) && (giveup--));*/ // prevent species with no evaluated members to be chosen
 
     return t_curspecies;
 }
@@ -1103,7 +1110,7 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     }
 
     // Sort individuals within species by fitness
-    Sort();
+    //Sort();
 
     // Remove the worst individual
     a_deleted_genome = RemoveWorstIndividual();

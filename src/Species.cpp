@@ -395,7 +395,8 @@ namespace NEAT
 
             if (elite_count < elite_offspring)
             {
-                t_baby = m_Individuals[elite_count];
+                //t_baby = m_Individuals[elite_count];
+                t_baby = GetLeader();//m_Individuals[elite_count];
                 elite_count++;
             }
             else
