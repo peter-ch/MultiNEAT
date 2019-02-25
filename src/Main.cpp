@@ -216,7 +216,7 @@ int main()
              UNSIGNED_SIGMOID,
              1,
              params,
-             2);
+             2, 0);
 
     Population pop(s, params, true, 1.0, time(0));
     

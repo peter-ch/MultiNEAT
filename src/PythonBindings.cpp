@@ -252,8 +252,10 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def(init<char*>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
                     ActivationFunction, ActivationFunction, Parameters>())
+            //.def(init<unsigned int, unsigned int, unsigned int, unsigned int,
+            //        bool, ActivationFunction, ActivationFunction, int, Parameters, unsigned int>())
             .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
-                    bool, ActivationFunction, ActivationFunction, int, Parameters, unsigned int>())
+                    bool, ActivationFunction, ActivationFunction, int, Parameters, unsigned int, unsigned int>())
 
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)

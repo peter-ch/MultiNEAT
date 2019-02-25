@@ -198,7 +198,8 @@ namespace NEAT
                ActivationFunction a_HiddenActType,
                unsigned int a_SeedType,
                const Parameters &a_Parameters,
-               unsigned int a_NumLayers);
+               unsigned int a_NumLayers,
+               unsigned int a_FS_NEAT_links);
         
         /////////////
         // Other possible constructors for different types of networks go here
@@ -279,9 +280,12 @@ namespace NEAT
                 return true; // no reason to continue
             }
             
-            if ((HasLoops() && (a_Parameters.AllowLoops == false)))
+            if ((a_Parameters.AllowLoops == false))
             {
-                return true;
+                if (HasLoops())
+                {
+                    return true;
+                }
             }
             
             // Custom constraints

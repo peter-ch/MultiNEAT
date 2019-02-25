@@ -246,13 +246,15 @@ namespace NEAT
 
     Genome::Genome(unsigned int a_ID,
                    unsigned int a_NumInputs,
-                   unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
+                   unsigned int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
                    unsigned int a_NumOutputs,
                    bool a_FS_NEAT, ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
                    unsigned int a_SeedType,
                    const Parameters &a_Parameters,
-                   unsigned int a_NumLayers = 1) // number of hidden layers. Each will have a_NumHidden nodes
+                   unsigned int a_NumLayers,
+                   unsigned int a_FS_NEAT_links
+                   )
     {
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
         RNG t_RNG;
@@ -458,7 +460,7 @@ namespace NEAT
                 
                 // do this a few times for more initial links created
                 // TODO: make sure the innovations don't repeat for the same input/output pairs
-                for(unsigned int nl=0; nl<6; nl++)
+                for(unsigned int nl=0; nl<a_FS_NEAT_links; nl++)
                 {
                     for (unsigned int i = 0; i < a_NumOutputs; i++)
                     {
