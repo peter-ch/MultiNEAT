@@ -1626,7 +1626,9 @@ namespace NEAT
 
                 // Do not allow splitting a link coming from a bias
                 if (m_NeuronGenes[GetNeuronIndex(t_in)].Type() == BIAS)
+                {
                     t_link_found = false;
+                }
             }
 
             // Do not allow splitting of recurrent links
@@ -1692,8 +1694,10 @@ namespace NEAT
             // Create the neuron gene
             NeuronGene t_ngene(HIDDEN, t_nid, t_sy);
 
-            double t_A = a_RNG.RandFloat(), t_B = a_RNG.RandFloat(), t_TC = a_RNG.RandFloat(), t_Bs =
-                    a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+            double t_A = a_RNG.RandFloat();
+            double t_B = a_RNG.RandFloat();
+            double t_TC = a_RNG.RandFloat();
+            double t_Bs = a_RNG.RandFloatSigned() * a_Parameters.MaxNeuronBias;
             Scale(t_A, 0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Scale(t_B, 0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
@@ -1712,15 +1716,15 @@ namespace NEAT
                          GetRandomActivation(a_Parameters, a_RNG));
 
             // Initialize the traits
-            if (a_RNG.RandFloat() < 0.5)
-            {
-                t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
-            }
-            else
-            {   // mate instead of randomizing
-                t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
-                t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
-            }
+            //if (a_RNG.RandFloat() < 0.5)
+            //{
+            t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            //}
+            //else
+            //{   // mate instead of randomizing
+            //    t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
+            //    t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
+            //}
 
             // Add the NeuronGene
             m_NeuronGenes.emplace_back(t_ngene);
@@ -1802,8 +1806,10 @@ namespace NEAT
             // Create the neuron gene
             NeuronGene t_ngene(HIDDEN, t_nid, t_sy);
 
-            double t_A = a_RNG.RandFloat(), t_B = a_RNG.RandFloat(), t_TC = a_RNG.RandFloat(), t_Bs =
-                    a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+            double t_A = a_RNG.RandFloat();
+            double t_B = a_RNG.RandFloat();
+            double t_TC = a_RNG.RandFloat();
+            double t_Bs = a_RNG.RandFloatSigned() * a_Parameters.MaxNeuronBias;
             Scale(t_A, 0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Scale(t_B, 0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
@@ -1822,15 +1828,15 @@ namespace NEAT
                          GetRandomActivation(a_Parameters, a_RNG));
 
             // Initialize the traits
-            if (a_RNG.RandFloat() < 0.5)
-            {
-                t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
-            }// mate instead of randomizing
-            else
-            {
-                t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
-                t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
-            }
+            //if (a_RNG.RandFloat() < 0.5)
+            //{
+            t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            //}// mate instead of randomizing
+            //else
+            //{
+            //    t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
+            //    t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
+            //}
 
             // Make sure the recurrent flag is kept
             bool t_recurrentflag = t_chosenlink.IsRecurrent();
@@ -1964,8 +1970,8 @@ namespace NEAT
                     }
                 }
                 while (
-                        (m_NeuronGenes[t_n1idx].SplitY() > m_NeuronGenes[t_n2idx].SplitY()) // backward?
-                        ||
+                        //(m_NeuronGenes[t_n1idx].SplitY() > m_NeuronGenes[t_n2idx].SplitY()) // backward?
+                        //||
                         (HasLink(m_NeuronGenes[t_n1idx].ID(), m_NeuronGenes[t_n2idx].ID())) // already present?
                         ||
                         (m_NeuronGenes[t_n1idx].Type() == OUTPUT) // consider connections out of outputs recurrent
@@ -1996,8 +2002,8 @@ namespace NEAT
             }
                 // NOTE: this considers output-output connections as forward. Should be fixed.
             while (
-                    (m_NeuronGenes[t_n1idx].SplitY() <= m_NeuronGenes[t_n2idx].SplitY()) // forward?
-                    ||
+                    //(m_NeuronGenes[t_n1idx].SplitY() <= m_NeuronGenes[t_n2idx].SplitY()) // forward?
+                    //||
                     (HasLink(m_NeuronGenes[t_n1idx].ID(), m_NeuronGenes[t_n2idx].ID())) // already present?
                     ||
                     (t_n1idx == t_n2idx) // they should differ
@@ -2050,7 +2056,7 @@ namespace NEAT
         int t_innovid = a_Innovs.CheckInnovation(t_n1id, t_n2id, NEW_LINK);
 
         // Choose the weight for this link
-        double t_weight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+        double t_weight = a_RNG.RandFloatSigned() * a_Parameters.MaxWeight;
 
         // A novel innovation?
         if (t_innovid == -1)
@@ -2631,10 +2637,7 @@ namespace NEAT
             // don't mutate inputs and bias
             if ((it->Type() != INPUT) && (it->Type() != BIAS))
             {
-                if (it->MutateTraits(a_Parameters.NeuronTraits, a_RNG))
-                {
-                    did_mutate = true;
-                }
+                did_mutate = it->MutateTraits(a_Parameters.NeuronTraits, a_RNG);
             }
         }
         return did_mutate;
@@ -2645,10 +2648,7 @@ namespace NEAT
         bool did_mutate = false;
         for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
         {
-            if ( it->MutateTraits(a_Parameters.LinkTraits, a_RNG) )
-            {
-                did_mutate = true;
-            }
+            did_mutate = it->MutateTraits(a_Parameters.LinkTraits, a_RNG);
         }
         return did_mutate;
     }
