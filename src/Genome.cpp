@@ -279,14 +279,14 @@ namespace NEAT
             {
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
-                n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+                //n.InitTraits(a_Parameters.NeuronTraits, t_RNG); // no need to init traits for inputs
                 m_NeuronGenes.emplace_back(n);
                 t_nnum++;
             }
             // add the bias
             NeuronGene n = NeuronGene(BIAS, t_nnum, 0.0);
             // Initialize the traits
-            n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+            //n.InitTraits(a_Parameters.NeuronTraits, t_RNG); // no need to init traits for inputs
 
             m_NeuronGenes.emplace_back(n);
             t_nnum++;
@@ -299,7 +299,7 @@ namespace NEAT
             {
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
-                n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+                //n.InitTraits(a_Parameters.NeuronTraits, t_RNG); // no need to init traits for inputs
 
                 m_NeuronGenes.emplace_back(n);
                 t_nnum++;
@@ -1697,11 +1697,11 @@ namespace NEAT
             double t_A = a_RNG.RandFloat();
             double t_B = a_RNG.RandFloat();
             double t_TC = a_RNG.RandFloat();
-            double t_Bs = a_RNG.RandFloatSigned() * a_Parameters.MaxNeuronBias;
+            double t_Bs = a_RNG.RandFloat();
             Scale(t_A, 0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Scale(t_B, 0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
-            //Scale(t_Bs, 0, 1, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
+            Scale(t_Bs, 0, 1, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
 
             Clamp(t_A, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Clamp(t_B, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
@@ -1736,6 +1736,8 @@ namespace NEAT
 
             // First link
             LinkGene l1 = LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag);
+            // make sure this weight is in the allowed interval
+            Clamp(l1.m_Weight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
             // Init the link's traits
             l1.InitTraits(a_Parameters.LinkTraits, a_RNG);
             m_LinkGenes.emplace_back(l1);
@@ -1809,11 +1811,11 @@ namespace NEAT
             double t_A = a_RNG.RandFloat();
             double t_B = a_RNG.RandFloat();
             double t_TC = a_RNG.RandFloat();
-            double t_Bs = a_RNG.RandFloatSigned() * a_Parameters.MaxNeuronBias;
+            double t_Bs = a_RNG.RandFloat();
             Scale(t_A, 0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Scale(t_B, 0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
-            //Scale(t_Bs, 0, 1, GlobalParameters.MinNeuronBias, GlobalParameters.MaxNeuronBias);
+            Scale(t_Bs, 0, 1, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
 
             Clamp(t_A, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Clamp(t_B, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
@@ -1845,6 +1847,8 @@ namespace NEAT
             m_NeuronGenes.emplace_back(t_ngene);
             // First link
             LinkGene l1 = LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag);
+            // make sure this weight is in the allowed interval
+            Clamp(l1.m_Weight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
             // initialize the link's traits
             l1.InitTraits(a_Parameters.LinkTraits, a_RNG);
             m_LinkGenes.emplace_back(l1);
@@ -2056,7 +2060,8 @@ namespace NEAT
         int t_innovid = a_Innovs.CheckInnovation(t_n1id, t_n2id, NEW_LINK);
 
         // Choose the weight for this link
-        double t_weight = a_RNG.RandFloatSigned() * a_Parameters.MaxWeight;
+        double t_weight = a_RNG.RandFloat();
+        Scale(t_weight, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
 
         // A novel innovation?
         if (t_innovid == -1)
@@ -2469,10 +2474,10 @@ namespace NEAT
         // For all links..
         for(unsigned int i=0; i<m_LinkGenes.size(); i++)
         {
-            double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
             if ((!t_severe_mutation) && (a_RNG.RandFloat() < a_Parameters.WeightMutationRate))
             {
                 bool ontail = (i >= t_genometail);
+                double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
                 
                 if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
@@ -2483,16 +2488,22 @@ namespace NEAT
                     t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
                 }
         
-                Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
+                Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
                 
                 did_mutate = true;
             }
             else if (t_severe_mutation)
             {
-                t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
-                
-                did_mutate = true;
+                double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
+                if (a_RNG.RandFloat() < a_Parameters.WeightMutationRate)
+                {
+                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                    Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+                    m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
+    
+                    did_mutate = true;
+                }
             }
         }
         
@@ -2501,13 +2512,15 @@ namespace NEAT
 
 
     // Set all link weights to random values between [-R .. R]
-    void Genome::Randomize_LinkWeights(double a_Range, RNG &a_RNG)
+    void Genome::Randomize_LinkWeights(const Parameters& a_Parameters, RNG &a_RNG)
     {
         // For all links..
         for (unsigned int i = 0; i < NumLinks(); i++)
         {
-            m_LinkGenes[i].SetWeight(
-                    a_RNG.RandFloatSigned() * a_Range);
+            double nf=0;
+            nf = a_RNG.RandFloat();
+            Scale(nf, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+            m_LinkGenes[i].SetWeight(nf);
         }
     }
 

@@ -297,8 +297,11 @@ public:
     // Maximum magnitude of a replaced weight
     double WeightReplacementMaxPower;
 
-    // Maximum absolute magnitude of a weight
+    // Maximum weight
     double MaxWeight;
+    
+    // Minimum weight
+    double MinWeight;
 
     // Probability for a baby's A activation function parameters to be perturbed
     double MutateActivationAProb;
@@ -890,6 +893,7 @@ public:
         ar & WeightReplacementRate;
         ar & WeightReplacementMaxPower;
         ar & MaxWeight;
+        ar & MinWeight;
         ar & MutateActivationAProb;
         ar & MutateActivationBProb;
         ar & ActivationAMutationMaxPower;

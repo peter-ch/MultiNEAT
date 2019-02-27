@@ -279,8 +279,11 @@ namespace NEAT
         // Maximum magnitude of a replaced weight
         WeightReplacementMaxPower = 1.0;
 
-        // Maximum absolute magnitude of a weight
+        // Maximum weight
         MaxWeight = 8.0;
+    
+        // Minimum weight
+        MinWeight = -8.0;
 
         // Probability for a baby's A activation function parameters to be perturbed
         MutateActivationAProb = 0.0;
@@ -731,6 +734,9 @@ namespace NEAT
 
             if (s == "MaxWeight")
                 a_DataFile >> MaxWeight;
+    
+            if (s == "MinWeight")
+                a_DataFile >> MinWeight;
 
             if (s == "MutateActivationAProb")
                 a_DataFile >> MutateActivationAProb;
@@ -1038,6 +1044,7 @@ namespace NEAT
         fprintf(a_fstream, "WeightReplacementRate %3.20f\n", WeightReplacementRate);
         fprintf(a_fstream, "WeightReplacementMaxPower %3.20f\n", WeightReplacementMaxPower);
         fprintf(a_fstream, "MaxWeight %3.20f\n", MaxWeight);
+        fprintf(a_fstream, "MinWeight %3.20f\n", MinWeight);
         fprintf(a_fstream, "MutateActivationAProb %3.20f\n", MutateActivationAProb);
         fprintf(a_fstream, "MutateActivationBProb %3.20f\n", MutateActivationBProb);
         fprintf(a_fstream, "ActivationAMutationMaxPower %3.20f\n", ActivationAMutationMaxPower);

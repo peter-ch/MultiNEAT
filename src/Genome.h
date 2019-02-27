@@ -441,7 +441,7 @@ namespace NEAT
             return neurons;
         }
 
-        py::object GetLinkTraits()
+        py::object GetLinkTraits(bool with_weights=false)
         {
             py::list links;
             for(auto it=m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
@@ -452,6 +452,10 @@ namespace NEAT
                 little.append( (*it).FromNeuronID() );
                 little.append( (*it).ToNeuronID() );
                 little.append( traits );
+                if (with_weights)
+                {
+                    little.append( (*it).m_Weight );
+                }
                 links.append( little );
             }
 
@@ -529,7 +533,7 @@ namespace NEAT
         bool Mutate_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG);
         
         // Set all link weights to random values between [-R .. R]
-        void Randomize_LinkWeights(double a_Range, RNG &a_RNG);
+        void Randomize_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG);
 
         // Set all traits to random values
         void Randomize_Traits(const Parameters& a_Parameters, RNG &a_RNG);

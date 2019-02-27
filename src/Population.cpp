@@ -87,7 +87,7 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
             bool is_invalid = true;
             while (is_invalid)
             {
-                m_Genomes[i].Randomize_LinkWeights(a_RandomizationRange, m_RNG);
+                m_Genomes[i].Randomize_LinkWeights(a_Parameters, m_RNG);
                 // randomize the traits as well
                 m_Genomes[i].Randomize_Traits(a_Parameters, m_RNG);
                 // and mutate nodes one initial time

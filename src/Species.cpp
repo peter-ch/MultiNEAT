@@ -898,31 +898,49 @@ namespace NEAT
         else
         {
             if (a_RNG.RandFloat() < a_Parameters.MutateNeuronActivationTypeProb)
+            {
                 t_baby.Mutate_NeuronActivation_Type(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateWeightsProb)
+            {
                 t_baby.Mutate_LinkWeights(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateActivationAProb)
+            {
                 t_baby.Mutate_NeuronActivations_A(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateActivationBProb)
+            {
                 t_baby.Mutate_NeuronActivations_B(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateNeuronTimeConstantsProb)
+            {
                 t_baby.Mutate_NeuronTimeConstants(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateNeuronBiasesProb)
+            {
                 t_baby.Mutate_NeuronBiases(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateNeuronTraitsProb)
+            {
                 t_baby.Mutate_NeuronTraits(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateLinkTraitsProb)
+            {
                 t_baby.Mutate_LinkTraits(a_Parameters, a_RNG);
+            }
     
             if (a_RNG.RandFloat() < a_Parameters.MutateGenomeTraitsProb)
+            {
                 t_baby.Mutate_GenomeTraits(a_Parameters, a_RNG);
+            }
         }
         
 #else
