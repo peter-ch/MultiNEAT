@@ -42,7 +42,8 @@ try:
                 gr.add_edge( inp, outp, **traits)
         else:
             for inp, outp, traits, w in lts:
-                gr.add_edge( inp, outp, **traits, w=w)
+                t = {**traits, 'w':w}
+                gr.add_edge( inp, outp, **t)
 
         gr.genome_traits = g.GetGenomeTraits()
 

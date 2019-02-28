@@ -2481,25 +2481,26 @@ namespace NEAT
                 
                 if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
-                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                    //t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                    t_LinkGenesWeight = a_RNG.RandFloat();
+                    Scale(t_LinkGenesWeight, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 }
                 else
                 {
                     t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
+                    Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 }
-        
-                Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+                
                 m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
                 
                 did_mutate = true;
             }
             else if (t_severe_mutation)
             {
-                double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
                 if (a_RNG.RandFloat() < a_Parameters.WeightMutationRate)
                 {
-                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
-                    Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+                    double t_LinkGenesWeight = a_RNG.RandFloat();
+                    Scale(t_LinkGenesWeight, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                     m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
     
                     did_mutate = true;
