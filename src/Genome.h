@@ -527,7 +527,7 @@ namespace NEAT
         
         // Removes a hidden neuron having only one input and only one output with
         // a direct link between them.
-        bool Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, RNG &a_RNG);
+        bool Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG);
         
         // Perturbs the weights
         bool Mutate_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG);

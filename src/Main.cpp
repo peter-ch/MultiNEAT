@@ -78,7 +78,7 @@ int main()
 {
     Parameters params;
 
-    params.PopulationSize = 8;
+    params.PopulationSize = 32;
     params.DynamicCompatibility = true;
     params.WeightDiffCoeff = 0.0;
     params.CompatTreshold = 3.0;
@@ -102,9 +102,9 @@ int main()
     params.MinWeight = -4;
     params.MaxWeight = 4;
 
-    params.MutateAddNeuronProb = 0.003;
-    params.MutateAddLinkProb = 0.05;
-    params.MutateRemLinkProb = 0.01;
+    params.MutateAddNeuronProb = 0.1;
+    params.MutateAddLinkProb = 0;//0.05;
+    params.MutateRemLinkProb = 0;//0.01;
 
     params.MinActivationA  = 4.9;
     params.MaxActivationA  = 4.9;
@@ -126,6 +126,7 @@ int main()
 
     params.MutateNeuronTraitsProb = 0;//0.2;
     params.MutateLinkTraitsProb = 0;//0.2;
+    params.MutateGenomeTraitsProb = 0;
     
     params.ExcessCoeff = 1.2;
     params.DisjointCoeff = 1.2;
@@ -138,6 +139,17 @@ int main()
     params.ArchiveEnforcement = false;
     
     params.CustomConstraints = constraints;
+    
+    params.MinWeight = -12.0;
+    params.MaxWeight = 12.0;
+    params.MutateWeightsProb = 0.0;
+    params.MutateWeightsSevereProb = 0.2;
+    params.WeightMutationRate = 0.333;
+    params.WeightMutationMaxPower = 3.0;
+    params.WeightReplacementRate = 0.25;
+    params.WeightReplacementMaxPower = 6.0;
+    
+    params.MutateRemSimpleNeuronProb = 1.001;
 
     TraitParameters tp1;
     tp1.m_ImportanceCoeff = 0.0;
@@ -219,15 +231,15 @@ int main()
     params.GenomeTraits["y"] = tps;
     params.NeuronTraits["z"] = tp3;
 
-    Genome s(0, 12,
+    Genome s(0, 4,
              1,
              1,
-             true,
+             false,
              UNSIGNED_SIGMOID,
              UNSIGNED_SIGMOID,
              0,
              params,
-             2, 3);
+             0, 3);
 
     Population pop(s, params, true, 1.0, time(0));
     
@@ -251,7 +263,7 @@ int main()
         double bestf = -999999;
         Genome gx;
         
-       /* Genome* baby;
+        Genome* baby;
         baby = pop.Tick(gx);
     
         double f = xortest(*baby);
@@ -263,7 +275,7 @@ int main()
         if (f > bestf)
         {
             bestf = f;
-        }*/
+        }
         
         /*for(unsigned int i=0; i < pop.m_Species.size(); i++)
         {
@@ -290,7 +302,7 @@ int main()
 
         printf("Tick: %d, best fitness: %3.5f\n", k, bestf);
         printf("Species: %d CT: %3.3f\n", pop.m_Species.size(), pop.m_Parameters.CompatTreshold);
-        pop.Epoch();
+        //pop.Epoch();
     }
     
     for(int i=0; i<100; i++)

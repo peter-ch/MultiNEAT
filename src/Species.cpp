@@ -946,19 +946,39 @@ namespace NEAT
     Species::MutateGenome(bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters &a_Parameters, RNG &a_RNG)
     {
 #if 1
-        if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+        if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && ((a_Pop.GetSearchMode() == COMPLEXIFYING) || (a_Pop.GetSearchMode() == BLENDED)))
         {
-            t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+            if (a_Parameters.MaxNeurons > 0)
+            {
+                if ((t_baby.NumNeurons() - (t_baby.NumInputs() + t_baby.NumOutputs())) < a_Parameters.MaxNeurons)
+                {
+                    t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+                }
+            }
+            else
+            {
+                t_baby.Mutate_AddNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+            }
         }
-        else if ((a_RNG.RandFloat() < a_Parameters.MutateAddLinkProb) && (a_Pop.GetSearchMode() != SIMPLIFYING))
+        else if ((a_RNG.RandFloat() < a_Parameters.MutateAddLinkProb) && ((a_Pop.GetSearchMode() == COMPLEXIFYING) || (a_Pop.GetSearchMode() == BLENDED)))
         {
-            t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+            if (a_Parameters.MaxLinks > 0)
+            {
+                if (t_baby.NumLinks() < a_Parameters.MaxLinks)
+                {
+                    t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+                }
+            }
+            else
+            {
+                t_baby.Mutate_AddLink(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
+            }
         }
-        else if ((a_RNG.RandFloat() < a_Parameters.MutateRemSimpleNeuronProb) && (a_Pop.GetSearchMode() != COMPLEXIFYING))
+        else if ((a_RNG.RandFloat() < a_Parameters.MutateRemSimpleNeuronProb) && ((a_Pop.GetSearchMode() == SIMPLIFYING) || (a_Pop.GetSearchMode() == BLENDED)))
         {
-            t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_RNG);
+            t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
         }
-        else if ((a_RNG.RandFloat() < a_Parameters.MutateRemLinkProb) && (a_Pop.GetSearchMode() != COMPLEXIFYING))
+        else if ((a_RNG.RandFloat() < a_Parameters.MutateRemLinkProb) && ((a_Pop.GetSearchMode() == SIMPLIFYING) || (a_Pop.GetSearchMode() == BLENDED)))
         {
             // Keep doing this mutation until it is sure that the baby will not
             // end up having dead ends or no links

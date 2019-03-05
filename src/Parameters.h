@@ -272,7 +272,13 @@ public:
 
     // Maximum number of tries to find 2 neurons to add/remove a link
     unsigned int LinkTries;
-
+    
+    // Maximum number of links in the genome (originals not counted). -1 is unlimited
+    int MaxLinks;
+    
+    // Maximum number of neurons in the genome (originals not counted). -1 is unlimited
+    int MaxNeurons;
+    
     // Probability that a link mutation will be made recurrent
     double RecurrentProb;
 
@@ -884,6 +890,8 @@ public:
         ar & MutateRemLinkProb;
         ar & MutateRemSimpleNeuronProb;
         ar & LinkTries;
+        ar & MaxLinks;
+        ar & MaxNeurons;
         ar & RecurrentProb;
         ar & RecurrentLoopProb;
         ar & MutateWeightsProb;

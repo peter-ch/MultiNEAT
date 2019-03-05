@@ -246,6 +246,12 @@ namespace NEAT
 
         // Maximum number of tries to find 2 neurons to add/remove a link
         LinkTries = 64;
+    
+        // Maximum number of links in the genome (originals not counted). -1 is unlimited
+        MaxLinks = -1;
+    
+        // Maximum number of neurons in the genome (originals not counted). -1 is unlimited
+        MaxNeurons = -1;
 
         // Probability that a link mutation will be made recurrent
         RecurrentProb = 0.25;
@@ -372,9 +378,9 @@ namespace NEAT
 
 
         // Trait mutation probabilities
-        MutateNeuronTraitsProb = 1.0;
-        MutateLinkTraitsProb = 1.0;
-        MutateGenomeTraitsProb = 1.0;
+        MutateNeuronTraitsProb = 0.0;
+        MutateLinkTraitsProb = 0.0;
+        MutateGenomeTraitsProb = 0.0;
 
 
         /////////////////////////////
@@ -393,7 +399,7 @@ namespace NEAT
         ExcessCoeff = 1.0;
 
         // Average weight difference importance
-        WeightDiffCoeff = 0.5;
+        WeightDiffCoeff = 0.0;
 
         // Node-specific activation parameter A difference importance
         ActivationADiffCoeff = 0.0;
@@ -411,10 +417,10 @@ namespace NEAT
         ActivationFunctionDiffCoeff = 0.0;
 
         // Compatibility treshold
-        CompatTreshold = 5.0;
+        CompatTreshold = 3.0;
 
         // Minumal value of the compatibility treshold
-        MinCompatTreshold = 0.1;
+        MinCompatTreshold = 0.0;
 
         // Modifier per generation for keeping the species stable
         CompatTresholdModifier = 0.1;
@@ -707,6 +713,11 @@ namespace NEAT
 
             if (s == "LinkTries")
                 a_DataFile >> LinkTries;
+    
+            if (s == "MaxLinks")
+                a_DataFile >> MaxLinks;
+            if (s == "MaxNeurons")
+                a_DataFile >> MaxNeurons;
 
             if (s == "RecurrentProb")
                 a_DataFile >> RecurrentProb;
@@ -1035,6 +1046,8 @@ namespace NEAT
         fprintf(a_fstream, "MutateRemLinkProb %3.20f\n", MutateRemLinkProb);
         fprintf(a_fstream, "MutateRemSimpleNeuronProb %3.20f\n", MutateRemSimpleNeuronProb);
         fprintf(a_fstream, "LinkTries %d\n", LinkTries);
+        fprintf(a_fstream, "MaxLinks %d\n", MaxLinks);
+        fprintf(a_fstream, "MaxNeurons %d\n", MaxNeurons);
         fprintf(a_fstream, "RecurrentProb %3.20f\n", RecurrentProb);
         fprintf(a_fstream, "RecurrentLoopProb %3.20f\n", RecurrentLoopProb);
         fprintf(a_fstream, "MutateWeightsProb %3.20f\n", MutateWeightsProb);

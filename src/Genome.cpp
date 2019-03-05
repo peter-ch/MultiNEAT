@@ -2088,7 +2088,7 @@ namespace NEAT
     // Helper functions for the pruning procedure
 
     // Removes the link with the specified innovation ID
-    void Genome::RemoveLinkGene(int a_InnovID)
+    /*void Genome::RemoveLinkGene(int a_InnovID)
     {
         // for iterating through the genes
         std::vector<LinkGene>::iterator t_curlink = m_LinkGenes.begin();
@@ -2104,6 +2104,21 @@ namespace NEAT
 
             t_curlink++;
         }
+    }*/
+
+    // this version uses a simple index
+    void Genome::RemoveLinkGene(int a_idx)
+    {
+        // for iterating through the genes
+        auto t_curlink = m_LinkGenes.begin();
+        if (a_idx > 0)
+        {
+            m_LinkGenes.erase(m_LinkGenes.begin() + a_idx);
+        }
+        else
+        {
+            m_LinkGenes.clear();
+        }
     }
 
 
@@ -2113,22 +2128,31 @@ namespace NEAT
     {
         // the list of links connected to this neuron
         std::vector<int> t_link_removal_queue;
-
-        // OK find all links connected to this neuron ID
-        for (unsigned int i = 0; i < NumLinks(); i++)
+        
+        bool removed=false;
+        
+        do
         {
-            if ((m_LinkGenes[i].FromNeuronID() == a_ID) || (m_LinkGenes[i].ToNeuronID() == a_ID))
+            removed=false;
+            // Remove all links connected to this neuron ID
+            for (int i = 0; i < NumLinks(); i++)
             {
-                // found one, add it
-                t_link_removal_queue.emplace_back(m_LinkGenes[i].InnovationID());
+                if ((m_LinkGenes[i].FromNeuronID() == a_ID) || (m_LinkGenes[i].ToNeuronID() == a_ID))
+                {
+                    // found one, remove it
+                    //t_link_removal_queue.emplace_back(i);//m_LinkGenes[i].InnovationID());
+                    RemoveLinkGene(i);
+                    removed=true;
+                    break;
+                }
             }
-        }
+        } while (removed);
 
         // Now remove them
-        for (unsigned int i = 0; i < t_link_removal_queue.size(); i++)
+        /*for (unsigned int i = 0; i < t_link_removal_queue.size(); i++)
         {
             RemoveLinkGene(t_link_removal_queue[i]);
-        }
+        }*/
 
         // Now is safe to remove the neuron
         // find it first
@@ -2338,7 +2362,7 @@ namespace NEAT
 
     // Replaces a hidden neuron having only one input and only one output with
     // a direct link between them.
-    bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, RNG &a_RNG)
+    bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG)
     {
         // At least one hidden node must be present
         if (NumNeurons() == (NumInputs() + NumOutputs()))
@@ -2411,29 +2435,39 @@ namespace NEAT
             // a novel innovation?
             if (t_innovid == -1)
             {
-                // Add the innovation and the link gene
-                int t_newinnov = a_Innovs.AddLinkInnovation(m_LinkGenes[t_l1idx].FromNeuronID(),
-                                                            m_LinkGenes[t_l2idx].ToNeuronID());
-                m_LinkGenes.emplace_back(
-                        LinkGene(m_LinkGenes[t_l1idx].FromNeuronID(), m_LinkGenes[t_l2idx].ToNeuronID(), t_newinnov,
-                                 t_weight, false));
-
-                // Remove the neuron now
+                // Save the IDs for a while
+                int from = m_LinkGenes[t_l1idx].FromNeuronID();
+                int to = m_LinkGenes[t_l2idx].ToNeuronID();
+                
+                // Remove the neuron and its links now
                 RemoveNeuronGene(m_NeuronGenes[t_neurons_to_delete[t_choice]].ID());
 
+                // Add the innovation and the link gene
+                int t_newinnov = a_Innovs.AddLinkInnovation(from, to);
+                LinkGene lg = LinkGene(from, to, t_newinnov, t_weight, false);
+                lg.InitTraits(a_Parameters.LinkTraits, a_RNG);
+                
+                m_LinkGenes.emplace_back(lg);
+                
                 // bye
                 return true;
             }
-                // not a novel innovation
+            // not a novel innovation
             else
             {
-                // Add the link and remove the neuron
-                m_LinkGenes.emplace_back(
-                        LinkGene(m_LinkGenes[t_l1idx].FromNeuronID(), m_LinkGenes[t_l2idx].ToNeuronID(), t_innovid,
-                                 t_weight, false));
-
-                // Remove the neuron now
+                // Save the IDs for a while
+                int from = m_LinkGenes[t_l1idx].FromNeuronID();
+                int to = m_LinkGenes[t_l2idx].ToNeuronID();
+                
+                // Remove the neuron and its links now
                 RemoveNeuronGene(m_NeuronGenes[t_neurons_to_delete[t_choice]].ID());
+    
+                // Add the link
+                LinkGene lg = LinkGene(from, to, t_innovid, t_weight, false);
+                lg.InitTraits(a_Parameters.LinkTraits, a_RNG);
+                m_LinkGenes.emplace_back(lg);
+                
+                // TODO: Maybe inherit the traits from one of the links
 
                 // bye
                 return true;
@@ -2477,21 +2511,22 @@ namespace NEAT
         {
             if ((!t_severe_mutation) && (a_RNG.RandFloat() < a_Parameters.WeightMutationRate))
             {
-                bool ontail = (i >= t_genometail);
+                bool ontail = false; //(i >= t_genometail);
                 double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
                 
                 if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
-                    //t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
-                    t_LinkGenesWeight = a_RNG.RandFloat();
-                    Scale(t_LinkGenesWeight, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                    
+                    //t_LinkGenesWeight = a_RNG.RandFloat();
+                    //Scale(t_LinkGenesWeight, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 }
                 else
                 {
                     t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
-                    Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 }
-                
+    
+                Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
                 
                 did_mutate = true;
@@ -2501,7 +2536,7 @@ namespace NEAT
                 if (a_RNG.RandFloat() < a_Parameters.WeightMutationRate)
                 {
                     double t_LinkGenesWeight = a_RNG.RandFloat();
-                    Scale(t_LinkGenesWeight, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+                    Scale(t_LinkGenesWeight, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                     m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
     
                     did_mutate = true;
@@ -2521,7 +2556,7 @@ namespace NEAT
         {
             double nf=0;
             nf = a_RNG.RandFloat();
-            Scale(nf, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+            Scale(nf, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
             m_LinkGenes[i].SetWeight(nf);
         }
     }
