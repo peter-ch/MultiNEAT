@@ -251,7 +251,7 @@ int main()
         double bestf = -999999;
         Genome gx;
         
-        Genome* baby;
+       /* Genome* baby;
         baby = pop.Tick(gx);
     
         double f = xortest(*baby);
@@ -263,7 +263,7 @@ int main()
         if (f > bestf)
         {
             bestf = f;
-        }
+        }*/
         
         /*for(unsigned int i=0; i < pop.m_Species.size(); i++)
         {
@@ -290,7 +290,7 @@ int main()
 
         printf("Tick: %d, best fitness: %3.5f\n", k, bestf);
         printf("Species: %d CT: %3.3f\n", pop.m_Species.size(), pop.m_Parameters.CompatTreshold);
-        //pop.Epoch();
+        pop.Epoch();
     }
     
     for(int i=0; i<100; i++)

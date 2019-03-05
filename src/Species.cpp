@@ -481,12 +481,32 @@ namespace NEAT
                             if ((a_RNG.RandFloat() < a_Parameters.InterspeciesCrossoverRate) &&
                                 (a_Pop.m_Species.size() > 1))
                             {
-                                // Find different species (random one) // !!!!!!!!!!!!!!!!!
-                                int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size() - 1));
-                                
-                                t_mom = GetIndividual(a_Parameters, a_RNG);
-                                t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
-                                t_interspecies = true;
+                                /// Find different species via roulette over average fitness as probability
+                                std::vector<double> probs;
+                                double allp=0;
+                                for(int i=0; i<a_Pop.m_Species.size(); i++)
+                                {
+                                    if ((a_Pop.m_Species[i].m_ID == m_ID))
+                                    {
+                                        probs.push_back(0.0);
+                                    }
+                                    else
+                                    {
+                                        probs.push_back(a_Pop.m_Species[i].m_AverageFitness);
+                                    }
+                                    allp += probs[probs.size()-1];
+                                }
+                                if (allp > 0)
+                                {
+                                    int t_diffspec = a_RNG.Roulette(probs);
+                                    t_mom = GetIndividual(a_Parameters, a_RNG);
+                                    t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
+                                    t_interspecies = true;
+                                }
+                                else
+                                {
+                                    continue;
+                                }
                             }
                             else
                             {
@@ -496,7 +516,7 @@ namespace NEAT
 
                                 // The other parent should be a different one
                                 // number of tries to find different parent
-                                int t_tries = 10;
+                                int t_tries = 32;
                                 while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
                                 {
                                     t_mom = GetIndividual(a_Parameters, a_RNG);
@@ -552,7 +572,7 @@ namespace NEAT
                             {
                                 if (
                                         (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j],
-                                                                      a_Parameters) <= a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
+                                                                      a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                         )
                                 {
                                     t_baby_exists_in_pop = true;
@@ -569,7 +589,7 @@ namespace NEAT
                         {
                             if (
                                     (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
-                                                                  a_Parameters) <= a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
+                                                                  a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                     )
                             {
                                 t_baby_exists_in_pop = true;
@@ -652,10 +672,24 @@ namespace NEAT
                     else
                     {
                         // keep searching for a matching species
-                        t_cur_species++;
+                        /*t_cur_species++;
                         if (t_cur_species != a_Pop.m_TempSpecies.end())
                         {
                             t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
+                        }*/
+    
+                        while(1)
+                        {
+                            t_cur_species++;
+                            if (t_cur_species == a_Pop.m_TempSpecies.end())
+                            {
+                                break;
+                            }
+                            if (t_cur_species->NumIndividuals() > 0)
+                            {
+                                t_to_compare = t_cur_species->GetRepresentative();
+                                break;
+                            }
                         }
                     }
                 }

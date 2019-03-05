@@ -667,35 +667,26 @@ void Population::Epoch()
     /////////////////////////////
     // Reproduction
     /////////////////////////////
-
-
-    // Kill all bad performing individuals
-    // Todo: this baby/adult/killworst scheme is complicated and basically sucks,
-    // I should remove it completely.
-   // for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillWorst(m_Parameters);
-
+    
     // Perform reproduction for each species
     m_TempSpecies.clear();
     m_TempSpecies = m_Species;
     for(unsigned int i=0; i<m_TempSpecies.size(); i++)
     {
         m_TempSpecies[i].Clear();
+        m_TempSpecies[i].AddIndividual(m_Species[i].m_Individuals[0]);
     }
 
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        m_Species[i].Reproduce(*this, m_Parameters, //m_Species[i].m_Parameters,
-                                     m_RNG);
+        m_Species[i].Reproduce(*this, m_Parameters, m_RNG);
+    }
+    for(unsigned int i=0; i<m_TempSpecies.size(); i++)
+    {
+        m_TempSpecies[i].RemoveIndividual(0);
     }
     m_Species = m_TempSpecies;
     
-    
-    // Now we kill off the old parents
-    // Todo: this baby/adult scheme is complicated and basically sucks,
-    // I should remove it completely.
-   // for(unsigned int i=0; i<m_Species.size(); i++) m_Species[i].KillOldParents();
-
-    // Here we kill off any empty species too
     // Remove all empty species (cleanup routine for every case..)
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
@@ -968,16 +959,7 @@ void Population::ReassignSpecies(int a_genome_idx)
                         t_to_compare = t_cur_species->GetRepresentative();
                         break;
                     }
-                    /*else
-                    {
-                        t_cur_species++;
-                    }*/
-                };/// while( (t_cur_species != m_Species.end()) && ((t_cur_species->NumIndividuals() > 0)) );
-                
-                /*if (t_cur_species != m_Species.end())
-                {
-                    t_to_compare = t_cur_species->GetRepresentative();
-                }*/
+                }
             }
         }
 
