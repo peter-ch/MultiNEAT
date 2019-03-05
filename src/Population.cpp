@@ -31,6 +31,8 @@
 
 #include <algorithm>
 #include <fstream>
+#include <stdio.h>
+#include <sstream>
 
 #include "Genome.h"
 #include "Species.h"
@@ -300,14 +302,16 @@ void Population::Speciate()
         // if not compatible, create a new species.
         for(unsigned int j=0; j<m_Species.size(); j++)
         {
-            Genome tmp = m_Species[j].GetRepresentative(); // was GetRepresentative()
-            if (m_Genomes[i].IsCompatibleWith( tmp, m_Parameters ))
+            if (m_Species[j].NumIndividuals() > 0)
             {
-                // Compatible, add to species
-                m_Species[j].AddIndividual( m_Genomes[i] );
-                t_added = true;
-
-                break;
+                if (m_Genomes[i].IsCompatibleWith(m_Species[j].GetRepresentative(), m_Parameters))
+                {
+                    // Compatible, add to species
+                    m_Species[j].AddIndividual(m_Genomes[i]);
+                    t_added = true;
+        
+                    break;
+                }
             }
         }
 
@@ -745,10 +749,10 @@ void Population::Epoch()
 
 
 Genome g_dummy; // empty genome
-Genome& Population::AccessGenomeByIndex(unsigned int const a_idx)
+Genome& Population::AccessGenomeByIndex(int const a_idx)
 {
     ASSERT(a_idx < m_Genomes.size());
-    unsigned int t_counter = 0;
+    int t_counter = 0;
 
     for (unsigned int i = 0; i < m_Species.size(); i++)
     {
@@ -762,12 +766,15 @@ Genome& Population::AccessGenomeByIndex(unsigned int const a_idx)
             t_counter++;
         }
     }
-
-    // not found?! return dummy
-    throw std::runtime_error("No such index in population");
+    
+    char s[256];
+    sprintf(s, "No such index in population - %d\n", a_idx);
+    
+    // not found?!
+    throw std::runtime_error(s);
 }
 
-Genome& Population::AccessGenomeByID(unsigned int const a_id)
+Genome& Population::AccessGenomeByID(int const a_id)
 {
     for (unsigned int i = 0; i < m_Species.size(); i++)
     {
@@ -780,8 +787,11 @@ Genome& Population::AccessGenomeByID(unsigned int const a_id)
         }
     }
     
+    char s[256];
+    sprintf(s, "No such ID in population - %d\n", a_id);
+    
     // not found?!
-    throw std::runtime_error("No such ID in population");
+    throw std::runtime_error(s);
 }
 
 
@@ -797,23 +807,27 @@ unsigned int Population::ChooseParentSpecies()
 {
     ASSERT(m_Species.size() > 0);
 
-    if (m_Species.size() == 1)
+    /*if (m_Species.size() == 1)
     {
         return 0;
-    }
+    }*/
     
-    int giveup = 16;
     unsigned int t_curspecies = 0;
-    do
+    //do
+    std::vector<double> probs;
+    for(int i=0; i<m_Species.size(); i++)
     {
-        std::vector<double> probs;
-        for(int i=0; i<m_Species.size(); i++)
+        if ((m_Species[i].NumEvaluated() == 0) || (m_Species[i].NumIndividuals() == 0))
+        {
+            probs.push_back(0.0);
+        }
+        else
         {
             probs.push_back(m_Species[i].m_AverageFitness);
         }
-        t_curspecies = m_RNG.Roulette(probs);
     }
-    while((m_Species[t_curspecies].m_AverageFitness == 0) && (giveup--));
+    t_curspecies = m_RNG.Roulette(probs);
+    //while((m_Species[t_curspecies].m_AverageFitness == 0) && (giveup--));
     
     /*double t_total_fitness = 0;
     double t_marble=0, t_spin=0; // roulette wheel variables
@@ -845,21 +859,21 @@ unsigned int Population::ChooseParentSpecies()
 
 
 // Takes a genome and assigns it to a different species (where it belongs)
-void Population::ReassignSpecies(unsigned int a_genome_idx)
+void Population::ReassignSpecies(int a_genome_idx)
 {
-    ASSERT(a_genome_idx < m_Genomes.size());
+    //ASSERT(a_genome_idx < m_Genomes.size());
 
     // first remember where is this genome exactly
-    unsigned int t_species_idx = 0, t_genome_rel_idx = 0;
-    unsigned int t_counter = 0;
+    int t_species_idx = 0, t_genome_rel_idx = 0;
+    int t_counter = 0;
 
     // to keep the genome
     Genome t_genome;
 
     // search for it
-    bool t_f = false;
+    //bool t_f = false;
     t_species_idx = 0;
-    for(unsigned int i=0; i<m_Species.size(); i++)
+    for(int i=0; i<m_Species.size(); i++)
     {
         t_genome_rel_idx = 0;
         if ((t_counter + m_Species[i].m_Individuals.size()) > a_genome_idx)
@@ -897,20 +911,21 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
         }*/
     }
     
+    // save the individual
     t_genome = m_Species[t_species_idx].m_Individuals[t_genome_rel_idx];
     
     // Remove it from its species
     m_Species[t_species_idx].RemoveIndividual(t_genome_rel_idx);
 
     // If the species becomes empty, remove the species as well
-    if (m_Species[t_species_idx].m_Individuals.size() == 0)
+    /*if (m_Species[t_species_idx].m_Individuals.empty())
     {
         m_Species.erase(m_Species.begin() + t_species_idx);
-    }
+    }*/
 
     // Find a new species for this genome
     bool t_found = false;
-    std::vector<Species>::iterator t_cur_species = m_Species.begin();
+    auto t_cur_species = m_Species.begin();
 
     // No species yet?
     if (t_cur_species == m_Species.end())
@@ -939,12 +954,30 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
             }
             else
             {
-                // keep searching for a matching species
-                t_cur_species++;
-                if (t_cur_species != m_Species.end())
+                // keep searching for a matching non-empty species
+                
+                while(1)
                 {
-                    t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
-                }
+                    t_cur_species++;
+                    if (t_cur_species == m_Species.end())
+                    {
+                        break;
+                    }
+                    if (t_cur_species->NumIndividuals() > 0)
+                    {
+                        t_to_compare = t_cur_species->GetRepresentative();
+                        break;
+                    }
+                    /*else
+                    {
+                        t_cur_species++;
+                    }*/
+                };/// while( (t_cur_species != m_Species.end()) && ((t_cur_species->NumIndividuals() > 0)) );
+                
+                /*if (t_cur_species != m_Species.end())
+                {
+                    t_to_compare = t_cur_species->GetRepresentative();
+                }*/
             }
         }
 
@@ -963,22 +996,30 @@ void Population::ReassignSpecies(unsigned int a_genome_idx)
 // Set the m_Evaluated flag of the baby to true after evaluation! 
 Genome* Population::Tick(Genome& a_deleted_genome)
 {
-    // Make sure all individuals are evaluated
-    /*for(unsigned int i=0; i<m_Species.size(); i++)
-        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
-            ASSERT(m_Species[i].m_Individuals[j].m_Evaluated);*/
+    // Make sure at least one individual is evaluated
+    int ne=0;
+    for(int i=0; i<m_Species.size(); i++)
+    {
+        ne += m_Species[i].NumEvaluated();
+    }
+    if (ne==0)
+    {
+        throw std::runtime_error("Called Tick() on population with no evaluated individuals.\n");
+    }
     
-    //std::cout << "tracking stuff\n";
+#ifdef VDEBUG
+    std::cout << "tracking stuff\n";
+#endif
 
     m_NumEvaluations++;
 
     // Find and save the best genome and fitness
     m_EvalsSinceBestFitnessLastChanged++;
-    for(unsigned int i=0; i<m_Species.size(); i++)
+    for(int i=0; i<m_Species.size(); i++)
     {
         //m_Species[i].IncreaseEvalsNoImprovement();
 
-        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
+        for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
             //if (m_Species[i].m_Individuals[j].GetFitness() <= 0.0)
             //{
@@ -1006,9 +1047,9 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     }
 
     double t_f = std::numeric_limits<double>::min();
-    for(unsigned int i=0; i<m_Species.size(); i++)
+    for(int i=0; i<m_Species.size(); i++)
     {
-        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
+        for(int j=0; j<m_Species[i].m_Individuals.size(); j++)
         {
             if (m_Species[i].m_Individuals[j].GetFitness() > t_f)
             {
@@ -1041,7 +1082,8 @@ Genome* Population::Tick(Genome& a_deleted_genome)
                 m_Parameters.CompatTreshold -= m_Parameters.CompatTresholdModifier;
             }
 
-            if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold) m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
+            if (m_Parameters.CompatTreshold < m_Parameters.MinCompatTreshold)
+                m_Parameters.CompatTreshold = m_Parameters.MinCompatTreshold;
             
             if (m_Parameters.CompatTreshold != t_oldcompat)
             {
@@ -1049,19 +1091,42 @@ Genome* Population::Tick(Genome& a_deleted_genome)
             }
         }
     }
+    
+    // Sort individuals within species by fitness
+    //Sort();
 
+    
     // If the compatibility treshold was changed, reassign all individuals by species
     if (t_changed)
     {
-        //std::cout << "reassigning species\n";
+        /*int numgs=0;
+        for(int i=0; i<m_Species.size(); i++)
+        {
+            numgs += m_Species[i].m_Individuals.size();
+        }
         
-        for(unsigned int i=0; i<m_Genomes.size(); i++)
+#ifdef VDEBUG
+        std::cout << "reassigning species. numgs=" << numgs << "\n";
+#endif
+        
+        for(int i=0; i<numgs; i++)
         {
             ReassignSpecies(i);
         }
         
         // After reassigning, some empty species may be left, so delete them
-        ClearEmptySpecies();
+        ClearEmptySpecies();*/
+        
+        m_Genomes.clear();
+        for(unsigned int i=0; i<m_Species.size(); i++)
+        {
+            for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
+            {
+                m_Genomes.push_back(m_Species[i].m_Individuals[j]);
+            }
+        }
+        
+        Speciate();
     }
     
     // Faster reassign
@@ -1140,14 +1205,20 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         ClearEmptySpecies();
     }*/
 
-    // Sort individuals within species by fitness
-    //Sort();
-    
-    //std::cout << "remove worst\n";
+#ifdef VDEBUG
+    SameGenomeIDCheck();
+#endif
+
+#ifdef VDEBUG
+    std::cout << "remove worst\n";
+#endif
     // Remove the worst individual
     a_deleted_genome = RemoveWorstIndividual();
-    
-    //std::cout << "calc avg fitness\n";
+
+
+#ifdef VDEBUG
+    std::cout << "calc avg fitness\n";
+#endif
     // Recalculate all averages for each species
     // If the average species fitness of a species is 0,
     // then there are no evaluated individuals in it.
@@ -1155,8 +1226,10 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     {
         m_Species[i].CalculateAverageFitness();
     }
-    
-    //std::cout << "choose parents\n";
+
+#ifdef VDEBUG
+    std::cout << "choose parents\n";
+#endif
     // Now spawn the new offspring
     unsigned int t_parent_species_index = ChooseParentSpecies();
 
@@ -1165,8 +1238,10 @@ Genome* Population::Tick(Genome& a_deleted_genome)
     ASSERT(t_baby.NumInputs() > 0);
     ASSERT(t_baby.NumOutputs() > 0);
     Genome* t_to_return = NULL;
-    
-    //std::cout << "placing baby in species\n";
+
+#ifdef VDEBUG
+    std::cout << "placing baby in species\n";
+#endif
 
     // Add the baby to its proper species
     bool t_found = false;
@@ -1180,13 +1255,15 @@ Genome* Population::Tick(Genome& a_deleted_genome)
         // the last one
         t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
         IncrementNextSpeciesID();
-        
-        //std::cout << "made new species\n";
+
+#ifdef VDEBUG
+        std::cout << "made new species\n";
+#endif
     }
     else
     {
         // try to find a compatible species
-        Genome& t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
+        Genome t_to_compare = t_cur_species->GetRepresentative();
 
         t_found = false;
         while((t_cur_species != m_Species.end()) && (!t_found))
@@ -1200,17 +1277,40 @@ Genome* Population::Tick(Genome& a_deleted_genome)
 
                 // increase the evals counter for the new species
                 t_cur_species->IncreaseEvalsNoImprovement();
-    
-                //std::cout << "found compatible species\n";
+
+#ifdef VDEBUG
+                std::cout << "found compatible species\n";
+#endif
             }
             else
             {
                 // keep searching for a matching species
-                t_cur_species++;
+                /*t_cur_species++;
+                while((t_cur_species->NumIndividuals() == 0) && (t_cur_species != m_Species.end()))
+                    t_cur_species++;
+                
                 if (t_cur_species != m_Species.end())
                 {
                     t_to_compare = t_cur_species->GetRepresentative(); // was GetRepresentative()
-                }
+                }*/
+    
+                while(1)
+                {
+                    t_cur_species++;
+                    if (t_cur_species == m_Species.end())
+                    {
+                        break;
+                    }
+                    if (t_cur_species->NumIndividuals() > 0)
+                    {
+                        t_to_compare = t_cur_species->GetRepresentative();
+                        break;
+                    }
+                    /*else
+                    {
+                        t_cur_species++;
+                    }*/
+                };
             }
         }
 
@@ -1221,12 +1321,16 @@ Genome* Population::Tick(Genome& a_deleted_genome)
             // the last one
             t_to_return = &(m_Species[ m_Species.size()-1 ].m_Individuals[ m_Species[ m_Species.size()-1 ].m_Individuals.size() - 1]);
             IncrementNextSpeciesID();
-    
-            //std::cout << "made new species\n";
+
+#ifdef VDEBUG
+            std::cout << "made new species\n";
+#endif
         }
     }
     
-    //std::cout << "\n";
+#ifdef VDEBUG
+    std::cout << "\n";
+#endif
     
     ASSERT(t_to_return != NULL);
 
@@ -1257,6 +1361,7 @@ Genome Population::RemoveWorstIndividual()
     unsigned int t_worst_idx=0; // within the species
     unsigned int t_worst_species_idx=0; // within the population
     double       t_worst_fitness = std::numeric_limits<double>::max();
+    int numev=0;
 
     Genome t_genome;
     
@@ -1265,43 +1370,61 @@ Genome Population::RemoveWorstIndividual()
     // Find and kill the individual with the worst *adjusted* fitness
     for(unsigned int i=0; i<m_Species.size(); i++)
     {
-        double adjinv = 1.0 / static_cast<double>(m_Species[i].m_Individuals.size());
-        for(unsigned int j=0; j<m_Species[i].m_Individuals.size(); j++)
+        if (m_Species[i].m_Individuals.size() > 0)
         {
-            // only evaluated individuals can be removed
-            if (m_Species[i].m_Individuals[j].IsEvaluated())
+            double adjinv = 1.0 / static_cast<double>(m_Species[i].m_Individuals.size());
+            for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
             {
-                double t_adjusted_fitness = m_Species[i].m_Individuals[j].GetFitness() * adjinv;
-                if (std::isnan(t_adjusted_fitness) || std::isinf(t_adjusted_fitness))
+                // only evaluated individuals can be removed
+                if (m_Species[i].m_Individuals[j].IsEvaluated())
                 {
-                    t_adjusted_fitness = 0;
-                }
-                
-                if (t_adjusted_fitness < t_worst_fitness)
-                {
-                    t_worst_fitness = t_adjusted_fitness;
-                    t_worst_idx = j;
-                    t_worst_species_idx = i;
-                    found=true;
+                    numev++;
+                    double t_adjusted_fitness = m_Species[i].m_Individuals[j].GetFitness() * adjinv;
+                    if (std::isnan(t_adjusted_fitness) || std::isinf(t_adjusted_fitness))
+                    {
+                        t_adjusted_fitness = 0;
+                    }
+            
+                    if (t_adjusted_fitness < t_worst_fitness)
+                    {
+                        t_worst_fitness = t_adjusted_fitness;
+                        t_worst_idx = j;
+                        t_worst_species_idx = i;
+                        found = true;
+                    }
                 }
             }
         }
     }
     
-    t_genome = m_Species[t_worst_species_idx].m_Individuals[t_worst_idx];
-    
     if (found)
     {
+        t_genome = m_Species[t_worst_species_idx].m_Individuals[t_worst_idx];
+        
+        // make sure this isn't the only evaluated individual
+        if (numev <= 1)
+        {
+            return t_genome;
+        }
+
         // The individual is now removed
         m_Species[t_worst_species_idx].RemoveIndividual(t_worst_idx);
     
         // If the species becomes empty, remove the species as well
-        if (m_Species[t_worst_species_idx].m_Individuals.empty())
+        if (m_Species[t_worst_species_idx].m_Individuals.size() == 0)
         {
             m_Species.erase(m_Species.begin() + t_worst_species_idx);
         }
     }
-
+    else
+    {
+        // set ID of -1 to indicate nothing was removed
+        t_genome.SetID(-1);
+#ifdef VDEBUG
+        std::cout << "RemoveWorst did not remove anything.\n";
+#endif
+    }
+    
     return t_genome;
 }
 

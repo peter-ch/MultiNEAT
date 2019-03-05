@@ -54,7 +54,7 @@ enum SelectionMode
     RANK_EXP,
     TOURNAMENT,
     STOCHASTIC,
-    BOLTZMAN
+    BOLTZMANN
 };
 
 class Species
@@ -192,6 +192,16 @@ public:
     bool IsBestSpecies() const { return m_BestSpecies; }
     bool IsWorstSpecies() const { return m_WorstSpecies; }
     //void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
+    int NumEvaluated()
+    {
+        int x=0;
+        for(int i=0; i<m_Individuals.size(); i++)
+        {
+            if (m_Individuals[i].IsEvaluated())
+                x++;
+        }
+        return x;
+    }
 
     // returns the leader (the member having the best fitness, representing the species)
     Genome& GetLeader();// const;

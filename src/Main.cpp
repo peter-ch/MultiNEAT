@@ -78,7 +78,7 @@ int main()
 {
     Parameters params;
 
-    params.PopulationSize = 500;
+    params.PopulationSize = 8;
     params.DynamicCompatibility = true;
     params.WeightDiffCoeff = 0.0;
     params.CompatTreshold = 3.0;
@@ -86,8 +86,8 @@ int main()
     params.SpeciesMaxStagnation = 15;
     params.OldAgeTreshold = 35;
     params.OldAgePenalty = 0.1;
-    params.MinSpecies = 8;
-    params.MaxSpecies = 15;
+    params.MinSpecies = 2;
+    params.MaxSpecies = 3;
     params.RouletteWheelSelection = false;
     params.RecurrentProb = 0.0;
     params.OverallMutationRate = 0.4;
@@ -115,6 +115,7 @@ int main()
     params.ActivationFunction_SignedStep_Prob = 0.0;
 
     params.CrossoverRate = 0.75;
+    params.InterspeciesCrossoverRate = 0.01;
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
     params.OverallMutationRate = 1.0;
@@ -238,11 +239,14 @@ int main()
         {
             double f = xortest(pop.m_Species[i].m_Individuals[j]);
             pop.m_Species[i].m_Individuals[j].SetFitness(pop.m_RNG.RandFloat());
-            pop.m_Species[i].m_Individuals[j].SetEvaluated();
+            if ((pop.m_RNG.RandFloat() < 0.15) || (j==0))
+            {
+                pop.m_Species[i].m_Individuals[j].SetEvaluated();
+            }
         }
     }
 
-    for(int k=0; k<25; k++)
+    for(int k=0; k<2500; k++)
     {
         double bestf = -999999;
         Genome gx;
@@ -252,7 +256,10 @@ int main()
     
         double f = xortest(*baby);
         baby->SetFitness(f);
-        baby->SetEvaluated();
+        if (pop.m_RNG.RandFloat() < 0.5)
+        {
+            baby->SetEvaluated();
+        }
         if (f > bestf)
         {
             bestf = f;

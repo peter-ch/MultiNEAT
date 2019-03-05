@@ -133,7 +133,13 @@ namespace NEAT
     // returns an individual randomly selected from the best N%
     Genome& Species::GetIndividual(Parameters &a_Parameters, RNG &a_RNG) //const
     {
-        ASSERT(m_Individuals.size() > 0);
+        //ASSERT(m_Individuals.size() > 0);
+        if (m_Individuals.size() == 0)
+        {
+            char s[256];
+            sprintf(s, "Attempted GetIndividual() but no individuals in species ID %d\n", m_ID);
+            throw std::runtime_error(s);
+        }
 
         // Make a pool of only evaluated individuals!
         std::vector< std::pair<int, double> > t_Evaluated;
@@ -150,7 +156,10 @@ namespace NEAT
         // None are evaluated - fall back to random individual
         if (t_Evaluated.size() == 0)
         {
-            return GetRandomIndividual(a_RNG);
+            //return GetRandomIndividual(a_RNG);
+            char s[256];
+            sprintf(s, "Attempted GetIndividual() but no evaluated individuals in species ID %d\n", m_ID);
+            throw std::runtime_error(s);
         }
         if (t_Evaluated.size() == 1)
         {
@@ -233,16 +242,23 @@ namespace NEAT
     // returns a completely random individual
     Genome& Species::GetRandomIndividual(RNG &a_RNG) //const
     {
-        /*if (m_Individuals.size() == 0) // no members yet, return representative
+        if (m_Individuals.size() == 0) // no members yet, return representative
         {
-            return m_Representative;
+            char s[256];
+            sprintf(s, "Attempted GetRandomIndividual() but no individuals in species ID %d\n", m_ID);
+            throw std::runtime_error(s);
         }
         else
-        {*/
+        if (m_Individuals.size() == 1)
+        {
+            return m_Individuals[0];
+        }
+        else
+        {
             int t_rand_choice = 0;
             t_rand_choice = a_RNG.RandInt(0, static_cast<int>(m_Individuals.size() - 1));
             return (m_Individuals[t_rand_choice]);
-        //}
+        }
     }
 
     // returns the leader (the member having the best fitness)
@@ -252,13 +268,15 @@ namespace NEAT
         // Perform a search over the members and return the most fit member
 
         // if empty, return representative
-        /*if (m_Individuals.size() == 0)
+        if (m_Individuals.size() == 0)
         {
-            return m_Representative;
-        }*/
+            char s[256];
+            sprintf(s, "Attempted GetLeader() but no individuals in species ID %d\n", m_ID);
+            throw std::runtime_error(s);
+        }
 
         double t_max_fitness = std::numeric_limits<double>::min();
-        int t_leader_idx = -1;
+        int t_leader_idx = 0;
         for (unsigned int i = 0; i < m_Individuals.size(); i++)
         {
             double t_f = m_Individuals[i].GetFitness();
@@ -269,21 +287,23 @@ namespace NEAT
             }
         }
 
-        ASSERT(t_leader_idx != -1);
+        //ASSERT(t_leader_idx != -1);
         return (m_Individuals[t_leader_idx]);
     }
 
 
     Genome& Species::GetRepresentative() //const
     {
-        //if (m_Individuals.size() > 0)
+        if (m_Individuals.size() > 0)
         {
             return m_Individuals[0];
         }
-        /*else
+        else
         {
-            return m_Representative;
-        }*/
+            char s[256];
+            sprintf(s, "Attempted GetRepresentative() but no individuals in species ID %d\n", m_ID);
+            throw std::runtime_error(s);
+        }
     }
 
     // calculates how many offspring this species should spawn
@@ -661,7 +681,7 @@ namespace NEAT
         // consider individuals that were evaluated only!
         for (unsigned int i = 0; i < m_Individuals.size(); i++)
         {
-            if (m_Individuals[i].m_Evaluated)
+            if (m_Individuals[i].IsEvaluated())
             {
                 double tf = m_Individuals[i].GetFitness();
                 if (std::isinf(tf) || std::isnan(tf)) // nan/inf guard
@@ -669,8 +689,8 @@ namespace NEAT
                     tf = 0.0;
                 }
                 t_total_fitness += tf;
-                t_num_individuals++;
             }
+            t_num_individuals++;
         }
 
         if (t_num_individuals > 0)
@@ -728,11 +748,32 @@ namespace NEAT
                     if ((a_RNG.RandFloat() < a_Parameters.InterspeciesCrossoverRate) &&
                         (a_Pop.m_Species.size() > 1))
                     {
-                        // Find different species (random one) // !!!!!!!!!!!!!!!!!
-                        int t_diffspec = a_RNG.RandInt(0, static_cast<int>(a_Pop.m_Species.size() - 1));
-                        t_mom = GetIndividual(a_Parameters, a_RNG);
-                        t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
-                        t_interspecies = true;
+                        // Find different species via roulette over average fitness as probability
+                        std::vector<double> probs;
+                        double allp=0;
+                        for(int i=0; i<a_Pop.m_Species.size(); i++)
+                        {
+                            if ((a_Pop.m_Species[i].m_ID == m_ID) || (a_Pop.m_Species[i].NumEvaluated() == 0))
+                            {
+                                probs.push_back(0.0);
+                            }
+                            else
+                            {
+                                probs.push_back(a_Pop.m_Species[i].m_AverageFitness);
+                            }
+                            allp += probs[probs.size()-1];
+                        }
+                        if (allp > 0)
+                        {
+                            int t_diffspec = a_RNG.Roulette(probs);
+                            t_mom = GetIndividual(a_Parameters, a_RNG);
+                            t_dad = a_Pop.m_Species[t_diffspec].GetIndividual(a_Parameters, a_RNG);
+                            t_interspecies = true;
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
                     else
                     {
@@ -762,8 +803,10 @@ namespace NEAT
                     {
                         t_baby = t_mom.Mate(t_dad, true, t_interspecies, a_RNG, a_Parameters);
                     }
-    
-                    //std::cout << "mated baby\n";
+
+#ifdef VDEBUG
+                    std::cout << "mated baby\n";
+#endif
                     t_mated = true;
                 }
                 // don't mate - reproduce one individual asexually
@@ -780,7 +823,9 @@ namespace NEAT
             if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
             {
                 MutateGenome(dummy, a_Pop, t_baby, a_Parameters, a_RNG);
-                //std::cout << "mutated baby\n";
+#ifdef VDEBUG
+                std::cout << "mutated baby\n";
+#endif
             }
 
             // Check if this baby is already present somewhere in the offspring
@@ -853,8 +898,10 @@ namespace NEAT
         {
             a_Pop.m_GenomeArchive.emplace_back(t_baby);
         }
-        
-        //std::cout << "baby success\n";
+
+#ifdef VDEBUG
+        std::cout << "baby success\n";
+#endif
 
         return t_baby;
     }

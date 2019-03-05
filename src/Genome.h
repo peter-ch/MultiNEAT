@@ -86,11 +86,11 @@ namespace NEAT
     private:
     
         // ID of genome
-        unsigned int m_ID;
+        int m_ID;
         
         // How many inputs/outputs
-        unsigned int m_NumInputs;
-        unsigned int m_NumOutputs;
+        int m_NumInputs;
+        int m_NumOutputs;
         
         // The genome's fitness score
         double m_Fitness;
@@ -99,7 +99,7 @@ namespace NEAT
         double m_AdjustedFitness;
         
         // The depth of the network
-        unsigned int m_Depth;
+        int m_Depth;
         
         // how many individuals this genome should spawn
         double m_OffspringAmount;
@@ -186,20 +186,20 @@ namespace NEAT
         Genome(std::ifstream &a_DataFile);
     
         // This creates a CTRNN fully-connected genome
-        Genome(unsigned int a_ID, unsigned int a_NumInputs, unsigned int a_NumHidden, unsigned int a_NumOutputs,
+        Genome(int a_ID, int a_NumInputs, int a_NumHidden, int a_NumOutputs,
                ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, const Parameters &a_Parameters);
     
         // This creates a standart minimal genome - perceptron-like structure
-        Genome(unsigned int a_ID,
-               unsigned int a_NumInputs,
-               unsigned int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
-               unsigned int a_NumOutputs,
+        Genome(int a_ID,
+               int a_NumInputs,
+               int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
+               int a_NumOutputs,
                bool a_FS_NEAT, ActivationFunction a_OutputActType,
                ActivationFunction a_HiddenActType,
-               unsigned int a_SeedType,
+               int a_SeedType,
                const Parameters &a_Parameters,
-               unsigned int a_NumLayers,
-               unsigned int a_FS_NEAT_links);
+               int a_NumLayers,
+               int a_FS_NEAT_links);
         
         /////////////
         // Other possible constructors for different types of networks go here
@@ -257,9 +257,9 @@ namespace NEAT
         
         void SetAdjFitness(double a_af);
         
-        unsigned int GetID() const;
+        int GetID() const;
         
-        void SetID(unsigned int a_id);
+        void SetID(int a_id);
         
         unsigned int GetDepth() const;
         

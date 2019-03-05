@@ -129,10 +129,10 @@ namespace NEAT
     }
     
     // New constructor that creates a fully-connected CTRNN
-    Genome::Genome(unsigned int a_ID,
-                   unsigned int a_NumInputs,
-                   unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
-                   unsigned int a_NumOutputs, ActivationFunction a_OutputActType,
+    Genome::Genome(int a_ID,
+                   int a_NumInputs,
+                   int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
+                   int a_NumOutputs, ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
                    const Parameters &a_Parameters)
     {
@@ -244,16 +244,16 @@ namespace NEAT
         m_initial_num_links = NumLinks();
     }
 
-    Genome::Genome(unsigned int a_ID,
-                   unsigned int a_NumInputs,
-                   unsigned int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
-                   unsigned int a_NumOutputs,
+    Genome::Genome(int a_ID,
+                   int a_NumInputs,
+                   int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
+                   int a_NumOutputs,
                    bool a_FS_NEAT, ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
-                   unsigned int a_SeedType,
+                   int a_SeedType,
                    const Parameters &a_Parameters,
-                   unsigned int a_NumLayers,
-                   unsigned int a_FS_NEAT_links
+                   int a_NumLayers,
+                   int a_FS_NEAT_links
                    )
     {
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
@@ -533,12 +533,12 @@ namespace NEAT
         return m_Depth;
     }
 
-    void Genome::SetID(unsigned int a_id)
+    void Genome::SetID(int a_id)
     {
         m_ID = a_id;
     }
 
-    unsigned int Genome::GetID() const
+    int Genome::GetID() const
     {
         return m_ID;
     }
@@ -1508,13 +1508,13 @@ namespace NEAT
     bool Genome::IsCompatibleWith(Genome &a_G, Parameters &a_Parameters)
     {
         // full compatibility cases
-        /*if (this == &a_G)
+        if (this == &a_G)
             return true;
 
         if (GetID() == a_G.GetID())
             return true;
 
-        if ((NumLinks() == 0) && (a_G.NumLinks() == 0))
+        /*if ((NumLinks() == 0) && (a_G.NumLinks() == 0))
             return true;*/
 
         double t_total_distance = CompatibilityDistance(a_G, a_Parameters);
