@@ -70,7 +70,7 @@ private:
     int m_ID;
 
     // Keep a local copy of the representative
-    Genome m_Representative;
+    //Genome m_Representative;
 
     // This tell us if this is the best species in the population
     bool m_BestSpecies;
@@ -114,7 +114,7 @@ public:
     
     // The species has its own parameters
     // it inherits them from the population when created
-    Parameters m_Parameters;
+    //Parameters m_Parameters;
 
     ////////////////////////////
     // Constructors
@@ -142,7 +142,7 @@ public:
     // assignment operator
     Species& operator=(const Species& a_g);
 
-    // comparison operator (nessesary for boost::python)
+    // comparison operator (for boost::python)
     // todo: implement a better comparison technique
     bool operator==(Species const& other) const { return m_ID == other.m_ID; }
 
@@ -191,7 +191,7 @@ public:
     Genome GetIndividualByIdx(int a_idx) const { return (m_Individuals[a_idx]); }
     bool IsBestSpecies() const { return m_BestSpecies; }
     bool IsWorstSpecies() const { return m_WorstSpecies; }
-    void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
+    //void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
 
     // returns the leader (the member having the best fitness, representing the species)
     Genome& GetLeader();// const;
@@ -259,7 +259,7 @@ public:
         void serialize(Archive & ar, const unsigned int version)
         {
             ar & m_ID;
-            ar & m_Representative;
+            //ar & m_Representative;
             ar & m_BestSpecies;
             ar & m_WorstSpecies;
             ar & m_AgeGenerations;

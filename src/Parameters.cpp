@@ -100,8 +100,8 @@ namespace NEAT
         // Make sure it is >= 1.0 to avoid confusion
         YoungAgeFitnessBoost = 1.1;
 
-        // Number of generations without improvement (stagnation) allowed for a species
-        SpeciesMaxStagnation = 5000;
+        // Number of generations or evaluations without improvement (stagnation) allowed for a species
+        SpeciesMaxStagnation = 25000;
 
         // Minimum jump in fitness necessary to be considered as improvement.
         // Setting this value to 0.0 makes the system to behave like regular NEAT.
@@ -558,7 +558,7 @@ namespace NEAT
             if (s == "YoungAgeFitnessBoost")
                 a_DataFile >> YoungAgeFitnessBoost;
 
-            if (s == "SpeciesDropoffAge")
+            if (s == "SpeciesMaxStagnation")
                 a_DataFile >> SpeciesMaxStagnation;
 
             if (s == "StagnationDelta")
@@ -995,7 +995,7 @@ namespace NEAT
         fprintf(a_fstream, "ConstraintTrials %d\n", ConstraintTrials);
         fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
         fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
-        fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
+        fprintf(a_fstream, "SpeciesMaxStagnation %d\n", SpeciesMaxStagnation);
         fprintf(a_fstream, "StagnationDelta %3.20f\n", StagnationDelta);
         fprintf(a_fstream, "OldAgeTreshold %d\n", OldAgeTreshold);
         fprintf(a_fstream, "OldAgePenalty %3.20f\n", OldAgePenalty);

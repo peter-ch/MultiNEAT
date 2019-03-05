@@ -69,7 +69,7 @@ namespace NEAT
         
         // copy the initializing genome locally.
         // it is now the representative of the species.
-        m_Representative = a_Genome;
+        //m_Representative = a_Genome;
         m_BestGenome = a_Genome;
 
         // add the first and only one individual
@@ -83,7 +83,7 @@ namespace NEAT
         m_BestSpecies = true;
         m_WorstSpecies = false;
         m_AverageFitness = 0;
-        m_Parameters = a_Parameters;
+        //m_Parameters = a_Parameters;
 
         // Choose a random color
         //RNG rng;
@@ -100,20 +100,23 @@ namespace NEAT
         if (this != &a_S)
         {
             m_ID = a_S.m_ID;
-            m_Representative = a_S.m_Representative;
+            //m_Representative = a_S.m_Representative;
             m_BestGenome = a_S.m_BestGenome;
             m_BestSpecies = a_S.m_BestSpecies;
             m_WorstSpecies = a_S.m_WorstSpecies;
             m_BestFitness = a_S.m_BestFitness;
             m_GensNoImprovement = a_S.m_GensNoImprovement;
             m_EvalsNoImprovement = a_S.m_EvalsNoImprovement;
+            m_AverageFitness = a_S.m_AverageFitness;
             m_AgeGenerations = a_S.m_AgeGenerations;
             m_OffspringRqd = a_S.m_OffspringRqd;
             m_R = a_S.m_R;
             m_G = a_S.m_G;
             m_B = a_S.m_B;
             m_Individuals = a_S.m_Individuals;
-            m_Parameters = a_S.m_Parameters;
+            //m_Parameters = a_S.m_Parameters;
+            m_SelectionMode = a_S.m_SelectionMode;
+            AlwaysTruncate = a_S.AlwaysTruncate;
         }
 
         return *this;
@@ -230,16 +233,16 @@ namespace NEAT
     // returns a completely random individual
     Genome& Species::GetRandomIndividual(RNG &a_RNG) //const
     {
-        if (m_Individuals.size() == 0) // no members yet, return representative
+        /*if (m_Individuals.size() == 0) // no members yet, return representative
         {
             return m_Representative;
         }
         else
-        {
+        {*/
             int t_rand_choice = 0;
             t_rand_choice = a_RNG.RandInt(0, static_cast<int>(m_Individuals.size() - 1));
             return (m_Individuals[t_rand_choice]);
-        }
+        //}
     }
 
     // returns the leader (the member having the best fitness)
@@ -249,12 +252,12 @@ namespace NEAT
         // Perform a search over the members and return the most fit member
 
         // if empty, return representative
-        if (m_Individuals.size() == 0)
+        /*if (m_Individuals.size() == 0)
         {
             return m_Representative;
-        }
+        }*/
 
-        double t_max_fitness = -99999999;
+        double t_max_fitness = std::numeric_limits<double>::min();
         int t_leader_idx = -1;
         for (unsigned int i = 0; i < m_Individuals.size(); i++)
         {
@@ -273,7 +276,14 @@ namespace NEAT
 
     Genome& Species::GetRepresentative() //const
     {
-        return m_Representative;
+        //if (m_Individuals.size() > 0)
+        {
+            return m_Individuals[0];
+        }
+        /*else
+        {
+            return m_Representative;
+        }*/
     }
 
     // calculates how many offspring this species should spawn
@@ -522,7 +532,7 @@ namespace NEAT
                             {
                                 if (
                                         (t_baby.CompatibilityDistance(a_Pop.m_TempSpecies[i].m_Individuals[j],
-                                                                      a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
+                                                                      a_Parameters) <= a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                         )
                                 {
                                     t_baby_exists_in_pop = true;
@@ -539,7 +549,7 @@ namespace NEAT
                         {
                             if (
                                     (t_baby.CompatibilityDistance(a_Pop.m_GenomeArchive[i],
-                                                                  a_Parameters) < a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
+                                                                  a_Parameters) <= a_Parameters.MinDeltaCompatEqualGenomes) // identical genome?
                                     )
                             {
                                 t_baby_exists_in_pop = true;
@@ -602,7 +612,7 @@ namespace NEAT
             if (t_cur_species == a_Pop.m_TempSpecies.end())
             {
                 // create the first species and place the baby there
-                a_Pop.m_TempSpecies.emplace_back(Species(t_baby, m_Parameters, a_Pop.GetNextSpeciesID()));
+                a_Pop.m_TempSpecies.emplace_back(Species(t_baby, a_Parameters, a_Pop.GetNextSpeciesID()));
                 a_Pop.IncrementNextSpeciesID();
             }
             else
@@ -633,7 +643,7 @@ namespace NEAT
                 // if couldn't find a match, make a new species
                 if (!t_found)
                 {
-                    a_Pop.m_TempSpecies.emplace_back(Species(t_baby, m_Parameters, a_Pop.GetNextSpeciesID()));
+                    a_Pop.m_TempSpecies.emplace_back(Species(t_baby, a_Parameters, a_Pop.GetNextSpeciesID()));
                     a_Pop.IncrementNextSpeciesID();
                 }
             }
@@ -733,7 +743,7 @@ namespace NEAT
                         // The other parent should be a different one
                         // number of tries to find different parent
                         // we can mate the same mom and dad and still get different baby
-                        int t_tries=10;
+                        int t_tries=32;
                         while (((t_mom.GetID() == t_dad.GetID())) && (t_tries--))
                         {
                             t_mom = GetIndividual(a_Parameters, a_RNG);
@@ -752,10 +762,11 @@ namespace NEAT
                     {
                         t_baby = t_mom.Mate(t_dad, true, t_interspecies, a_RNG, a_Parameters);
                     }
-                
+    
+                    //std::cout << "mated baby\n";
                     t_mated = true;
                 }
-                    // don't mate - reproduce one individual asexually
+                // don't mate - reproduce one individual asexually
                 else
                 {
                     t_baby = GetIndividual(a_Parameters, a_RNG);
@@ -769,6 +780,7 @@ namespace NEAT
             if ((!t_mated) || (a_RNG.RandFloat() < a_Parameters.OverallMutationRate))
             {
                 MutateGenome(dummy, a_Pop, t_baby, a_Parameters, a_RNG);
+                //std::cout << "mutated baby\n";
             }
 
             // Check if this baby is already present somewhere in the offspring
@@ -841,6 +853,8 @@ namespace NEAT
         {
             a_Pop.m_GenomeArchive.emplace_back(t_baby);
         }
+        
+        //std::cout << "baby success\n";
 
         return t_baby;
     }

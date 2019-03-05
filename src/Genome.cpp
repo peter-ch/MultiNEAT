@@ -1463,20 +1463,21 @@ namespace NEAT
         if (t_num_matching_links <= 0) t_num_matching_links = 1;
         if (t_num_matching_neurons <= 0) t_num_matching_neurons = 1;
         if (t_normalizer <= 0.0) t_normalizer = 1.0;
-
-        t_total_distance =
-                (a_Parameters.ExcessCoeff * (t_num_excess / t_normalizer)) +
-                (a_Parameters.DisjointCoeff * (t_num_disjoint / t_normalizer)) +
-                (a_Parameters.WeightDiffCoeff * (t_total_weight_difference / t_num_matching_links)) +
-                (a_Parameters.ActivationADiffCoeff * (t_total_A_difference / t_num_matching_neurons)) +
-                (a_Parameters.ActivationBDiffCoeff * (t_total_B_difference / t_num_matching_neurons)) +
-                (a_Parameters.TimeConstantDiffCoeff * (t_total_timeconstant_difference / t_num_matching_neurons)) +
-                (a_Parameters.BiasDiffCoeff * (t_total_bias_difference / t_num_matching_neurons)) +
-                (a_Parameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference / t_num_matching_neurons));
-
-        // add trait differences according to each one's coeff
+        double tnrm = 1.0/t_normalizer;
         double tnml = 1.0/t_num_matching_links;
         double tnmn = 1.0/t_num_matching_neurons;
+
+        t_total_distance =
+                (a_Parameters.ExcessCoeff * (t_num_excess * tnrm)) +
+                (a_Parameters.DisjointCoeff * (t_num_disjoint * tnrm)) +
+                (a_Parameters.WeightDiffCoeff * (t_total_weight_difference * tnml)) +
+                (a_Parameters.ActivationADiffCoeff * (t_total_A_difference * tnmn)) +
+                (a_Parameters.ActivationBDiffCoeff * (t_total_B_difference * tnmn)) +
+                (a_Parameters.TimeConstantDiffCoeff * (t_total_timeconstant_difference * tnmn)) +
+                (a_Parameters.BiasDiffCoeff * (t_total_bias_difference * tnmn)) +
+                (a_Parameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference * tnmn));
+
+        // add trait differences according to each one's coeff
         
         for(auto it = t_total_link_trait_difference.begin(); it != t_total_link_trait_difference.end(); it++)
         {
@@ -1518,7 +1519,7 @@ namespace NEAT
 
         double t_total_distance = CompatibilityDistance(a_G, a_Parameters);
 
-        if (t_total_distance < a_Parameters.CompatTreshold)
+        if (t_total_distance <= a_Parameters.CompatTreshold)
             return true;  // compatible
         else
             return false; // incompatible

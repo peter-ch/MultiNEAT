@@ -120,7 +120,7 @@ def getExtensions():
         #            'libboost_serialization-mgw48-mt-1_58'],
         # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
         # library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
-        extra.extend(['-DUSE_BOOST_PYTHON', #'-DUSE_BOOST_RANDOM'
+        extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM'
                       ])
         extensionsList.append(Extension('MultiNEAT._MultiNEAT',
                                         sources,

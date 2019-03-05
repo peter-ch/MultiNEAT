@@ -274,6 +274,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
 
             .def("PrintAllTraits", &Genome::PrintAllTraits)
+            .def("CompatibilityDistance", &Genome::CompatibilityDistance)
 
             .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
@@ -320,7 +321,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readonly("Blue", &Species::m_B)
             .def_readwrite("EvalsNoImprovement", &Species::m_EvalsNoImprovement)
             .def_readwrite("BestFitness", &Species::m_BestFitness)
-            .def_readwrite("Parameters", &Species::m_Parameters)
+            //.def_readwrite("Parameters", &Species::m_Parameters)
             ;
 
 ///////////////////////////////////////////////////////////////////
@@ -443,7 +444,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("ConstraintTrials", &Parameters::ConstraintTrials)
             .def_readwrite("YoungAgeTreshold", &Parameters::YoungAgeTreshold)
             .def_readwrite("YoungAgeFitnessBoost", &Parameters::YoungAgeFitnessBoost)
-            .def_readwrite("SpeciesDropoffAge", &Parameters::SpeciesMaxStagnation)
+            .def_readwrite("SpeciesMaxStagnation", &Parameters::SpeciesMaxStagnation)
             .def_readwrite("StagnationDelta", &Parameters::StagnationDelta)
             .def_readwrite("OldAgeTreshold", &Parameters::OldAgeTreshold)
             .def_readwrite("OldAgePenalty", &Parameters::OldAgePenalty)
