@@ -142,6 +142,8 @@ public:
 
     // The list of species
     std::vector<Species> m_Species;
+    
+    int m_ID;
 
 
     ////////////////////////////
@@ -355,6 +357,7 @@ public:
             ar & m_NumEvaluations;
             ar & m_GensSinceLastArchiving;
             ar & m_QuickAddCounter;
+            ar & m_ID;
 
             //ar & m_TempSpecies;
             //ar & m_BehaviorArchive;

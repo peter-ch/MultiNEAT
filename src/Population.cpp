@@ -155,6 +155,8 @@ Population::Population(const Genome& a_Seed, const Parameters& a_Parameters,
     m_InnovationDatabase.Init(a_Seed);
 
     m_BestGenome = m_Species[0].m_Individuals[0];//GetLeader();
+    
+    m_ID = 0;
 
     //Sort();
 
@@ -187,6 +189,7 @@ Population::Population(const std::string a_sFileName)
     m_Generation = 0;
     m_NumEvaluations = 0;
     m_NextSpeciesID = 1;
+    m_ID = 0;
     m_GensSinceBestFitnessLastChanged = 0;
     m_GensSinceMPCLastChanged = 0;
 

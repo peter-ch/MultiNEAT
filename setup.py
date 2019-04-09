@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from __future__ import print_function
+#from __future__ import print_function
 from setuptools import setup, Extension
 import sys
 import os
@@ -23,8 +23,8 @@ def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=N
     list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
     return objects
 
-import distutils.ccompiler
-distutils.ccompiler.CCompiler.compile=parallelCCompile
+#import distutils.ccompiler
+#distutils.ccompiler.CCompiler.compile=parallelCCompile
 
 
 ''' Note:
