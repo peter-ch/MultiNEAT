@@ -173,6 +173,33 @@ namespace NEAT
                     py::object itp = bs::get<py::object>(it->second.m_Details);
                     t = itp(); // details is a function that returns a random instance of the trait
                 }
+
+                if (it->second.type == "pyclassset")
+                {
+                    // this time m_Details is a (list, probs) tuple
+                    // the list is a list of classes that get instantiated
+                    py::object tup = bs::get<py::object>(it->second.m_Details);
+                    py::list classlist = py::extract<py::list>(tup[0]);
+                    py::list probs = py::extract<py::list>(tup[1]);
+                    std::vector<double> dprobs;
+
+                    // get the probs
+                    int ln = py::len(probs);
+                    if ((ln == 0) || (py::len(classlist) == 0))
+                    {
+                        throw std::runtime_error("Empty class or probs list");
+                    }
+
+                    for(int i=0; i<ln; i++)
+                    {
+                        dprobs.push_back(py::extract<double>(probs[i]));
+                    }
+
+                    // instantiate random class
+                    int idx = a_RNG.Roulette(dprobs);
+                    py::object itp = py::extract<py::object>(classlist[idx]);
+                    t = itp();
+                }
 #endif
 
                 Trait tr;
@@ -399,7 +426,7 @@ namespace NEAT
                             did_mutate = true;
                         }
 #ifdef USE_BOOST_PYTHON
-                        else if (it->second.type == "pyobject")
+                        else if ((it->second.type == "pyobject") || (it->second.type == "pyclassset"))
                         {
                             m_Traits[it->first].value = bs::get<py::object>(m_Traits[it->first].value).attr("mutate")();
                             did_mutate = true;
@@ -562,7 +589,11 @@ namespace NEAT
         ////////////////
         LinkGene()
         {
-
+            m_FromNeuronID = 0;
+            m_ToNeuronID = 0;
+            m_InnovationID = 0;
+            m_Weight = 0;
+            m_IsRecurrent = false;
         }
 
         LinkGene(int a_InID, int a_OutID, int a_InnovID, double a_Wgt, bool a_Recurrent = false)

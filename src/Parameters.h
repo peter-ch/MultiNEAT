@@ -654,6 +654,11 @@ public:
             py::object itp = py::extract<py::object>(trait_params["details"]);
             t.m_Details = itp;
         }
+        else if (t.type == "pyclassset")
+        {
+            py::object itp = py::extract<py::object>(trait_params["details"]);
+            t.m_Details = itp;
+        }
 
         return t;
     }
@@ -738,6 +743,11 @@ public:
         if (pms.type == "pyobject")
         {
             t["type"] = "pyobject";
+            dt = bs::get<py::object>(pms.m_Details);
+        }
+        if (pms.type == "pyclassset")
+        {
+            t["type"] = "pyclassset";
             dt = bs::get<py::object>(pms.m_Details);
         }
 

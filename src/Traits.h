@@ -183,7 +183,6 @@ namespace NEAT
         }
     };
 
-
     class TraitParameters
     {
     public:

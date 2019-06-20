@@ -129,6 +129,7 @@ namespace NEAT
     }
     
     // New constructor that creates a fully-connected CTRNN
+    /*
     Genome::Genome(int a_ID,
                    int a_NumInputs,
                    int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
@@ -242,13 +243,14 @@ namespace NEAT
         
         m_initial_num_neurons = NumNeurons();
         m_initial_num_links = NumLinks();
-    }
+    }*/
 
     Genome::Genome(int a_ID,
                    int a_NumInputs,
                    int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
                    int a_NumOutputs,
-                   bool a_FS_NEAT, ActivationFunction a_OutputActType,
+                   bool a_FS_NEAT,
+                   ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
                    int a_SeedType,
                    const Parameters &a_Parameters,
@@ -505,6 +507,11 @@ namespace NEAT
                     }
                 }
             }
+        }
+
+        if (a_FS_NEAT && (a_FS_NEAT_links==1))
+        {
+            throw std::runtime_error("Known bug - don't use FS-NEAT with just 1 link and 1/1/1 genome");
         }
         
         // Also initialize the Genome's traits
