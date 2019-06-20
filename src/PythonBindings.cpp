@@ -274,7 +274,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
 
             .def("BuildPhenotype", &Genome::BuildPhenotype)
             .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
-            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
+//            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
 
             .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
             .def("Randomize_Traits", &Genome::Randomize_Traits)
