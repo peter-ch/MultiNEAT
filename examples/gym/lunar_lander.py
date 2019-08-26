@@ -8,6 +8,7 @@ import random as rnd
 import pickle
 import numpy as np
 import cv2
+from tqdm import tqdm
 
 rng = NEAT.RNG()
 rng.TimeSeed()
@@ -72,7 +73,7 @@ trials = 15
 render_during_training = 0
 
 g = NEAT.Genome(0, 8 +1, 0, 4, False,
-                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0)
+                NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0, 1)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
 
 
@@ -129,7 +130,7 @@ try:
 
     for generation in range(20):
 
-        for i_episode, genome in enumerate(NEAT.GetGenomeList(pop)):
+        for i_episode, genome in tqdm(enumerate(NEAT.GetGenomeList(pop))):
 
             net = NEAT.NeuralNetwork()
             genome.BuildPhenotype(net)

@@ -21,17 +21,29 @@ def ZipFitness(genome_list, fitness_list):
 try:
     import networkx as nx
 
-    def Genome2NX(g):
+    def Genome2NX(g, with_inputs=False, with_weights=False):
 
         nts = g.GetNeuronTraits()
-        lts = g.GetLinkTraits()
+        lts = g.GetLinkTraits(with_weights)
         gr = nx.DiGraph()
 
         for i, tp, traits in nts:
-            gr.add_node( i, **traits)
+            if with_inputs:
+                gr.add_node( i, **traits)
+            else:
+                # don't add traits on inputs
+                if tp != 'input':
+                    gr.add_node( i, **traits)
+                else:
+                    gr.add_node( i )
 
-        for inp, outp, traits in lts:
-            gr.add_edge( inp, outp, **traits )
+        if not with_weights:
+            for inp, outp, traits in lts:
+                gr.add_edge( inp, outp, **traits)
+        else:
+            for inp, outp, traits, w in lts:
+                t = {**traits, 'w':w}
+                gr.add_edge( inp, outp, **t)
 
         gr.genome_traits = g.GetGenomeTraits()
 

@@ -46,6 +46,17 @@ class Population;
 // The Species class
 //////////////////////////////////////////////
 
+enum SelectionMode
+{
+    TRUNCATION,
+    ROULETTE,
+    RANK_LINEAR,
+    RANK_EXP,
+    TOURNAMENT,
+    STOCHASTIC,
+    BOLTZMANN
+};
+
 class Species
 {
 
@@ -59,7 +70,7 @@ private:
     int m_ID;
 
     // Keep a local copy of the representative
-    Genome m_Representative;
+    //Genome m_Representative;
 
     // This tell us if this is the best species in the population
     bool m_BestSpecies;
@@ -96,6 +107,14 @@ public:
     int m_R, m_G, m_B;
 
     double m_AverageFitness;
+    
+    // Current selection mode (method)
+    SelectionMode m_SelectionMode;
+    bool AlwaysTruncate; // whether truncation will be performed regardless of the selection mode
+    
+    // The species has its own parameters
+    // it inherits them from the population when created
+    //Parameters m_Parameters;
 
     ////////////////////////////
     // Constructors
@@ -113,16 +132,17 @@ public:
         m_GensNoImprovement = 0;
         m_EvalsNoImprovement = 0;
         m_R = m_G = m_B = 0;
-
+        m_SelectionMode = SelectionMode::TRUNCATION;
+        AlwaysTruncate = false;
     };
 
     // initializes a species with a leader genome and an ID number
-    Species(const Genome& a_Seed, int a_id);
+    Species(const Genome& a_Seed, const Parameters& a_Parameters, int a_id);
 
     // assignment operator
     Species& operator=(const Species& a_g);
 
-    // comparison operator (nessesary for boost::python)
+    // comparison operator (for boost::python)
     // todo: implement a better comparison technique
     bool operator==(Species const& other) const { return m_ID == other.m_ID; }
 
@@ -136,6 +156,21 @@ public:
 
     // Access
     double GetBestFitness() const { return m_BestFitness; }
+    double GetActualBestFitness() const
+    {
+        double f = std::numeric_limits<double>::min();
+        for(int i=0; i<m_Individuals.size(); i++)
+        {
+            if (m_Individuals[i].IsEvaluated())
+            {
+                if (m_Individuals[i].GetFitness() > f)
+                {
+                    f = m_Individuals[i].GetFitness();
+                }
+            }
+        }
+        return f;
+    }
     void SetBestSpecies(bool t) { m_BestSpecies = t; }
     void SetWorstSpecies(bool t) { m_WorstSpecies = t; }
     void IncreaseAgeGens() { m_AgeGenerations++; }
@@ -156,21 +191,31 @@ public:
     Genome GetIndividualByIdx(int a_idx) const { return (m_Individuals[a_idx]); }
     bool IsBestSpecies() const { return m_BestSpecies; }
     bool IsWorstSpecies() const { return m_WorstSpecies; }
-    void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
+    //void SetRepresentative(Genome& a_G) { m_Representative = a_G; }
+    int NumEvaluated()
+    {
+        int x=0;
+        for(int i=0; i<m_Individuals.size(); i++)
+        {
+            if (m_Individuals[i].IsEvaluated())
+                x++;
+        }
+        return x;
+    }
 
     // returns the leader (the member having the best fitness, representing the species)
-    Genome GetLeader() const;
+    Genome& GetLeader();// const;
 
-    Genome GetRepresentative() const;
+    Genome& GetRepresentative();// const;
 
     // adds a new member to the species and updates variables
     void AddIndividual(Genome& a_New);
 
     // returns an individual randomly selected from the best N%
-    Genome GetIndividual(Parameters& a_Parameters, RNG& a_RNG) const;
+    Genome& GetIndividual(Parameters& a_Parameters, RNG& a_RNG);// const;
 
     // returns a completely random individual
-    Genome GetRandomIndividual(RNG& a_RNG) const;
+    Genome& GetRandomIndividual(RNG& a_RNG);// const;
 
     // calculates how many babies this species will spawn in total
     void CountOffspring();
@@ -224,7 +269,7 @@ public:
         void serialize(Archive & ar, const unsigned int version)
         {
             ar & m_ID;
-            ar & m_Representative;
+            //ar & m_Representative;
             ar & m_BestSpecies;
             ar & m_WorstSpecies;
             ar & m_AgeGenerations;

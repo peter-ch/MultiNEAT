@@ -129,10 +129,11 @@ namespace NEAT
     }
     
     // New constructor that creates a fully-connected CTRNN
-    Genome::Genome(unsigned int a_ID,
-                   unsigned int a_NumInputs,
-                   unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
-                   unsigned int a_NumOutputs, ActivationFunction a_OutputActType,
+    /*
+    Genome::Genome(int a_ID,
+                   int a_NumInputs,
+                   int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
+                   int a_NumOutputs, ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
                    const Parameters &a_Parameters)
     {
@@ -154,7 +155,7 @@ namespace NEAT
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
                 n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-                m_NeuronGenes.push_back(n);
+                m_NeuronGenes.emplace_back(n);
                 t_nnum++;
             }
             // add the bias
@@ -162,7 +163,7 @@ namespace NEAT
             // Initialize the traits
             n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
         
-            m_NeuronGenes.push_back(n);
+            m_NeuronGenes.emplace_back(n);
             t_nnum++;
         }
         else
@@ -175,7 +176,7 @@ namespace NEAT
                 // Initialize the traits
                 n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
             
-                m_NeuronGenes.push_back(n);
+                m_NeuronGenes.emplace_back(n);
                 t_nnum++;
             }
         }
@@ -193,7 +194,7 @@ namespace NEAT
             // Initialize the traits
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
         
-            m_NeuronGenes.push_back(t_ngene);
+            m_NeuronGenes.emplace_back(t_ngene);
             t_nnum++;
         }
         
@@ -210,7 +211,7 @@ namespace NEAT
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
             t_ngene.m_SplitY = 0.5;
         
-            m_NeuronGenes.push_back(t_ngene);
+            m_NeuronGenes.emplace_back(t_ngene);
             t_nnum++;
         }
         
@@ -223,7 +224,7 @@ namespace NEAT
                 // created with zero weights. needs future random initialization. !!!!!!!!
                 LinkGene l = LinkGene(j + 1, i + 1, t_innovnum, 0.0, false);
                 l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                m_LinkGenes.push_back(l);
+                m_LinkGenes.emplace_back(l);
                 t_innovnum++;
             }
         }
@@ -242,17 +243,20 @@ namespace NEAT
         
         m_initial_num_neurons = NumNeurons();
         m_initial_num_links = NumLinks();
-    }
+    }*/
 
-    Genome::Genome(unsigned int a_ID,
-                   unsigned int a_NumInputs,
-                   unsigned int a_NumHidden, // ignored for seed type == 0, specifies number of hidden units if seed type == 1
-                   unsigned int a_NumOutputs,
-                   bool a_FS_NEAT, ActivationFunction a_OutputActType,
+    Genome::Genome(int a_ID,
+                   int a_NumInputs,
+                   int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
+                   int a_NumOutputs,
+                   bool a_FS_NEAT,
+                   ActivationFunction a_OutputActType,
                    ActivationFunction a_HiddenActType,
-                   unsigned int a_SeedType,
+                   int a_SeedType,
                    const Parameters &a_Parameters,
-                   unsigned int a_NumLayers = 1) // number of hidden layers. Each will have a_NumHidden nodes
+                   int a_NumLayers,
+                   int a_FS_NEAT_links
+                   )
     {
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
         RNG t_RNG;
@@ -277,16 +281,16 @@ namespace NEAT
             {
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
-                n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
-                m_NeuronGenes.push_back(n);
+                //n.InitTraits(a_Parameters.NeuronTraits, t_RNG); // no need to init traits for inputs
+                m_NeuronGenes.emplace_back(n);
                 t_nnum++;
             }
             // add the bias
             NeuronGene n = NeuronGene(BIAS, t_nnum, 0.0);
             // Initialize the traits
-            n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+            //n.InitTraits(a_Parameters.NeuronTraits, t_RNG); // no need to init traits for inputs
 
-            m_NeuronGenes.push_back(n);
+            m_NeuronGenes.emplace_back(n);
             t_nnum++;
         }
         else
@@ -297,9 +301,9 @@ namespace NEAT
             {
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
-                n.InitTraits(a_Parameters.NeuronTraits, t_RNG);
+                //n.InitTraits(a_Parameters.NeuronTraits, t_RNG); // no need to init traits for inputs
 
-                m_NeuronGenes.push_back(n);
+                m_NeuronGenes.emplace_back(n);
                 t_nnum++;
             }
         }
@@ -317,7 +321,7 @@ namespace NEAT
             // Initialize the traits
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
 
-            m_NeuronGenes.push_back(t_ngene);
+            m_NeuronGenes.emplace_back(t_ngene);
             t_nnum++;
         }
         
@@ -334,7 +338,7 @@ namespace NEAT
             // Initialize the traits
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
 
-            m_NeuronGenes.push_back(t_ngene);
+            m_NeuronGenes.emplace_back(t_ngene);
             t_nnum++;
             a_NumOutputs++;
         }
@@ -359,7 +363,7 @@ namespace NEAT
                     t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
                     t_ngene.m_SplitY = initlt;
         
-                    m_NeuronGenes.push_back(t_ngene);
+                    m_NeuronGenes.emplace_back(t_ngene);
                     t_nnum++;
                 }
     
@@ -384,7 +388,7 @@ namespace NEAT
                             // init traits (TODO: maybe init empty traits?)
                             LinkGene l = LinkGene(j + last_src_id, i + last_dest_id, t_innovnum, 0.0, false);
                             l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                            m_LinkGenes.push_back(l);
+                            m_LinkGenes.emplace_back(l);
                             t_innovnum++;
                         }
                     }
@@ -414,7 +418,7 @@ namespace NEAT
                         // init traits (TODO: maybe init empty traits?)
                         LinkGene l = LinkGene(j + last_src_id, i + last_dest_id, t_innovnum, 0.0, false);
                         l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.push_back(l);
+                        m_LinkGenes.emplace_back(l);
                         t_innovnum++;
                     }
                 }
@@ -428,7 +432,7 @@ namespace NEAT
                         // created with zero weights. needs future random initialization. !!!!!!!!
                         LinkGene l = LinkGene(a_NumInputs, i + last_dest_id, t_innovnum, 0.0, false);
                         l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.push_back(l);
+                        m_LinkGenes.emplace_back(l);
                         t_innovnum++;
                     }
                 }*/
@@ -446,7 +450,7 @@ namespace NEAT
                         // created with zero weights. needs future random initialization. !!!!!!!!
                         LinkGene l = LinkGene(j + 1, i + a_NumInputs + 1, t_innovnum, 0.0, false);
                         l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.push_back(l);
+                        m_LinkGenes.emplace_back(l);
                         t_innovnum++;
                     }
                 }
@@ -455,27 +459,59 @@ namespace NEAT
             {
                 // Start very minimally - connect a random input to each output
                 // Also connect the bias to every output
-                for (unsigned int i = 0; i < a_NumOutputs; i++)
+                
+                std::vector< std::pair<int, int> > made_already;
+                bool there=false;
+                int linksmade = 0;
+                
+                // do this a few times for more initial links created
+                // TODO: make sure the innovations don't repeat for the same input/output pairs
+                while(linksmade < a_FS_NEAT_links)
                 {
-                    int t_inp_id = t_RNG.RandInt(1, a_NumInputs - 1);
-                    int t_bias_id = a_NumInputs;
-                    int t_outp_id = a_NumInputs + 1 + i;
-
-                    // created with zero weights. needs future random initialization. !!!!!!!!
-                    LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
-                    l.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                    m_LinkGenes.push_back(l);
-                    t_innovnum++;
-
-                    if (a_Parameters.DontUseBiasNeuron == false)
+                    for (unsigned int i = 0; i < a_NumOutputs; i++)
                     {
-                        LinkGene bl = LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false);
-                        bl.InitTraits(a_Parameters.LinkTraits, t_RNG);
-                        m_LinkGenes.push_back(bl);
-                        t_innovnum++;
+                        int t_inp_id = t_RNG.RandInt(1, a_NumInputs - 1);
+                        int t_bias_id = a_NumInputs;
+                        int t_outp_id = a_NumInputs + 1 + i;
+                        
+                        // check if there already
+                        there=false;
+                        for(auto it = made_already.begin(); it != made_already.end(); it++)
+                        {
+                            if ((it->first == t_inp_id) && (it->second == t_outp_id))
+                            {
+                                there = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!there)
+                        {
+                            // created with zero weights. needs future random initialization. !!!!!!!!
+                            LinkGene l = LinkGene(t_inp_id, t_outp_id, t_innovnum, 0.0, false);
+                            l.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                            m_LinkGenes.emplace_back(l);
+                            t_innovnum++;
+    
+                            if (a_Parameters.DontUseBiasNeuron == false)
+                            {
+                                LinkGene bl = LinkGene(t_bias_id, t_outp_id, t_innovnum, 0.0, false);
+                                bl.InitTraits(a_Parameters.LinkTraits, t_RNG);
+                                m_LinkGenes.emplace_back(bl);
+                                t_innovnum++;
+                            }
+                            
+                            linksmade++;
+                            made_already.push_back(std::make_pair(t_inp_id, t_outp_id));
+                        }
                     }
                 }
             }
+        }
+
+        if (a_FS_NEAT && (a_FS_NEAT_links==1))
+        {
+            throw std::runtime_error("Known bug - don't use FS-NEAT with just 1 link and 1/1/1 genome");
         }
         
         // Also initialize the Genome's traits
@@ -504,12 +540,12 @@ namespace NEAT
         return m_Depth;
     }
 
-    void Genome::SetID(unsigned int a_id)
+    void Genome::SetID(int a_id)
     {
         m_ID = a_id;
     }
 
-    unsigned int Genome::GetID() const
+    int Genome::GetID() const
     {
         return m_ID;
     }
@@ -1027,9 +1063,9 @@ namespace NEAT
 
                     // Save potential link to query
                     std::vector<int> t_link;
-                    t_link.push_back(j);
-                    t_link.push_back(i);
-                    t_to_query.push_back(t_link);
+                    t_link.emplace_back(j);
+                    t_link.emplace_back(i);
+                    t_to_query.emplace_back(t_link);
                 }
             }
         }
@@ -1107,9 +1143,9 @@ namespace NEAT
 
                 // Save potential link to query
                 std::vector<int> t_link;
-                t_link.push_back(j);
-                t_link.push_back(i);
-                t_to_query.push_back(t_link);
+                t_link.emplace_back(j);
+                t_link.emplace_back(i);
+                t_to_query.emplace_back(t_link);
             }
         }
 
@@ -1226,11 +1262,34 @@ namespace NEAT
         // TODO: if neuron parameters were changed, derive them
         // * in future expansions
     }
-
-
+    
+    //std::map<std::pair<int,int>, double> distance_cache;
+    
     // Returns the absolute distance between this genome and a_G
     double Genome::CompatibilityDistance(Genome &a_G, Parameters &a_Parameters)
     {
+        // first check if in cache, if so, return that
+        /*auto q1 = std::make_pair(this->GetID(), a_G.GetID());
+        auto q2 = std::make_pair(a_G.GetID(), this->GetID());
+        if (distance_cache.count(q1) > 0)
+        {
+            return distance_cache[q1];
+        }
+        else if (distance_cache.count(q2) > 0)
+        {
+            return distance_cache[q2];
+        }*/
+        
+        // New - if there is a behavior in the genomes, return their distance
+#ifdef USE_BOOST_PYTHON
+        // is it not None?
+        if ((m_behavior.ptr() != py::object().ptr()) && (a_G.m_behavior.ptr() != py::object().ptr()))
+        {
+            return py::extract<double>(m_behavior.attr("distance_to")(a_G.m_behavior));
+        }
+#endif
+        
+        
         // iterators for moving through the genomes' genes
         std::vector<LinkGene>::iterator t_g1;
         std::vector<LinkGene>::iterator t_g2;
@@ -1292,10 +1351,13 @@ namespace NEAT
                 if (t_g1innov == t_g2innov)
                 {
                     t_num_matching_links++;
-
-                    double t_wdiff = (t_g1->GetWeight() - t_g2->GetWeight());
-                    if (t_wdiff < 0) t_wdiff = -t_wdiff; // make sure it is positive
-                    t_total_weight_difference += t_wdiff;
+                    
+                    if (a_Parameters.WeightDiffCoeff > 0.0)
+                    {
+                        double t_wdiff = (t_g1->GetWeight() - t_g2->GetWeight());
+                        if (t_wdiff < 0) t_wdiff = -t_wdiff; // make sure it is positive
+                        t_total_weight_difference += t_wdiff;
+                    }
 
                     // calculate link trait difference here
                     std::map<std::string, double> link_trait_difference = t_g1->GetTraitDistances(t_g2->m_Traits);
@@ -1329,7 +1391,7 @@ namespace NEAT
         }
 
         // find matching neuron IDs
-        for (unsigned int i = 0; i < NumNeurons(); i++)
+        for (unsigned int i = NumInputs(); i < NumNeurons(); i++)
         {
             // no inputs considered for comparison
             if ((m_NeuronGenes[i].Type() != INPUT) && (m_NeuronGenes[i].Type() != BIAS))
@@ -1339,28 +1401,44 @@ namespace NEAT
                 {
                     t_num_matching_neurons++;
 
-                    double t_A_difference = m_NeuronGenes[i].m_A - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_A;
-                    if (t_A_difference < 0.0f) t_A_difference = -t_A_difference;
-                    t_total_A_difference += t_A_difference;
-
-                    double t_B_difference = m_NeuronGenes[i].m_B - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_B;
-                    if (t_B_difference < 0.0f) t_B_difference = -t_B_difference;
-                    t_total_B_difference += t_B_difference;
-
-                    double t_time_constant_difference =
-                            m_NeuronGenes[i].m_TimeConstant - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_TimeConstant;
-                    if (t_time_constant_difference < 0.0f) t_time_constant_difference = -t_time_constant_difference;
-                    t_total_timeconstant_difference += t_time_constant_difference;
-
-                    double t_bias_difference =
-                            m_NeuronGenes[i].m_Bias - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_Bias;
-                    if (t_bias_difference < 0.0f) t_bias_difference = -t_bias_difference;
-                    t_total_bias_difference += t_bias_difference;
+                    if (a_Parameters.ActivationADiffCoeff > 0.0)
+                    {
+                        double t_A_difference = m_NeuronGenes[i].m_A - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_A;
+                        if (t_A_difference < 0.0f) t_A_difference = -t_A_difference;
+                        t_total_A_difference += t_A_difference;
+                    }
+    
+                    if (a_Parameters.ActivationBDiffCoeff > 0.0)
+                    {
+                        double t_B_difference = m_NeuronGenes[i].m_B - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_B;
+                        if (t_B_difference < 0.0f) t_B_difference = -t_B_difference;
+                        t_total_B_difference += t_B_difference;
+                    }
+    
+                    if (a_Parameters.TimeConstantDiffCoeff > 0.0)
+                    {
+                        double t_time_constant_difference =
+                                m_NeuronGenes[i].m_TimeConstant -
+                                a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_TimeConstant;
+                        if (t_time_constant_difference < 0.0f) t_time_constant_difference = -t_time_constant_difference;
+                        t_total_timeconstant_difference += t_time_constant_difference;
+                    }
+    
+                    if (a_Parameters.BiasDiffCoeff > 0.0)
+                    {
+                        double t_bias_difference =
+                                m_NeuronGenes[i].m_Bias - a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_Bias;
+                        if (t_bias_difference < 0.0f) t_bias_difference = -t_bias_difference;
+                        t_total_bias_difference += t_bias_difference;
+                    }
 
                     // Activation function type difference is found
-                    if (m_NeuronGenes[i].m_ActFunction != a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_ActFunction)
+                    if (a_Parameters.ActivationFunctionDiffCoeff > 0.0)
                     {
-                        t_total_num_activation_difference++;
+                        if (m_NeuronGenes[i].m_ActFunction != a_G.GetNeuronByID(m_NeuronGenes[i].ID()).m_ActFunction)
+                        {
+                            t_total_num_activation_difference++;
+                        }
                     }
 
                     // calculate and add node trait difference here
@@ -1388,40 +1466,47 @@ namespace NEAT
             t_normalizer = static_cast<double>(t_max_genome_size);
         }
 
-        // if there are no matching links, make it 1.0 to avoid divide error
-        if (t_num_matching_links <= 0)
-            t_num_matching_links = 1;
-
-        // if there are no matching neurons, make it 1.0 to avoid divide error
-        if (t_num_matching_neurons <= 0)
-            t_num_matching_neurons = 1;
-
-        if (t_normalizer <= 0.0)
-            t_normalizer = 1.0;
+        // if there are no matching links or neurons, make it 1.0 to avoid divide error
+        if (t_num_matching_links <= 0) t_num_matching_links = 1;
+        if (t_num_matching_neurons <= 0) t_num_matching_neurons = 1;
+        if (t_normalizer <= 0.0) t_normalizer = 1.0;
+        double tnrm = 1.0/t_normalizer;
+        double tnml = 1.0/t_num_matching_links;
+        double tnmn = 1.0/t_num_matching_neurons;
 
         t_total_distance =
-                (a_Parameters.ExcessCoeff * (t_num_excess / t_normalizer)) +
-                (a_Parameters.DisjointCoeff * (t_num_disjoint / t_normalizer)) +
-                (a_Parameters.WeightDiffCoeff * (t_total_weight_difference / t_num_matching_links)) +
-                (a_Parameters.ActivationADiffCoeff * (t_total_A_difference / t_num_matching_neurons)) +
-                (a_Parameters.ActivationBDiffCoeff * (t_total_B_difference / t_num_matching_neurons)) +
-                (a_Parameters.TimeConstantDiffCoeff * (t_total_timeconstant_difference / t_num_matching_neurons)) +
-                (a_Parameters.BiasDiffCoeff * (t_total_bias_difference / t_num_matching_neurons)) +
-                (a_Parameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference / t_num_matching_neurons));
+                (a_Parameters.ExcessCoeff * (t_num_excess * tnrm)) +
+                (a_Parameters.DisjointCoeff * (t_num_disjoint * tnrm)) +
+                (a_Parameters.WeightDiffCoeff * (t_total_weight_difference * tnml)) +
+                (a_Parameters.ActivationADiffCoeff * (t_total_A_difference * tnmn)) +
+                (a_Parameters.ActivationBDiffCoeff * (t_total_B_difference * tnmn)) +
+                (a_Parameters.TimeConstantDiffCoeff * (t_total_timeconstant_difference * tnmn)) +
+                (a_Parameters.BiasDiffCoeff * (t_total_bias_difference * tnmn)) +
+                (a_Parameters.ActivationFunctionDiffCoeff * (t_total_num_activation_difference * tnmn));
 
         // add trait differences according to each one's coeff
+        
         for(auto it = t_total_link_trait_difference.begin(); it != t_total_link_trait_difference.end(); it++)
         {
-            t_total_distance += (a_Parameters.LinkTraits[it->first].m_ImportanceCoeff * it->second) / t_num_matching_links;
+            double n = (a_Parameters.LinkTraits[it->first].m_ImportanceCoeff * it->second) * tnml;
+            if (std::isnan(n) || std::isinf(n)) n = 0.0;
+            t_total_distance += n;
         }
         for(auto it = t_total_neuron_trait_difference.begin(); it != t_total_neuron_trait_difference.end(); it++)
         {
-            t_total_distance += (a_Parameters.NeuronTraits[it->first].m_ImportanceCoeff * it->second) / t_num_matching_neurons;
+            double n = (a_Parameters.NeuronTraits[it->first].m_ImportanceCoeff * it->second) * tnmn;
+            if (std::isnan(n) || std::isinf(n)) n = 0.0;
+            t_total_distance += n;
         }
         for(auto it = t_genome_link_trait_difference.begin(); it != t_genome_link_trait_difference.end(); it++)
         {
-            t_total_distance += (a_Parameters.GenomeTraits[it->first].m_ImportanceCoeff * it->second);
+            double n = (a_Parameters.GenomeTraits[it->first].m_ImportanceCoeff * it->second);
+            if (std::isnan(n) || std::isinf(n)) n = 0.0;
+            t_total_distance += n;
         }
+        
+        // store in cache
+        //distance_cache[std::make_pair(this->GetID(), a_G.GetID())] = t_total_distance;
 
         return t_total_distance;
     }
@@ -1436,8 +1521,8 @@ namespace NEAT
         if (GetID() == a_G.GetID())
             return true;
 
-        if ((NumLinks() == 0) && (a_G.NumLinks() == 0))
-            return true;
+        /*if ((NumLinks() == 0) && (a_G.NumLinks() == 0))
+            return true;*/
 
         double t_total_distance = CompatibilityDistance(a_G, a_Parameters);
 
@@ -1453,20 +1538,20 @@ namespace NEAT
     {
         std::vector<double> t_probs;
 
-        t_probs.push_back(a_Parameters.ActivationFunction_SignedSigmoid_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_UnsignedSigmoid_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_Tanh_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_TanhCubic_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_SignedStep_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_UnsignedStep_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_SignedGauss_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_UnsignedGauss_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_Abs_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_SignedSine_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_UnsignedSine_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_Linear_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_Relu_Prob);
-        t_probs.push_back(a_Parameters.ActivationFunction_Softplus_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_SignedSigmoid_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_UnsignedSigmoid_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_Tanh_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_TanhCubic_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_SignedStep_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_UnsignedStep_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_SignedGauss_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_UnsignedGauss_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_Abs_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_SignedSine_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_UnsignedSine_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_Linear_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_Relu_Prob);
+        t_probs.emplace_back(a_Parameters.ActivationFunction_Softplus_Prob);
 
         return (NEAT::ActivationFunction) a_RNG.Roulette(t_probs);
     }
@@ -1479,6 +1564,19 @@ namespace NEAT
         // No links to split - go away..
         if (NumLinks() == 0)
             return false;
+        
+        // Also we need at least one neuron with 2 incoming links before we split any
+        /*bool good=false;
+        for (int i=NumInputs(); i<m_NeuronGenes.size(); i++)
+        {
+            if (LinksOutputtingTo(m_NeuronGenes[i].ID()) > 1)
+            {
+                good = true;
+                break;
+            }
+        }
+        if (!good)
+            return false;*/
 
         // First find a link that to be split
         ////////////////////
@@ -1490,7 +1588,7 @@ namespace NEAT
         LinkGene t_chosenlink(0, 0, -1, 0, false); // to save it for later
 
         // number of tries to find a good link or give up
-        int t_tries = 64;
+        int t_tries = 256;
         while (!t_link_found)
         {
             if (NumLinks() == 1)
@@ -1536,7 +1634,9 @@ namespace NEAT
 
                 // Do not allow splitting a link coming from a bias
                 if (m_NeuronGenes[GetNeuronIndex(t_in)].Type() == BIAS)
+                {
                     t_link_found = false;
+                }
             }
 
             // Do not allow splitting of recurrent links
@@ -1602,12 +1702,14 @@ namespace NEAT
             // Create the neuron gene
             NeuronGene t_ngene(HIDDEN, t_nid, t_sy);
 
-            double t_A = a_RNG.RandFloat(), t_B = a_RNG.RandFloat(), t_TC = a_RNG.RandFloat(), t_Bs =
-                    a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+            double t_A = a_RNG.RandFloat();
+            double t_B = a_RNG.RandFloat();
+            double t_TC = a_RNG.RandFloat();
+            double t_Bs = a_RNG.RandFloat();
             Scale(t_A, 0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Scale(t_B, 0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
-            //Scale(t_Bs, 0, 1, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
+            Scale(t_Bs, 0, 1, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
 
             Clamp(t_A, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Clamp(t_B, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
@@ -1622,18 +1724,18 @@ namespace NEAT
                          GetRandomActivation(a_Parameters, a_RNG));
 
             // Initialize the traits
-            if (a_RNG.RandFloat() < 0.5)
-            {
-                t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
-            }
-            else
-            {   // mate instead of randomizing
-                t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
-                t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
-            }
+            //if (a_RNG.RandFloat() < 0.5)
+            //{
+            t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            //}
+            //else
+            //{   // mate instead of randomizing
+            //    t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
+            //    t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
+            //}
 
             // Add the NeuronGene
-            m_NeuronGenes.push_back(t_ngene);
+            m_NeuronGenes.emplace_back(t_ngene);
 
             // Now the links
 
@@ -1642,15 +1744,17 @@ namespace NEAT
 
             // First link
             LinkGene l1 = LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag);
+            // make sure this weight is in the allowed interval
+            Clamp(l1.m_Weight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
             // Init the link's traits
             l1.InitTraits(a_Parameters.LinkTraits, a_RNG);
-            m_LinkGenes.push_back(l1);
+            m_LinkGenes.emplace_back(l1);
 
             // Second link
             LinkGene l2 = LinkGene(t_nid, t_out, t_l2id, t_orig_weight, t_recurrentflag);
             // Init the link's traits
             l2.InitTraits(a_Parameters.LinkTraits, a_RNG);
-            m_LinkGenes.push_back(l2);
+            m_LinkGenes.emplace_back(l2);
         }
         else
         {
@@ -1712,12 +1816,14 @@ namespace NEAT
             // Create the neuron gene
             NeuronGene t_ngene(HIDDEN, t_nid, t_sy);
 
-            double t_A = a_RNG.RandFloat(), t_B = a_RNG.RandFloat(), t_TC = a_RNG.RandFloat(), t_Bs =
-                    a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+            double t_A = a_RNG.RandFloat();
+            double t_B = a_RNG.RandFloat();
+            double t_TC = a_RNG.RandFloat();
+            double t_Bs = a_RNG.RandFloat();
             Scale(t_A, 0, 1, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Scale(t_B, 0, 1, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
             Scale(t_TC, 0, 1, a_Parameters.MinNeuronTimeConstant, a_Parameters.MaxNeuronTimeConstant);
-            //Scale(t_Bs, 0, 1, GlobalParameters.MinNeuronBias, GlobalParameters.MaxNeuronBias);
+            Scale(t_Bs, 0, 1, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
 
             Clamp(t_A, a_Parameters.MinActivationA, a_Parameters.MaxActivationA);
             Clamp(t_B, a_Parameters.MinActivationB, a_Parameters.MaxActivationB);
@@ -1732,31 +1838,33 @@ namespace NEAT
                          GetRandomActivation(a_Parameters, a_RNG));
 
             // Initialize the traits
-            if (a_RNG.RandFloat() < 0.5)
-            {
-                t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
-            }// mate instead of randomizing
-            else
-            {
-                t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
-                t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
-            }
+            //if (a_RNG.RandFloat() < 0.5)
+            //{
+            t_ngene.InitTraits(a_Parameters.NeuronTraits, a_RNG);
+            //}// mate instead of randomizing
+            //else
+            //{
+            //    t_ngene.m_Traits = m_NeuronGenes[GetNeuronIndex(t_in)].m_Traits;
+            //    t_ngene.MateTraits(m_NeuronGenes[GetNeuronIndex(t_out)].m_Traits, a_RNG);
+            //}
 
             // Make sure the recurrent flag is kept
             bool t_recurrentflag = t_chosenlink.IsRecurrent();
 
             // Add the NeuronGene
-            m_NeuronGenes.push_back(t_ngene);
+            m_NeuronGenes.emplace_back(t_ngene);
             // First link
             LinkGene l1 = LinkGene(t_in, t_nid, t_l1id, 1.0, t_recurrentflag);
+            // make sure this weight is in the allowed interval
+            Clamp(l1.m_Weight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
             // initialize the link's traits
             l1.InitTraits(a_Parameters.LinkTraits, a_RNG);
-            m_LinkGenes.push_back(l1);
+            m_LinkGenes.emplace_back(l1);
             // Second link
             LinkGene l2 = LinkGene(t_nid, t_out, t_l2id, t_orig_weight, t_recurrentflag);
             // initialize the link's traits
             l2.InitTraits(a_Parameters.LinkTraits, a_RNG);
-            m_LinkGenes.push_back(l2);
+            m_LinkGenes.emplace_back(l2);
         }
 
         return true;
@@ -1874,8 +1982,8 @@ namespace NEAT
                     }
                 }
                 while (
-                        (m_NeuronGenes[t_n1idx].SplitY() > m_NeuronGenes[t_n2idx].SplitY()) // backward?
-                        ||
+                        //(m_NeuronGenes[t_n1idx].SplitY() > m_NeuronGenes[t_n2idx].SplitY()) // backward?
+                        //||
                         (HasLink(m_NeuronGenes[t_n1idx].ID(), m_NeuronGenes[t_n2idx].ID())) // already present?
                         ||
                         (m_NeuronGenes[t_n1idx].Type() == OUTPUT) // consider connections out of outputs recurrent
@@ -1906,8 +2014,8 @@ namespace NEAT
             }
                 // NOTE: this considers output-output connections as forward. Should be fixed.
             while (
-                    (m_NeuronGenes[t_n1idx].SplitY() <= m_NeuronGenes[t_n2idx].SplitY()) // forward?
-                    ||
+                    //(m_NeuronGenes[t_n1idx].SplitY() <= m_NeuronGenes[t_n2idx].SplitY()) // forward?
+                    //||
                     (HasLink(m_NeuronGenes[t_n1idx].ID(), m_NeuronGenes[t_n2idx].ID())) // already present?
                     ||
                     (t_n1idx == t_n2idx) // they should differ
@@ -1960,7 +2068,8 @@ namespace NEAT
         int t_innovid = a_Innovs.CheckInnovation(t_n1id, t_n2id, NEW_LINK);
 
         // Choose the weight for this link
-        double t_weight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+        double t_weight = a_RNG.RandFloat();
+        Scale(t_weight, 0, 1, a_Parameters.MinWeight, a_Parameters.MaxWeight);
 
         // A novel innovation?
         if (t_innovid == -1)
@@ -1973,7 +2082,7 @@ namespace NEAT
         LinkGene l = LinkGene(t_n1id, t_n2id, t_innovid, t_weight, t_MakeRecurrent);
         // init the link's traits
         l.InitTraits(a_Parameters.LinkTraits, a_RNG);
-        m_LinkGenes.push_back(l);
+        m_LinkGenes.emplace_back(l);
 
         // All done.
         return true;
@@ -1986,7 +2095,7 @@ namespace NEAT
     // Helper functions for the pruning procedure
 
     // Removes the link with the specified innovation ID
-    void Genome::RemoveLinkGene(int a_InnovID)
+    /*void Genome::RemoveLinkGene(int a_InnovID)
     {
         // for iterating through the genes
         std::vector<LinkGene>::iterator t_curlink = m_LinkGenes.begin();
@@ -2002,6 +2111,21 @@ namespace NEAT
 
             t_curlink++;
         }
+    }*/
+
+    // this version uses a simple index
+    void Genome::RemoveLinkGene(int a_idx)
+    {
+        // for iterating through the genes
+        auto t_curlink = m_LinkGenes.begin();
+        if (a_idx > 0)
+        {
+            m_LinkGenes.erase(m_LinkGenes.begin() + a_idx);
+        }
+        else
+        {
+            m_LinkGenes.clear();
+        }
     }
 
 
@@ -2011,22 +2135,31 @@ namespace NEAT
     {
         // the list of links connected to this neuron
         std::vector<int> t_link_removal_queue;
-
-        // OK find all links connected to this neuron ID
-        for (unsigned int i = 0; i < NumLinks(); i++)
+        
+        bool removed=false;
+        
+        do
         {
-            if ((m_LinkGenes[i].FromNeuronID() == a_ID) || (m_LinkGenes[i].ToNeuronID() == a_ID))
+            removed=false;
+            // Remove all links connected to this neuron ID
+            for (int i = 0; i < NumLinks(); i++)
             {
-                // found one, add it
-                t_link_removal_queue.push_back(m_LinkGenes[i].InnovationID());
+                if ((m_LinkGenes[i].FromNeuronID() == a_ID) || (m_LinkGenes[i].ToNeuronID() == a_ID))
+                {
+                    // found one, remove it
+                    //t_link_removal_queue.emplace_back(i);//m_LinkGenes[i].InnovationID());
+                    RemoveLinkGene(i);
+                    removed=true;
+                    break;
+                }
             }
-        }
+        } while (removed);
 
         // Now remove them
-        for (unsigned int i = 0; i < t_link_removal_queue.size(); i++)
+        /*for (unsigned int i = 0; i < t_link_removal_queue.size(); i++)
         {
             RemoveLinkGene(t_link_removal_queue[i]);
-        }
+        }*/
 
         // Now is safe to remove the neuron
         // find it first
@@ -2236,7 +2369,7 @@ namespace NEAT
 
     // Replaces a hidden neuron having only one input and only one output with
     // a direct link between them.
-    bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, RNG &a_RNG)
+    bool Genome::Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG)
     {
         // At least one hidden node must be present
         if (NumNeurons() == (NumInputs() + NumOutputs()))
@@ -2250,7 +2383,7 @@ namespace NEAT
             if ((LinksInputtingFrom(m_NeuronGenes[i].ID()) == 1) && (LinksOutputtingTo(m_NeuronGenes[i].ID()) == 1)
                 && (m_NeuronGenes[i].Type() == HIDDEN))
             {
-                t_neurons_to_delete.push_back(i);
+                t_neurons_to_delete.emplace_back(i);
             }
         }
 
@@ -2309,29 +2442,39 @@ namespace NEAT
             // a novel innovation?
             if (t_innovid == -1)
             {
-                // Add the innovation and the link gene
-                int t_newinnov = a_Innovs.AddLinkInnovation(m_LinkGenes[t_l1idx].FromNeuronID(),
-                                                            m_LinkGenes[t_l2idx].ToNeuronID());
-                m_LinkGenes.push_back(
-                        LinkGene(m_LinkGenes[t_l1idx].FromNeuronID(), m_LinkGenes[t_l2idx].ToNeuronID(), t_newinnov,
-                                 t_weight, false));
-
-                // Remove the neuron now
+                // Save the IDs for a while
+                int from = m_LinkGenes[t_l1idx].FromNeuronID();
+                int to = m_LinkGenes[t_l2idx].ToNeuronID();
+                
+                // Remove the neuron and its links now
                 RemoveNeuronGene(m_NeuronGenes[t_neurons_to_delete[t_choice]].ID());
 
+                // Add the innovation and the link gene
+                int t_newinnov = a_Innovs.AddLinkInnovation(from, to);
+                LinkGene lg = LinkGene(from, to, t_newinnov, t_weight, false);
+                lg.InitTraits(a_Parameters.LinkTraits, a_RNG);
+                
+                m_LinkGenes.emplace_back(lg);
+                
                 // bye
                 return true;
             }
-                // not a novel innovation
+            // not a novel innovation
             else
             {
-                // Add the link and remove the neuron
-                m_LinkGenes.push_back(
-                        LinkGene(m_LinkGenes[t_l1idx].FromNeuronID(), m_LinkGenes[t_l2idx].ToNeuronID(), t_innovid,
-                                 t_weight, false));
-
-                // Remove the neuron now
+                // Save the IDs for a while
+                int from = m_LinkGenes[t_l1idx].FromNeuronID();
+                int to = m_LinkGenes[t_l2idx].ToNeuronID();
+                
+                // Remove the neuron and its links now
                 RemoveNeuronGene(m_NeuronGenes[t_neurons_to_delete[t_choice]].ID());
+    
+                // Add the link
+                LinkGene lg = LinkGene(from, to, t_innovid, t_weight, false);
+                lg.InitTraits(a_Parameters.LinkTraits, a_RNG);
+                m_LinkGenes.emplace_back(lg);
+                
+                // TODO: Maybe inherit the traits from one of the links
 
                 // bye
                 return true;
@@ -2373,27 +2516,39 @@ namespace NEAT
         // For all links..
         for(unsigned int i=0; i<m_LinkGenes.size(); i++)
         {
-            double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
             if ((!t_severe_mutation) && (a_RNG.RandFloat() < a_Parameters.WeightMutationRate))
             {
-                bool ontail = (i >= t_genometail);
+                bool ontail = false; //(i >= t_genometail);
+                double t_LinkGenesWeight = m_LinkGenes[i].GetWeight();
                 
                 if (ontail || (a_RNG.RandFloat() < a_Parameters.WeightReplacementRate))
                 {
+                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
+                    
+                    //t_LinkGenesWeight = a_RNG.RandFloat();
+                    //Scale(t_LinkGenesWeight, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                     t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
                 }
                 else
                 {
                     t_LinkGenesWeight += a_RNG.RandFloatSigned() * a_Parameters.WeightMutationMaxPower;
                 }
-        
-                Clamp(t_LinkGenesWeight, -a_Parameters.MaxWeight, a_Parameters.MaxWeight);
+    
+                Clamp(t_LinkGenesWeight, a_Parameters.MinWeight, a_Parameters.MaxWeight);
                 m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
                 
                 did_mutate = true;
             }
             else if (t_severe_mutation)
             {
+                if (a_RNG.RandFloat() < a_Parameters.WeightMutationRate)
+                {
+                    double t_LinkGenesWeight = a_RNG.RandFloat();
+                    Scale(t_LinkGenesWeight, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+                    m_LinkGenes[i].SetWeight(t_LinkGenesWeight);
+    
+                    did_mutate = true;
+                }
                 t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
                 
                 did_mutate = true;
@@ -2405,13 +2560,15 @@ namespace NEAT
 
 
     // Set all link weights to random values between [-R .. R]
-    void Genome::Randomize_LinkWeights(double a_Range, RNG &a_RNG)
+    void Genome::Randomize_LinkWeights(const Parameters& a_Parameters, RNG &a_RNG)
     {
         // For all links..
         for (unsigned int i = 0; i < NumLinks(); i++)
         {
-            m_LinkGenes[i].SetWeight(
-                    a_RNG.RandFloatSigned() * a_Range);
+            double nf=0;
+            nf = a_RNG.RandFloat();
+            Scale(nf, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
+            m_LinkGenes[i].SetWeight(nf);
         }
     }
 
@@ -2541,10 +2698,7 @@ namespace NEAT
             // don't mutate inputs and bias
             if ((it->Type() != INPUT) && (it->Type() != BIAS))
             {
-                if (it->MutateTraits(a_Parameters.NeuronTraits, a_RNG))
-                {
-                    did_mutate = true;
-                }
+                did_mutate = it->MutateTraits(a_Parameters.NeuronTraits, a_RNG);
             }
         }
         return did_mutate;
@@ -2555,10 +2709,7 @@ namespace NEAT
         bool did_mutate = false;
         for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
         {
-            if ( it->MutateTraits(a_Parameters.LinkTraits, a_RNG) )
-            {
-                did_mutate = true;
-            }
+            did_mutate = it->MutateTraits(a_Parameters.LinkTraits, a_RNG);
         }
         return did_mutate;
     }
@@ -2600,10 +2751,19 @@ namespace NEAT
         
         // Mate the GenomeGene first
         // Determine if it will pick either gene or mate it
-        if (a_RNG.RandFloat() < 0.5)
+        if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
         {
             // pick
-            Gene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_GenomeGene : a_Dad.m_GenomeGene;
+            Gene n;
+            
+            if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+            {
+                n = (GetFitness() > a_Dad.GetFitness()) ? m_GenomeGene : a_Dad.m_GenomeGene;
+            }
+            else
+            {
+                n = (a_RNG.RandFloat() < 0.5) ? m_GenomeGene : a_Dad.m_GenomeGene;
+            }
             t_baby.m_GenomeGene = n;
         }
         else
@@ -2625,51 +2785,75 @@ namespace NEAT
             for (i = 0; i < m_NumInputs - 1; i++)
             {
                 // Determine if it will pick either gene or mate it
-                if (a_RNG.RandFloat() < 0.5)
+                /*if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                 {
                     // pick
-                    NeuronGene n = ((a_RNG.RandFloat() < 0.5f)==0)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
-                    t_baby.m_NeuronGenes.push_back(n);
+                    NeuronGene n;
+                    // most of the time pick from the fitter parent
+                    if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                    {
+                        n = (GetFitness() > a_Dad.GetFitness())? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    else
+                    {
+                        // pick randomly
+                        n = (a_RNG.RandFloat() < 0.5)? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    
+                    t_baby.m_NeuronGenes.emplace_back(n);
+                }
+                else
+                {*/
+                    // mate
+                    //n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                    t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[i]);
+                //}
+
+            }
+            /*if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
+            {
+                // the bias
+                NeuronGene nb;
+                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                {
+                    nb = (GetFitness() > a_Dad.GetFitness())? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
                 }
                 else
                 {
-                    // mate
-                    NeuronGene n = m_NeuronGenes[i];
-                    n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
-                    t_baby.m_NeuronGenes.push_back(n);
+                    nb = (a_RNG.RandFloat() < 0.5) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
                 }
-
-            }
-            if (a_RNG.RandFloat() < 0.5)
-            {
-                // the bias
-                NeuronGene nb = ((a_RNG.RandFloat() < 0.5f) == 0) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
-                t_baby.m_NeuronGenes.push_back(nb);
+                t_baby.m_NeuronGenes.emplace_back(nb);
             }
             else
-            {
+            {*/
                 // mate
-                NeuronGene nb = m_NeuronGenes[i];
-                nb.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
-                t_baby.m_NeuronGenes.push_back(nb);
-            }
+                //nb.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[i]);
+            //}
         }
         else
         {
             // the inputs
             for (unsigned int i = 0; i < m_NumInputs; i++)
             {
-                if (a_RNG.RandFloat() < 0.5)
+                /*if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                 {
-                    NeuronGene n = ((a_RNG.RandFloat() < 0.5f) == 0) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
-                    t_baby.m_NeuronGenes.push_back(n);
+                    NeuronGene n;
+                    if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                    {
+                        n = (GetFitness() > a_Dad.GetFitness())? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    else
+                    {
+                        n = (a_RNG.RandFloat() < 0.5) ? m_NeuronGenes[i] : a_Dad.m_NeuronGenes[i];
+                    }
+                    t_baby.m_NeuronGenes.emplace_back(n);
                 }
                 else
-                {
-                    NeuronGene n = m_NeuronGenes[i];
-                    n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
-                    t_baby.m_NeuronGenes.push_back(n);
-                }
+                {*/
+                    //n.MateTraits(a_Dad.m_NeuronGenes[i].m_Traits, a_RNG);
+                    t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[i]);
+                //}
             }
         }
 
@@ -2678,18 +2862,34 @@ namespace NEAT
         {
             NeuronGene t_tempneuron(OUTPUT, 0, 1);
 
-            if (a_RNG.RandFloat() < 0.5)
+            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
             {
-                // random pick
-                if (a_RNG.RandFloat() < 0.5f)
+                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
                 {
-                    // from mother
-                    t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                    if (GetFitness() > a_Dad.GetFitness())
+                    {
+                        // from mother
+                        t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                    }
+                    else
+                    {
+                        // from father
+                        t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                    }
                 }
                 else
                 {
-                    // from father
-                    t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                    // random pick
+                    if (a_RNG.RandFloat() < 0.5)
+                    {
+                        // from mother
+                        t_tempneuron = GetNeuronByIndex(i + m_NumInputs);
+                    }
+                    else
+                    {
+                        // from father
+                        t_tempneuron = a_Dad.GetNeuronByIndex(i + m_NumInputs);
+                    }
                 }
             }
             else
@@ -2700,18 +2900,18 @@ namespace NEAT
                 t_tempneuron.MateTraits(a_Dad.GetNeuronByIndex(i + m_NumInputs).m_Traits, a_RNG);
             }
 
-            t_baby.m_NeuronGenes.push_back(t_tempneuron);
+            t_baby.m_NeuronGenes.emplace_back(t_tempneuron);
         }
 
         // if they are of equal fitness use the shorter (because we want to keep
         // the networks as small as possible)
-        if (m_Fitness == a_Dad.m_Fitness)
+        if (GetFitness() == a_Dad.GetFitness())
         {
             // if they are of equal fitness and length just choose one at
             // random
             if (NumLinks() == a_Dad.NumLinks())
             {
-                if (a_RNG.RandFloat() < 0.5f)
+                if (a_RNG.RandFloat() < 0.5)
                 {
                     t_better = MOM;
                 }
@@ -2734,7 +2934,7 @@ namespace NEAT
         }
         else
         {
-            if (m_Fitness > a_Dad.m_Fitness)
+            if (GetFitness() > a_Dad.GetFitness())
             {
                 t_better = MOM;
             }
@@ -2801,15 +3001,29 @@ namespace NEAT
                 if (t_innov_mom == t_innov_dad)
                 {
                     // get a gene from either parent or average
-                    if (!a_MateAverage)
+                    if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                     {
-                        if (a_RNG.RandFloat() < 0.5)
+                        if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
                         {
-                            t_selectedgene = *t_curMom;
+                            if (GetFitness() < a_Dad.GetFitness())
+                            {
+                                t_selectedgene = *t_curMom;
+                            }
+                            else
+                            {
+                                t_selectedgene = *t_curDad;
+                            }
                         }
                         else
                         {
-                            t_selectedgene = *t_curDad;
+                            if (a_RNG.RandFloat() < 0.5)
+                            {
+                                t_selectedgene = *t_curMom;
+                            }
+                            else
+                            {
+                                t_selectedgene = *t_curDad;
+                            }
                         }
                     }
                     else
@@ -2863,13 +3077,13 @@ namespace NEAT
             {
                 if (!t_skip)
                 {
-                    t_baby.m_LinkGenes.push_back(t_selectedgene);
+                    t_baby.m_LinkGenes.emplace_back(t_selectedgene);
 
                     // Check if we already have the nodes referred to in t_selectedgene.
                     // If not, they need to be added.
 
-                    NeuronGene t_ngene1(NONE, 0, 0);
-                    NeuronGene t_ngene2(NONE, 0, 0);
+                    //NeuronGene t_ngene1(NONE, 0, 0);
+                    //NeuronGene t_ngene2(NONE, 0, 0);
 
                     // mom has a neuron ID not present in the baby?
                     // From
@@ -2880,23 +3094,54 @@ namespace NEAT
                         if (a_Dad.HasNeuronID(t_selectedgene.FromNeuronID()))
                         {
                             // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() > a_Dad.GetFitness())
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                // mate the neurons
+                                NeuronGene t_1 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                NeuronGene t_2 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
                         {
                             // add mom's neuron to the baby
-                            t_baby.m_NeuronGenes.push_back(
+                            t_baby.m_NeuronGenes.emplace_back(
                                     m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
                         }
                     }
@@ -2908,24 +3153,53 @@ namespace NEAT
                         // See if dad has the same neuron.
                         if (a_Dad.HasNeuronID(t_selectedgene.ToNeuronID()))
                         {
-                            // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() > a_Dad.GetFitness())
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    // if so, then choose randomly which neuron the baby shoud inherit
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                // mate the neurons
+                                NeuronGene t_1 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                NeuronGene t_2 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
                         {
                             // add mom's neuron to the baby
-                            t_baby.m_NeuronGenes.push_back(m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                            t_baby.m_NeuronGenes.emplace_back(m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
                         }
                     }
 
@@ -2937,24 +3211,55 @@ namespace NEAT
                         // See if mom has the same neuron
                         if (HasNeuronID(t_selectedgene.FromNeuronID()))
                         {
-                            // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() < a_Dad.GetFitness())
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    // if so, then choose randomly which neuron the baby shoud inherit
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(
+                                                        t_selectedgene.FromNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())]);
+                                // mate the neurons
+                                NeuronGene t_1 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                NeuronGene t_2 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.FromNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
                         {
                             // add dad's neuron to the baby
-                            t_baby.m_NeuronGenes.push_back(
+                            t_baby.m_NeuronGenes.emplace_back(
                                     a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.FromNeuronID())]);
                         }
                     }
@@ -2966,30 +3271,58 @@ namespace NEAT
                         // See if mom has the same neuron
                         if (HasNeuronID(t_selectedgene.ToNeuronID()))
                         {
-                            // if so, then choose randomly which neuron the baby shoud inherit
-                            if (a_RNG.RandFloat() < 0.5f)
+                            if (a_RNG.RandFloat() < a_Parameters.MultipointCrossoverRate)
                             {
-                                // add dad's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                if (a_RNG.RandFloat() < a_Parameters.PreferFitterParentRate)
+                                {
+                                    if (GetFitness() < a_Dad.GetFitness())
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
+                                else
+                                {
+                                    // if so, then choose randomly which neuron the baby shoud inherit
+                                    if (a_RNG.RandFloat() < 0.5)
+                                    {
+                                        // add dad's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                    else
+                                    {
+                                        // add mom's neuron to the baby
+                                        t_baby.m_NeuronGenes.emplace_back(
+                                                m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                    }
+                                }
                             }
                             else
                             {
-                                // add mom's neuron to the baby
-                                t_baby.m_NeuronGenes.push_back(
-                                        m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())]);
+                                // mate neurons
+                                NeuronGene t_1 = a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                NeuronGene t_2 = m_NeuronGenes[GetNeuronIndex(t_selectedgene.ToNeuronID())];
+                                t_1.MateTraits(t_2.m_Traits, a_RNG);
+                                t_baby.m_NeuronGenes.emplace_back(t_1);
                             }
                         }
                         else
                         {
                             // add dad's neuron to the baby
-                            t_baby.m_NeuronGenes.push_back(
+                            t_baby.m_NeuronGenes.emplace_back(
                                     a_Dad.m_NeuronGenes[a_Dad.GetNeuronIndex(t_selectedgene.ToNeuronID())]);
                         }
                     }
                 }
             }
-
         } //end while
 
         t_baby.m_NumInputs = m_NumInputs;
@@ -3004,12 +3337,12 @@ namespace NEAT
 
     // Sorts the genes of the genome
     // The neurons by IDs and the links by innovation numbers.
-    bool neuron_compare(NeuronGene a_ls, NeuronGene a_rs)
+    bool neuron_compare(NeuronGene& a_ls, NeuronGene& a_rs)
     {
         return a_ls.ID() < a_rs.ID();
     }
 
-    bool link_compare(LinkGene a_ls, LinkGene a_rs)
+    bool link_compare(LinkGene& a_ls, LinkGene& a_rs)
     {
         return a_ls.InnovationID() < a_rs.InnovationID();
     }
@@ -3043,7 +3376,7 @@ namespace NEAT
         for (unsigned int i = 0; i < NumLinks(); i++)
         {
             if (m_LinkGenes[i].ToNeuronID() == a_NeuronID)
-                t_inputting_links_idx.push_back(i);
+                t_inputting_links_idx.emplace_back(i);
         }
 
         // For all incoming links..
@@ -3080,7 +3413,7 @@ namespace NEAT
         {
             if (m_NeuronGenes[i].Type() == OUTPUT)
             {
-                t_output_ids.push_back(m_NeuronGenes[i].ID());
+                t_output_ids.emplace_back(m_NeuronGenes[i].ID());
             }
         }
 
@@ -3159,7 +3492,7 @@ namespace NEAT
                 NeuronGene t_neuron(static_cast<NeuronType>(t_type), t_id, t_splity);
                 t_neuron.Init(t_a, t_b, t_timeconst, t_bias, static_cast<ActivationFunction>(t_activationfunc));
 
-                m_NeuronGenes.push_back(t_neuron);
+                m_NeuronGenes.emplace_back(t_neuron);
             }
 
             if (t_Str == "Link")
@@ -3175,7 +3508,7 @@ namespace NEAT
 
                 // TODO read link traits
 
-                m_LinkGenes.push_back(LinkGene(t_from, t_to, t_innov, t_weight, static_cast<bool>(t_isrecur)));
+                m_LinkGenes.emplace_back(LinkGene(t_from, t_to, t_innov, t_weight, static_cast<bool>(t_isrecur)));
             }
         }
         while (t_Str != "GenomeEnd");
@@ -3349,12 +3682,13 @@ namespace NEAT
         std::cout << "====================================================================\n";
     }
 
-#if 0
+
     ////////////////////////////////////////////
     // Evovable Substrate Hyper NEAT.
     // For more info on the algorithm check: http://eplex.cs.ucf.edu/ESHyperNEAT/
     ////////////////////////////////////////////
-    
+
+#if 0
     
     //divide and init for n dimensions
     
@@ -3650,7 +3984,7 @@ namespace NEAT
                 tc.m_weight = TempConnections[j].weight * subst.m_max_weight_and_bias;
                 tc.m_recur_flag = false;
 
-                net.m_connections.push_back(tc);
+                net.m_connections.emplace_back(tc);
 
             }
         }
@@ -3691,7 +4025,7 @@ namespace NEAT
                     tc.m_weight = TempConnections[k].weight * subst.m_max_weight_and_bias;
                     tc.m_recur_flag = false;
 
-                    net.m_connections.push_back(tc);
+                    net.m_connections.emplace_back(tc);
 
                 }
             }
@@ -3735,7 +4069,7 @@ namespace NEAT
                     tc.m_weight = TempConnections[j].weight * subst.m_max_weight_and_bias;
                     tc.m_recur_flag = false;
 
-                    net.m_connections.push_back(tc);
+                    net.m_connections.emplace_back(tc);
                 }
             }
         }
@@ -3749,7 +4083,7 @@ namespace NEAT
             t_n.m_substrate_coords = subst.m_input_coords[i];
             t_n.m_activation_function_type = NEAT::LINEAR;
             t_n.m_type = NEAT::INPUT;
-            net.m_neurons.push_back(t_n);
+            net.m_neurons.emplace_back(t_n);
         }
         // Bias n.
         Neuron t_n;
@@ -3758,7 +4092,7 @@ namespace NEAT
         t_n.m_substrate_coords = subst.m_input_coords[input_count - 1];
         t_n.m_activation_function_type = NEAT::LINEAR;
         t_n.m_type = NEAT::BIAS;
-        net.m_neurons.push_back(t_n);
+        net.m_neurons.emplace_back(t_n);
 
         for (unsigned int i = 0; i < output_count; i++)
         {
@@ -3768,7 +4102,7 @@ namespace NEAT
             t_n.m_substrate_coords = subst.m_output_coords[i];
             t_n.m_activation_function_type = subst.m_output_nodes_activation;
             t_n.m_type = NEAT::OUTPUT;
-            net.m_neurons.push_back(t_n);
+            net.m_neurons.emplace_back(t_n);
         }
 
         boost::unordered_map<std::vector<double>, int>::iterator itr;
@@ -3782,7 +4116,7 @@ namespace NEAT
             ASSERT(t_n.m_substrate_coords.size() > 0); // prevent 0D points
             t_n.m_activation_function_type = subst.m_hidden_nodes_activation;
             t_n.m_type = NEAT::HIDDEN;
-            net.m_neurons.push_back(t_n);
+            net.m_neurons.emplace_back(t_n);
         }
 
         // Clean the generated network from dangling connections and we're good to go.
@@ -3883,16 +4217,16 @@ namespace NEAT
         {
             p = q.front();
             // Add children
-            p->children.push_back(boost::shared_ptr<QuadPoint>(
+            p->children.emplace_back(boost::shared_ptr<QuadPoint>(
                     new QuadPoint(p->x - p->width / 2, p->y - p->height / 2, p->width / 2, p->height / 2,
                                   p->level + 1)));
-            p->children.push_back(boost::shared_ptr<QuadPoint>(
+            p->children.emplace_back(boost::shared_ptr<QuadPoint>(
                     new QuadPoint(p->x - p->width / 2, p->y + p->height / 2, p->width / 2, p->height / 2,
                                   p->level + 1)));
-            p->children.push_back(boost::shared_ptr<QuadPoint>(
+            p->children.emplace_back(boost::shared_ptr<QuadPoint>(
                     new QuadPoint(p->x + p->width / 2, p->y + p->height / 2, p->width / 2, p->height / 2,
                                   p->level + 1)));
-            p->children.push_back(boost::shared_ptr<QuadPoint>(
+            p->children.emplace_back(boost::shared_ptr<QuadPoint>(
                     new QuadPoint(p->x + p->width / 2, p->y - p->height / 2, p->width / 2, p->height / 2,
                                   p->level + 1)));
 
@@ -3906,21 +4240,21 @@ namespace NEAT
                     // node goes here
                     t_inputs = node;
 
-                    t_inputs.push_back(p->children[i]->x);
-                    t_inputs.push_back(p->children[i]->y);
-                    t_inputs.push_back(p->children[i]->z);
+                    t_inputs.emplace_back(p->children[i]->x);
+                    t_inputs.emplace_back(p->children[i]->y);
+                    t_inputs.emplace_back(p->children[i]->z);
                 }
 
                 else
                 {
                     // QuadPoint goes first
-                    t_inputs.push_back(p->children[i]->x);
-                    t_inputs.push_back(p->children[i]->y);
-                    t_inputs.push_back(p->children[i]->z);
+                    t_inputs.emplace_back(p->children[i]->x);
+                    t_inputs.emplace_back(p->children[i]->y);
+                    t_inputs.emplace_back(p->children[i]->z);
 
-                    t_inputs.push_back(node[0]);
-                    t_inputs.push_back(node[1]);
-                    t_inputs.push_back(node[2]);
+                    t_inputs.emplace_back(node[0]);
+                    t_inputs.emplace_back(node[1]);
+                    t_inputs.emplace_back(node[2]);
                 }
 
                 // Bias
@@ -4100,25 +4434,25 @@ namespace NEAT
                     if (outgoing)
                     {
                         inputs = node;
-                        inputs.push_back(root->children[i]->x);
-                        inputs.push_back(root->children[i]->y);
-                        inputs.push_back(root->children[i]->z);
+                        inputs.emplace_back(root->children[i]->x);
+                        inputs.emplace_back(root->children[i]->y);
+                        inputs.emplace_back(root->children[i]->z);
 
                         root_index = node.size();
                     }
 
                     else
                     {
-                        inputs.push_back(root->children[i]->x);
-                        inputs.push_back(root->children[i]->y);
-                        inputs.push_back(root->children[i]->z);
-                        inputs.push_back(node[0]);
-                        inputs.push_back(node[1]);
-                        inputs.push_back(node[2]);
+                        inputs.emplace_back(root->children[i]->x);
+                        inputs.emplace_back(root->children[i]->y);
+                        inputs.emplace_back(root->children[i]->z);
+                        inputs.emplace_back(node[0]);
+                        inputs.emplace_back(node[1]);
+                        inputs.emplace_back(node[2]);
                     }
 
                     // Left
-                    inputs.push_back(params.CPPN_Bias);
+                    inputs.emplace_back(params.CPPN_Bias);
                     inputs[root_index] -= root->width;
 
                     cppn.Input(inputs);
@@ -4175,22 +4509,22 @@ namespace NEAT
                         {
                             tc.source = node;
 
-                            tc.target.push_back(root->children[i]->x);
-                            tc.target.push_back(root->children[i]->y);
-                            tc.target.push_back(root->children[i]->z);
+                            tc.target.emplace_back(root->children[i]->x);
+                            tc.target.emplace_back(root->children[i]->y);
+                            tc.target.emplace_back(root->children[i]->z);
                         }
                         else
                         {
-                            tc.source.push_back(root->children[i]->x);
-                            tc.source.push_back(root->children[i]->y);
-                            tc.source.push_back(root->children[i]->z);
+                            tc.source.emplace_back(root->children[i]->x);
+                            tc.source.emplace_back(root->children[i]->y);
+                            tc.source.emplace_back(root->children[i]->z);
 
                             tc.target = node;
                         }
                         // Normalize
                         // TODO: Put in Parameters
                         tc.weight = root->children[i]->weight;
-                        connections.push_back(tc);
+                        connections.emplace_back(tc);
                     }
                 }
             }
@@ -4246,7 +4580,7 @@ namespace NEAT
 
         else
         {   // Here, Apparently it treats the point a if it is not initialized
-            vals.push_back(point->weight);
+            vals.emplace_back(point->weight);
         }
     }
 
@@ -4302,7 +4636,6 @@ namespace NEAT
             }
         }
     }
-
 #endif
 
 } // namespace NEAT

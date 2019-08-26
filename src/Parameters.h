@@ -31,7 +31,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <map>
+//#include "Genes.h"
 #include "Traits.h"
+//#include "Species.h"
 
 #ifdef USE_BOOST_PYTHON
 
@@ -67,6 +69,9 @@ public:
 
     // Size of population
     unsigned int PopulationSize;
+    
+    // Controls the use of speciation. When off, the population will consist of only one species.
+    bool Speciation;
 
     // If true, this enables dynamic compatibility thresholding
     // It will keep the number of species between MinSpecies and MaxSpecies
@@ -102,6 +107,9 @@ public:
 #ifdef USE_BOOST_PYTHON
     // same as above, but for Python
     py::object pyCustomConstraints;
+    
+    // This one computes a behavior based on a genome, for use in behavior speciation
+    py::object pyBehaviorGetter;
 #endif
     
     ////////////////////////////////
@@ -152,9 +160,21 @@ public:
     // Probability for a baby to result from inter-species mating.
     double InterspeciesCrossoverRate;
 
-    // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
+    // Probability for a baby gene to result from Multipoint Crossover when mating. 1.0 = 100%
     // The default if the Average mating.
     double MultipointCrossoverRate;
+    
+    // Probability that when doing multipoint crossover,
+    // the gene of the fitter parent will be prefered, instead of choosing one at random
+    double PreferFitterParentRate;
+    
+    // Selection scheme
+    // 0 - normal (single mode of selection for all species all the time)
+    // 1 - selection mode picked randomly for each species each N evaluations/generations
+    // 2 - selection mode changes randomly when a species stagnates
+    int SelectionScheme;
+    // Probabilities for each selection mode
+    //std::map< SelectionMode, double > SelectionModeProbs;
 
     // Performing roulette wheel selection or not?
     bool RouletteWheelSelection;
@@ -252,7 +272,13 @@ public:
 
     // Maximum number of tries to find 2 neurons to add/remove a link
     unsigned int LinkTries;
-
+    
+    // Maximum number of links in the genome (originals not counted). -1 is unlimited
+    int MaxLinks;
+    
+    // Maximum number of neurons in the genome (originals not counted). -1 is unlimited
+    int MaxNeurons;
+    
     // Probability that a link mutation will be made recurrent
     double RecurrentProb;
 
@@ -277,8 +303,11 @@ public:
     // Maximum magnitude of a replaced weight
     double WeightReplacementMaxPower;
 
-    // Maximum absolute magnitude of a weight
+    // Maximum weight
     double MaxWeight;
+    
+    // Minimum weight
+    double MinWeight;
 
     // Probability for a baby's A activation function parameters to be perturbed
     double MutateActivationAProb;
@@ -382,6 +411,12 @@ public:
 
     // Per how many evaluations to change the treshold
     unsigned int CompatTreshChangeInterval_Evaluations;
+    
+    // What is the minimal difference needed for not to be a clone
+    double MinDeltaCompatEqualGenomes;
+    
+    // How many times to test a genome for constraint failure or being a clone (when AllowClones=False)
+    int ConstraintTrials;
     
     /////////////////////////////
     // Genome properties params
@@ -619,6 +654,11 @@ public:
             py::object itp = py::extract<py::object>(trait_params["details"]);
             t.m_Details = itp;
         }
+        else if (t.type == "pyclassset")
+        {
+            py::object itp = py::extract<py::object>(trait_params["details"]);
+            t.m_Details = itp;
+        }
 
         return t;
     }
@@ -703,6 +743,11 @@ public:
         if (pms.type == "pyobject")
         {
             t["type"] = "pyobject";
+            dt = bs::get<py::object>(pms.m_Details);
+        }
+        if (pms.type == "pyclassset")
+        {
+            t["type"] = "pyclassset";
             dt = bs::get<py::object>(pms.m_Details);
         }
 
@@ -808,6 +853,7 @@ public:
     void serialize(Archive & ar, const unsigned int version)
     {
         ar & PopulationSize;
+        ar & Speciation;
         ar & DynamicCompatibility;
         ar & MinSpecies;
         ar & MaxSpecies;
@@ -818,6 +864,7 @@ public:
         ar & YoungAgeFitnessBoost;
         ar & SpeciesMaxStagnation;
         ar & StagnationDelta;
+        ar & ConstraintTrials;
         ar & OldAgeTreshold;
         ar & OldAgePenalty;
         ar & DetectCompetetiveCoevolutionStagnation;
@@ -828,6 +875,7 @@ public:
         ar & OverallMutationRate;
         ar & InterspeciesCrossoverRate;
         ar & MultipointCrossoverRate;
+        ar & PreferFitterParentRate;
         ar & RouletteWheelSelection;
         ar & PhasedSearching;
         ar & DeltaCoding;
@@ -852,6 +900,8 @@ public:
         ar & MutateRemLinkProb;
         ar & MutateRemSimpleNeuronProb;
         ar & LinkTries;
+        ar & MaxLinks;
+        ar & MaxNeurons;
         ar & RecurrentProb;
         ar & RecurrentLoopProb;
         ar & MutateWeightsProb;
@@ -861,6 +911,7 @@ public:
         ar & WeightReplacementRate;
         ar & WeightReplacementMaxPower;
         ar & MaxWeight;
+        ar & MinWeight;
         ar & MutateActivationAProb;
         ar & MutateActivationBProb;
         ar & ActivationAMutationMaxPower;
@@ -933,11 +984,12 @@ public:
         ar & EliteFraction;
 
         ar & ArchiveEnforcement;
+        ar & MinDeltaCompatEqualGenomes;
     }
     
 #endif
 
-};
+    };
 
 
 #ifdef USE_BOOST_PYTHON
@@ -973,4 +1025,3 @@ struct Parameters_pickle_suite : py::pickle_suite
 
 
 #endif
-

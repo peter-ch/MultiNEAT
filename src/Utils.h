@@ -99,7 +99,7 @@ inline void Clamp(double &a_Arg, const double a_Min, const double a_Max)
 }
 
 //clamps the first argument between the second two
-inline void Clamp(float &a_Arg, const double a_Min, const double a_Max)
+inline void Clamp(float &a_Arg, const float a_Min, const float a_Max)
 {
     ASSERT(a_Min <= a_Max);
 

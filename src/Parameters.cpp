@@ -48,6 +48,9 @@ namespace NEAT
 
         // Size of population
         PopulationSize = 300;
+        
+        // Speciation on/off
+        Speciation = true;
 
         // If true, this enables dynamic compatibility thresholding
         // It will keep the number of species between MinSpecies and MaxSpecies
@@ -97,8 +100,8 @@ namespace NEAT
         // Make sure it is >= 1.0 to avoid confusion
         YoungAgeFitnessBoost = 1.1;
 
-        // Number of generations without improvement (stagnation) allowed for a species
-        SpeciesMaxStagnation = 50;
+        // Number of generations or evaluations without improvement (stagnation) allowed for a species
+        SpeciesMaxStagnation = 25000;
 
         // Minimum jump in fitness necessary to be considered as improvement.
         // Setting this value to 0.0 makes the system to behave like regular NEAT.
@@ -131,11 +134,15 @@ namespace NEAT
         OverallMutationRate = 0.25;
 
         // Probability for a baby to result from inter-species mating.
-        InterspeciesCrossoverRate = 0.0001;
+        InterspeciesCrossoverRate = 0.0;
 
         // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
         // The default is the Average mating.
         MultipointCrossoverRate = 0.75;
+    
+        // Probability that when doing multipoint crossover,
+        // the gene of the fitter parent will be prefered, instead of choosing one at random
+        PreferFitterParentRate = 0.25;
 
         // Performing roulette wheel selection or not?
         RouletteWheelSelection = false;
@@ -144,12 +151,13 @@ namespace NEAT
         TournamentSize = 4;
 
         // Fraction of individuals to be copied unchanged
-        EliteFraction = 0.01;
+        EliteFraction = 0.000001;
+    
+        // How many times to test a genome for constraint failure or being a clone (when AllowClones=False)
+        ConstraintTrials = 2000000;
 
 
-
-
-
+        
         ///////////////////////////////////
         // Phased Search parameters   //
         ///////////////////////////////////
@@ -218,10 +226,10 @@ namespace NEAT
         MutateAddNeuronProb = 0.01;
 
         // Allow splitting of any recurrent links
-        SplitRecurrent = true;
+        SplitRecurrent = false;
 
         // Allow splitting of looped recurrent links
-        SplitLoopedRecurrent = true;
+        SplitLoopedRecurrent = false;
 
         // Probability for a baby to be mutated with the Add-Link mutation
         MutateAddLinkProb = 0.03;
@@ -237,7 +245,13 @@ namespace NEAT
         MutateRemSimpleNeuronProb = 0.0;
 
         // Maximum number of tries to find 2 neurons to add/remove a link
-        LinkTries = 32;
+        LinkTries = 64;
+    
+        // Maximum number of links in the genome (originals not counted). -1 is unlimited
+        MaxLinks = -1;
+    
+        // Maximum number of neurons in the genome (originals not counted). -1 is unlimited
+        MaxNeurons = -1;
 
         // Probability that a link mutation will be made recurrent
         RecurrentProb = 0.25;
@@ -271,8 +285,11 @@ namespace NEAT
         // Maximum magnitude of a replaced weight
         WeightReplacementMaxPower = 1.0;
 
-        // Maximum absolute magnitude of a weight
+        // Maximum weight
         MaxWeight = 8.0;
+    
+        // Minimum weight
+        MinWeight = -8.0;
 
         // Probability for a baby's A activation function parameters to be perturbed
         MutateActivationAProb = 0.0;
@@ -361,9 +378,9 @@ namespace NEAT
 
 
         // Trait mutation probabilities
-        MutateNeuronTraitsProb = 1.0;
-        MutateLinkTraitsProb = 1.0;
-        MutateGenomeTraitsProb = 1.0;
+        MutateNeuronTraitsProb = 0.0;
+        MutateLinkTraitsProb = 0.0;
+        MutateGenomeTraitsProb = 0.0;
 
 
         /////////////////////////////
@@ -382,7 +399,7 @@ namespace NEAT
         ExcessCoeff = 1.0;
 
         // Average weight difference importance
-        WeightDiffCoeff = 0.5;
+        WeightDiffCoeff = 0.0;
 
         // Node-specific activation parameter A difference importance
         ActivationADiffCoeff = 0.0;
@@ -400,13 +417,13 @@ namespace NEAT
         ActivationFunctionDiffCoeff = 0.0;
 
         // Compatibility treshold
-        CompatTreshold = 5.0;
+        CompatTreshold = 3.0;
 
         // Minumal value of the compatibility treshold
-        MinCompatTreshold = 0.2;
+        MinCompatTreshold = 0.0;
 
         // Modifier per generation for keeping the species stable
-        CompatTresholdModifier = 0.3;
+        CompatTresholdModifier = 0.1;
 
         // Per how many generations to change the treshold
         // (used in generational mode)
@@ -414,7 +431,10 @@ namespace NEAT
 
         // Per how many evaluations to change the treshold
         // (used in steady state mode)
-        CompatTreshChangeInterval_Evaluations = 10;
+        CompatTreshChangeInterval_Evaluations = 1;
+        
+        // Minimal distance for two individuals to be considered different (as in clones or not)
+        MinDeltaCompatEqualGenomes = 0.0000001;
 
 
 
@@ -483,6 +503,15 @@ namespace NEAT
 
             if (s == "PopulationSize")
                 a_DataFile >> PopulationSize;
+    
+            if (s == "Speciation")
+            {
+                a_DataFile >> tf;
+                if (tf == "true" || tf == "1" || tf == "1.0")
+                    Speciation = true;
+                else
+                    Speciation = false;
+            }
 
             if (s == "DynamicCompatibility")
             {
@@ -526,14 +555,16 @@ namespace NEAT
                     NormalizeGenomeSize = false;
             }
     
-    
+            if (s == "ConstraintTrials")
+                a_DataFile >> ConstraintTrials;
+            
             if (s == "YoungAgeTreshold")
                 a_DataFile >> YoungAgeTreshold;
 
             if (s == "YoungAgeFitnessBoost")
                 a_DataFile >> YoungAgeFitnessBoost;
 
-            if (s == "SpeciesDropoffAge")
+            if (s == "SpeciesMaxStagnation")
                 a_DataFile >> SpeciesMaxStagnation;
 
             if (s == "StagnationDelta")
@@ -574,6 +605,9 @@ namespace NEAT
 
             if (s == "MultipointCrossoverRate")
                 a_DataFile >> MultipointCrossoverRate;
+            
+            if (s == "PreferFitterParentRate")
+                a_DataFile >> PreferFitterParentRate;
 
             if (s == "RouletteWheelSelection")
             {
@@ -679,6 +713,11 @@ namespace NEAT
 
             if (s == "LinkTries")
                 a_DataFile >> LinkTries;
+    
+            if (s == "MaxLinks")
+                a_DataFile >> MaxLinks;
+            if (s == "MaxNeurons")
+                a_DataFile >> MaxNeurons;
 
             if (s == "RecurrentProb")
                 a_DataFile >> RecurrentProb;
@@ -706,6 +745,9 @@ namespace NEAT
 
             if (s == "MaxWeight")
                 a_DataFile >> MaxWeight;
+    
+            if (s == "MinWeight")
+                a_DataFile >> MinWeight;
 
             if (s == "MutateActivationAProb")
                 a_DataFile >> MutateActivationAProb;
@@ -852,7 +894,10 @@ namespace NEAT
 
             if (s == "CompatTreshChangeInterval_Evaluations")
                 a_DataFile >> CompatTreshChangeInterval_Evaluations;
-
+    
+            if (s == "MinDeltaCompatEqualGenomes")
+                a_DataFile >> MinDeltaCompatEqualGenomes;
+            
             if (s == "DivisionThreshold")
                 a_DataFile >> DivisionThreshold;
 
@@ -951,15 +996,17 @@ namespace NEAT
         fprintf(a_fstream, "NEAT_ParametersStart\n");
 
         fprintf(a_fstream, "PopulationSize %d\n", PopulationSize);
+        fprintf(a_fstream, "Speciation %s\n", Speciation == true ? "true" : "false");
         fprintf(a_fstream, "DynamicCompatibility %s\n", DynamicCompatibility == true ? "true" : "false");
         fprintf(a_fstream, "MinSpecies %d\n", MinSpecies);
         fprintf(a_fstream, "MaxSpecies %d\n", MaxSpecies);
         fprintf(a_fstream, "InnovationsForever %s\n", InnovationsForever == true ? "true" : "false");
         fprintf(a_fstream, "AllowClones %s\n", AllowClones == true ? "true" : "false");
         fprintf(a_fstream, "NormalizeGenomeSize %s\n", NormalizeGenomeSize == true ? "true" : "false");
+        fprintf(a_fstream, "ConstraintTrials %d\n", ConstraintTrials);
         fprintf(a_fstream, "YoungAgeTreshold %d\n", YoungAgeTreshold);
         fprintf(a_fstream, "YoungAgeFitnessBoost %3.20f\n", YoungAgeFitnessBoost);
-        fprintf(a_fstream, "SpeciesDropoffAge %d\n", SpeciesMaxStagnation);
+        fprintf(a_fstream, "SpeciesMaxStagnation %d\n", SpeciesMaxStagnation);
         fprintf(a_fstream, "StagnationDelta %3.20f\n", StagnationDelta);
         fprintf(a_fstream, "OldAgeTreshold %d\n", OldAgeTreshold);
         fprintf(a_fstream, "OldAgePenalty %3.20f\n", OldAgePenalty);
@@ -972,6 +1019,7 @@ namespace NEAT
         fprintf(a_fstream, "OverallMutationRate %3.20f\n", OverallMutationRate);
         fprintf(a_fstream, "InterspeciesCrossoverRate %3.20f\n", InterspeciesCrossoverRate);
         fprintf(a_fstream, "MultipointCrossoverRate %3.20f\n", MultipointCrossoverRate);
+        fprintf(a_fstream, "PreferFitterParentRate %3.20f\n", PreferFitterParentRate);
         fprintf(a_fstream, "RouletteWheelSelection %s\n", RouletteWheelSelection == true ? "true" : "false");
         fprintf(a_fstream, "PhasedSearching %s\n", PhasedSearching == true ? "true" : "false");
         fprintf(a_fstream, "DeltaCoding %s\n", DeltaCoding == true ? "true" : "false");
@@ -998,6 +1046,8 @@ namespace NEAT
         fprintf(a_fstream, "MutateRemLinkProb %3.20f\n", MutateRemLinkProb);
         fprintf(a_fstream, "MutateRemSimpleNeuronProb %3.20f\n", MutateRemSimpleNeuronProb);
         fprintf(a_fstream, "LinkTries %d\n", LinkTries);
+        fprintf(a_fstream, "MaxLinks %d\n", MaxLinks);
+        fprintf(a_fstream, "MaxNeurons %d\n", MaxNeurons);
         fprintf(a_fstream, "RecurrentProb %3.20f\n", RecurrentProb);
         fprintf(a_fstream, "RecurrentLoopProb %3.20f\n", RecurrentLoopProb);
         fprintf(a_fstream, "MutateWeightsProb %3.20f\n", MutateWeightsProb);
@@ -1007,6 +1057,7 @@ namespace NEAT
         fprintf(a_fstream, "WeightReplacementRate %3.20f\n", WeightReplacementRate);
         fprintf(a_fstream, "WeightReplacementMaxPower %3.20f\n", WeightReplacementMaxPower);
         fprintf(a_fstream, "MaxWeight %3.20f\n", MaxWeight);
+        fprintf(a_fstream, "MinWeight %3.20f\n", MinWeight);
         fprintf(a_fstream, "MutateActivationAProb %3.20f\n", MutateActivationAProb);
         fprintf(a_fstream, "MutateActivationBProb %3.20f\n", MutateActivationBProb);
         fprintf(a_fstream, "ActivationAMutationMaxPower %3.20f\n", ActivationAMutationMaxPower);
@@ -1054,6 +1105,7 @@ namespace NEAT
         fprintf(a_fstream, "CompatTresholdModifier %3.20f\n", CompatTresholdModifier);
         fprintf(a_fstream, "CompatTreshChangeInterval_Generations %d\n", CompatTreshChangeInterval_Generations);
         fprintf(a_fstream, "CompatTreshChangeInterval_Evaluations %d\n", CompatTreshChangeInterval_Evaluations);
+        fprintf(a_fstream, "MinDeltaCompatEqualGenomes %3.20f\n", MinDeltaCompatEqualGenomes);
 
 
         fprintf(a_fstream, "DivisionThreshold %3.20f\n", DivisionThreshold);

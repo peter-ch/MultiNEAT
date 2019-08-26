@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from __future__ import print_function
+#from __future__ import print_function
 from setuptools import setup, Extension
 import sys
 import os
@@ -23,8 +23,8 @@ def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=N
     list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
     return objects
 
-import distutils.ccompiler
-distutils.ccompiler.CCompiler.compile=parallelCCompile
+#import distutils.ccompiler
+#distutils.ccompiler.CCompiler.compile=parallelCCompile
 
 
 ''' Note:
@@ -57,7 +57,8 @@ def getExtensions():
                'src/Utils.cpp']
 
     extra = ['-march=native',
-             '-g'
+             '-mtune=native',
+             '-g',
              ]
 
     if platform == 'darwin':
@@ -112,19 +113,25 @@ def getExtensions():
         if is_python_2:
             libs += ['boost_python', "boost_numpy"]
         else:
-            libs += ['boost_python3', "boost_numpy3"]  # in Ubuntu 14 there is only 'boost_python-py34'
+            # with boost 1.67 you need boost_python3x and boost_numpy3x where x is python version 3.x 
+            libs += ['boost_python36', "boost_numpy36"]  # in Ubuntu 14 there is only 'boost_python-py34'
 
         # for Windows with mingw
         # libraries= ['libboost_python-mgw48-mt-1_58',
         #            'libboost_serialization-mgw48-mt-1_58'],
         # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
         # library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
-        extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM'])
-        extensionsList.append(Extension('MultiNEAT._MultiNEAT',
-                                        sources,
-                                        libraries=libs,
-                                        extra_compile_args=extra)
-                              )
+        extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM', #'-O0',
+                      #'-DVDEBUG',
+                      ])
+        exx = Extension('MultiNEAT._MultiNEAT',
+                        sources,
+                        libraries=libs,
+                        extra_compile_args=extra)
+        print(dir(exx))
+        print(exx)
+        print(exx.extra_compile_args)
+        extensionsList.append(exx)
     else:
         raise AttributeError('Unknown tool: {}'.format(build_sys))
 

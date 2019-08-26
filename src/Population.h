@@ -142,6 +142,8 @@ public:
 
     // The list of species
     std::vector<Species> m_Species;
+    
+    int m_ID;
 
 
     ////////////////////////////
@@ -216,9 +218,41 @@ public:
     unsigned int GetNextSpeciesID() const { return m_NextSpeciesID; }
     void IncrementNextGenomeID() { m_NextGenomeID++; }
     void IncrementNextSpeciesID() { m_NextSpeciesID++; }
+    
+    
+    // Make sure no same genome IDs exist in the population
+    void SameGenomeIDCheck()
+    {
+        // count how much each ID found has occured
+        std::map<int, int> ids;
+        for(unsigned int i=0; i<m_Species.size(); i++)
+        {
+            for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
+            {
+                ids[m_Species[i].m_Individuals[j].GetID()] = 0;
+            }
+        }
+        for(unsigned int i=0; i<m_Species.size(); i++)
+        {
+            for (unsigned int j = 0; j < m_Species[i].m_Individuals.size(); j++)
+            {
+                ids[m_Species[i].m_Individuals[j].GetID()] += 1;
+            }
+        }
+        
+        for(auto it = ids.begin(); it != ids.end(); it++)
+        {
+            if (it->second > 1)
+            {
+                char s[256];
+                sprintf(s, "Genome ID %d appears %d times in the population\n", it->first, it->second);
+                throw std::runtime_error(s);
+            }
+        }
+    }
 
-    Genome& AccessGenomeByIndex(unsigned int const a_idx);
-    Genome& AccessGenomeByID(unsigned int const a_id);
+    Genome& AccessGenomeByIndex(int const a_idx);
+    Genome& AccessGenomeByID(int const a_id);
 
     InnovationDatabase& AccessInnovationDatabase() { return m_InnovationDatabase; }
 
@@ -253,7 +287,9 @@ public:
     // Removes worst member of the whole population that has been around for a minimum amount of time
     // returns the genome that was just deleted (may be useful)
     Genome RemoveWorstIndividual();
-
+    
+    void ClearEmptySpecies();
+    
     // The main reaitime tick. Analog to Epoch(). Replaces the worst evaluated individual with a new one.
     // Returns a pointer to the new baby.
     // and copies the genome that was deleted to a_geleted_genome
@@ -261,7 +297,7 @@ public:
 
     // Takes an individual and puts it in its apropriate species
     // Useful in realtime when the compatibility treshold changes
-    void ReassignSpecies(unsigned int a_genome_idx);
+    void ReassignSpecies(int a_genome_idx);
 
     unsigned int m_NumEvaluations;
 
@@ -321,13 +357,14 @@ public:
             ar & m_NumEvaluations;
             ar & m_GensSinceLastArchiving;
             ar & m_QuickAddCounter;
+            ar & m_ID;
 
             //ar & m_TempSpecies;
             //ar & m_BehaviorArchive;
         }
 #endif
-
-};
+        
+    };
 
 #ifdef USE_BOOST_PYTHON
 

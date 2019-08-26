@@ -35,12 +35,12 @@ double abs(double x)
 
 bool constraints(Genome& g)
 {
-    for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
+    /*for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
     {
         
         if (boost::get<intsetelement>(it->m_Traits["z"].value).value == 64) // don't allow 4 to appear anywhere
             return true;
-    }
+    }*/
     
     return false;
 }
@@ -68,9 +68,9 @@ double xortest(Genome& g)
     if (boost::get<std::string>(g.m_GenomeGene.m_Traits["y"].value) == "c")
         f += 1 * (double)(boost::get<int>(g.m_GenomeGene.m_Traits["v"].value));
     else
-        f = 0.1;
+        f += 1 * (double)(boost::get<double>(g.m_GenomeGene.m_Traits["x"].value));
 
-    return f;
+    return f+1000;
 }
 
 
@@ -87,23 +87,24 @@ int main()
     params.OldAgeTreshold = 35;
     params.OldAgePenalty = 0.1;
     params.MinSpecies = 2;
-    params.MaxSpecies = 4;
+    params.MaxSpecies = 3;
     params.RouletteWheelSelection = false;
     params.RecurrentProb = 0.0;
     params.OverallMutationRate = 0.4;
 
-    params.MutateWeightsProb = 0.0;
+    params.MutateWeightsProb = 0.3;
 
     params.WeightMutationMaxPower = 2.5;
     params.WeightReplacementMaxPower = 5.0;
     params.MutateWeightsSevereProb = 0.5;
     params.WeightMutationRate = 0.25;
+    
+    params.MinWeight = -4;
+    params.MaxWeight = 4;
 
-    params.MaxWeight = 8;
-
-    params.MutateAddNeuronProb = 0.003;
-    params.MutateAddLinkProb = 0.05;
-    params.MutateRemLinkProb = 0.0;
+    params.MutateAddNeuronProb = 0.1;
+    params.MutateAddLinkProb = 0;//0.05;
+    params.MutateRemLinkProb = 0;//0.01;
 
     params.MinActivationA  = 4.9;
     params.MaxActivationA  = 4.9;
@@ -113,23 +114,45 @@ int main()
     params.ActivationFunction_Tanh_Prob = 0.0;
     params.ActivationFunction_SignedStep_Prob = 0.0;
 
-    params.CrossoverRate = 0.75 ;
+    params.CrossoverRate = 0.75;
+    params.InterspeciesCrossoverRate = 0.01;
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
+    params.OverallMutationRate = 1.0;
 
-    params.AllowClones = false;
+    params.AllowClones = true;
     params.AllowLoops = false;
     params.DontUseBiasNeuron = true;
 
-    params.MutateNeuronTraitsProb = 0.2;
-    params.MutateLinkTraitsProb = 0.2;
+    params.MutateNeuronTraitsProb = 0;//0.2;
+    params.MutateLinkTraitsProb = 0;//0.2;
+    params.MutateGenomeTraitsProb = 0;
+    
+    params.ExcessCoeff = 1.2;
+    params.DisjointCoeff = 1.2;
+    params.WeightDiffCoeff = 0.0;
+    params.CompatTreshold = 0.0;
+    params.MinCompatTreshold = 0.0;
+    params.CompatTreshChangeInterval_Evaluations = 1;
+    params.NormalizeGenomeSize = false;
 
-    params.ArchiveEnforcement = true;
+    params.ArchiveEnforcement = false;
     
     params.CustomConstraints = constraints;
+    
+    params.MinWeight = -12.0;
+    params.MaxWeight = 12.0;
+    params.MutateWeightsProb = 0.0;
+    params.MutateWeightsSevereProb = 0.2;
+    params.WeightMutationRate = 0.333;
+    params.WeightMutationMaxPower = 3.0;
+    params.WeightReplacementRate = 0.25;
+    params.WeightReplacementMaxPower = 6.0;
+    
+    params.MutateRemSimpleNeuronProb = 1.001;
 
     TraitParameters tp1;
-    tp1.m_ImportanceCoeff = 1.0;
+    tp1.m_ImportanceCoeff = 0.0;
     tp1.m_MutationProb = 0.9;
     tp1.type = "int";
     tp1.dep_key = "y";
@@ -142,7 +165,7 @@ int main()
     tp1.m_Details = itp1;
 
     TraitParameters tp2;
-    tp2.m_ImportanceCoeff = 0.2;
+    tp2.m_ImportanceCoeff = 0.0;//2;
     tp2.m_MutationProb = 0.9;
     tp2.type = "float";
     FloatTraitParameters itp2;
@@ -153,7 +176,7 @@ int main()
     tp2.m_Details = itp2;
 
     TraitParameters tp3;
-    tp3.m_ImportanceCoeff = 0.02;
+    tp3.m_ImportanceCoeff = 0.0;//2;
     tp3.m_MutationProb = 0.9;
     tp3.type = "intset";
     IntSetTraitParameters itp3;
@@ -176,7 +199,7 @@ int main()
     tp3.m_Details = itp3;
 
     TraitParameters tps;
-    tps.m_ImportanceCoeff = 0.02;
+    tps.m_ImportanceCoeff = 0.0;//2;
     tps.m_MutationProb = 0.9;
     tps.type = "str";
     StringTraitParameters itps;
@@ -185,11 +208,11 @@ int main()
     itps.set.push_back("c");
     itps.set.push_back("d");
     itps.set.push_back("e");
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
-    itps.probs.push_back(1);
+    itps.probs.push_back(0.02);
+    itps.probs.push_back(0.9);
+    itps.probs.push_back(0.1);
+    itps.probs.push_back(0.1);
+    itps.probs.push_back(0.8);
     tps.m_Details = itps;
 
     /*TraitParameters tp3;
@@ -208,22 +231,53 @@ int main()
     params.GenomeTraits["y"] = tps;
     params.NeuronTraits["z"] = tp3;
 
-    Genome s(0, 1,
+    Genome s(0, 4,
              1,
              1,
              false,
              UNSIGNED_SIGMOID,
              UNSIGNED_SIGMOID,
-             1,
+             0,
              params,
-             2);
+             0, 3);
 
     Population pop(s, params, true, 1.0, time(0));
+    
+    //pop.m_Parameters.AllowClones = false;
+    
+    for(unsigned int i=0; i < pop.m_Species.size(); i++)
+    {
+        for (unsigned int j = 0; j < pop.m_Species[i].m_Individuals.size(); j++)
+        {
+            double f = xortest(pop.m_Species[i].m_Individuals[j]);
+            pop.m_Species[i].m_Individuals[j].SetFitness(pop.m_RNG.RandFloat());
+            if ((pop.m_RNG.RandFloat() < 0.15) || (j==0))
+            {
+                pop.m_Species[i].m_Individuals[j].SetEvaluated();
+            }
+        }
+    }
 
-    for(int k=0; k<5000; k++)
+    for(int k=0; k<2500; k++)
     {
         double bestf = -999999;
-        for(unsigned int i=0; i < pop.m_Species.size(); i++)
+        Genome gx;
+        
+        Genome* baby;
+        baby = pop.Tick(gx);
+    
+        double f = xortest(*baby);
+        baby->SetFitness(f);
+        if (pop.m_RNG.RandFloat() < 0.5)
+        {
+            baby->SetEvaluated();
+        }
+        if (f > bestf)
+        {
+            bestf = f;
+        }
+        
+        /*for(unsigned int i=0; i < pop.m_Species.size(); i++)
         {
             for(unsigned int j=0; j < pop.m_Species[i].m_Individuals.size(); j++)
             {
@@ -241,15 +295,21 @@ int main()
                     bestf = f;
                 }
             }
-        }
+        }*/
 
         Genome g = pop.GetBestGenome();
-        g.PrintAllTraits();
+        //g.PrintAllTraits();
 
-        printf("Generation: %d, best fitness: %3.5f\n", k, bestf);
-        printf("Species: %d\n", pop.m_Species.size());
-        pop.Epoch();
+        printf("Tick: %d, best fitness: %3.5f\n", k, bestf);
+        printf("Species: %d CT: %3.3f\n", pop.m_Species.size(), pop.m_Parameters.CompatTreshold);
+        //pop.Epoch();
     }
+    
+    for(int i=0; i<100; i++)
+    {
+        std::cout << pop.m_RNG.Roulette(itps.probs) << " ";
+    }
+    std::cout << "\n";
 
     return 0;
 }

@@ -8,32 +8,33 @@ import MultiNEAT.viz as viz
 import random as rnd
 import pickle
 import numpy as np
+from tqdm import tqdm
 import cv2
 
 substrate = NEAT.Substrate([(-1, -1), (-1, 0), (-1, 1)],
                            [(0, -1), (0, 0), (0, 1)],
                            [(1, 0)])
 
-substrate.m_allow_input_hidden_links = False;
-substrate.m_allow_input_output_links = False;
-substrate.m_allow_hidden_hidden_links = False;
-substrate.m_allow_hidden_output_links = False;
-substrate.m_allow_output_hidden_links = False;
-substrate.m_allow_output_output_links = False;
-substrate.m_allow_looped_hidden_links = False;
-substrate.m_allow_looped_output_links = False;
+substrate.m_allow_input_hidden_links = False
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_hidden_links = False
+substrate.m_allow_hidden_output_links = False
+substrate.m_allow_output_hidden_links = False
+substrate.m_allow_output_output_links = False
+substrate.m_allow_looped_hidden_links = False
+substrate.m_allow_looped_output_links = False
 
-substrate.m_allow_input_hidden_links = True;
-substrate.m_allow_input_output_links = False;
-substrate.m_allow_hidden_output_links = True;
-substrate.m_allow_hidden_hidden_links = False;
+substrate.m_allow_input_hidden_links = True
+substrate.m_allow_input_output_links = False
+substrate.m_allow_hidden_output_links = True
+substrate.m_allow_hidden_hidden_links = False
 
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID;
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID;
+substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+substrate.m_output_nodes_activation = NEAT.ActivationFunction.UNSIGNED_SIGMOID
 
-substrate.m_with_distance = True;
+substrate.m_with_distance = True
 
-substrate.m_max_weight_and_bias = 8.0;
+substrate.m_max_weight_and_bias = 8.0
 
 try:
     x = pickle.dumps(substrate)
@@ -129,7 +130,7 @@ def main():
     generations = 10
 
     g = NEAT.Genome(0, 24 + 1 + 1, 0, 4, False,
-                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0)
+                    NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.TANH, 0, params, 0, 1)
     pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
     hof = []
     maxf_ever = 0
@@ -142,7 +143,7 @@ def main():
             #args = [x for x in NEAT.GetGenomeList(pop)]
             #dv.block=True
             #fitnesses = dv.map_sync(evaluate_genome, args)
-            for _, genome in enumerate(NEAT.GetGenomeList(pop)):
+            for _, genome in tqdm(enumerate(NEAT.GetGenomeList(pop))):
                 fitness = evaluate_genome(env, genome, trials)
                 fitnesses.append(fitness)
             for genome, fitness in zip(NEAT.GetGenomeList(pop), fitnesses):
@@ -184,10 +185,10 @@ def do_trial(env, net, render_during_training):
     net.Flush()
 
     f = 0
-    for t in range(300):
+    for t in range(500):
 
         if render_during_training:
-            time.sleep(0.001)
+            #time.sleep(0.001)
             env.render()
 
         # interact with NN
