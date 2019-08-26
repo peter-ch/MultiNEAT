@@ -2527,7 +2527,6 @@ namespace NEAT
                     
                     //t_LinkGenesWeight = a_RNG.RandFloat();
                     //Scale(t_LinkGenesWeight, 0.0, 1.0, a_Parameters.MinWeight, a_Parameters.MaxWeight);
-                    t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
                 }
                 else
                 {
@@ -2549,9 +2548,6 @@ namespace NEAT
     
                     did_mutate = true;
                 }
-                t_LinkGenesWeight = a_RNG.RandFloatSigned() * a_Parameters.WeightReplacementMaxPower;
-                
-                did_mutate = true;
             }
         }
         
@@ -2683,7 +2679,7 @@ namespace NEAT
 
                 m_NeuronGenes[i].m_Bias += t_randnum;
 
-                Clamp(m_NeuronGenes[i].m_TimeConstant, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
+                Clamp(m_NeuronGenes[i].m_Bias, a_Parameters.MinNeuronBias, a_Parameters.MaxNeuronBias);
             }
         }
 

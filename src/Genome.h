@@ -86,11 +86,11 @@ namespace NEAT
     private:
 
         // ID of genome
-        unsigned int m_ID;
-
+        int m_ID;
+        
         // How many inputs/outputs
-        unsigned int m_NumInputs;
-        unsigned int m_NumOutputs;
+        int m_NumInputs;
+        int m_NumOutputs;
 
         // The genome's fitness score
         double m_Fitness;
@@ -99,7 +99,7 @@ namespace NEAT
         double m_AdjustedFitness;
 
         // The depth of the network
-        unsigned int m_Depth;
+        int m_Depth;
 
         // how many individuals this genome should spawn
         double m_OffspringAmount;
@@ -186,19 +186,26 @@ namespace NEAT
         Genome(std::ifstream &a_DataFile);
 
         // This creates a CTRNN fully-connected genome
-        Genome(unsigned int a_ID, unsigned int a_NumInputs, unsigned int a_NumHidden, unsigned int a_NumOutputs,
-               ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, const Parameters &a_Parameters);
+
+        //Genome(int a_ID, int a_NumInputs, int a_NumHidden, int a_NumOutputs,
+        //      ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, const Parameters &a_Parameters);
+
+        //Genome(unsigned int a_ID, unsigned int a_NumInputs, unsigned int a_NumHidden, unsigned int a_NumOutputs,
+        //       ActivationFunction a_OutputActType, ActivationFunction a_HiddenActType, const Parameters &a_Parameters);
+
 
         // This creates a standart minimal genome - perceptron-like structure
-        Genome(unsigned int a_ID,
-               unsigned int a_NumInputs,
-               unsigned int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
-               unsigned int a_NumOutputs,
-               bool a_FS_NEAT, ActivationFunction a_OutputActType,
+        Genome(int a_ID,
+               int a_NumInputs,
+               int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
+               int a_NumOutputs,
+               bool a_FS_NEAT,
+               ActivationFunction a_OutputActType,
                ActivationFunction a_HiddenActType,
-               unsigned int a_SeedType,
+               int a_SeedType,
                const Parameters &a_Parameters,
-               unsigned int a_NumLayers);
+               int a_NumLayers,
+               int a_FS_NEAT_links);
 
         /////////////
         // Other possible constructors for different types of networks go here
@@ -256,9 +263,9 @@ namespace NEAT
 
         void SetAdjFitness(double a_af);
 
-        unsigned int GetID() const;
-
-        void SetID(unsigned int a_id);
+        int GetID() const;
+        
+        void SetID(int a_id);
 
         unsigned int GetDepth() const;
 
@@ -278,6 +285,7 @@ namespace NEAT
             {
                 return true; // no reason to continue
             }
+
 
             if ((HasLoops() && (a_Parameters.AllowLoops == false)))
             {
@@ -381,7 +389,6 @@ namespace NEAT
 
             return traits;
         }
-<<<<<<< HEAD
         
         std::map< std::string, Trait> Dict2TraitMap(py::dict d)
         {
@@ -402,11 +409,7 @@ namespace NEAT
             return ts;
         };
         
-        
-        
-=======
 
->>>>>>> origin/master
         py::object GetNeuronTraits()
         {
             py::list neurons;
@@ -441,7 +444,7 @@ namespace NEAT
             return neurons;
         }
 
-        py::object GetLinkTraits()
+        py::object GetLinkTraits(bool with_weights=false)
         {
             py::list links;
             for(auto it=m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
@@ -452,6 +455,10 @@ namespace NEAT
                 little.append( (*it).FromNeuronID() );
                 little.append( (*it).ToNeuronID() );
                 little.append( traits );
+                if (with_weights)
+                {
+                    little.append( (*it).m_Weight );
+                }
                 links.append( little );
             }
 
@@ -523,13 +530,13 @@ namespace NEAT
 
         // Removes a hidden neuron having only one input and only one output with
         // a direct link between them.
-        bool Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, RNG &a_RNG);
+        bool Mutate_RemoveSimpleNeuron(InnovationDatabase &a_Innovs, const Parameters &a_Parameters, RNG &a_RNG);
 
         // Perturbs the weights
         bool Mutate_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG);
 
         // Set all link weights to random values between [-R .. R]
-        void Randomize_LinkWeights(double a_Range, RNG &a_RNG);
+        void Randomize_LinkWeights(const Parameters &a_Parameters, RNG &a_RNG);
 
         // Set all traits to random values
         void Randomize_Traits(const Parameters& a_Parameters, RNG &a_RNG);
@@ -587,10 +594,12 @@ namespace NEAT
 
         void ResetEvaluated();
 
+#if 0 // disabling because of errors I can't fix right now
 
         /////////////////////////////////////////////
         // Evolvable Substrate HyperNEAT
         ////////////////////////////////////////////
+
 
         // A connection between two points. Stores weight and the coordinates of the points
         struct TempConnection
@@ -716,7 +725,9 @@ namespace NEAT
                 coord = coord_in;
             };
 
-            public void set_children()
+        public:
+
+            void set_children()
             {
                 for(unsigned int ix = 0; ix < 2**coord.size(); ix++){
                     std::string sum_permute = toBinary(ix, coord.size());
@@ -786,6 +797,7 @@ namespace NEAT
 
         void Clean_Net(std::vector<Connection> &connections, unsigned int input_count,
                        unsigned int output_count, unsigned int hidden_count);
+#endif
 
 #ifdef USE_BOOST_PYTHON
 
@@ -797,6 +809,7 @@ namespace NEAT
             ar & m_ID;
             ar & m_NeuronGenes;
             ar & m_LinkGenes;
+            //ar & m_GenomeGene;
             ar & m_NumInputs;
             ar & m_NumOutputs;
             ar & m_Fitness;
@@ -804,11 +817,14 @@ namespace NEAT
             ar & m_Depth;
             ar & m_OffspringAmount;
             ar & m_Evaluated;
+    
+            ar & m_initial_num_neurons;
+            ar & m_initial_num_links;
+            
             //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
         }
 
 #endif
-
     };
 
 
