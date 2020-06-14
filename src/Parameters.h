@@ -168,16 +168,11 @@ public:
     // the gene of the fitter parent will be prefered, instead of choosing one at random
     double PreferFitterParentRate;
     
-    // Selection scheme
-    // 0 - normal (single mode of selection for all species all the time)
-    // 1 - selection mode picked randomly for each species each N evaluations/generations
-    // 2 - selection mode changes randomly when a species stagnates
-    int SelectionScheme;
-    // Probabilities for each selection mode
-    //std::map< SelectionMode, double > SelectionModeProbs;
-
     // Performing roulette wheel selection or not?
     bool RouletteWheelSelection;
+    
+    // If true, will do tournament selection
+    bool TournamentSelection;
 
     // For tournament selection
     unsigned int TournamentSize;

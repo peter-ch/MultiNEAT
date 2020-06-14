@@ -146,9 +146,12 @@ namespace NEAT
 
         // Performing roulette wheel selection or not?
         RouletteWheelSelection = false;
+        
+        // If true, will do tournament selection
+        TournamentSelection = true;
 
         // For tournament selection
-        TournamentSize = 4;
+        TournamentSize = 5;
 
         // Fraction of individuals to be copied unchanged
         EliteFraction = 0.000001;
@@ -617,7 +620,17 @@ namespace NEAT
                 else
                     RouletteWheelSelection = false;
             }
-
+    
+            if (s == "TournamentSelection")
+            {
+                a_DataFile >> tf;
+                if (tf == "true" || tf == "1" || tf == "1.0")
+                    TournamentSelection = true;
+                else
+                    TournamentSelection = false;
+            }
+    
+            
             if (s == "PhasedSearching")
             {
                 a_DataFile >> tf;
@@ -953,6 +966,9 @@ namespace NEAT
 
             if (s == "LeoThreshold")
                 a_DataFile >> LeoThreshold;
+    
+            if (s == "TournamentSize")
+                a_DataFile >> TournamentSize;
 
             if (s == "LeoSeed")
             {
@@ -1114,6 +1130,7 @@ namespace NEAT
         fprintf(a_fstream, "InitialDepth %d\n", InitialDepth);
         fprintf(a_fstream, "MaxDepth %d\n", MaxDepth);
         fprintf(a_fstream, "IterationLevel %d\n", IterationLevel);
+        fprintf(a_fstream, "TournamentSelection %s\n",  TournamentSelection == true ? "true" : "false");
         fprintf(a_fstream, "TournamentSize %d\n", TournamentSize);
         fprintf(a_fstream, "CPPN_Bias %3.20f\n", CPPN_Bias);
         fprintf(a_fstream, "Width %3.20f\n", Width);

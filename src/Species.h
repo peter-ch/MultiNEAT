@@ -108,14 +108,7 @@ public:
 
     double m_AverageFitness;
     
-    // Current selection mode (method)
-    SelectionMode m_SelectionMode;
-    bool AlwaysTruncate; // whether truncation will be performed regardless of the selection mode
     
-    // The species has its own parameters
-    // it inherits them from the population when created
-    //Parameters m_Parameters;
-
     ////////////////////////////
     // Constructors
     ////////////////////////////
@@ -132,8 +125,6 @@ public:
         m_GensNoImprovement = 0;
         m_EvalsNoImprovement = 0;
         m_R = m_G = m_B = 0;
-        m_SelectionMode = SelectionMode::TRUNCATION;
-        AlwaysTruncate = false;
     };
 
     // initializes a species with a leader genome and an ID number

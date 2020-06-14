@@ -9,6 +9,8 @@
   * Ignore this file. I use it to test stuff.
   *
   */
+#include <cmath>
+#include <Python.h>
 
 #include "Genome.h"
 #include "Population.h"

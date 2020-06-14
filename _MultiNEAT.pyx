@@ -920,8 +920,8 @@ cdef class Genome:
     def BuildHyperNEATPhenotype(self, NeuralNetwork net, Substrate subst):
         self.thisptr.BuildHyperNEATPhenotype(deref(net.thisptr), deref(subst.thisptr))
 
-    def BuildESHyperNEATPhenotype(Genome self, NeuralNetwork a_net, Substrate subst, Parameters params):
-        self.thisptr.BuildESHyperNEATPhenotype(deref(a_net.thisptr), deref(subst.thisptr), deref(params.thisptr))
+    #def BuildESHyperNEATPhenotype(Genome self, NeuralNetwork a_net, Substrate subst, Parameters params):
+    #    self.thisptr.BuildESHyperNEATPhenotype(deref(a_net.thisptr), deref(subst.thisptr), deref(params.thisptr))
     
     def Save(self, str a_filename):
         self.thisptr.Save(a_filename)

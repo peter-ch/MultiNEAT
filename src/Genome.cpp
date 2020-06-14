@@ -27,8 +27,6 @@
 // Description: Implementation of the Genome class.
 ///////////////////////////////////////////////////////////////////////////////
 
-
-
 #include <algorithm>
 #include <fstream>
 #include <queue>
