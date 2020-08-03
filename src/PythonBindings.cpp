@@ -282,7 +282,7 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
     class_<Genome, Genome*>("Genome", init<>())
 
             .def(init<char*>())
-            .def(init<unsigned int, Parameters, GenomeInitStruct>())
+            .def(init<Parameters, GenomeInitStruct>())
 
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)

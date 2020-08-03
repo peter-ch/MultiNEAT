@@ -229,8 +229,7 @@ namespace NEAT
 
 
         // This creates a standart minimal genome - perceptron-like structure
-        Genome(int a_ID,
-               const Parameters &a_Parameters,
+        Genome(const Parameters &a_Parameters,
 			   const GenomeInitStruct &init_struct);
 
         /////////////

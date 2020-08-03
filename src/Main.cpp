@@ -243,9 +243,7 @@ int main()
 	ints.HiddenActType = UNSIGNED_SIGMOID;
 	ints.OutputActType = UNSIGNED_SIGMOID;
 
-    Genome s(0, 
-             params,
-             ints);
+    Genome s(params, ints);
 
     Population pop(s, params, true, 1.0, time(0));
     

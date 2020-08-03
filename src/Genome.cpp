@@ -243,8 +243,7 @@ namespace NEAT
         m_initial_num_links = NumLinks();
     }*/
 
-    Genome::Genome(int a_ID,
-                   const Parameters &a_Parameters,
+    Genome::Genome(const Parameters &a_Parameters,
 				   const GenomeInitStruct &in
                    )
     {
@@ -252,7 +251,7 @@ namespace NEAT
         RNG t_RNG;
         t_RNG.TimeSeed();
 
-        m_ID = a_ID;
+        m_ID = 0;
         int t_innovnum = 1, t_nnum = 1;
 		GenomeSeedType seed_type = in.SeedType;
         
