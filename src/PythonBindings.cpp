@@ -120,6 +120,10 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
         .value("BLENDED", BLENDED)
         ;
 
+	enum_<GenomeSeedType>("GenomeSeedType")
+		.value("PERCEPTRON", PERCEPTRON)
+		.value("LAYERED", LAYERED)
+		;
 
 ///////////////////////////////////////////////////////////////////
 // RNG class
@@ -263,11 +267,22 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def_readwrite("Type", &NeuronGene::m_Type)
             ;
 
+	class_<GenomeInitStruct>("GenomeInitStruct", init<>())
+		.def_readwrite("NumInputs", &GenomeInitStruct::NumInputs)
+		.def_readwrite("NumHidden", &GenomeInitStruct::NumHidden)
+		.def_readwrite("NumOutputs", &GenomeInitStruct::NumOutputs)
+		.def_readwrite("FS_NEAT", &GenomeInitStruct::FS_NEAT)
+		.def_readwrite("OutputActType", &GenomeInitStruct::OutputActType)
+		.def_readwrite("HiddenActType", &GenomeInitStruct::HiddenActType)
+		.def_readwrite("SeedType", &GenomeInitStruct::SeedType)
+		.def_readwrite("NumLayers", &GenomeInitStruct::NumLayers)
+		.def_readwrite("FS_NEAT_links", &GenomeInitStruct::FS_NEAT_links)
+		;
+
     class_<Genome, Genome*>("Genome", init<>())
 
             .def(init<char*>())
-            .def(init<unsigned int, unsigned int, unsigned int, unsigned int,
-                    bool, ActivationFunction, ActivationFunction, int, Parameters, unsigned int, unsigned int>())
+            .def(init<unsigned int, Parameters, GenomeInitStruct>())
 
             .def("NumNeurons", &Genome::NumNeurons)
             .def("NumLinks", &Genome::NumLinks)

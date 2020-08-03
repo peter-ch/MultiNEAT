@@ -244,16 +244,8 @@ namespace NEAT
     }*/
 
     Genome::Genome(int a_ID,
-                   int a_NumInputs,
-                   int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
-                   int a_NumOutputs,
-                   bool a_FS_NEAT,
-                   ActivationFunction a_OutputActType,
-                   ActivationFunction a_HiddenActType,
-                   int a_SeedType,
                    const Parameters &a_Parameters,
-                   int a_NumLayers,
-                   int a_FS_NEAT_links
+				   GenomeInitStruct& in
                    )
     {
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
@@ -264,9 +256,9 @@ namespace NEAT
         int t_innovnum = 1, t_nnum = 1;
         
         // override seed_type if 0 hidden units are specified
-        if ((a_SeedType == 1) && (a_NumHidden == 0))
+        if ((in.SeedType == LAYERED) && (in.NumHidden == 0))
         {
-            a_SeedType = 0;
+            in.SeedType = PERCEPTRON;
         }
 
         if (a_Parameters.DontUseBiasNeuron == false)
@@ -275,7 +267,7 @@ namespace NEAT
             // Create the input neurons.
             // Warning! The last one is a bias!
             // The order of the neurons is very important. It is the following: INPUTS, BIAS, OUTPUTS, HIDDEN ... (no limit)
-            for (unsigned int i = 0; i < (a_NumInputs - 1); i++)
+            for (unsigned int i = 0; i < (in.NumInputs - 1); i++)
             {
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
@@ -295,7 +287,7 @@ namespace NEAT
         {
             // Create the input neurons without marking the last node as bias.
             // The order of the neurons is very important. It is the following: INPUTS, OUTPUTS, HIDDEN ... (no limit)
-            for (unsigned int i = 0; i < a_NumInputs; i++)
+            for (unsigned int i = 0; i < in.NumInputs; i++)
             {
                 NeuronGene n = NeuronGene(INPUT, t_nnum, 0.0);
                 // Initialize the traits
@@ -307,7 +299,7 @@ namespace NEAT
         }
 
         // now the outputs
-        for (unsigned int i = 0; i < (a_NumOutputs); i++)
+        for (unsigned int i = 0; i < (in.NumOutputs); i++)
         {
             NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
             // Initialize the neuron gene's properties
@@ -315,7 +307,7 @@ namespace NEAT
                          (a_Parameters.MinActivationB + a_Parameters.MaxActivationB) / 2.0f,
                          (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant) / 2.0f,
                          (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias) / 2.0f,
-                         a_OutputActType);
+                         in.OutputActType);
             // Initialize the traits
             t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
 
@@ -338,17 +330,17 @@ namespace NEAT
 
             m_NeuronGenes.emplace_back(t_ngene);
             t_nnum++;
-            a_NumOutputs++;
+            in.NumOutputs++;
         }
 
         // add and connect hidden neurons if seed type is != 0
-        if ((a_SeedType != 0) && (a_NumHidden > 0))
+        if ((in.SeedType == LAYERED) && (in.NumHidden > 0))
         {
-            double lt_inc = 1.0 / (a_NumLayers+1);
+            double lt_inc = 1.0 / (in.NumLayers+1);
             double initlt = lt_inc;
-            for (unsigned int n = 0; n < a_NumLayers; n++)
+            for (unsigned int n = 0; n < in.NumLayers; n++)
             {
-                for (unsigned int i = 0; i < a_NumHidden; i++)
+                for (unsigned int i = 0; i < in.NumHidden; i++)
                 {
                     NeuronGene t_ngene(HIDDEN, t_nnum, 1.0);
                     // Initialize the neuron gene's properties
@@ -356,7 +348,7 @@ namespace NEAT
                                  (a_Parameters.MinActivationB + a_Parameters.MaxActivationB) / 2.0f,
                                  (a_Parameters.MinNeuronTimeConstant + a_Parameters.MaxNeuronTimeConstant) / 2.0f,
                                  (a_Parameters.MinNeuronBias + a_Parameters.MaxNeuronBias) / 2.0f,
-                                 a_HiddenActType);
+                                 in.HiddenActType);
                     // Initialize the traits
                     t_ngene.InitTraits(a_Parameters.NeuronTraits, t_RNG);
                     t_ngene.m_SplitY = initlt;
@@ -368,16 +360,16 @@ namespace NEAT
                 initlt += lt_inc;
             }
 
-            if (!a_FS_NEAT)
+            if (!in.FS_NEAT)
             {
-                int last_dest_id = a_NumInputs + a_NumOutputs + 1;
+                int last_dest_id = in.NumInputs + in.NumOutputs + 1;
                 int last_src_id = 1;
-                int prev_layer_size = a_NumInputs;
+                int prev_layer_size = in.NumInputs;
                 
-                for (unsigned int n = 0; n < a_NumLayers; n++)
+                for (unsigned int n = 0; n < in.NumLayers; n++)
                 {
                     // The links from each previous layer to this hidden node
-                    for (unsigned int i = 0; i < a_NumHidden; i++)
+                    for (unsigned int i = 0; i < in.NumHidden; i++)
                     {
                         for (unsigned int j = 0; j < prev_layer_size; j++)
                         {
@@ -391,23 +383,23 @@ namespace NEAT
                         }
                     }
     
-                    last_dest_id += a_NumHidden;
+                    last_dest_id += in.NumHidden;
                     if (n == 0)
                     {
                         // for the first hidden layer, jump over the outputs too
-                        last_src_id += prev_layer_size + a_NumOutputs;
+                        last_src_id += prev_layer_size + in.NumOutputs;
                     }
                     else
                     {
                         last_src_id += prev_layer_size;
                     }
-                    prev_layer_size = a_NumHidden;
+                    prev_layer_size = in.NumHidden;
                 }
     
-                last_dest_id = a_NumInputs + 1;
+                last_dest_id = in.NumInputs + 1;
     
                 // The links from each previous layer to this output node
-                for (unsigned int i = 0; i < a_NumOutputs; i++)
+                for (unsigned int i = 0; i < in.NumOutputs; i++)
                 {
                     for (unsigned int j = 0; j < prev_layer_size; j++)
                     {
@@ -438,15 +430,15 @@ namespace NEAT
         }
         else    // The links connecting every input to every output - perceptron structure
         {
-            if ((!a_FS_NEAT) && (a_SeedType == 0))
+            if ((!in.FS_NEAT) && (in.SeedType == PERCEPTRON))
             {
-                for (unsigned int i = 0; i < (a_NumOutputs); i++)
+                for (unsigned int i = 0; i < (in.NumOutputs); i++)
                 {
-                    for (unsigned int j = 0; j < a_NumInputs; j++)
+                    for (unsigned int j = 0; j < in.NumInputs; j++)
                     {
                         // add the link
                         // created with zero weights. needs future random initialization. !!!!!!!!
-                        LinkGene l = LinkGene(j + 1, i + a_NumInputs + 1, t_innovnum, 0.0, false);
+                        LinkGene l = LinkGene(j + 1, i + in.NumInputs + 1, t_innovnum, 0.0, false);
                         l.InitTraits(a_Parameters.LinkTraits, t_RNG);
                         m_LinkGenes.emplace_back(l);
                         t_innovnum++;
@@ -464,13 +456,13 @@ namespace NEAT
                 
                 // do this a few times for more initial links created
                 // TODO: make sure the innovations don't repeat for the same input/output pairs
-                while(linksmade < a_FS_NEAT_links)
+                while(linksmade < in.FS_NEAT_links)
                 {
-                    for (unsigned int i = 0; i < a_NumOutputs; i++)
+                    for (unsigned int i = 0; i < in.NumOutputs; i++)
                     {
-                        int t_inp_id = t_RNG.RandInt(1, a_NumInputs - 1);
-                        int t_bias_id = a_NumInputs;
-                        int t_outp_id = a_NumInputs + 1 + i;
+                        int t_inp_id = t_RNG.RandInt(1, in.NumInputs - 1);
+                        int t_bias_id = in.NumInputs;
+                        int t_outp_id = in.NumInputs + 1 + i;
                         
                         // check if there already
                         there=false;
@@ -507,7 +499,7 @@ namespace NEAT
             }
         }
 
-        if (a_FS_NEAT && (a_FS_NEAT_links==1))
+        if (in.FS_NEAT && (in.FS_NEAT_links==1))
         {
             throw std::runtime_error("Known bug - don't use FS-NEAT with just 1 link and 1/1/1 genome");
         }
@@ -516,8 +508,8 @@ namespace NEAT
         m_GenomeGene.InitTraits(a_Parameters.GenomeTraits, t_RNG);
 
         m_Evaluated = false;
-        m_NumInputs = a_NumInputs;
-        m_NumOutputs = a_NumOutputs;
+        m_NumInputs = in.NumInputs;
+        m_NumOutputs = in.NumOutputs;
         m_Fitness = 0.0;
         m_AdjustedFitness = 0.0;
         m_OffspringAmount = 0.0;
@@ -2692,7 +2684,7 @@ namespace NEAT
             // don't mutate inputs and bias
             if ((it->Type() != INPUT) && (it->Type() != BIAS))
             {
-                did_mutate = it->MutateTraits(a_Parameters.NeuronTraits, a_RNG);
+                did_mutate |= it->MutateTraits(a_Parameters.NeuronTraits, a_RNG);
             }
         }
         return did_mutate;
@@ -2703,7 +2695,7 @@ namespace NEAT
         bool did_mutate = false;
         for(auto it = m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
         {
-            did_mutate = it->MutateTraits(a_Parameters.LinkTraits, a_RNG);
+            did_mutate |= it->MutateTraits(a_Parameters.LinkTraits, a_RNG);
         }
         return did_mutate;
     }

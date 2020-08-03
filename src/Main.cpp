@@ -233,15 +233,19 @@ int main()
     params.GenomeTraits["y"] = tps;
     params.NeuronTraits["z"] = tp3;
 
-    Genome s(0, 4,
-             1,
-             1,
-             false,
-             UNSIGNED_SIGMOID,
-             UNSIGNED_SIGMOID,
-             0,
+	GenomeInitStruct ints;
+	ints.NumInputs = 4;
+	ints.NumOutputs = 1;
+	ints.NumHidden = 0;
+	ints.SeedType = PERCEPTRON;
+	ints.FS_NEAT = false;
+	ints.FS_NEAT_links = 0;
+	ints.HiddenActType = UNSIGNED_SIGMOID;
+	ints.OutputActType = UNSIGNED_SIGMOID;
+
+    Genome s(0, 
              params,
-             0, 3);
+             ints);
 
     Population pop(s, params, true, 1.0, time(0));
     
