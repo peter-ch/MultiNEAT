@@ -245,7 +245,7 @@ namespace NEAT
 
     Genome::Genome(int a_ID,
                    const Parameters &a_Parameters,
-				   GenomeInitStruct& in
+				   const GenomeInitStruct &in
                    )
     {
         ASSERT((a_NumInputs > 1) && (a_NumOutputs > 0));
@@ -254,11 +254,12 @@ namespace NEAT
 
         m_ID = a_ID;
         int t_innovnum = 1, t_nnum = 1;
+		GenomeSeedType seed_type = in.SeedType;
         
         // override seed_type if 0 hidden units are specified
-        if ((in.SeedType == LAYERED) && (in.NumHidden == 0))
+        if ((seed_type == LAYERED) && (in.NumHidden == 0))
         {
-            in.SeedType = PERCEPTRON;
+			seed_type = PERCEPTRON;
         }
 
         if (a_Parameters.DontUseBiasNeuron == false)
@@ -316,7 +317,7 @@ namespace NEAT
         }
         
         // Now add LEO
-        if (a_Parameters.Leo)
+        /*if (a_Parameters.Leo)
         {
             NeuronGene t_ngene(OUTPUT, t_nnum, 1.0);
             // Initialize the neuron gene's properties
@@ -331,7 +332,7 @@ namespace NEAT
             m_NeuronGenes.emplace_back(t_ngene);
             t_nnum++;
             in.NumOutputs++;
-        }
+        }*/
 
         // add and connect hidden neurons if seed type is != 0
         if ((in.SeedType == LAYERED) && (in.NumHidden > 0))
@@ -430,7 +431,7 @@ namespace NEAT
         }
         else    // The links connecting every input to every output - perceptron structure
         {
-            if ((!in.FS_NEAT) && (in.SeedType == PERCEPTRON))
+            if ((!in.FS_NEAT) && (seed_type == PERCEPTRON))
             {
                 for (unsigned int i = 0; i < (in.NumOutputs); i++)
                 {

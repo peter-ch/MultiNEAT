@@ -231,7 +231,7 @@ namespace NEAT
         // This creates a standart minimal genome - perceptron-like structure
         Genome(int a_ID,
                const Parameters &a_Parameters,
-			   GenomeInitStruct& init_struct);
+			   const GenomeInitStruct &init_struct);
 
         /////////////
         // Other possible constructors for different types of networks go here
