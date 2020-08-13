@@ -104,19 +104,21 @@ params.AllowLoops = True
 params.AllowClones = True
 
 def getbest(i):
-    g = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID,
-                    NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0)
+    gi = NEAT.GenomeInitStruct()
+    gi.NumInputs = 3
+    g = NEAT.Genome(params, gi)
     pop = NEAT.Population(g, params, True, 1.0, i)
     pop.RNG.Seed(int(time.clock()*100))
 
     generations = 0
-    for generation in range(1000):
+    for generation in range(300):
         genome_list = NEAT.GetGenomeList(pop)
         fitness_list = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         NEAT.ZipFitness(genome_list, fitness_list)
         pop.Epoch()
         generations = generation
         best = max(fitness_list)
+        print('gen:', generation, 'best:',best)
         if best > 15.0:
             break
 

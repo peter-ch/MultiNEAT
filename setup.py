@@ -119,15 +119,16 @@ def getExtensions():
             # with boost 1.67 you need boost_python3x and boost_numpy3x where x is python version 3.x 
             #libs += ['boost_python36', "boost_numpy36"]  # in Ubuntu 14 there is only 'boost_python-py34'
             # for Windows with mingw
-            libs += ["boost_system-vc141-mt-x64-1_71",
-                    "boost_filesystem-vc141-mt-x64-1_71",
-                    "boost_wserialization-vc141-mt-x64-1_71",
-                    "boost_date_time-vc141-mt-x64-1_71",
-                    "boost_random-vc141-mt-x64-1_71",
-                    "boost_python36-vc141-mt-x64-1_71",
-                    "boost_numpy36-vc141-mt-x64-1_71",
-                    "python3"
-                     ]
+            if sys.platform == 'win23':
+                libs += ["boost_system-vc141-mt-x64-1_71",
+                        "boost_filesystem-vc141-mt-x64-1_71",
+                        "boost_wserialization-vc141-mt-x64-1_71",
+                        "boost_date_time-vc141-mt-x64-1_71",
+                        "boost_random-vc141-mt-x64-1_71",
+                        "boost_python36-vc141-mt-x64-1_71",
+                        "boost_numpy36-vc141-mt-x64-1_71",
+                        "python3"
+                        ]
         #include_dirs = ['C:/MinGW/include'],
         library_dirs = ['C:/MinGW/lib', 'C:/Boost/lib', 'C:/Python36/libs']
         extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM', '-DUSE_BOOST_NUMPY',# '-DMS_WIN64', '-DWIN64', '-DWIN_64'  #'-O0',

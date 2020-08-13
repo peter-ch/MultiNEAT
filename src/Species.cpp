@@ -928,7 +928,7 @@ namespace NEAT
     void
     Species::MutateGenome(bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters &a_Parameters, RNG &a_RNG)
     {
-#if 1
+#if 0
         if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && ((a_Pop.GetSearchMode() == COMPLEXIFYING) || (a_Pop.GetSearchMode() == BLENDED)))
         {
             if (a_Parameters.MaxNeurons > 0)
@@ -1124,7 +1124,7 @@ namespace NEAT
                     break;
             
                 case REMOVE_NODE:
-                    t_mutation_success = t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_RNG);
+                    t_mutation_success = t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
                     break;
             
                 case REMOVE_LINK:

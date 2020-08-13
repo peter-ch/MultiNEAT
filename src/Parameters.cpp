@@ -83,7 +83,7 @@ namespace NEAT
         AllowLoops = true;
     
         // Normalize genome size when calculating compatibility
-        NormalizeGenomeSize = true;
+        NormalizeGenomeSize = false;
     
         // Pointer to a function that specifies custom topology/trait constraints
         // Should return true if the genome FAILS to meet the constraints
@@ -123,7 +123,7 @@ namespace NEAT
         KillWorstAge = 10;
 
         // Percent of best individuals that are allowed to reproduce. 1.0 = 100%
-        SurvivalRate = 0.25;
+        SurvivalRate = 0.2;
 
         // Probability for a baby to result from sexual reproduction (crossover/mating). 1.0 = 100%
         // If asexual reprodiction is chosen, the baby will be mutated 100%
@@ -131,10 +131,10 @@ namespace NEAT
 
         // If a baby results from sexual reproduction, this probability determines if mutation will
         // be performed after crossover. 1.0 = 100% (always mutate after crossover)
-        OverallMutationRate = 0.25;
+        OverallMutationRate = 0.75;
 
         // Probability for a baby to result from inter-species mating.
-        InterspeciesCrossoverRate = 0.0;
+        InterspeciesCrossoverRate = 0.0001;
 
         // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
         // The default is the Average mating.
@@ -334,31 +334,6 @@ namespace NEAT
         MinNeuronBias = 0.0;
         MaxNeuronBias = 0.0;
 
-        // Some default traits for testing
-        /*TraitParameters tp1;
-        tp1.m_ImportanceCoeff = 0.0;
-        tp1.m_MutationProb = 0.8;
-        tp1.type = "int";
-        IntTraitParameters itp1;
-        itp1.min = -5;
-        itp1.max = 5;
-        itp1.mut_power = 1;
-        itp1.mut_replace_prob = 0.1;
-        tp1.m_Details = itp1;
-        NeuronTraits["px"] = tp1;
-
-        TraitParameters tp2;
-        tp2.m_ImportanceCoeff = 0.0;
-        tp2.m_MutationProb = 0.8;
-        tp2.type = "int";
-        IntTraitParameters itp2;
-        itp2.min = -5;
-        itp2.max = 5;
-        itp2.mut_power = 1;
-        itp2.mut_replace_prob = 0.1;
-        tp2.m_Details = itp2;
-        NeuronTraits["py"] = tp2;*/
-
         // Probability for a baby that an activation function type will be changed for a single neuron
         // considered a structural mutation because of the large impact on fitness
         MutateNeuronActivationTypeProb = 0.0;
@@ -402,7 +377,7 @@ namespace NEAT
         ExcessCoeff = 1.0;
 
         // Average weight difference importance
-        WeightDiffCoeff = 0.0;
+        WeightDiffCoeff = 0.5;
 
         // Node-specific activation parameter A difference importance
         ActivationADiffCoeff = 0.0;
