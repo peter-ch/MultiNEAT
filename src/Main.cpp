@@ -80,6 +80,7 @@ int main()
 {
     Parameters params;
 
+#if 1
     params.PopulationSize = 32;
     params.DynamicCompatibility = true;
     params.WeightDiffCoeff = 0.0;
@@ -232,6 +233,7 @@ int main()
     params.GenomeTraits["x"] = tp2;
     params.GenomeTraits["y"] = tps;
     params.NeuronTraits["z"] = tp3;
+#endif
 
 	GenomeInitStruct ints;
 	ints.NumInputs = 4;
@@ -309,10 +311,10 @@ int main()
         //pop.Epoch();
     }
     
-    for(int i=0; i<100; i++)
+/*for(int i=0; i<100; i++)
     {
         std::cout << pop.m_RNG.Roulette(itps.probs) << " ";
-    }
+    }*/
     std::cout << "\n";
 
     return 0;

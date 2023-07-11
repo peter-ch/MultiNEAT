@@ -108,7 +108,7 @@ def getbest(i):
     gi.NumInputs = 3
     g = NEAT.Genome(params, gi)
     pop = NEAT.Population(g, params, True, 1.0, i)
-    pop.RNG.Seed(int(time.clock()*100))
+    pop.RNG.Seed(int(time.perf_counter()*100))
 
     generations = 0
     for generation in range(300):
@@ -126,7 +126,7 @@ def getbest(i):
 
 
 gens = []
-for run in range(100):
+for run in range(1000):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)
