@@ -9,6 +9,8 @@
   * Ignore this file. I use it to test stuff.
   *
   */
+#include <cmath>
+#include <Python.h>
 
 #include "Genome.h"
 #include "Population.h"
@@ -78,6 +80,7 @@ int main()
 {
     Parameters params;
 
+#if 1
     params.PopulationSize = 32;
     params.DynamicCompatibility = true;
     params.WeightDiffCoeff = 0.0;
@@ -230,16 +233,19 @@ int main()
     params.GenomeTraits["x"] = tp2;
     params.GenomeTraits["y"] = tps;
     params.NeuronTraits["z"] = tp3;
+#endif
 
-    Genome s(0, 4,
-             1,
-             1,
-             false,
-             UNSIGNED_SIGMOID,
-             UNSIGNED_SIGMOID,
-             0,
-             params,
-             0, 3);
+	GenomeInitStruct ints;
+	ints.NumInputs = 4;
+	ints.NumOutputs = 1;
+	ints.NumHidden = 0;
+	ints.SeedType = PERCEPTRON;
+	ints.FS_NEAT = false;
+	ints.FS_NEAT_links = 0;
+	ints.HiddenActType = UNSIGNED_SIGMOID;
+	ints.OutputActType = UNSIGNED_SIGMOID;
+
+    Genome s(params, ints);
 
     Population pop(s, params, true, 1.0, time(0));
     
@@ -305,10 +311,10 @@ int main()
         //pop.Epoch();
     }
     
-    for(int i=0; i<100; i++)
+/*for(int i=0; i<100; i++)
     {
         std::cout << pop.m_RNG.Roulette(itps.probs) << " ";
-    }
+    }*/
     std::cout << "\n";
 
     return 0;

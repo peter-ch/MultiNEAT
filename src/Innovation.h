@@ -1,3 +1,6 @@
+#include <cmath>
+#include <Python.h>
+
 #ifndef _INNOVATION_H
 #define _INNOVATION_H
 

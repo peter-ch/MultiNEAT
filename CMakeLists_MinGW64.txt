@@ -6,7 +6,7 @@ if(MINGW OR CYGWIN)
     add_definitions(-O3)
 endif()
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
 
 find_package(PythonLibs REQUIRED)
 include(FindPythonLibs)
@@ -15,7 +15,7 @@ include(FindPythonLibs)
 #set(BOOST_ROOT "C:\\Boost")
 #set(BOOSTROOT "C:\\Boost")
 
-add_definitions("-DMS_WIN64")
+#add_definitions("-DMS_WIN64")
 
 set(Boost_USE_STATIC_LIBS       OFF) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
@@ -23,8 +23,8 @@ set(Boost_USE_STATIC_RUNTIME   OFF)
 
 find_package(BOOST COMPONENTS REQUIRED
         system
-        python
-        numpy
+        python36
+        numpy36
         date_time
         filesystem
         serialization)
@@ -39,7 +39,7 @@ endif()
 include_directories(${PYTHON_INCLUDE_DIRS})
 
 add_definitions(-DUSE_BOOST_PYTHON)
-#add_definitions(-DUSE_BOOST_NUMPY)
+add_definitions(-DUSE_BOOST_NUMPY)
 add_definitions(-DUSE_BOOST_RANDOM)
 #add_definitions(-DVDEBUG)
 
@@ -73,5 +73,12 @@ add_executable(MultiNEAT ${PROJECT_SOURCE_DIR}/src/Assert.h
 
 target_link_libraries(MultiNEAT
         "ws2_32"
-        ${BOOST_LIBRARIES}
-        ${PYTHON_LIBRARIES})
+#        ${BOOST_LIBRARIES}
+        "boost_system-mgw81-mt-x64-1_71"
+        "boost_filesystem-mgw81-mt-x64-1_71"
+        "boost_serialization-mgw81-mt-x64-1_71"
+        "boost_date_time-mgw81-mt-x64-1_71"
+        "boost_random-mgw81-mt-x64-1_71"
+        "boost_python36-mgw81-mt-x64-1_71"
+        "boost_numpy36-mgw81-mt-x64-1_71"
+        ${PYTHON_LIBRARIES} pthread)

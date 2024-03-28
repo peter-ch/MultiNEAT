@@ -31,7 +31,7 @@ def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=N
 
 to build Boost.Python on Windows with mingw
 
-bjam target-os=windows/python=3.4 toolset=gcc variant=debug,release link=static,shared threading=multi runtime-link=shared cxxflags="-include cmath "
+bjam target-os=windows/python=3.9 toolset=gcc variant=debug,release link=static,shared threading=multi runtime-link=shared cxxflags="-include cmath "
 
 
 also insert this on top of boost/python.hpp :
@@ -68,10 +68,13 @@ def getExtensions():
         extra += ['-std=gnu++11']
 
     is_windows = 'win' in platform and platform != 'darwin'
+    #if is_windows:
+    #    extra.append('/EHsc')
+    #else:
+    #    extra.append('-w')
     if is_windows:
-        extra.append('/EHsc')
-    else:
-        extra.append('-w')
+        extra.append('-IC:/Boost/include/')
+        extra.append('-LC:/Boost/lib')
 
     prefix = os.getenv('PREFIX')
     if prefix and len(prefix) > 0:
@@ -109,24 +112,39 @@ def getExtensions():
             if is_python_2:
                 raise RuntimeError("Python prior to version 3 is not supported on Windows due to limits of VC++ compiler version")
 
-        libs = ['boost_system', 'boost_serialization']
+        libs = []#['boost_system', 'boost_serialization']
         if is_python_2:
-            libs += ['boost_python', "boost_numpy"]
+            libs += ['boost_python', "boost_numpy", "boost_system", 
+                         'boost_filesystem', 'boost_serialization', 'boost_date_time', 
+                         'boost_random']
         else:
-            # with boost 1.67 you need boost_python3x and boost_numpy3x where x is python version 3.x 
-            libs += ['boost_python36', "boost_numpy36"]  # in Ubuntu 14 there is only 'boost_python-py34'
+            # for Windows 
+            if sys.platform == 'win32':
+                # when compiling with Visual Studio 2017 this are the libs you need (boost 1.71)
+                libs += ["boost_system-vc141-mt-x64-1_71",
+                        "boost_filesystem-vc141-mt-x64-1_71",
+                        "boost_wserialization-vc141-mt-x64-1_71",
+                        "boost_date_time-vc141-mt-x64-1_71",
+                        "boost_random-vc141-mt-x64-1_71",
+                        "boost_python36-vc141-mt-x64-1_71",
+                        "boost_numpy36-vc141-mt-x64-1_71",
+                        "python3"
+                        ]
+            else:
+                # with boost 1.67+ you need boost_python3x and boost_numpy3x where x is python version 3.x 
+                libs += ['boost_python38', "boost_numpy38", "boost_system", 
+                         'boost_filesystem', 'boost_serialization', 'boost_date_time', 
+                         'boost_random']  # in Ubuntu 14 there is only 'boost_python-py34'
 
-        # for Windows with mingw
-        # libraries= ['libboost_python-mgw48-mt-1_58',
-        #            'libboost_serialization-mgw48-mt-1_58'],
-        # include_dirs = ['C:/MinGW/include', 'C:/Users/Peter/Desktop/boost_1_58_0'],
-        # library_dirs = ['C:/MinGW/lib', 'C:/Users/Peter/Desktop/boost_1_58_0/stage/lib'],
-        extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM', #'-O0',
+        #include_dirs = ['C:/MinGW/include'],
+        library_dirs = ['C:/MinGW/lib', 'C:/Boost/lib', 'C:/Python36/libs']
+        extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM', '-DUSE_BOOST_NUMPY',# '-DMS_WIN64', '-DWIN64', '-DWIN_64'  #'-O0',
                       #'-DVDEBUG',
                       ])
         exx = Extension('MultiNEAT._MultiNEAT',
                         sources,
                         libraries=libs,
+                        library_dirs=library_dirs,
                         extra_compile_args=extra)
         print(dir(exx))
         print(exx)
@@ -139,6 +157,6 @@ def getExtensions():
 
 
 setup(name='multineat',
-      version='0.5', # Update version in conda/meta.yaml as well
+      version='0.6', # Update version in conda/meta.yaml as well
       packages=['MultiNEAT'],
       ext_modules=getExtensions())

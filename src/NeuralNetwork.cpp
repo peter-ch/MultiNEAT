@@ -625,6 +625,8 @@ void NeuralNetwork::Input_python_list(const py::list& a_Inputs)
     Input(inp);
 }
 
+#ifdef USE_BOOST_NUMPY
+
 void NeuralNetwork::Input_numpy(const pyndarray& a_Inputs)
 {
     int len = py::len(a_Inputs);
@@ -644,6 +646,8 @@ void NeuralNetwork::Input_numpy(const pyndarray& a_Inputs)
 
     Input(inp);
 }
+
+#endif
 
 #endif
 

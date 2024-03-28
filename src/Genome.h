@@ -78,6 +78,40 @@ namespace NEAT
     typedef bs::adjacency_list <bs::vecS, bs::vecS, bs::directedS> Graph;
     typedef bs::graph_traits<Graph>::vertex_descriptor Vertex;
 
+	enum GenomeSeedType
+	{
+		PERCEPTRON = 0,
+		LAYERED = 1
+	};
+
+	class GenomeInitStruct
+	{
+	public:
+		int NumInputs;
+		int NumHidden; // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
+		int NumOutputs;
+		bool FS_NEAT;
+		ActivationFunction OutputActType;
+		ActivationFunction HiddenActType;
+		GenomeSeedType SeedType;
+		int NumLayers;
+		int FS_NEAT_links;
+
+		GenomeInitStruct()
+		{
+			NumInputs = 1;
+			NumHidden = 0;
+			NumOutputs = 1;
+			FS_NEAT = 0;
+			FS_NEAT_links = 1;
+			HiddenActType = UNSIGNED_SIGMOID;
+			OutputActType = UNSIGNED_SIGMOID;
+			SeedType = GenomeSeedType::PERCEPTRON;
+			NumLayers = 0;
+		}
+	};
+
+
     class Genome
     {
         /////////////////////
@@ -195,17 +229,8 @@ namespace NEAT
 
 
         // This creates a standart minimal genome - perceptron-like structure
-        Genome(int a_ID,
-               int a_NumInputs,
-               int a_NumHidden, // ignored for seed_type == 0, specifies number of hidden units if seed_type == 1
-               int a_NumOutputs,
-               bool a_FS_NEAT,
-               ActivationFunction a_OutputActType,
-               ActivationFunction a_HiddenActType,
-               int a_SeedType,
-               const Parameters &a_Parameters,
-               int a_NumLayers,
-               int a_FS_NEAT_links);
+        Genome(const Parameters &a_Parameters,
+			   const GenomeInitStruct &init_struct);
 
         /////////////
         // Other possible constructors for different types of networks go here

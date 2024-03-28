@@ -114,9 +114,6 @@ namespace NEAT
             m_G = a_S.m_G;
             m_B = a_S.m_B;
             m_Individuals = a_S.m_Individuals;
-            //m_Parameters = a_S.m_Parameters;
-            m_SelectionMode = a_S.m_SelectionMode;
-            AlwaysTruncate = a_S.AlwaysTruncate;
         }
 
         return *this;
@@ -130,10 +127,9 @@ namespace NEAT
     }
 
 
-    // returns an individual randomly selected from the best N%
+    // Individual selection routine
     Genome& Species::GetIndividual(Parameters &a_Parameters, RNG &a_RNG) //const
     {
-        //ASSERT(m_Individuals.size() > 0);
         if (m_Individuals.size() == 0)
         {
             char s[256];
@@ -151,12 +147,9 @@ namespace NEAT
             }
         }
 
-        ASSERT(t_Evaluated.size() > 0);
-
         // None are evaluated - fall back to random individual
         if (t_Evaluated.size() == 0)
         {
-            //return GetRandomIndividual(a_RNG);
             char s[256];
             sprintf(s, "Attempted GetIndividual() but no evaluated individuals in species ID %d\n", m_ID);
             throw std::runtime_error(s);
@@ -173,66 +166,56 @@ namespace NEAT
         // Warning!!!! The individuals must be sorted by best fitness for this to work
         int t_chosen_one = 0;
         
-        // then sort them here just to make sure
-        std::sort(t_Evaluated.begin(), t_Evaluated.end(), idxfitnesspair_greater);
-        //for(int i=0; i<t_Evaluated.size(); i++) std::cout << t_Evaluated[i].second << " ";
-        //std::cout << "\n\n";
-
-        // Here might be introduced better selection scheme, but this works OK for now
-        if (!a_Parameters.RouletteWheelSelection)
-        {   //start with the last one just for comparison sake
-            //int temp_genome;
-
-            //int t_num_parents = static_cast<int>( floor(
-            //        (a_Parameters.SurvivalRate * (static_cast<double>(t_Evaluated.size()))) + 1.0));
-            int t_num_parents = (int)(a_Parameters.SurvivalRate * (double)(m_Individuals.size()));
+        if (a_Parameters.TournamentSelection)
+        {
+            std::vector< std::pair<int, double> > t_picked;
+            // choose N individuals at random
+            for(int i=0; i<a_Parameters.TournamentSize; i++)
+            {
+                int c = a_RNG.RandInt(0, t_Evaluated.size()-1);
+                t_picked.push_back( t_Evaluated[c] );
+            }
     
-            ASSERT(t_num_parents > 0);
-            ASSERT(t_num_parents < t_Evaluated.size());
-            if (t_num_parents >= t_Evaluated.size())
+            std::sort(t_picked.begin(), t_picked.end(), idxfitnesspair_greater);
+            std::vector<double> t_probs;
+            for (int i = 0; i < t_picked.size(); i++)
             {
-                t_num_parents = t_Evaluated.size() - 1;
+                t_probs.push_back(t_picked.size()-i);//t_picked[i].second);
             }
-            if (t_num_parents < 1)
-            {
-                t_num_parents = 1;
-            }
-            
-            t_chosen_one = t_Evaluated[a_RNG.RandInt(0, t_num_parents)].first;
-            
-            /*for (unsigned int i = 0; i < a_Parameters.TournamentSize; i++)
-            {
-                temp_genome = a_RNG.RandInt(0, t_num_parents);
-
-                if (m_Individuals[temp_genome].GetFitness() > m_Individuals[t_chosen_one].GetFitness())
-                {
-                    t_chosen_one = temp_genome;
-                }
-            }*/
+            t_chosen_one = t_picked[a_RNG.Roulette(t_probs)].first;
         }
         else
         {
-            // roulette wheel selection
-            /*std::vector<double> t_probs;
-            for (unsigned int i = 0; i < t_Evaluated.size(); i++)
+            // sort them here just to make sure
+            std::sort(t_Evaluated.begin(), t_Evaluated.end(), idxfitnesspair_greater);
+            
+            // Here might be introduced better selection scheme, but this works OK for now
+            if (!a_Parameters.RouletteWheelSelection)
             {
-                t_probs.emplace_back(t_Evaluated[i].GetFitness());
+                int t_num_parents = (int) (a_Parameters.SurvivalRate * (double) (m_Individuals.size()));
+        
+                if (t_num_parents >= t_Evaluated.size())
+                {
+                    t_num_parents = t_Evaluated.size() - 1;
+                }
+                if (t_num_parents < 1)
+                {
+                    t_num_parents = 1;
+                }
+        
+                t_chosen_one = t_Evaluated[a_RNG.RandInt(0, t_num_parents)].first;
             }
-            t_chosen_one = a_RNG.Roulette(t_probs);*/
-            int t_num_parents = t_Evaluated.size();//(int)(a_Parameters.SurvivalRate * (double)(t_Evaluated.size()));
-    
-            //ASSERT(t_num_parents > 0);
-            //ASSERT(t_num_parents < t_Evaluated.size());
-            //if (t_num_parents > t_Evaluated.size())
-            //{
-            ///    t_num_parents = t_Evaluated.size();
-            //}
-            std::vector<double> t_probs;
-            for (unsigned int i = 0; i < t_num_parents; i++)
+            else
             {
-                t_probs.push_back(t_Evaluated[i].second);
+                // roulette wheel selection
+                int t_num_parents = t_Evaluated.size();
+                std::vector<double> t_probs;
+                for (unsigned int i = 0; i < t_num_parents; i++)
+                {
+                    t_probs.push_back(t_Evaluated[i].second);
+                }
+                t_chosen_one = t_Evaluated[a_RNG.Roulette(t_probs)].first;
             }
-            t_chosen_one = t_Evaluated[a_RNG.Roulette(t_probs)].first;
         }
 
         return (m_Individuals[t_chosen_one]);
@@ -945,7 +928,7 @@ namespace NEAT
     void
     Species::MutateGenome(bool t_baby_is_clone, Population &a_Pop, Genome &t_baby, Parameters &a_Parameters, RNG &a_RNG)
     {
-#if 1
+#if 0
         if ((a_RNG.RandFloat() < a_Parameters.MutateAddNeuronProb) && ((a_Pop.GetSearchMode() == COMPLEXIFYING) || (a_Pop.GetSearchMode() == BLENDED)))
         {
             if (a_Parameters.MaxNeurons > 0)
@@ -1141,7 +1124,7 @@ namespace NEAT
                     break;
             
                 case REMOVE_NODE:
-                    t_mutation_success = t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_RNG);
+                    t_mutation_success = t_baby.Mutate_RemoveSimpleNeuron(a_Pop.AccessInnovationDatabase(), a_Parameters, a_RNG);
                     break;
             
                 case REMOVE_LINK:
