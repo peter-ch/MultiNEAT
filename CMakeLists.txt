@@ -23,8 +23,8 @@ set(Boost_USE_STATIC_RUNTIME   OFF)
 
 find_package(BOOST COMPONENTS REQUIRED
         system
-        python36
-        numpy36
+        python
+        numpy
         date_time
         filesystem
         serialization)
@@ -39,7 +39,7 @@ endif()
 include_directories(${PYTHON_INCLUDE_DIRS})
 
 add_definitions(-DUSE_BOOST_PYTHON)
-add_definitions(-DUSE_BOOST_NUMPY)
+#add_definitions(-DUSE_BOOST_NUMPY)
 add_definitions(-DUSE_BOOST_RANDOM)
 #add_definitions(-DVDEBUG)
 

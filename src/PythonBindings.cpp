@@ -32,7 +32,6 @@
 #ifdef USE_BOOST_PYTHON
 
 #include <boost/python.hpp>
-
 #include <boost/version.hpp>
 
 #ifdef USE_BOOST_NUMPY
