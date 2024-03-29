@@ -73,7 +73,7 @@ def getExtensions():
     #else:
     #    extra.append('-w')
     if is_windows:
-        extra.append('-IC:/Boost/include/')
+        extra.append('-IC:/Boost/')
         extra.append('-LC:/Boost/lib')
 
     prefix = os.getenv('PREFIX')
@@ -120,24 +120,24 @@ def getExtensions():
         else:
             # for Windows 
             if sys.platform == 'win32':
-                # when compiling with Visual Studio 2017 this are the libs you need (boost 1.71)
-                libs += ["boost_system-vc141-mt-x64-1_71",
-                        "boost_filesystem-vc141-mt-x64-1_71",
-                        "boost_wserialization-vc141-mt-x64-1_71",
-                        "boost_date_time-vc141-mt-x64-1_71",
-                        "boost_random-vc141-mt-x64-1_71",
-                        "boost_python36-vc141-mt-x64-1_71",
-                        "boost_numpy36-vc141-mt-x64-1_71",
+                # when compiling with Visual Studio 2022 this are the libs you need (boost 1.84)
+                libs += ["boost_system-vc143-mt-x64-1_84",
+                        "boost_filesystem-vc143-mt-x64-1_84",
+                        "boost_wserialization-vc143-mt-x64-1_84",
+                        "boost_date_time-vc143-mt-x64-1_84",
+                        "boost_random-vc143-mt-x64-1_84",
+                        "boost_python310-vc143-mt-x64-1_84",
+                        "boost_numpy310-vc143-mt-x64-1_84",
                         "python3"
                         ]
             else:
                 # with boost 1.67+ you need boost_python3x and boost_numpy3x where x is python version 3.x 
-                libs += ['boost_python38', "boost_numpy38", "boost_system", 
+                libs += ['boost_python310', "boost_numpy310", "boost_system", 
                          'boost_filesystem', 'boost_serialization', 'boost_date_time', 
                          'boost_random']  # in Ubuntu 14 there is only 'boost_python-py34'
 
         #include_dirs = ['C:/MinGW/include'],
-        library_dirs = ['C:/MinGW/lib', 'C:/Boost/lib', 'C:/Python36/libs']
+        library_dirs = ['C:/MinGW/lib', 'C:/Boost/lib', 'C:/Python310/libs']
         extra.extend(['-DUSE_BOOST_PYTHON', '-DUSE_BOOST_RANDOM', '-DUSE_BOOST_NUMPY',# '-DMS_WIN64', '-DWIN64', '-DWIN_64'  #'-O0',
                       #'-DVDEBUG',
                       ])
