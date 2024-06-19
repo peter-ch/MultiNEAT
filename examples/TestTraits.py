@@ -150,7 +150,7 @@ for generation in range(100):
 
     PrintGenomeTraits( pop.GetBestGenome() )
     print()
-    print('Fitnesss:', max(fitness_list), 'Generation:', generation)
+    print('Fitness:', max(fitness_list), 'Generation:', generation)
     print()
 
     pop.Epoch()
