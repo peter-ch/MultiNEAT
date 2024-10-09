@@ -132,7 +132,7 @@ def getExtensions():
                         ]
             else:
                 # with boost 1.67+ you need boost_python3x and boost_numpy3x where x is python version 3.x 
-                libs += ['boost_python38', "boost_numpy38", "boost_system", 
+                libs += ['boost_python', "boost_numpy", "boost_system", 
                          'boost_filesystem', 'boost_serialization', 'boost_date_time', 
                          'boost_random']  # in Ubuntu 14 there is only 'boost_python-py34'
 
