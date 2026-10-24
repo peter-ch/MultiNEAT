@@ -1,0 +1,2482 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NeuroEvolution library - NEAT, HyperNEAT, ES-HyperNEAT, novelty search">
+      
+      
+      
+        <link rel="canonical" href="https://peter-ch.github.io/MultiNEAT/api/">
+      
+      
+        <link rel="prev" href="../parameters/">
+      
+      
+        <link rel="next" href="../faq/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Python API - MultiNEAT</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#python-api-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MultiNEAT" class="md-header__button md-logo" aria-label="MultiNEAT" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MultiNEAT
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Python API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/peter-ch/MultiNEAT" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MultiNEAT" class="md-nav__button md-logo" aria-label="MultiNEAT" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MultiNEAT
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/peter-ch/MultiNEAT" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How NEAT works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Neural networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hyperneat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HyperNEAT and ES-HyperNEAT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../traits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Traits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../novelty_search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Novelty search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../saving_and_parallel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saving and parallel evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics2d/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the C++ library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#population" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Population
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#species" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Species
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rng" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNG
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#genomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Genomes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Genomes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#genome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Genome
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#genomeinitstruct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GenomeInitStruct
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neurongene" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NeuronGene
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linkgene" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LinkGene
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Networks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Networks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#neuralnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NeuralNetwork
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neuron" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neuron
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hyperneat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HyperNEAT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HyperNEAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#substrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Substrate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#novelty-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Novelty search
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Novelty search">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phenotypebehavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PhenotypeBehavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enumerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enumerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multineatphysics2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MultiNEAT.physics2d
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MultiNEAT.physics2d">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vec2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vec2d
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#population" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Population
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#species" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Species
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rng" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNG
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#genomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Genomes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Genomes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#genome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Genome
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#genomeinitstruct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GenomeInitStruct
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neurongene" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NeuronGene
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linkgene" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LinkGene
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Networks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Networks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#neuralnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NeuralNetwork
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neuron" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neuron
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hyperneat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HyperNEAT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HyperNEAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#substrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Substrate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#novelty-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Novelty search
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Novelty search">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phenotypebehavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PhenotypeBehavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enumerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enumerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multineatphysics2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MultiNEAT.physics2d
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MultiNEAT.physics2d">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vec2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vec2d
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="python-api-reference">Python API reference<a class="headerlink" href="#python-api-reference" title="Permanent link">&para;</a></h1>
+<p><code>import MultiNEAT as NEAT</code> gives access to everything below. The guides explain how the pieces fit
+together - start with the <a href="../tutorial/">tutorial</a>.</p>
+<p>Lists returned by the library (<code>pop.Species</code>, <code>species.Individuals</code>, <code>genome.LinkGenes</code>,
+<code>net.neurons</code>, ...) are <em>references</em> into the C++ objects: changing an element changes the object. They
+support <code>len()</code>, indexing, iteration, <code>append()</code> etc. like Python lists, and Python lists and tuples are
+accepted wherever such a list is expected.</p>
+<p><em>(This page is generated by <code>docs/tools/gen_api.py</code>.)</em></p>
+<h2 id="evolution">Evolution<a class="headerlink" href="#evolution" title="Permanent link">&para;</a></h2>
+<h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h3>
+<p>All the settings of the algorithm</p>
+<div class="highlight"><pre><span></span><code><span class="n">Parameters</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClearGenomeTraitParameters() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ClearLinkTraitParameters() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ClearNeuronTraitParameters() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetGenomeTraitParameters(name: str) -&gt; dict</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetLinkTraitParameters(name: str) -&gt; dict</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetNeuronTraitParameters(name: str) -&gt; dict</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ListGenomeTraitParameters() -&gt; list</code></td>
+<td>The names of the genome traits.</td>
+</tr>
+<tr>
+<td><code>ListLinkTraitParameters() -&gt; list</code></td>
+<td>The names of the link traits.</td>
+</tr>
+<tr>
+<td><code>ListNeuronTraitParameters() -&gt; list</code></td>
+<td>The names of the neuron traits.</td>
+</tr>
+<tr>
+<td><code>Load(filename: str) -&gt; int</code></td>
+<td>Loads the parameters from a file. Returns 0 on success.</td>
+</tr>
+<tr>
+<td><code>Reset() -&gt; None</code></td>
+<td>Restores all defaults.</td>
+</tr>
+<tr>
+<td><code>Save(filename: str) -&gt; None</code></td>
+<td>Saves the parameters to a text file.</td>
+</tr>
+<tr>
+<td><code>SetGenomeTraitParameters(name: str, trait_params: dict) -&gt; None</code></td>
+<td>Defines a genome trait.</td>
+</tr>
+<tr>
+<td><code>SetLinkTraitParameters(name: str, trait_params: dict) -&gt; None</code></td>
+<td>Defines a link trait.</td>
+</tr>
+<tr>
+<td><code>SetNeuronTraitParameters(name: str, trait_params: dict) -&gt; None</code></td>
+<td>Defines a neuron trait (see the traits guide).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>ActivationADiffCoeff</code>, <code>ActivationAMutationMaxPower</code>, <code>ActivationBDiffCoeff</code>, <code>ActivationBMutationMaxPower</code>, <code>ActivationFunctionDiffCoeff</code>, <code>ActivationFunction_Abs_Prob</code>, <code>ActivationFunction_Linear_Prob</code>, <code>ActivationFunction_Relu_Prob</code>, <code>ActivationFunction_SignedGauss_Prob</code>, <code>ActivationFunction_SignedSigmoid_Prob</code>, <code>ActivationFunction_SignedSine_Prob</code>, <code>ActivationFunction_SignedStep_Prob</code>, <code>ActivationFunction_Softplus_Prob</code>, <code>ActivationFunction_TanhCubic_Prob</code>, <code>ActivationFunction_Tanh_Prob</code>, <code>ActivationFunction_UnsignedGauss_Prob</code>, <code>ActivationFunction_UnsignedSigmoid_Prob</code>, <code>ActivationFunction_UnsignedSine_Prob</code>, <code>ActivationFunction_UnsignedStep_Prob</code>, <code>AllowClones</code>, <code>AllowLoops</code>, <code>ArchiveEnforcement</code>, <code>BandThreshold</code>, <code>BehaviorGetter</code>, <code>BiasDiffCoeff</code>, <code>BiasMutationMaxPower</code>, <code>CPPN_Bias</code>, <code>CompatTreshChangeInterval_Evaluations</code>, <code>CompatTreshChangeInterval_Generations</code>, <code>CompatTreshold</code>, <code>CompatTresholdModifier</code>, <code>ComplexityFloorGenerations</code>, <code>ConstraintTrials</code>, <code>CrossoverRate</code>, <code>CustomConstraints</code>, <code>DeltaCoding</code>, <code>DetectCompetetiveCoevolutionStagnation</code>, <code>DisjointCoeff</code>, <code>DivisionThreshold</code>, <code>DontUseBiasNeuron</code>, <code>DynamicCompatibility</code>, <code>EliteFraction</code>, <code>Elitism</code>, <code>ExcessCoeff</code>, <code>GeometrySeed</code>, <code>Height</code>, <code>InitialDepth</code>, <code>InnovationsForever</code>, <code>InterspeciesCrossoverRate</code>, <code>IterationLevel</code>, <code>KillWorstAge</code>, <code>KillWorstSpeciesEach</code>, <code>Leo</code>, <code>LeoSeed</code>, <code>LeoThreshold</code>, <code>LinkTries</code>, <code>MaxActivationA</code>, <code>MaxActivationB</code>, <code>MaxDepth</code>, <code>MaxLinks</code>, <code>MaxNeuronBias</code>, <code>MaxNeuronTimeConstant</code>, <code>MaxNeurons</code>, <code>MaxSpecies</code>, <code>MaxWeight</code>, <code>MinActivationA</code>, <code>MinActivationB</code>, <code>MinCompatTreshold</code>, <code>MinDeltaCompatEqualGenomes</code>, <code>MinNeuronBias</code>, <code>MinNeuronTimeConstant</code>, <code>MinSpecies</code>, <code>MinWeight</code>, <code>MultipointCrossoverRate</code>, <code>MutateActivationAProb</code>, <code>MutateActivationBProb</code>, <code>MutateAddLinkFromBiasProb</code>, <code>MutateAddLinkProb</code>, <code>MutateAddNeuronProb</code>, <code>MutateGenomeTraitsProb</code>, <code>MutateLinkTraitsProb</code>, <code>MutateNeuronActivationTypeProb</code>, <code>MutateNeuronBiasesProb</code>, <code>MutateNeuronTimeConstantsProb</code>, <code>MutateNeuronTraitsProb</code>, <code>MutateRemLinkProb</code>, <code>MutateRemSimpleNeuronProb</code>, <code>MutateWeightsProb</code>, <code>MutateWeightsSevereProb</code>, <code>NeuronTries</code>, <code>NormalizeGenomeSize</code>, <code>NoveltySearch_Dynamic_Pmin</code>, <code>NoveltySearch_K</code>, <code>NoveltySearch_No_Archiving_Stagnation_Treshold</code>, <code>NoveltySearch_P_min</code>, <code>NoveltySearch_Pmin_lowering_multiplier</code>, <code>NoveltySearch_Pmin_min</code>, <code>NoveltySearch_Pmin_raising_multiplier</code>, <code>NoveltySearch_Quick_Archiving_Min_Evaluations</code>, <code>NoveltySearch_Recompute_Sparseness_Each</code>, <code>OldAgePenalty</code>, <code>OldAgeTreshold</code>, <code>OverallMutationRate</code>, <code>PhasedSearching</code>, <code>PopulationSize</code>, <code>PreferFitterParentRate</code>, <code>Qtree_X</code>, <code>Qtree_Y</code>, <code>RecurrentLoopProb</code>, <code>RecurrentProb</code>, <code>RouletteWheelSelection</code>, <code>SimplifyingPhaseMPCTreshold</code>, <code>SimplifyingPhaseStagnationTreshold</code>, <code>Speciation</code>, <code>SpeciesMaxStagnation</code>, <code>SplitLoopedRecurrent</code>, <code>SplitRecurrent</code>, <code>StagnationDelta</code>, <code>SurvivalRate</code>, <code>TimeConstantDiffCoeff</code>, <code>TimeConstantMutationMaxPower</code>, <code>TournamentSelection</code>, <code>TournamentSize</code>, <code>VarianceThreshold</code>, <code>WeightDiffCoeff</code>, <code>WeightMutationMaxPower</code>, <code>WeightMutationRate</code>, <code>WeightReplacementMaxPower</code>, <code>WeightReplacementRate</code>, <code>Width</code>, <code>YoungAgeFitnessBoost</code>, <code>YoungAgeTreshold</code></p>
+<h3 id="population">Population<a class="headerlink" href="#population" title="Permanent link">&para;</a></h3>
+<p>A population of genomes divided into species - the evolutionary algorithm</p>
+<div class="highlight"><pre><span></span><code><span class="n">Population</span><span class="p">(</span><span class="n">seed_genome</span><span class="p">:</span> <span class="n">Genome</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">randomize_weights</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">randomization_range</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rng_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span>
+<span class="n">Population</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AccessGenomeByID(id: int) -&gt; Genome</code></td>
+<td>A reference to the genome with this ID.</td>
+</tr>
+<tr>
+<td><code>AccessGenomeByIndex(index: int) -&gt; Genome</code></td>
+<td>A reference to the genome with this index (counting through all species).</td>
+</tr>
+<tr>
+<td><code>Epoch() -&gt; None</code></td>
+<td>Creates the next generation. All genomes must have their fitness set.</td>
+</tr>
+<tr>
+<td><code>GetBaseMPC() -&gt; float</code></td>
+<td>The complexity at the start of the current complexifying phase.</td>
+</tr>
+<tr>
+<td><code>GetBestFitnessEver() -&gt; float</code></td>
+<td>The best fitness seen during the whole run.</td>
+</tr>
+<tr>
+<td><code>GetBestGenome() -&gt; Genome</code></td>
+<td>A copy of the best genome of the current population.</td>
+</tr>
+<tr>
+<td><code>GetCurrentMPC() -&gt; float</code></td>
+<td>The mean population complexity (average number of links).</td>
+</tr>
+<tr>
+<td><code>GetGeneration() -&gt; int</code></td>
+<td>The current generation number.</td>
+</tr>
+<tr>
+<td><code>GetMPCStagnation() -&gt; int</code></td>
+<td>Generations since the complexity last decreased (simplifying phase).</td>
+</tr>
+<tr>
+<td><code>GetSearchMode() -&gt; SearchMode</code></td>
+<td>The phase of the phased search: COMPLEXIFYING, SIMPLIFYING or BLENDED.</td>
+</tr>
+<tr>
+<td><code>GetStagnation() -&gt; int</code></td>
+<td>Generations since the best fitness last improved.</td>
+</tr>
+<tr>
+<td><code>InitPhenotypeBehaviorData(behaviors: PhenotypeBehaviorList, archive: PhenotypeBehaviorList) -&gt; None</code></td>
+<td>C++ novelty search: assigns one PhenotypeBehavior to every genome and sets the archive.</td>
+</tr>
+<tr>
+<td><code>NoveltySearchTick(successful_genome: Genome) -&gt; bool</code></td>
+<td>C++ novelty search: one Tick() with novelty as fitness. Returns True if a successful behavior was found.</td>
+</tr>
+<tr>
+<td><code>NumGenomes() -&gt; int</code></td>
+<td>The number of genomes in the population.</td>
+</tr>
+<tr>
+<td><code>Save(filename: str) -&gt; None</code></td>
+<td>Saves the parameters, the innovation database and all genomes to a text file.</td>
+</tr>
+<tr>
+<td><code>Tick(removed_genome: Genome) -&gt; Genome</code></td>
+<td>Steady-state evolution: replaces the worst evaluated genome (copied into removed_genome) with one new baby and returns the baby. The returned genome is valid until the next Tick() or Epoch().</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>ID</code>, <code>Parameters</code>, <code>RNG</code>, <code>Species</code></p>
+<h3 id="species">Species<a class="headerlink" href="#species" title="Permanent link">&para;</a></h3>
+<p>A group of similar genomes</p>
+<div class="highlight"><pre><span></span><code><span class="n">Species</span><span class="p">()</span>
+<span class="n">Species</span><span class="p">(</span><span class="n">seed_genome</span><span class="p">:</span> <span class="n">Genome</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AgeEvals() -&gt; int</code></td>
+<td>The age in evaluations (steady-state evolution).</td>
+</tr>
+<tr>
+<td><code>AgeGens() -&gt; int</code></td>
+<td>The age in generations.</td>
+</tr>
+<tr>
+<td><code>GensNoImprovement() -&gt; int</code></td>
+<td>Generations without improvement of the best fitness.</td>
+</tr>
+<tr>
+<td><code>GetActualBestFitness() -&gt; float</code></td>
+<td>The best fitness of the current evaluated members.</td>
+</tr>
+<tr>
+<td><code>GetBestFitness() -&gt; float</code></td>
+<td>The best fitness the species ever had.</td>
+</tr>
+<tr>
+<td><code>GetLeader() -&gt; Genome</code></td>
+<td>A reference to the fittest member.</td>
+</tr>
+<tr>
+<td><code>GetRepresentative() -&gt; Genome</code></td>
+<td>A reference to the member new genomes are compared with.</td>
+</tr>
+<tr>
+<td><code>ID() -&gt; int</code></td>
+<td>The unique ID of the species.</td>
+</tr>
+<tr>
+<td><code>IsBestSpecies() -&gt; bool</code></td>
+<td>True for the species with the best genome (protected from dying out).</td>
+</tr>
+<tr>
+<td><code>NumEvaluated() -&gt; int</code></td>
+<td>The number of evaluated members.</td>
+</tr>
+<tr>
+<td><code>NumIndividuals() -&gt; int</code></td>
+<td>The number of members.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>AverageFitness</code>, <code>BestFitness</code>, <code>Blue</code>, <code>EvalsNoImprovement</code>, <code>Green</code>, <code>Individuals</code>, <code>Red</code></p>
+<h3 id="rng">RNG<a class="headerlink" href="#rng" title="Permanent link">&para;</a></h3>
+<p>A random number generator (Mersenne Twister)</p>
+<div class="highlight"><pre><span></span><code><span class="n">RNG</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RandFloat() -&gt; float</code></td>
+<td>A random number in [0, 1).</td>
+</tr>
+<tr>
+<td><code>RandFloatSigned() -&gt; float</code></td>
+<td>A random number in (-1, 1), small values are more likely.</td>
+</tr>
+<tr>
+<td><code>RandGaussSigned() -&gt; float</code></td>
+<td>A normally distributed number clamped to [-1, 1].</td>
+</tr>
+<tr>
+<td><code>RandInt(low: int, high: int) -&gt; int</code></td>
+<td>A random integer in [low, high].</td>
+</tr>
+<tr>
+<td><code>RandPosNeg() -&gt; int</code></td>
+<td>Randomly 1 or -1.</td>
+</tr>
+<tr>
+<td><code>Roulette(weights: DoublesList) -&gt; int</code></td>
+<td>A random index chosen with probabilities proportional to the weights.</td>
+</tr>
+<tr>
+<td><code>Seed(seed: int) -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TimeSeed() -&gt; None</code></td>
+<td>Seeds from a hardware random source and the clock.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="genomes">Genomes<a class="headerlink" href="#genomes" title="Permanent link">&para;</a></h2>
+<h3 id="genome">Genome<a class="headerlink" href="#genome" title="Permanent link">&para;</a></h3>
+<p>A genome - the genetic description of a neural network</p>
+<div class="highlight"><pre><span></span><code><span class="n">Genome</span><span class="p">()</span>
+<span class="n">Genome</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
+<span class="n">Genome</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">init_struct</span><span class="p">:</span> <span class="n">GenomeInitStruct</span><span class="p">)</span>
+<span class="n">Genome</span><span class="p">(</span><span class="n">ID</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NumInputs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NumHidden</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NumOutputs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">FS_NEAT</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">OutputActType</span><span class="p">:</span> <span class="n">ActivationFunction</span><span class="p">,</span> <span class="n">HiddenActType</span><span class="p">:</span> <span class="n">ActivationFunction</span><span class="p">,</span> <span class="n">SeedType</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">NumLayers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">FS_NEAT_links</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BuildESHyperNEATPhenotype(net: NeuralNetwork, substrate: Substrate, params: Parameters) -&gt; None</code></td>
+<td>Uses this genome as a CPPN to build an ES-HyperNEAT network (the hidden neurons are discovered).</td>
+</tr>
+<tr>
+<td><code>BuildHyperNEATPhenotype(net: NeuralNetwork, substrate: Substrate) -&gt; None</code></td>
+<td>Uses this genome as a CPPN to build a HyperNEAT network on the substrate.</td>
+</tr>
+<tr>
+<td><code>BuildPhenotype(net: NeuralNetwork) -&gt; None</code></td>
+<td>Builds the neural network this genome encodes into net.</td>
+</tr>
+<tr>
+<td><code>CalculateDepth() -&gt; None</code></td>
+<td>Computes the longest feed-forward path from the inputs to the outputs.</td>
+</tr>
+<tr>
+<td><code>CompatibilityDistance(other: Genome, params: Parameters) -&gt; float</code></td>
+<td>The compatibility distance used for speciation.</td>
+</tr>
+<tr>
+<td><code>DerivePhenotypicChanges(net: NeuralNetwork) -&gt; None</code></td>
+<td>Copies the weights of a network built from this genome back into the genome.</td>
+</tr>
+<tr>
+<td><code>FailsConstraints(params: Parameters) -&gt; bool</code></td>
+<td>True if the genome has dead ends, no links, forbidden loops or fails CustomConstraints.</td>
+</tr>
+<tr>
+<td><code>GetAdjFitness() -&gt; float</code></td>
+<td>The fitness after fitness sharing.</td>
+</tr>
+<tr>
+<td><code>GetDepth() -&gt; int</code></td>
+<td>The depth computed by CalculateDepth().</td>
+</tr>
+<tr>
+<td><code>GetFitness() -&gt; float</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetGenomeTraits() -&gt; dict</code></td>
+<td>The genome traits as a dict.</td>
+</tr>
+<tr>
+<td><code>GetID() -&gt; int</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetLinkTraits(with_weights: bool = False) -&gt; list</code></td>
+<td>A list of (from ID, to ID, {trait: value}[, weight]).</td>
+</tr>
+<tr>
+<td><code>GetNeuronTraits() -&gt; list</code></td>
+<td>A list of (neuron ID, type, {trait: value}).</td>
+</tr>
+<tr>
+<td><code>HasDeadEnds() -&gt; bool</code></td>
+<td>True if a hidden neuron has no inputs or no outputs.</td>
+</tr>
+<tr>
+<td><code>HasLoops() -&gt; bool</code></td>
+<td>True if the network has cycles.</td>
+</tr>
+<tr>
+<td><code>IsCompatibleWith(other: Genome, params: Parameters) -&gt; bool</code></td>
+<td>True if the distance is below the compatibility threshold.</td>
+</tr>
+<tr>
+<td><code>IsEvaluated() -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_GenomeTraits(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_LinkTraits(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_LinkWeights(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_NeuronActivation_Type(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_NeuronActivations_A(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_NeuronActivations_B(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_NeuronBiases(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_NeuronTimeConstants(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mutate_NeuronTraits(params: Parameters, rng: RNG) -&gt; bool</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>NumInputs() -&gt; int</code></td>
+<td>The number of inputs (including the bias).</td>
+</tr>
+<tr>
+<td><code>NumLinks() -&gt; int</code></td>
+<td>The number of link genes.</td>
+</tr>
+<tr>
+<td><code>NumNeurons() -&gt; int</code></td>
+<td>The number of neuron genes.</td>
+</tr>
+<tr>
+<td><code>NumOutputs() -&gt; int</code></td>
+<td>The number of outputs.</td>
+</tr>
+<tr>
+<td><code>PrintAllTraits() -&gt; None</code></td>
+<td>Prints the traits of the genome, its neurons and links.</td>
+</tr>
+<tr>
+<td><code>Randomize_LinkWeights(params: Parameters, rng: RNG) -&gt; None</code></td>
+<td>Sets all weights to random values in [MinWeight, MaxWeight].</td>
+</tr>
+<tr>
+<td><code>Randomize_Traits(params: Parameters, rng: RNG) -&gt; None</code></td>
+<td>Sets all traits to random values.</td>
+</tr>
+<tr>
+<td><code>ResetEvaluated() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Save(filename: str) -&gt; None</code></td>
+<td>Saves the genome to a text file (without traits).</td>
+</tr>
+<tr>
+<td><code>SetEvaluated() -&gt; None</code></td>
+<td>Marks the genome as evaluated (needed for steady-state evolution).</td>
+</tr>
+<tr>
+<td><code>SetFitness(fitness: float) -&gt; None</code></td>
+<td>Sets the fitness - the higher the better.</td>
+</tr>
+<tr>
+<td><code>SetGenomeTraits(traits: dict) -&gt; None</code></td>
+<td>Replaces the genome traits (experimental).</td>
+</tr>
+<tr>
+<td><code>SetID(id: int) -&gt; None</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>LinkGenes</code>, <code>NeuronGenes</code>, <code>behavior</code></p>
+<h3 id="genomeinitstruct">GenomeInitStruct<a class="headerlink" href="#genomeinitstruct" title="Permanent link">&para;</a></h3>
+<p>Describes the structure of a seed genome</p>
+<div class="highlight"><pre><span></span><code><span class="n">GenomeInitStruct</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Attributes:</strong> <code>FS_NEAT</code>, <code>FS_NEAT_links</code>, <code>HiddenActType</code>, <code>NumHidden</code>, <code>NumInputs</code>, <code>NumLayers</code>, <code>NumOutputs</code>, <code>OutputActType</code>, <code>SeedType</code></p>
+<h3 id="neurongene">NeuronGene<a class="headerlink" href="#neurongene" title="Permanent link">&para;</a></h3>
+<p>A neuron gene</p>
+<div class="highlight"><pre><span></span><code><span class="n">NeuronGene</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Attributes:</strong> <code>A</code>, <code>ActFunction</code>, <code>B</code>, <code>Bias</code>, <code>ID</code>, <code>SplitY</code>, <code>TimeConstant</code>, <code>Type</code></p>
+<h3 id="linkgene">LinkGene<a class="headerlink" href="#linkgene" title="Permanent link">&para;</a></h3>
+<p>A link (connection) gene</p>
+<div class="highlight"><pre><span></span><code><span class="n">LinkGene</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Attributes:</strong> <code>FromNeuronID</code>, <code>InnovationID</code>, <code>IsRecurrent</code>, <code>ToNeuronID</code>, <code>Weight</code></p>
+<h2 id="networks">Networks<a class="headerlink" href="#networks" title="Permanent link">&para;</a></h2>
+<h3 id="neuralnetwork">NeuralNetwork<a class="headerlink" href="#neuralnetwork" title="Permanent link">&para;</a></h3>
+<p>A neural network - the phenotype built from a genome</p>
+<p><div class="highlight"><pre><span></span><code><span class="n">NeuralNetwork</span><span class="p">()</span>
+<span class="n">NeuralNetwork</span><span class="p">(</span><span class="n">minimal</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span>
+</code></pre></div>
+minimal=False creates a small XOR network for testing</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Activate() -&gt; None</code></td>
+<td>Activates once - the signals move one connection further.</td>
+</tr>
+<tr>
+<td><code>ActivateFast() -&gt; None</code></td>
+<td>Activates once, assuming unsigned sigmoid neurons everywhere.</td>
+</tr>
+<tr>
+<td><code>ActivateLeaky(dt: float) -&gt; None</code></td>
+<td>Activates leaky integrator neurons for a time step dt.</td>
+</tr>
+<tr>
+<td><code>ActivateUseInternalBias() -&gt; None</code></td>
+<td>Like Activate(), but adds each neuron's bias to its input.</td>
+</tr>
+<tr>
+<td><code>Adapt(params: Parameters) -&gt; None</code></td>
+<td>Hebbian learning step.</td>
+</tr>
+<tr>
+<td><code>AddConnection(connection: Connection) -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>AddNeuron(neuron: Neuron) -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Clear() -&gt; None</code></td>
+<td>Removes all neurons and connections.</td>
+</tr>
+<tr>
+<td><code>Flush() -&gt; None</code></td>
+<td>Resets all activations.</td>
+</tr>
+<tr>
+<td><code>FlushCube() -&gt; None</code></td>
+<td>Resets the RTRL sensitivities.</td>
+</tr>
+<tr>
+<td><code>FlushCude() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetTotalConnectionLength() -&gt; float</code></td>
+<td>The number of connections.</td>
+</tr>
+<tr>
+<td><code>InitRTRLMatrix() -&gt; None</code></td>
+<td>Allocates the data for RTRL learning.</td>
+</tr>
+<tr>
+<td><code>Input(inputs: object) -&gt; None</code></td>
+<td>Sets the inputs. Accepts any sequence of numbers (list, tuple, numpy array).</td>
+</tr>
+<tr>
+<td><code>Load(filename: str) -&gt; bool</code></td>
+<td>Loads a network saved with Save(). Returns False if the file is missing or malformed.</td>
+</tr>
+<tr>
+<td><code>NumInputs() -&gt; int</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>NumOutputs() -&gt; int</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Output() -&gt; DoublesList</code></td>
+<td>The activations of the output neurons.</td>
+</tr>
+<tr>
+<td><code>RTRL_update_error(target: float) -&gt; None</code></td>
+<td>RTRL: accumulates the weight changes for the target value of the first output.</td>
+</tr>
+<tr>
+<td><code>RTRL_update_gradients() -&gt; None</code></td>
+<td>RTRL: updates the sensitivities after an activation.</td>
+</tr>
+<tr>
+<td><code>RTRL_update_weights() -&gt; None</code></td>
+<td>RTRL: applies the accumulated weight changes.</td>
+</tr>
+<tr>
+<td><code>Save(filename: str) -&gt; None</code></td>
+<td>Saves the network to a text file.</td>
+</tr>
+<tr>
+<td><code>SetInputOutputDimentions(inputs: int, outputs: int) -&gt; None</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>connections</code>, <code>neurons</code></p>
+<h3 id="neuron">Neuron<a class="headerlink" href="#neuron" title="Permanent link">&para;</a></h3>
+<p>A neuron of a NeuralNetwork</p>
+<div class="highlight"><pre><span></span><code><span class="n">Neuron</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Attributes:</strong> <code>a</code>, <code>activation</code>, <code>activation_function_type</code>, <code>b</code>, <code>bias</code>, <code>split_y</code>, <code>substrate_coords</code>, <code>time_const</code>, <code>type</code>, <code>x</code>, <code>y</code>, <code>z</code></p>
+<h3 id="connection">Connection<a class="headerlink" href="#connection" title="Permanent link">&para;</a></h3>
+<p>A connection of a NeuralNetwork</p>
+<div class="highlight"><pre><span></span><code><span class="n">Connection</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Attributes:</strong> <code>hebb_pre_rate</code>, <code>hebb_rate</code>, <code>recur_flag</code>, <code>source_neuron_idx</code>, <code>target_neuron_idx</code>, <code>weight</code></p>
+<h2 id="hyperneat">HyperNEAT<a class="headerlink" href="#hyperneat" title="Permanent link">&para;</a></h2>
+<h3 id="substrate">Substrate<a class="headerlink" href="#substrate" title="Permanent link">&para;</a></h3>
+<p>The geometry of a HyperNEAT network - the coordinates of its neurons</p>
+<div class="highlight"><pre><span></span><code><span class="n">Substrate</span><span class="p">()</span>
+<span class="n">Substrate</span><span class="p">(</span><span class="n">inputs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">hidden</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">outputs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClearCustomConnectivity() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GetMaxDims() -&gt; int</code></td>
+<td>The largest number of coordinates of any neuron.</td>
+</tr>
+<tr>
+<td><code>GetMinCPPNInputs() -&gt; int</code></td>
+<td>The number of inputs a CPPN genome needs for this substrate.</td>
+</tr>
+<tr>
+<td><code>GetMinCPPNOutputs() -&gt; int</code></td>
+<td>The number of outputs a CPPN genome needs for this substrate.</td>
+</tr>
+<tr>
+<td><code>PrintInfo() -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SetCustomConnectivity(connections: object) -&gt; None</code></td>
+<td>Query only these connections - a list of [src_type, src_index, dst_type, dst_index].</td>
+</tr>
+<tr>
+<td><code>SetNeurons(inputs: object, hidden: object, outputs: object) -&gt; None</code></td>
+<td>Replaces the coordinates of the neurons.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>m_allow_hidden_hidden_links</code>, <code>m_allow_hidden_output_links</code>, <code>m_allow_input_hidden_links</code>, <code>m_allow_input_output_links</code>, <code>m_allow_looped_hidden_links</code>, <code>m_allow_looped_output_links</code>, <code>m_allow_output_hidden_links</code>, <code>m_allow_output_output_links</code>, <code>m_custom_conn_obeys_flags</code>, <code>m_hidden_coords</code>, <code>m_hidden_nodes_activation</code>, <code>m_input_coords</code>, <code>m_leaky</code>, <code>m_max_time_const</code>, <code>m_max_weight_and_bias</code>, <code>m_min_time_const</code>, <code>m_output_coords</code>, <code>m_output_nodes_activation</code>, <code>m_query_weights_only</code>, <code>m_with_distance</code></p>
+<h2 id="novelty-search">Novelty search<a class="headerlink" href="#novelty-search" title="Permanent link">&para;</a></h2>
+<h3 id="phenotypebehavior">PhenotypeBehavior<a class="headerlink" href="#phenotypebehavior" title="Permanent link">&para;</a></h3>
+<p>Base class of behaviors for the C++ novelty search (can be subclassed in Python)</p>
+<div class="highlight"><pre><span></span><code><span class="n">PhenotypeBehavior</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Acquire(genome: Genome) -&gt; bool</code></td>
+<td>Override: evaluates the genome and records its behavior. Return True if it was successful.</td>
+</tr>
+<tr>
+<td><code>Distance_To(other: PhenotypeBehavior) -&gt; float</code></td>
+<td>Override: the distance to another behavior.</td>
+</tr>
+<tr>
+<td><code>Successful() -&gt; bool</code></td>
+<td>Override: True if this is the behavior we are looking for.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>m_Data</code></p>
+<h2 id="enumerations">Enumerations<a class="headerlink" href="#enumerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>ActivationFunction</code>: <code>SIGNED_SIGMOID</code>, <code>UNSIGNED_SIGMOID</code>, <code>TANH</code>, <code>TANH_CUBIC</code>, <code>SIGNED_STEP</code>, <code>UNSIGNED_STEP</code>, <code>SIGNED_GAUSS</code>, <code>UNSIGNED_GAUSS</code>, <code>ABS</code>, <code>SIGNED_SINE</code>, <code>UNSIGNED_SINE</code>, <code>LINEAR</code>, <code>RELU</code>, <code>SOFTPLUS</code></li>
+<li><code>NeuronType</code>: <code>NONE</code>, <code>INPUT</code>, <code>BIAS</code>, <code>HIDDEN</code>, <code>OUTPUT</code></li>
+<li><code>SearchMode</code>: <code>COMPLEXIFYING</code>, <code>SIMPLIFYING</code>, <code>BLENDED</code></li>
+<li><code>GenomeSeedType</code>: <code>PERCEPTRON</code>, <code>LAYERED</code></li>
+</ul>
+<p>The values are compatible with integers, e.g. <code>int(NEAT.ActivationFunction.TANH)</code>.</p>
+<h2 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GetGenomeList(pop)</code></td>
+<td>Returns all genomes of the population as a list. The genomes are references - changing their fitness changes the population.</td>
+</tr>
+<tr>
+<td><code>ZipFitness(genome_list, fitness_list)</code></td>
+<td>Sets the fitness of every genome and marks it as evaluated.</td>
+</tr>
+<tr>
+<td><code>EvaluateGenomeList_Serial(genome_list, evaluator, display=True, show_elapsed=False)</code></td>
+<td>Evaluates the genomes one after another and returns the list of fitness values. evaluator is a callable that takes a Genome and returns its fitness.</td>
+</tr>
+<tr>
+<td><code>EvaluateGenomeList_Parallel(genome_list, evaluator, cores=None, display=True, ipython_client=None)</code></td>
+<td>Evaluates the genomes in parallel processes and returns the list of fitness values. evaluator is a callable that takes a Genome and returns its fitness. It must be picklable (defined at the top level of a module). The genomes are pickled together with their traits. Uses concurrent.futures with <code>cores</code> processes (all CPUs by default), or an IPython cluster when an ipyparallel Client is given.</td>
+</tr>
+<tr>
+<td><code>Draw(x, size=(300, 300), substrate=False)</code></td>
+<td>Returns an image (NumPy uint8 array) of a NeuralNetwork or a Genome's phenotype.</td>
+</tr>
+<tr>
+<td><code>DrawPhenotype(image, rect, nn, neuron_radius=15, max_line_thickness=3, substrate=False)</code></td>
+<td>Draws a network into a NumPy image within rect = (x, y, width, height) using OpenCV. With substrate=True the neurons are drawn at their substrate coordinates.</td>
+</tr>
+<tr>
+<td><code>plot_nn(nn, ax=None, is_substrate=False, details=False, invert_yaxis=True, connection_alpha=1.0)</code></td>
+<td>Draws a NeuralNetwork or a Genome's phenotype with Matplotlib.</td>
+</tr>
+<tr>
+<td><code>render_nn(nn, ax=None, is_substrate=False, details=False, invert_yaxis=True, connection_alpha=1.0)</code></td>
+<td>Draws an already laid out NeuralNetwork into a Matplotlib axis.</td>
+</tr>
+<tr>
+<td><code>Genome2NX(g, with_inputs=False, with_weights=False)</code></td>
+<td>Converts a genome to a networkx DiGraph with the traits as node and edge attributes.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="list-types">List types<a class="headerlink" href="#list-types" title="Permanent link">&para;</a></h2>
+<p><code>DoublesList</code>, <code>DoublesList2D</code>, <code>FloatsList</code>, <code>FloatsList2D</code>, <code>IntsList</code>, <code>IntsList2D</code>, <code>GenomeList</code>, <code>SpeciesList</code>, <code>NeuronList</code>, <code>ConnectionList</code>, <code>NeuronGeneList</code>, <code>LinkGeneList</code>, <code>PhenotypeBehaviorList</code> - the reference list types described at the top.</p>
+<h2 id="multineatphysics2d">MultiNEAT.physics2d<a class="headerlink" href="#multineatphysics2d" title="Permanent link">&para;</a></h2>
+<p>See <a href="../physics2d/">the physics engine</a> for a guide.</p>
+<h3 id="space">Space<a class="headerlink" href="#space" title="Permanent link">&para;</a></h3>
+<p>The simulated world</p>
+<div class="highlight"><pre><span></span><code><span class="n">Space</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add(*args) -&gt; None</code></td>
+<td>Adds bodies and shapes (or lists of them)</td>
+</tr>
+<tr>
+<td><code>add_collision_handler(type_a: int, type_b: int, begin: Callable[[Shape, Shape], None] = None, separate: Callable[[Shape, Shape], None] = None) -&gt; None</code></td>
+<td>Calls begin(shape_a, shape_b) / separate(shape_a, shape_b) when shapes with these collision types start / stop touching</td>
+</tr>
+<tr>
+<td><code>remove(*args) -&gt; None</code></td>
+<td>Removes bodies and shapes (or lists of them)</td>
+</tr>
+<tr>
+<td><code>remove_collision_handler(type_a: int, type_b: int) -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>step(dt: float) -&gt; None</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>touching(shape_a: Shape, shape_b: Shape) -&gt; bool</code></td>
+<td>True if the two shapes touched in the last step</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>bodies</code>, <code>gravity</code>, <code>iterations</code>, <code>shapes</code>, <code>slop</code></p>
+<h3 id="body">Body<a class="headerlink" href="#body" title="Permanent link">&para;</a></h3>
+<p>A rigid body without rotation</p>
+<p><div class="highlight"><pre><span></span><code><span class="n">Body</span><span class="p">(</span><span class="n">mass</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+A dynamic body with the given mass</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apply_impulse(impulse: Vec2d) -&gt; None</code></td>
+<td>Changes the velocity by impulse / mass</td>
+</tr>
+<tr>
+<td><code>static() -&gt; Body</code></td>
+<td>An immovable body, for walls and floors</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>force</code>, <code>is_static</code>, <code>mass</code>, <code>position</code>, <code>velocity</code>, <code>velocity_limit</code></p>
+<h3 id="shape">Shape<a class="headerlink" href="#shape" title="Permanent link">&para;</a></h3>
+<p>A circle or a thick line segment attached to a body</p>
+<p><strong>Attributes:</strong> <code>a</code>, <code>b</code>, <code>body</code>, <code>collision_type</code>, <code>elasticity</code>, <code>friction</code>, <code>is_circle</code>, <code>is_segment</code>, <code>offset</code>, <code>radius</code>, <code>sensor</code>, <code>world_a</code>, <code>world_b</code>, <code>world_center</code></p>
+<h3 id="vec2d">Vec2d<a class="headerlink" href="#vec2d" title="Permanent link">&para;</a></h3>
+<p>A 2D vector</p>
+<div class="highlight"><pre><span></span><code><span class="n">Vec2d</span><span class="p">()</span>
+<span class="n">Vec2d</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span>
+<span class="n">Vec2d</span><span class="p">(</span><span class="n">xy</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dot(other: Vec2d) -&gt; float</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>length() -&gt; float</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attributes:</strong> <code>x</code>, <code>y</code></p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Circle(body: Body, radius: float, offset: Vec2d = Vec2d(0.000000, 0.000000)) -&gt; Shape</code></td>
+<td>Creates a circle shape attached to the body</td>
+</tr>
+<tr>
+<td><code>Segment(body: Body, a: Vec2d, b: Vec2d, radius: float) -&gt; Shape</code></td>
+<td>Creates a thick line segment (capsule) attached to the body</td>
+</tr>
+<tr>
+<td><code>draw_pygame(surface, space, flip_y=True, colors=None)</code></td>
+<td>Draws all shapes of the space on a pygame surface. With flip_y the y axis points up (y=0 is the bottom of the surface). colors can map collision types to RGB tuples.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>
