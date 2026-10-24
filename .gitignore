@@ -12,7 +12,6 @@ datadump/*
 .idea/
 **.so
 **.pyd
-_MultiNEAT.cpp
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -39,3 +38,15 @@ eggs/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+# build outputs
+/build*/
+/wheelhouse/
+MultiNEAT/*.pyd
+MultiNEAT/*.so
+MultiNEAT/*.dll
+
+# local tooling
+.vs/
+.vscode/
+vcpkg_installed/
+.pytest_cache/

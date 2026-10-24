@@ -1,5 +1,0 @@
-include DEPENDS
-include LICENSE
-include INSTALL
-recursive-include examples *
-recursive-include lib *.h

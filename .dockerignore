@@ -1,0 +1,7 @@
+build*/
+.git/
+.vs/
+vcpkg_installed/
+MultiNEAT/*.pyd
+MultiNEAT/*.so
+MultiNEAT/*.dll

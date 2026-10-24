@@ -1,11 +1,9 @@
-FROM ubuntu:18.10
+FROM python:3.12-slim
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y git cmake libboost-all-dev
-RUN apt-get update && apt-get install -y python-setuptools python-psutil python-numpy python-concurrent.futures python-opencv
-RUN cd /opt && git clone https://github.com/peter-ch/MultiNEAT.git
-RUN cd /opt/MultiNEAT && export MN_BUILD=boost && cmake . && python setup.py build_ext && python setup.py install
+WORKDIR /opt/MultiNEAT
+COPY . .
+RUN pip install --no-cache-dir ".[test]" && python -m pytest tests -q
 
-
-
+CMD ["python", "examples/TestNEAT_xor.py"]

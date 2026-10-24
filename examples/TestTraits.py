@@ -108,7 +108,7 @@ gi = NEAT.GenomeInitStruct()
 gi.NumInputs = 3
 g = NEAT.Genome(params, gi)
 pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 100))
-pop.RNG.Seed(int(time.clock()*100))
+pop.RNG.Seed(int(time.perf_counter()*100))
 
 def PrintGenomeTraits(g):
     print('Genome:')
@@ -150,7 +150,7 @@ for generation in range(100):
 
     PrintGenomeTraits( pop.GetBestGenome() )
     print()
-    print('Fitnesss:', max(fitness_list), 'Generation:', generation)
+    print('Fitness:', max(fitness_list), 'Generation:', generation)
     print()
 
     pop.Epoch()

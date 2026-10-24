@@ -1,26 +1,31 @@
-#!/usr/bin/python3
-import sys
-# sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
+#!/usr/bin/env python3
+"""NEAT ball keeper - evolve a robot that keeps a bouncing ball in the air.
 
-import time
-import random as rnd
-import cv2
-import numpy as np
+The robot (the green circle) can run left/right and jump. The ball falls under
+gravity and bounces off the robot and the walls. An evaluation ends when the ball
+touches the floor; the fitness is the number of time steps the ball stayed up.
+
+The world is simulated with MultiNEAT's built-in physics engine (MultiNEAT.physics2d).
+
+usage:
+    python ball_keeper.py            # evolve without graphics
+    python ball_keeper.py --show     # watch (needs pygame). F toggles fast mode,
+                                     # the arrow keys push the ball
+"""
+import argparse
 import math
-import MultiNEAT as NEAT
-from MultiNEAT.viz import Draw
-import pygame
-from pygame.locals import *
-from pygame.color import *
+import random as rnd
+import time
 
-import pymunk as pm
-from pymunk import Vec2d
-from pymunk.pygame_util import draw, from_pygame
+import MultiNEAT as NEAT
+from MultiNEAT import physics2d as phys
 
 collision_type_wall = 0
 collision_type_nn = 1
 collision_type_ball = 2
 collision_type_floor = 3
+
+screen_size_x, screen_size_y = 600, 600
 
 params = NEAT.Parameters()
 params.PopulationSize = 150
@@ -39,114 +44,75 @@ params.OverallMutationRate = 0.02
 params.MutateWeightsProb = 0.90
 params.WeightMutationMaxPower = 1.0
 params.WeightReplacementMaxPower = 5.0
-params.MutateWeightsSevereProb = 0.5
+params.MutateWeightsSevereProb = 0.01
 params.WeightMutationRate = 0.75
 params.MaxWeight = 20
 params.MutateAddNeuronProb = 0.01
 params.MutateAddLinkProb = 0.02
 params.MutateRemLinkProb = 0.00
-params.DivisionThreshold = 0.5
-params.VarianceThreshold = 0.03
-params.BandThreshold = 0.3
-params.InitialDepth = 3
-params.MaxDepth = 4
-params.IterationLevel = 1
-params.Leo = True
-params.GeometrySeed = True
-params.LeoSeed = True
-params.LeoThreshold = 0.3
-params.CPPN_Bias = -3.0
-params.Qtree_X = 0.0
-params.Qtree_Y = 0.0
-params.Width = 1.
-params.Height = 1.
-params.Elitism = 0.1
+params.EliteFraction = 0.1
 params.CrossoverRate = 0.5
-params.MutateWeightsSevereProb = 0.01
-
 params.MutateNeuronTraitsProb = 0
 params.MutateLinkTraitsProb = 0
 
-rng = NEAT.RNG()
-rng.TimeSeed()
 
+def make_world():
+    space = phys.Space()
+    space.gravity = (0.0, -500.0)
 
-substrate = NEAT.Substrate([(-1., -1., 0.0), (-.5, -1., 0.0), (0.0, -1., 0.0),
-                            (.5, -1., 0.0), (1.0, -1., 0.0), (0.0, -1.0, -1.0),
-    ],
-                           [],
-                           [(-1., 1., 0.0), (1.0,1.0,0.0)])
+    static = phys.Body.static()
+    # walls - the left-top-right walls
+    walls = [phys.Segment(static, (50, 50), (50, 1550), 10),
+             phys.Segment(static, (50, 1550), (560, 1550), 10),
+             phys.Segment(static, (560, 1550), (560, 50), 10)]
+    for s in walls:
+        s.friction = 0
+        s.elasticity = 0.99
+        s.collision_type = collision_type_wall
 
-substrate.m_allow_input_hidden_links = False
-substrate.m_allow_input_output_links = False
-substrate.m_allow_hidden_hidden_links = False
-substrate.m_allow_hidden_output_links = False
-substrate.m_allow_output_hidden_links = False
-substrate.m_allow_output_output_links = False
-substrate.m_allow_looped_hidden_links = False
-substrate.m_allow_looped_output_links = False
+    floor = phys.Segment(static, (50, 50), (560, 50), 10)
+    floor.friction = 1.0
+    floor.elasticity = 0.0
+    floor.collision_type = collision_type_floor
 
-# let's set the activation functions
-substrate.m_hidden_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
-substrate.m_output_nodes_activation = NEAT.ActivationFunction.SIGNED_SIGMOID
+    space.add(static, walls, floor)
+    return space
 
-# when to output a link and max weight
-substrate.m_link_threshold = 0.2
-substrate.m_max_weight_and_bias = 8.0
 
 class NN_agent:
     def __init__(self, space, brain, start_x):
-        self.startpos = (start_x, 80)
-        self.radius = 20
-        self.mass = 50000
-
-        self.inertia = pm.moment_for_circle(self.mass, 0, self.radius, (0,0))
-        self.body = pm.Body(self.mass, self.inertia)
-        self.shape = pm.Circle(self.body, self.radius)
+        self.body = phys.Body(50000)
+        self.body.position = (start_x, 80)
+        self.body.velocity = (230, 0)
+        self.body.velocity_limit = 1500
+        self.shape = phys.Circle(self.body, 20)
         self.shape.collision_type = collision_type_nn
         self.shape.elasticity = 1.0
-        self.body.position = self.startpos
-
         space.add(self.body, self.shape)
-
-        self.body.velocity_limit = 1500
-
-        self.body.velocity = (230, 0)
-        self.force = (0,0)
 
         self.brain = brain
         self.in_air = False
 
-    def touch_floor(self, space, arbiter):
-        self.in_air = False
-        return True
-    def leave_floor(self, space, arbiter):
-        self.in_air = True
-        return True
-
     def jump(self):
         if not self.in_air:
-            cur_vel = self.body.velocity
-            self.body.velocity = (cur_vel[0], 300)
+            self.body.velocity = (self.body.velocity.x, 300)
 
     def move(self, x):
         if not self.in_air:
-            #self.body.force = (x, 0)
-            self.body.velocity = (x, self.body.velocity[1])
+            self.body.velocity = (x, self.body.velocity.y)
 
     def interact(self, ball):
         """
-        inputs: x - ball_x, log(ball_y), log(y), ball_vx, ball_vy, in_air, 1
+        inputs: x - ball_x, log(y), ball_vx, ball_vy, in_air, 1
         output: x velocity [-1 .. 1]*const, jump (if > 0.5 )
         """
-        inputs = [(self.body.position[0] - ball.body.position[0])/300,
-#                  math.log(ball.body.position[1]),
-                  math.log(self.body.position[1]),
-                  ball.body.velocity[0] / 300,
-                  ball.body.velocity[1] / 300,
-                  self.in_air,
-                  1.0
-                  ]
+        p, b, bv = self.body.position, ball.body.position, ball.body.velocity
+        inputs = [(p.x - b.x) / 300,
+                  math.log(max(p.y, 1.0)),
+                  bv.x / 300,
+                  bv.y / 300,
+                  1.0 if self.in_air else 0.0,
+                  1.0]
 
         self.brain.Input(inputs)
         self.brain.Activate()
@@ -159,41 +125,55 @@ class NN_agent:
 
 class Ball:
     def __init__(self, space, start_x, start_vx):
-        self.mass = 1500
-        self.radius = 30
-        self.inertia = pm.moment_for_circle(self.mass, 0, self.radius, (0,0))
-        self.body = pm.Body(self.mass, self.inertia)
-        self.shape = pm.Circle(self.body, self.radius)
+        self.body = phys.Body(1500)
+        self.body.position = (start_x, 450)
+        self.body.velocity = (start_vx, 0)
+        self.body.velocity_limit = 500
+        self.shape = phys.Circle(self.body, 30)
         self.shape.collision_type = collision_type_ball
         self.shape.elasticity = 1.0
         self.shape.friction = 0.0
-        self.body.position = (start_x, 450)
         space.add(self.body, self.shape)
-        self.body.velocity = (start_vx, 0)
-        self.body.velocity_limit = 500
         self.in_air = True
 
-    def touch_floor(self, space, arbiter):
-        self.in_air = False
-        return True
 
-    def leave_floor(self, space, arbiter):
-        self.in_air = True
-        return True
+class Display:
+    """Optional pygame window."""
+
+    def __init__(self):
+        import pygame
+        self.pygame = pygame
+        pygame.init()
+        self.screen = pygame.display.set_mode((screen_size_x, screen_size_y))
+        pygame.display.set_caption("NEAT ball keeper [F - fast mode on/off, arrow keys move the ball]")
+        self.clock = pygame.time.Clock()
+        self.fast_mode = True
+
+    def update(self, space, ball):
+        pg = self.pygame
+        for event in pg.event.get():
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                raise SystemExit
+            if event.type == pg.KEYDOWN:
+                v = ball.body.velocity
+                if event.key == pg.K_f:
+                    self.fast_mode = not self.fast_mode
+                elif event.key == pg.K_LEFT and not self.fast_mode:
+                    ball.body.velocity = (v.x - 200, v.y)
+                elif event.key == pg.K_RIGHT and not self.fast_mode:
+                    ball.body.velocity = (v.x + 200, v.y)
+                elif event.key == pg.K_UP and not self.fast_mode:
+                    ball.body.velocity = (v.x, v.y + 200)
+        if self.fast_mode:
+            return
+        self.screen.fill((0, 0, 0))
+        phys.draw_pygame(self.screen, space, colors={collision_type_nn: (80, 255, 80),
+                                                     collision_type_ball: (255, 80, 80)})
+        pg.display.flip()
+        self.clock.tick(50)
 
 
-screen_size_x, screen_size_y = 600, 600
-max_timesteps = 15000
-
-def flipy(y):
-    """Small hack to convert chipmunk physics to pygame coordinates"""
-    return -y+screen_size_y
-
-
-def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
-    # Setup the environment
-    clock = pygame.time.Clock()
-
+def evaluate(genome, space, max_timesteps, start_x, start_vx, bot_startx, display=None):
     # The agents - the brain and the ball
     net = NEAT.NeuralNetwork()
     genome.BuildPhenotype(net)
@@ -201,154 +181,93 @@ def evaluate(genome, space, screen, fast_mode, start_x, start_vx, bot_startx):
     agent = NN_agent(space, net, bot_startx)
     ball = Ball(space, start_x, start_vx)
 
-    space.add_collision_handler(collision_type_nn,   collision_type_floor,
-                                agent.touch_floor, None, None, agent.leave_floor)
-    space.add_collision_handler(collision_type_ball, collision_type_floor,
-                                ball.touch_floor,  None, None, ball.leave_floor)
+    def touch_floor(obj):
+        def f(a, b):
+            obj.in_air = False
+        return f
 
+    def leave_floor(obj):
+        def f(a, b):
+            obj.in_air = True
+        return f
+
+    space.add_collision_handler(collision_type_nn, collision_type_floor, touch_floor(agent), leave_floor(agent))
+    space.add_collision_handler(collision_type_ball, collision_type_floor, touch_floor(ball), leave_floor(ball))
+
+    dt = 1.0 / 50.0
     tstep = 0
-    avg_ball_height = 0
     while tstep < max_timesteps:
         tstep += 1
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                exit()
-            elif event.type == KEYDOWN and event.key == K_ESCAPE:
-                exit()
-            elif event.type == KEYDOWN and event.key == K_f:
-                fast_mode = not fast_mode
-            elif event.type == KEYDOWN and event.key == K_LEFT and not fast_mode:
-                ball.body.velocity = (ball.body.velocity[0] - 200, ball.body.velocity[1])
-            elif event.type == KEYDOWN and event.key == K_RIGHT and not fast_mode:
-                ball.body.velocity = (ball.body.velocity[0] + 200, ball.body.velocity[1])
-            elif event.type == KEYDOWN and event.key == K_UP and not fast_mode:
-                ball.body.velocity = (ball.body.velocity[0], ball.body.velocity[1] + 200)
-
-        ### Update physics
-        dt = 1.0/50.0
         space.step(dt)
 
         # The NN interacts with the world on each 20 timesteps
         if (tstep % 20) == 0:
             agent.interact(ball)
-        avg_ball_height += ball.body.position[1]
 
         # stopping conditions
         if not ball.in_air:
             break
-        #if abs(agent.body.velocity[0]) < 50: # never stop on one place!
-        #    break
 
-        if not fast_mode:
-            # draw the phenotype
-            cv2.imshow("current best", Draw(net))
-            cv2.waitKey(1)
+        if display:
+            display.update(space, ball)
 
-            ## Draw stuff
-            screen.fill(THECOLORS["black"])
-
-            ### Draw stuff
-            draw(screen, space)
-
-            ### Flip screen
-            pygame.display.flip()
-            clock.tick(50)
-
-    fitness = tstep #+ avg_ball_height/tstep
-    if ball.body.position[1] < 0:
+    fitness = tstep
+    if ball.body.position.y < 0:
         fitness = 0
 
     # remove objects from space
-    space.remove(agent.shape, agent.body)
-    space.remove(ball.shape, ball.body)
+    space.remove(agent.shape, agent.body, ball.shape, ball.body)
+    space.remove_collision_handler(collision_type_nn, collision_type_floor)
+    space.remove_collision_handler(collision_type_ball, collision_type_floor)
 
-    return fitness, fast_mode
+    return fitness
 
 
 def main():
-    pygame.init()
-    screen = pygame.display.set_mode((600, 600))
-    pygame.display.set_caption("NEAT ball keeper [Press F to turn on/off fast mode, arrow keys to move ball]")
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--show', action='store_true', help='show the simulation (needs pygame)')
+    parser.add_argument('--generations', type=int, default=1000)
+    parser.add_argument('--trials', type=int, default=5, help='evaluations per genome')
+    parser.add_argument('--timesteps', type=int, default=5000, help='the length of one evaluation')
+    parser.add_argument('--seed', type=int, default=None)
+    args = parser.parse_args()
 
+    display = Display() if args.show else None
+    space = make_world()
+    rng = rnd.Random(args.seed)
 
-    ### Physics stuff
-    space = pm.Space()
-    space.gravity = Vec2d(0.0, -500.0)
-
-    # walls - the left-top-right walls
-    body = pm.Body()
-    walls= [pm.Segment(body, (50, 50), (50, 1550), 10)
-                ,pm.Segment(body, (50, 1550), (560, 1550), 10)
-                ,pm.Segment(body, (560, 1550), (560, 50), 10)
-                ]
-
-    floor = pm.Segment(body, (50, 50), (560, 50), 10)
-    floor.friction = 1.0
-    floor.elasticity = 0.0
-    floor.collision_type = collision_type_floor
-
-    for s in walls:
-        s.friction = 0
-        s.elasticity = 0.99
-        s.collision_type = collision_type_wall
-    space.add(walls)
-    space.add(floor)
-
-
-
-
-    g = NEAT.Genome(0, 6, 0, 2, False, 
+    g = NEAT.Genome(0, 6, 0, 2, False,
                     NEAT.ActivationFunction.TANH, NEAT.ActivationFunction.UNSIGNED_SIGMOID, 0, params, 0, 1)
-    pop = NEAT.Population(g, params, True, 1.0, rnd.randint(0, 1000))
+    pop = NEAT.Population(g, params, True, 1.0, rng.randint(0, 1000))
 
-    best_genome_ever = None
-    fast_mode = True
-    for generation in range(1000):
-        print("Generation:", generation)
-
+    for generation in range(args.generations):
         now = time.time()
-        genome_list = []
-        for s in pop.Species:
-            for i in s.Individuals:
-                genome_list.append(i)
-
-        print('All individuals:', len(genome_list))
-
-        for i, g in enumerate(genome_list):
+        genome_list = NEAT.GetGenomeList(pop)
+        for genome in genome_list:
             total_fitness = 0
-            for trial in range(20):
-                f, fast_mode = evaluate(g, space, screen, fast_mode, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
-                total_fitness += f
-            g.SetFitness(total_fitness / 20)
-        print()
+            for trial in range(args.trials):
+                total_fitness += evaluate(genome, space, args.timesteps, rng.randint(80, 400), rng.randint(-200, 200),
+                                          rng.randint(80, 400), display)
+            genome.SetFitness(total_fitness / args.trials)
 
-        best = max([x.GetLeader().GetFitness() for x in pop.Species])
-        print('Best fitness:', best, 'Species:', len(pop.Species))
+        best = max(g.GetFitness() for g in genome_list)
+        print('Generation: %d Best fitness: %.1f Species: %d (%.1fs)' % (
+            generation, best, len(pop.Species), time.time() - now))
 
+        # evolution is complete if an individual keeps the ball up all the time
+        if best >= args.timesteps:
+            break
 
-        # Draw the best genome's phenotype
-        if best >= 10000:
-            break # evolution is complete if an individual keeps the ball up for that many timesteps
-
-        print("Evaluation took", time.time() - now, "seconds.")
-        print("Reproducing..")
-        now = time.time()
         pop.Epoch()
-        print("Reproduction took", time.time() - now, "seconds.")
 
-    # Show the best genome's performance forever
-    pygame.display.set_caption("Best genome ever")
-    while True:
-        evaluate(pop.Species[0].GetLeader(), space, screen, False, rnd.randint(80, 400), rnd.randint(-200, 200), rnd.randint(80, 400))
-
-main()
-
-
+    if display:
+        # Show the best genome's performance forever
+        display.fast_mode = False
+        display.pygame.display.set_caption("Best genome ever")
+        best = pop.GetBestGenome()
+        while True:
+            evaluate(best, space, 100000, rng.randint(80, 400), rng.randint(-200, 200), rng.randint(80, 400), display)
 
 
-
-
-
-
-
-
+if __name__ == '__main__':
+    main()

@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import os
 import sys
-#sys.path.insert(0, '/home/peter/code/projects/MultiNEAT') # duh
 import time
 import random as rnd
 import numpy as np
@@ -24,7 +23,7 @@ def evaluate(genome):
     # do stuff and return the fitness
     net.Flush()
     net.Input(np.array([1., 0., 1.]))  # can input numpy arrays, too
-    # for some reason only np.float64 is supported
+    # any sequence of numbers works - lists, tuples, numpy arrays of any dtype
     for _ in range(2):
         net.Activate()
     o = net.Output()
@@ -126,7 +125,7 @@ def getbest(i):
 
 
 gens = []
-for run in range(1000):
+for run in range(10):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)
