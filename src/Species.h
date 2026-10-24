@@ -31,6 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
+#include <limits>
 
 #include "Innovation.h"
 #include "Genome.h"
@@ -131,9 +132,8 @@ public:
     Species(const Genome& a_Seed, const Parameters& a_Parameters, int a_id);
 
     // assignment operator
-    Species& operator=(const Species& a_g);
 
-    // comparison operator (for boost::python)
+    // comparison operator (used by the Python bindings)
     // todo: implement a better comparison technique
     bool operator==(Species const& other) const { return m_ID == other.m_ID; }
 
@@ -149,8 +149,8 @@ public:
     double GetBestFitness() const { return m_BestFitness; }
     double GetActualBestFitness() const
     {
-        double f = std::numeric_limits<double>::min();
-        for(int i=0; i<m_Individuals.size(); i++)
+        double f = std::numeric_limits<double>::lowest();
+        for(unsigned int i=0; i<m_Individuals.size(); i++)
         {
             if (m_Individuals[i].IsEvaluated())
             {
@@ -172,7 +172,7 @@ public:
     void IncreaseEvalsNoImprovement() { m_EvalsNoImprovement++; }
     void SetOffspringRqd(double a_ofs) { m_OffspringRqd = a_ofs; }
     double GetOffspringRqd() const { return m_OffspringRqd; }
-    unsigned int NumIndividuals() { return m_Individuals.size(); }
+    unsigned int NumIndividuals() { return static_cast<unsigned int>(m_Individuals.size()); }
     void ClearIndividuals() { m_Individuals.clear(); }
     int ID() { return m_ID; }
     int GensNoImprovement() { return m_GensNoImprovement; }
@@ -186,7 +186,7 @@ public:
     int NumEvaluated()
     {
         int x=0;
-        for(int i=0; i<m_Individuals.size(); i++)
+        for(unsigned int i=0; i<m_Individuals.size(); i++)
         {
             if (m_Individuals[i].IsEvaluated())
                 x++;
@@ -214,7 +214,8 @@ public:
     // this method performs fitness sharing
     // it also boosts the fitness if young and penalizes if old
     // applies extreme penalty for stagnating species over SpeciesDropoffAge generations.
-    void AdjustFitness(Parameters& a_Parameters);
+    // a_FitnessOffset is added to every fitness value (used to handle negative fitness)
+    void AdjustFitness(Parameters& a_Parameters, double a_FitnessOffset = 0.0);
 
     // Sorts the individuals
     void SortIndividuals();
@@ -253,11 +254,9 @@ public:
 
     void RemoveIndividual(unsigned int a_idx);
 
-#ifdef USE_BOOST_PYTHON
         // Serialization
-        friend class boost::serialization::access;
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        void serialize(Archive & ar, const unsigned int /*version*/)
         {
             ar & m_ID;
             //ar & m_Representative;
@@ -276,7 +275,6 @@ public:
             ar & m_Individuals;
             ar & m_AverageFitness;
         }
-#endif
 
 };
 

@@ -31,7 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
-#include "Assert.h"
+#include "NeatAssert.h"
 
 namespace NEAT
 {
@@ -52,14 +52,14 @@ public:
     // This method acquires behavior data based on the genome given
     // May return true if a successful behavior was encountered during
     // evaluation
-    virtual bool   Acquire(Genome* a_Genome)
+    virtual bool   Acquire(Genome* /*a_Genome*/)
     {
         //ASSERT(false);
         return false;
     }
 
     // Overload this method to calcluate distance between behaviors
-    virtual double Distance_To(PhenotypeBehavior* a_Other)
+    virtual double Distance_To(PhenotypeBehavior* /*a_Other*/)
     {
         //ASSERT(false);
         return 0;

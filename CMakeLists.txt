@@ -1,85 +1,94 @@
-cmake_minimum_required(VERSION 3.6)
-project(MultiNEAT)
+cmake_minimum_required(VERSION 3.15)
+project(MultiNEAT VERSION 0.6.0 LANGUAGES CXX)
 
-if(MINGW OR CYGWIN)
-    add_definitions(-O3)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+option(MULTINEAT_BUILD_PYTHON "Build the Python extension module (needs pybind11)" ON)
+option(MULTINEAT_BUILD_CPP_LIBRARY "Build the pure C++ static library" ON)
+option(MULTINEAT_BUILD_EXAMPLES "Build the C++ XOR example / smoke test (needs the C++ library)" ON)
 
-add_definitions("-DMS_WIN64")
-
-set(Boost_USE_STATIC_LIBS OFF) # Changed comment to reflect that dynamic libs are actually needed
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
-# Make sure you have the correct Boost components, especially boost_python for your Python version (e.g., boost_python38 for Python 3.8)
-set(BOOST_ROOT "C:/Boost")
-find_package(Boost REQUIRED COMPONENTS 
-  system
-  python310
-  numpy310
-  thread
-  serialization
-  date_time
-  filesystem
+set(MULTINEAT_SOURCES
+    src/ESHyperNEAT.cpp
+    src/Genome.cpp
+    src/Innovation.cpp
+    src/NeuralNetwork.cpp
+    src/Parameters.cpp
+    src/PhenotypeBehavior.cpp
+    src/Physics2D.cpp
+    src/Population.cpp
+    src/Random.cpp
+    src/Species.cpp
+    src/Substrate.cpp
+    src/Traits.cpp
+    src/Utils.cpp
 )
 
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${Python3_INCLUDE_DIRS})
-
-add_definitions(-DUSE_BOOST_PYTHON)
-# Optional: Enable if you use Boost.Numpy in your bindings
-add_definitions(-DUSE_BOOST_NUMPY)
-add_definitions(-DUSE_BOOST_RANDOM)
-
-# Replace add_executable with add_library, and specify SHARED to create a shared library
-add_library(MultiNEAT SHARED
-             # List all your source and header files as before
-             ${PROJECT_SOURCE_DIR}/src/PythonBindings.cpp # Make sure this file uses BOOST_PYTHON_MODULE
-             ${PROJECT_SOURCE_DIR}/src/Assert.h
-             ${PROJECT_SOURCE_DIR}/src/Genes.h
-             ${PROJECT_SOURCE_DIR}/src/Genome.cpp
-             ${PROJECT_SOURCE_DIR}/src/Genome.h
-             ${PROJECT_SOURCE_DIR}/src/Innovation.cpp
-             ${PROJECT_SOURCE_DIR}/src/Innovation.h
-             ${PROJECT_SOURCE_DIR}/src/Main.cpp
-             ${PROJECT_SOURCE_DIR}/src/NeuralNetwork.cpp
-             ${PROJECT_SOURCE_DIR}/src/NeuralNetwork.h
-             ${PROJECT_SOURCE_DIR}/src/Parameters.cpp
-             ${PROJECT_SOURCE_DIR}/src/Parameters.h
-             ${PROJECT_SOURCE_DIR}/src/PhenotypeBehavior.cpp
-             ${PROJECT_SOURCE_DIR}/src/PhenotypeBehavior.h
-             ${PROJECT_SOURCE_DIR}/src/Population.cpp
-             ${PROJECT_SOURCE_DIR}/src/Population.h
-             ${PROJECT_SOURCE_DIR}/src/Random.cpp
-             ${PROJECT_SOURCE_DIR}/src/Random.h
-             ${PROJECT_SOURCE_DIR}/src/Species.cpp
-             ${PROJECT_SOURCE_DIR}/src/Species.h
-             ${PROJECT_SOURCE_DIR}/src/Substrate.cpp
-             ${PROJECT_SOURCE_DIR}/src/Substrate.h
-             ${PROJECT_SOURCE_DIR}/src/Utils.cpp
-             ${PROJECT_SOURCE_DIR}/src/Utils.h
-             ${PROJECT_SOURCE_DIR}/src/Traits.h
-             ${PROJECT_SOURCE_DIR}/src/Traits.cpp
-)
-
-# Ensure you don't have a Main.cpp in add_library, as typically Main.cpp contains int main() which is not needed for Python modules
-
-target_link_libraries(MultiNEAT
-        "ws2_32"
-        ${Boost_LIBRARIES}
-        ${Python3_LIBRARIES})
-
-# If your project name and the desired Python module name differ, replace MultiNEAT in set_target_properties with the actual module name
-set_target_properties(MultiNEAT PROPERTIES PREFIX "")
-if(WIN32)
-    set_target_properties(MultiNEAT PROPERTIES SUFFIX ".pyd")
+if(MSVC)
+    set(MULTINEAT_COMPILE_OPTIONS /W4 /bigobj /utf-8 /permissive-)
+    set(MULTINEAT_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
 else()
-    # For Unix-like systems, the default suffix is fine (.so), but ensure the prefix is correct for Python to find it
-    set_target_properties(MultiNEAT PROPERTIES PREFIX "lib")
+    set(MULTINEAT_COMPILE_OPTIONS -Wall -Wextra)
+    set(MULTINEAT_COMPILE_DEFINITIONS)
 endif()
 
+# The pure C++ library (no Python dependency)
+if(MULTINEAT_BUILD_CPP_LIBRARY)
+    add_library(multineat STATIC ${MULTINEAT_SOURCES})
+    target_include_directories(multineat PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_compile_options(multineat PRIVATE ${MULTINEAT_COMPILE_OPTIONS})
+    target_compile_definitions(multineat PUBLIC ${MULTINEAT_COMPILE_DEFINITIONS})
+    set_target_properties(multineat PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    install(TARGETS multineat ARCHIVE DESTINATION lib)
+    install(DIRECTORY src/ DESTINATION include/MultiNEAT FILES_MATCHING PATTERN "*.h")
+endif()
 
+if(MULTINEAT_BUILD_EXAMPLES AND MULTINEAT_BUILD_CPP_LIBRARY)
+    add_executable(multineat_xor src/Main.cpp)
+    target_link_libraries(multineat_xor PRIVATE multineat)
+    target_compile_options(multineat_xor PRIVATE ${MULTINEAT_COMPILE_OPTIONS})
 
+    enable_testing()
+    add_test(NAME xor_cpp COMMAND multineat_xor 500 1)
+endif()
 
+# The Python extension module MultiNEAT._MultiNEAT
+if(MULTINEAT_BUILD_PYTHON)
+    find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
+    find_package(pybind11 CONFIG QUIET)
+    if(NOT pybind11_FOUND)
+        # fall back to the pybind11 installed in the Python environment (pip install pybind11)
+        execute_process(
+            COMMAND "${Python_EXECUTABLE}" -m pybind11 --cmakedir
+            OUTPUT_VARIABLE _pybind11_dir
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE _pybind11_result)
+        if(_pybind11_result EQUAL 0)
+            find_package(pybind11 CONFIG REQUIRED PATHS "${_pybind11_dir}" NO_DEFAULT_PATH)
+        else()
+            message(FATAL_ERROR "pybind11 not found. Install it with: pip install pybind11")
+        endif()
+    endif()
+
+    pybind11_add_module(_MultiNEAT src/PythonBindings.cpp ${MULTINEAT_SOURCES})
+    target_include_directories(_MultiNEAT PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_compile_definitions(_MultiNEAT PRIVATE PYTHON_BINDINGS ${MULTINEAT_COMPILE_DEFINITIONS})
+    target_compile_options(_MultiNEAT PRIVATE ${MULTINEAT_COMPILE_OPTIONS})
+
+    if(SKBUILD)
+        # building a wheel with scikit-build-core
+        install(TARGETS _MultiNEAT LIBRARY DESTINATION MultiNEAT)
+    else()
+        # in-tree build: put the module next to the Python package so "import MultiNEAT" works from the repo
+        set_target_properties(_MultiNEAT PROPERTIES
+            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/MultiNEAT
+            LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/MultiNEAT
+            LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/MultiNEAT
+            LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_CURRENT_SOURCE_DIR}/MultiNEAT)
+    endif()
+endif()

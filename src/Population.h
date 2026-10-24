@@ -32,6 +32,9 @@
 
 #include <vector>
 #include <float.h>
+#include <limits>
+#include <map>
+#include <stdexcept>
 
 #include "Innovation.h"
 #include "Genome.h"
@@ -160,7 +163,25 @@ public:
     // Loads a population from a file.
     Population(const std::string a_FileName);
 
-    Population() {};
+    Population()
+    {
+        m_NextGenomeID = 0;
+        m_NextSpeciesID = 0;
+        m_SearchMode = COMPLEXIFYING;
+        m_CurrentMPC = 0;
+        m_OldMPC = 0;
+        m_BaseMPC = 0;
+        m_BestFitnessEver = 0;
+        m_GensSinceBestFitnessLastChanged = 0;
+        m_EvalsSinceBestFitnessLastChanged = 0;
+        m_GensSinceMPCLastChanged = 0;
+        m_Generation = 0;
+        m_ID = 0;
+        m_NumEvaluations = 0;
+        m_BehaviorArchive = NULL;
+        m_GensSinceLastArchiving = 0;
+        m_QuickAddCounter = 0;
+    };
 
     ////////////////////////////
     // Destructor
@@ -183,7 +204,7 @@ public:
     	unsigned int num=0;
     	for(unsigned int i=0; i<m_Species.size(); i++)
     	{
-    		num += m_Species[i].m_Individuals.size();
+    		num += static_cast<unsigned int>(m_Species[i].m_Individuals.size());
     	}
     	return num;
     }
@@ -192,7 +213,11 @@ public:
     double GetBestFitnessEver() const { return m_BestFitnessEver; }
     Genome GetBestGenome() const
     {
-        double best = std::numeric_limits<double>::min();
+        if (NumGenomes() == 0)
+        {
+            throw std::runtime_error("The population is empty");
+        }
+        double best = std::numeric_limits<double>::lowest();
         int idx_species = 0;
         int idx_genome = 0;
         for(unsigned int i=0; i<m_Species.size(); i++)
@@ -329,11 +354,9 @@ public:
     unsigned int m_GensSinceLastArchiving;
     unsigned int m_QuickAddCounter;
 
-#ifdef USE_BOOST_PYTHON
         // Serialization
-        friend class boost::serialization::access;
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        void serialize(Archive & ar, const unsigned int /*version*/)
         {
             ar & m_InnovationDatabase;
             ar & m_NextGenomeID;
@@ -350,7 +373,7 @@ public:
             ar & m_GensSinceMPCLastChanged;
             ar & m_Genomes;
             ar & m_GenomeArchive;
-            //ar & m_RNG;
+            ar & m_RNG;
             ar & m_Parameters;
             ar & m_Generation;
             ar & m_Species;
@@ -362,34 +385,10 @@ public:
             //ar & m_TempSpecies;
             //ar & m_BehaviorArchive;
         }
-#endif
         
     };
 
-#ifdef USE_BOOST_PYTHON
 
-struct Population_pickle_suite : py::pickle_suite
-{
-    static py::object getstate(const Population& a)
-    {
-        std::ostringstream os;
-        boost::archive::text_oarchive oa(os);
-        oa << a;
-        return py::str (os.str());
-    }
-
-    static void setstate(Population& a, py::object entries)
-    {
-        py::str s = py::extract<py::str> (entries)();
-        std::string st = py::extract<std::string> (s)();
-        std::istringstream is (st);
-
-        boost::archive::text_iarchive ia (is);
-        ia >> a;
-    }
-};
-
-#endif
 
 
 } // namespace NEAT

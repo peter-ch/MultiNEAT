@@ -29,20 +29,32 @@
 
 #include "Utils.h"
 
+// Scales all values linearly so that the smallest becomes a_tr_min and the largest a_tr_max.
+// If all values are equal, they are all set to the middle of the target range.
 void Scale(vector<double>& a_Values, const double a_tr_min, const double a_tr_max)
 {
-    double t_max = std::numeric_limits<double>::min(), t_min = std::numeric_limits<double>::max();
-    GetMaxMin(a_Values, t_min, t_max);
-    vector<double> t_ValuesScaled;
-    for(vector<double>::const_iterator t_It = a_Values.begin(); t_It != a_Values.end(); ++t_It)
+    if (a_Values.empty())
     {
-        double t_ValueToBeScaled = (*t_It);
-        Scale(t_ValueToBeScaled, t_min, t_max, 0, 1); // !!!!!!!!!!!!!!!!??????????
-        t_ValuesScaled.push_back(t_ValueToBeScaled);
+        return;
     }
 
-    a_Values = t_ValuesScaled;
+    double t_min, t_max;
+    GetMaxMin(a_Values, t_min, t_max);
+
+    const double t_range = t_max - t_min;
+    if (t_range == 0)
+    {
+        const double t_mid = (a_tr_min + a_tr_max) / 2.0;
+        for (auto &t_v : a_Values)
+        {
+            t_v = t_mid;
+        }
+        return;
+    }
+
+    const double t_scale = (a_tr_max - a_tr_min) / t_range;
+    for (auto &t_v : a_Values)
+    {
+        t_v = a_tr_min + (t_v - t_min) * t_scale;
+    }
 }
-
-
-

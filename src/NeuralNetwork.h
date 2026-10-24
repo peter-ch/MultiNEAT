@@ -30,36 +30,9 @@
 // Description: Definition for the phenotype data structures.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_BOOST_PYTHON
-
-#include <boost/python.hpp>
-
-#include <boost/version.hpp>
-
-#ifdef USE_BOOST_NUMPY
-#if BOOST_VERSION < 106500
-    #include <boost/python/numeric.hpp>
-#else
-    #include <boost/python/numpy.hpp>
-#endif
-#endif
-
-#include <boost/python/tuple.hpp>
-#include <math.h>
 #include <cmath>
-
-namespace py = boost::python;
-
-#ifdef USE_BOOST_NUMPY
-#if BOOST_VERSION < 106500
-    typedef typename py::numeric::array pyndarray;
-#else
-    typedef typename py::numpy::ndarray pyndarray;
-#endif
-#endif
-
-#endif
-
+#include <cstdio>
+#include <fstream>
 #include <vector>
 #include "Genes.h"
 
@@ -69,20 +42,20 @@ namespace NEAT
 class Connection
 {
 public:
-    int m_source_neuron_idx;       // index of source neuron
-    int m_target_neuron_idx;       // index of target neuron
-    double m_weight;                               // weight of the connection
-    double m_signal;                               // weight * input signal
+    int m_source_neuron_idx = 0;       // index of source neuron
+    int m_target_neuron_idx = 0;       // index of target neuron
+    double m_weight = 0;               // weight of the connection
+    double m_signal = 0;               // weight * input signal
 
-    bool m_recur_flag; // recurrence flag for displaying purposes
+    bool m_recur_flag = false; // recurrence flag for displaying purposes
     // can be ignored
 
     // Hebbian learning parameters
     // Ignored in case there is no lifetime learning
-    double m_hebb_rate;
-    double m_hebb_pre_rate;
+    double m_hebb_rate = 0.3;
+    double m_hebb_pre_rate = 0.1;
 
-    // comparison operator (nessesary for boost::python)
+    // comparison operator (used by the Python bindings)
     bool operator==(Connection const& other) const
     {
         if ((m_source_neuron_idx == other.m_source_neuron_idx) &&
@@ -99,24 +72,24 @@ public:
 class Neuron
 {
 public:
-    double m_activesum;  // the synaptic input
-    double m_activation; // the synaptic input passed through the activation function
+    double m_activesum = 0;  // the synaptic input
+    double m_activation = 0; // the synaptic input passed through the activation function
 
-    double m_a, m_b, m_timeconst, m_bias; // misc parameters
-    double m_membrane_potential; // used in leaky integrator mode
-    ActivationFunction m_activation_function_type;
+    double m_a = 1, m_b = 0, m_timeconst = 0, m_bias = 0; // misc parameters
+    double m_membrane_potential = 0; // used in leaky integrator mode
+    ActivationFunction m_activation_function_type = UNSIGNED_SIGMOID;
 
     // displaying and stuff
-    double m_x, m_y, m_z;
-    double m_sx, m_sy, m_sz;
+    double m_x = 0, m_y = 0, m_z = 0;
+    double m_sx = 0, m_sy = 0, m_sz = 0;
     std::vector<double> m_substrate_coords;
-    double m_split_y;
-    NeuronType m_type;
+    double m_split_y = 0;
+    NeuronType m_type = NONE;
 
     // the sensitivity matrix of this neuron (for RTRL learning)
     std::vector< std::vector< double > > m_sensitivity_matrix;
 
-    // comparison operator (nessesary for boost::python)
+    // comparison operator (used by the Python bindings)
     bool operator==(Neuron const& other) const
     {
         if ((m_type == other.m_type) &&
@@ -134,7 +107,7 @@ class NeuralNetwork
 {
     /////////////////////
     // RTRL variables
-    double m_total_error;
+    double m_total_error = 0;
 
     // Always the size of m_connections
     std::vector<double> m_total_weight_change;
@@ -145,7 +118,7 @@ class NeuralNetwork
 
 public:
 
-    unsigned int m_num_inputs, m_num_outputs;
+    unsigned int m_num_inputs = 0, m_num_outputs = 0;
     std::vector<Connection> m_connections; // array size - number of connections
     std::vector<Neuron>     m_neurons;
 
@@ -172,15 +145,10 @@ public:
 
     void Input(std::vector<double>& a_Inputs);
 
-#ifdef USE_BOOST_PYTHON
+#ifdef PYTHON_BINDINGS
 
-    void Input_python_list(const py::list& a_Inputs);
-
-#ifdef USE_BOOST_NUMPY
-
-    void Input_numpy(const pyndarray& a_Inputs);
-
-#endif
+    // Accepts any Python sequence of numbers (list, tuple, numpy array, etc.)
+    void Input_python(const py::handle& a_Inputs);
 
 #endif
 
@@ -232,7 +200,7 @@ public:
 
     double GetTotalConnectionLength()
     {
-        return m_connections.size();
+        return static_cast<double>(m_connections.size());
     }
 
     // one-shot save/load

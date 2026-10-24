@@ -7,21 +7,12 @@
 
 #include <string>
 #include <vector>
-#include <boost/any.hpp>
-#include <boost/variant.hpp>
+#include <variant>
 #include <cmath>
 
-#ifdef USE_BOOST_PYTHON
-#include <boost/python.hpp>
-#endif
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/shared_ptr.hpp>
-
-namespace bs = boost;
-#ifdef USE_BOOST_PYTHON
-namespace py = bs::python;
+#ifdef PYTHON_BINDINGS
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
 #endif
 
 namespace NEAT
@@ -36,16 +27,11 @@ namespace NEAT
         {
             return rhs.value == value;
         }
-    
-        // Assignment operator
-        intsetelement &operator=(const intsetelement &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                value = a_g.value;
-            }
-        
-            return *this;
+            ar & value;
         }
     };
     class floatsetelement
@@ -59,24 +45,46 @@ namespace NEAT
         {
             return rhs.value == value;
         }
-    
-        floatsetelement &operator=(const floatsetelement &a_g)
-        {
-            if (this != &a_g)
-            {
-                value = a_g.value;
-            }
-        
-            return *this;
-        }
 
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
+        {
+            ar & value;
+        }
     };
-    
-    typedef bs::variant<int, double, std::string, intsetelement, floatsetelement
-#ifdef USE_BOOST_PYTHON
+
+    typedef std::variant<int, double, std::string, intsetelement, floatsetelement
+#ifdef PYTHON_BINDINGS
   , py::object
 #endif
     > TraitType;
+
+    // Compares two trait values. Python objects are compared with Python's == operator.
+    inline bool TraitValuesEqual(const TraitType &a, const TraitType &b)
+    {
+        if (a.index() != b.index())
+        {
+            return false;
+        }
+#ifdef PYTHON_BINDINGS
+        if (std::holds_alternative<py::object>(a))
+        {
+            const py::object &x = std::get<py::object>(a);
+            const py::object &y = std::get<py::object>(b);
+            if (!x || !y)
+            {
+                return x.ptr() == y.ptr();
+            }
+            return x.equal(y);
+        }
+#endif
+        if (std::holds_alternative<int>(a)) return std::get<int>(a) == std::get<int>(b);
+        if (std::holds_alternative<double>(a)) return std::get<double>(a) == std::get<double>(b);
+        if (std::holds_alternative<std::string>(a)) return std::get<std::string>(a) == std::get<std::string>(b);
+        if (std::holds_alternative<intsetelement>(a)) return std::get<intsetelement>(a) == std::get<intsetelement>(b);
+        if (std::holds_alternative<floatsetelement>(a)) return std::get<floatsetelement>(a) == std::get<floatsetelement>(b);
+        return false;
+    }
 
     class IntTraitParameters
     {
@@ -91,18 +99,14 @@ namespace NEAT
             mut_power = 0;
             mut_replace_prob = 0;
         }
-    
-        IntTraitParameters &operator=(const IntTraitParameters &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                min = a_g.min;
-                max = a_g.max;
-                mut_power = a_g.mut_power;
-                mut_replace_prob = a_g.mut_replace_prob;
-            }
-        
-            return *this;
+            ar & min;
+            ar & max;
+            ar & mut_power;
+            ar & mut_replace_prob;
         }
     };
     class FloatTraitParameters
@@ -118,18 +122,14 @@ namespace NEAT
             mut_power = 0;
             mut_replace_prob = 0;
         }
-    
-        FloatTraitParameters &operator=(const FloatTraitParameters &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                min = a_g.min;
-                max = a_g.max;
-                mut_power = a_g.mut_power;
-                mut_replace_prob = a_g.mut_replace_prob;
-            }
-        
-            return *this;
+            ar & min;
+            ar & max;
+            ar & mut_power;
+            ar & mut_replace_prob;
         }
     };
     class StringTraitParameters
@@ -137,15 +137,12 @@ namespace NEAT
     public:
         std::vector<std::string> set; // the set of possible strings
         std::vector<double> probs; // their respective probabilities for appearance
-        StringTraitParameters &operator=(const StringTraitParameters &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                set = a_g.set;
-                probs = a_g.probs;
-            }
-        
-            return *this;
+            ar & set;
+            ar & probs;
         }
     };
     class IntSetTraitParameters
@@ -153,16 +150,12 @@ namespace NEAT
     public:
         std::vector<intsetelement> set; // the set of possible ints
         std::vector<double> probs; // their respective probabilities for appearance
-    
-        IntSetTraitParameters &operator=(const IntSetTraitParameters &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                set = a_g.set;
-                probs = a_g.probs;
-            }
-        
-            return *this;
+            ar & set;
+            ar & probs;
         }
     };
     class FloatSetTraitParameters
@@ -170,16 +163,12 @@ namespace NEAT
     public:
         std::vector<floatsetelement> set; // the set of possible floats
         std::vector<double> probs; // their respective probabilities for appearance
-    
-        FloatSetTraitParameters &operator=(const FloatSetTraitParameters &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                set = a_g.set;
-                probs = a_g.probs;
-            }
-        
-            return *this;
+            ar & set;
+            ar & probs;
         }
     };
 
@@ -190,12 +179,12 @@ namespace NEAT
         double m_MutationProb;
 
         std::string type; // can be "int", "float", "string", "intset", "floatset", "pyobject"
-        bs::variant<IntTraitParameters,
+        std::variant<IntTraitParameters,
                     FloatTraitParameters,
                     StringTraitParameters,
                     IntSetTraitParameters,
                     FloatSetTraitParameters
-#ifdef USE_BOOST_PYTHON
+#ifdef PYTHON_BINDINGS
                   , py::object
 #endif
         > m_Details;
@@ -214,20 +203,16 @@ namespace NEAT
             dep_key = "";
             dep_values.emplace_back( std::string("") );
         }
-    
-        TraitParameters &operator=(const TraitParameters &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                m_ImportanceCoeff = a_g.m_ImportanceCoeff;
-                m_MutationProb = a_g.m_MutationProb;
-                type = a_g.type;
-                m_Details = a_g.m_Details;
-                dep_key = a_g.dep_key;
-                dep_values = a_g.dep_values;
-            }
-        
-            return *this;
+            ar & m_ImportanceCoeff;
+            ar & m_MutationProb;
+            ar & type;
+            ar & m_Details;
+            ar & dep_key;
+            ar & dep_values;
         }
     };
 
@@ -245,17 +230,13 @@ namespace NEAT
 
         std::string dep_key; // counts only if this other trait exists..
         std::vector<TraitType> dep_values; // and has this value
-    
-        Trait &operator=(const Trait &a_g)
+
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int /*version*/)
         {
-            if (this != &a_g)
-            {
-                value = a_g.value;
-                dep_values = a_g.dep_values;
-                dep_key = a_g.dep_key;
-            }
-        
-            return *this;
+            ar & value;
+            ar & dep_key;
+            ar & dep_values;
         }
     };
 

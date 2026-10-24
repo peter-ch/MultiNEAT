@@ -1,10 +1,27 @@
+"""MultiNEAT - NeuroEvolution of Augmenting Topologies.
+
+The core library is written in C++ and exposed through the ``_MultiNEAT``
+extension module. This package adds a few convenience helpers on top of it.
+"""
+import os
 import time
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor
+
 from ._MultiNEAT import *
 from .viz import *
 
+try:
+    from importlib.metadata import version as _version, PackageNotFoundError
+    try:
+        __version__ = _version('MultiNEAT')
+    except PackageNotFoundError:
+        __version__ = '0.6.0'
+except ImportError:  # Python < 3.8
+    __version__ = '0.6.0'
+
 
 # Get all genomes from the population
+# The genomes are references - changing their fitness changes the population.
 def GetGenomeList(pop):
     genome_list = []
     for s in pop.Species:
@@ -15,8 +32,10 @@ def GetGenomeList(pop):
 
 # Just set the fitness values to the genomes
 def ZipFitness(genome_list, fitness_list):
-    [genome.SetFitness(fitness) for genome, fitness in zip(genome_list, fitness_list)]
-    [genome.SetEvaluated() for genome in genome_list]
+    for genome, fitness in zip(genome_list, fitness_list):
+        genome.SetFitness(fitness)
+        genome.SetEvaluated()
+
 
 try:
     import networkx as nx
@@ -29,26 +48,26 @@ try:
 
         for i, tp, traits in nts:
             if with_inputs:
-                gr.add_node( i, **traits)
+                gr.add_node(i, **traits)
             else:
                 # don't add traits on inputs
                 if tp != 'input':
-                    gr.add_node( i, **traits)
+                    gr.add_node(i, **traits)
                 else:
-                    gr.add_node( i )
+                    gr.add_node(i)
 
         if not with_weights:
             for inp, outp, traits in lts:
-                gr.add_edge( inp, outp, **traits)
+                gr.add_edge(inp, outp, **traits)
         else:
             for inp, outp, traits, w in lts:
-                t = {**traits, 'w':w}
-                gr.add_edge( inp, outp, **t)
+                t = {**traits, 'w': w}
+                gr.add_edge(inp, outp, **t)
 
         gr.genome_traits = g.GetGenomeTraits()
 
         return gr
-except:
+except ImportError:
     pass
 
 RetrieveGenomeList = GetGenomeList
@@ -59,13 +78,13 @@ try:
     from ipyparallel import Client
 
     ipython_installed = True
-except:
+except ImportError:
     ipython_installed = False
 
 try:
     from progressbar import ProgressBar
     pbar_installed = True
-except:
+except ImportError:
     pbar_installed = False
 
 
@@ -85,13 +104,14 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True, show_elapsed
         pbar.max_value = len(genome_list)
         pbar.min_value = 0
 
-    for i,g in enumerate(genome_list):
+    for i, g in enumerate(genome_list):
         f = evaluator(g)
         fitnesses.append(f)
 
         if display:
             if not pbar_installed:
-                if ipython_installed: clear_output(wait=True)
+                if ipython_installed:
+                    clear_output(wait=True)
                 print('Individuals: (%s/%s) Fitness: %3.4f' % (count, len(genome_list), f))
             else:
                 pbar.update(i)
@@ -109,13 +129,17 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True, show_elapsed
 
 # Evaluates all genomes in parallel manner (many processes) and returns a
 # list of corresponding fitness values.
-# evaluator is a callable that is supposed to take Genome as argument and return a double
+# evaluator is a callable that is supposed to take Genome as argument and return a double.
+# It must be picklable (defined at the top level of a module). The genomes are pickled
+# together with their traits, so traits are available in the worker processes.
 def EvaluateGenomeList_Parallel(genome_list, evaluator,
-                                cores=8, display=True, ipython_client=None):
-    ''' If ipython_client is None, will use concurrent.futures. 
+                                cores=None, display=True, ipython_client=None):
+    ''' If ipython_client is None, will use concurrent.futures.
     Pass an instance of Client() in order to use an IPython cluster '''
     fitnesses = []
     curtime = time.time()
+    if cores is None:
+        cores = os.cpu_count() or 1
 
     if ipython_client is None or not ipython_installed:
         with ProcessPoolExecutor(max_workers=cores) as executor:
@@ -123,15 +147,17 @@ def EvaluateGenomeList_Parallel(genome_list, evaluator,
                 fitnesses += [fitness]
 
                 if display:
-                    if ipython_installed: clear_output(wait=True)
+                    if ipython_installed:
+                        clear_output(wait=True)
                     print('Individuals: (%s/%s) Fitness: %3.4f' % (i, len(genome_list), fitness))
     else:
-        if type(ipython_client) == Client:
+        if isinstance(ipython_client, Client):
             lbview = ipython_client.load_balanced_view()
             amr = lbview.map(evaluator, genome_list, ordered=True, block=False)
             for i, fitness in enumerate(amr):
                 if display:
-                    if ipython_installed: clear_output(wait=True)
+                    if ipython_installed:
+                        clear_output(wait=True)
                     print('Individual:', i, 'Fitness:', fitness)
                 fitnesses.append(fitness)
         else:

@@ -32,20 +32,42 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <clocale>
+#include <cmath>
 #include <sstream>
 #include <string>
 #include <iostream>
 #include <vector>
 #include <limits>
-#include "Assert.h"
+#include "NeatAssert.h"
 #include "Random.h"
 
 using namespace std;
 
 
+// Temporarily switches the C numeric locale to "C" so printf/scanf always use '.' as the
+// decimal separator (some host applications change the locale, see GitHub issue #64)
+class CNumericLocale
+{
+    std::string m_old;
+public:
+    CNumericLocale()
+    {
+        const char* t_cur = setlocale(LC_NUMERIC, NULL);
+        m_old = t_cur ? t_cur : "C";
+        setlocale(LC_NUMERIC, "C");
+    }
+    ~CNumericLocale()
+    {
+        setlocale(LC_NUMERIC, m_old.c_str());
+    }
+    CNumericLocale(const CNumericLocale&) = delete;
+    CNumericLocale& operator=(const CNumericLocale&) = delete;
+};
+
 inline void GetMaxMin(const vector<double>& a_Vals, double& a_Min, double& a_Max)
 {
-    a_Max = std::numeric_limits<double>::min();
+    a_Max = std::numeric_limits<double>::lowest();
     a_Min = std::numeric_limits<double>::max();
     for(vector<double>::const_iterator t_It = a_Vals.begin(); t_It != a_Vals.end(); ++t_It)
     {
@@ -55,6 +77,9 @@ inline void GetMaxMin(const vector<double>& a_Vals, double& a_Min, double& a_Max
         if (t_CurrentVal < a_Min) a_Min = t_CurrentVal;
     }
 }
+
+// Scales all values linearly into the range [a_tr_min .. a_tr_max]
+void Scale(vector<double>& a_Values, const double a_tr_min, const double a_tr_max);
 
 //converts an integer to a string
 inline std::string itos(const int a_Arg)
@@ -137,18 +162,7 @@ inline void Clamp(int &a_Arg, const int a_Min, const int a_Max)
 //rounds a double up or down depending on its value
 inline int Rounded(const double a_Val)
 {
-    const int t_Integral = static_cast<int>(a_Val);
-    const double t_Mantissa = a_Val - t_Integral;
-
-    if (t_Mantissa < 0.5)
-    {
-        return t_Integral;
-    }
-
-    else
-    {
-        return t_Integral + 1;
-    }
+    return static_cast<int>(std::floor(a_Val + 0.5));
 }
 
 //rounds a double up or down depending on whether its
@@ -184,6 +198,12 @@ inline void Scale(    double& a,
 
     const double t_a_r = a_max - a_min;
     const double t_r = a_tr_max - a_tr_min;
+    if (t_a_r == 0)
+    {
+        // degenerate source range - map to the middle of the target range
+        a = a_tr_min + t_r / 2.0;
+        return;
+    }
     const double rel_a = (a - a_min) / t_a_r;
     a = a_tr_min + t_r * rel_a;
 }
@@ -202,8 +222,14 @@ inline void Scale(    float& a,
 
     const double t_a_r = a_max - a_min;
     const double t_r = a_tr_max - a_tr_min;
+    if (t_a_r == 0)
+    {
+        // degenerate source range - map to the middle of the target range
+        a = static_cast<float>(a_tr_min + t_r / 2.0);
+        return;
+    }
     const double rel_a = (a - a_min) / t_a_r;
-    a = a_tr_min + t_r * rel_a;
+    a = static_cast<float>(a_tr_min + t_r * rel_a);
 }
 
 inline double Abs(double x)

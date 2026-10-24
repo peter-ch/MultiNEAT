@@ -29,10 +29,15 @@
 
 
 
+#include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <locale>
+#include <stdexcept>
 #include <string>
+#include <vector>
 #include "Parameters.h"
+#include "Utils.h"
 
 
 namespace NEAT
@@ -48,7 +53,7 @@ namespace NEAT
 
         // Size of population
         PopulationSize = 300;
-        
+
         // Speciation on/off
         Speciation = true;
 
@@ -75,20 +80,20 @@ namespace NEAT
 
         // Keep an archive of genomes and don't allow any new genome to exist in the archive or the population
         ArchiveEnforcement = false;
-    
+
         // When true, don't have a special bias neuron and treat all inputs equal
         DontUseBiasNeuron = false;
-    
+
         // When false, this prevents any recurrent pathways in the genomes from forming
         AllowLoops = true;
-    
+
         // Normalize genome size when calculating compatibility
         NormalizeGenomeSize = false;
-    
+
         // Pointer to a function that specifies custom topology/trait constraints
         // Should return true if the genome FAILS to meet the constraints
         CustomConstraints = NULL;
-        
+
         ////////////////////////////////
         // GA Parameters
         ////////////////////////////////
@@ -139,14 +144,14 @@ namespace NEAT
         // Probability for a baby to result from Multipoint Crossover when mating. 1.0 = 100%
         // The default is the Average mating.
         MultipointCrossoverRate = 0.75;
-    
+
         // Probability that when doing multipoint crossover,
         // the gene of the fitter parent will be prefered, instead of choosing one at random
         PreferFitterParentRate = 0.25;
 
         // Performing roulette wheel selection or not?
         RouletteWheelSelection = false;
-        
+
         // If true, will do tournament selection
         TournamentSelection = true;
 
@@ -155,12 +160,13 @@ namespace NEAT
 
         // Fraction of individuals to be copied unchanged
         EliteFraction = 0.000001;
-    
+
         // How many times to test a genome for constraint failure or being a clone (when AllowClones=False)
-        ConstraintTrials = 2000000;
+        // before accepting it anyway
+        ConstraintTrials = 1000;
 
 
-        
+
         ///////////////////////////////////
         // Phased Search parameters   //
         ///////////////////////////////////
@@ -249,10 +255,13 @@ namespace NEAT
 
         // Maximum number of tries to find 2 neurons to add/remove a link
         LinkTries = 64;
-    
+
+        // Maximum number of tries to find a link to split
+        NeuronTries = 64;
+
         // Maximum number of links in the genome (originals not counted). -1 is unlimited
         MaxLinks = -1;
-    
+
         // Maximum number of neurons in the genome (originals not counted). -1 is unlimited
         MaxNeurons = -1;
 
@@ -281,7 +290,7 @@ namespace NEAT
 
         // Maximum perturbation for a weight mutation
         WeightMutationMaxPower = 1.0;
-    
+
         // Probability for a particular gene to be mutated via replacement of the weight. 1.0 = 100%
         WeightReplacementRate = 0.2;
 
@@ -290,7 +299,7 @@ namespace NEAT
 
         // Maximum weight
         MaxWeight = 8.0;
-    
+
         // Minimum weight
         MinWeight = -8.0;
 
@@ -365,7 +374,7 @@ namespace NEAT
         // Genome properties params
         /////////////////////////////
 
-    
+
         /////////////////////////////////////
         // Speciation parameters
         /////////////////////////////////////
@@ -410,7 +419,7 @@ namespace NEAT
         // Per how many evaluations to change the treshold
         // (used in steady state mode)
         CompatTreshChangeInterval_Evaluations = 1;
-        
+
         // Minimal distance for two individuals to be considered different (as in clones or not)
         MinDeltaCompatEqualGenomes = 0.0000001;
 
@@ -469,19 +478,33 @@ namespace NEAT
     int Parameters::Load(std::ifstream &a_DataFile)
     {
         std::string s, tf;
-        do
-        {
-            a_DataFile >> s;
-        }
-        while (s != "NEAT_ParametersStart");
 
-        while (s != "NEAT_ParametersEnd")
+        if (!a_DataFile)
         {
-            a_DataFile >> s;
+            return -1;
+        }
+
+        // numbers are always written with a '.' decimal separator
+        a_DataFile.imbue(std::locale::classic());
+
+        while ((a_DataFile >> s) && (s != "NEAT_ParametersStart"))
+        {
+        }
+        if (!a_DataFile)
+        {
+            return -1; // not a parameters file
+        }
+
+        while (a_DataFile >> s)
+        {
+            if (s == "NEAT_ParametersEnd")
+            {
+                return 0;
+            }
 
             if (s == "PopulationSize")
                 a_DataFile >> PopulationSize;
-    
+
             if (s == "Speciation")
             {
                 a_DataFile >> tf;
@@ -523,7 +546,7 @@ namespace NEAT
                 else
                     AllowClones = false;
             }
-    
+
             if (s == "NormalizeGenomeSize")
             {
                 a_DataFile >> tf;
@@ -532,10 +555,10 @@ namespace NEAT
                 else
                     NormalizeGenomeSize = false;
             }
-    
+
             if (s == "ConstraintTrials")
                 a_DataFile >> ConstraintTrials;
-            
+
             if (s == "YoungAgeTreshold")
                 a_DataFile >> YoungAgeTreshold;
 
@@ -583,7 +606,7 @@ namespace NEAT
 
             if (s == "MultipointCrossoverRate")
                 a_DataFile >> MultipointCrossoverRate;
-            
+
             if (s == "PreferFitterParentRate")
                 a_DataFile >> PreferFitterParentRate;
 
@@ -595,7 +618,7 @@ namespace NEAT
                 else
                     RouletteWheelSelection = false;
             }
-    
+
             if (s == "TournamentSelection")
             {
                 a_DataFile >> tf;
@@ -604,8 +627,8 @@ namespace NEAT
                 else
                     TournamentSelection = false;
             }
-    
-            
+
+
             if (s == "PhasedSearching")
             {
                 a_DataFile >> tf;
@@ -701,7 +724,7 @@ namespace NEAT
 
             if (s == "LinkTries")
                 a_DataFile >> LinkTries;
-    
+
             if (s == "MaxLinks")
                 a_DataFile >> MaxLinks;
             if (s == "MaxNeurons")
@@ -724,16 +747,16 @@ namespace NEAT
 
             if (s == "WeightMutationMaxPower")
                 a_DataFile >> WeightMutationMaxPower;
-    
+
             if (s == "WeightReplacementRate")
                 a_DataFile >> WeightReplacementRate;
-    
+
             if (s == "WeightReplacementMaxPower")
                 a_DataFile >> WeightReplacementMaxPower;
 
             if (s == "MaxWeight")
                 a_DataFile >> MaxWeight;
-    
+
             if (s == "MinWeight")
                 a_DataFile >> MinWeight;
 
@@ -772,6 +795,18 @@ namespace NEAT
 
             if (s == "MutateNeuronBiasesProb")
                 a_DataFile >> MutateNeuronBiasesProb;
+
+            if (s == "MutateNeuronTraitsProb")
+                a_DataFile >> MutateNeuronTraitsProb;
+
+            if (s == "MutateLinkTraitsProb")
+                a_DataFile >> MutateLinkTraitsProb;
+
+            if (s == "MutateGenomeTraitsProb")
+                a_DataFile >> MutateGenomeTraitsProb;
+
+            if (s == "NeuronTries")
+                a_DataFile >> NeuronTries;
 
             if (s == "MinNeuronTimeConstant")
                 a_DataFile >> MinNeuronTimeConstant;
@@ -882,10 +917,10 @@ namespace NEAT
 
             if (s == "CompatTreshChangeInterval_Evaluations")
                 a_DataFile >> CompatTreshChangeInterval_Evaluations;
-    
+
             if (s == "MinDeltaCompatEqualGenomes")
                 a_DataFile >> MinDeltaCompatEqualGenomes;
-            
+
             if (s == "DivisionThreshold")
                 a_DataFile >> DivisionThreshold;
 
@@ -941,9 +976,6 @@ namespace NEAT
 
             if (s == "LeoThreshold")
                 a_DataFile >> LeoThreshold;
-    
-            if (s == "TournamentSize")
-                a_DataFile >> TournamentSize;
 
             if (s == "LeoSeed")
             {
@@ -957,9 +989,14 @@ namespace NEAT
             {
                 a_DataFile >> EliteFraction;
             }
+
+            if (a_DataFile.fail())
+            {
+                return -1; // a value could not be parsed
+            }
         }
 
-        return 0;
+        return -1; // NEAT_ParametersEnd not found
     }
 
 
@@ -967,7 +1004,7 @@ namespace NEAT
     {
         std::ifstream data(a_FileName);
         if (!data.is_open())
-            return 0;
+            return -1;
 
         int result = Load(data);
         data.close();
@@ -977,6 +1014,10 @@ namespace NEAT
     void Parameters::Save(const char *filename)
     {
         FILE *f = fopen(filename, "w");
+        if (f == NULL)
+        {
+            throw std::runtime_error(std::string("Can't open file for writing: ") + filename);
+        }
         Save(f);
         fclose(f);
     }
@@ -984,6 +1025,7 @@ namespace NEAT
 
     void Parameters::Save(FILE *a_fstream)
     {
+        CNumericLocale t_locale; // always write numbers with '.' as the decimal separator
         fprintf(a_fstream, "NEAT_ParametersStart\n");
 
         fprintf(a_fstream, "PopulationSize %d\n", PopulationSize);
@@ -1076,6 +1118,9 @@ namespace NEAT
         fprintf(a_fstream, "ActivationFunction_Softplus_Prob %3.20f\n", ActivationFunction_Softplus_Prob);
         fprintf(a_fstream, "MutateNeuronTimeConstantsProb %3.20f\n", MutateNeuronTimeConstantsProb);
         fprintf(a_fstream, "MutateNeuronBiasesProb %3.20f\n", MutateNeuronBiasesProb);
+        fprintf(a_fstream, "MutateNeuronTraitsProb %3.20f\n", MutateNeuronTraitsProb);
+        fprintf(a_fstream, "MutateLinkTraitsProb %3.20f\n", MutateLinkTraitsProb);
+        fprintf(a_fstream, "MutateGenomeTraitsProb %3.20f\n", MutateGenomeTraitsProb);
         fprintf(a_fstream, "MinNeuronTimeConstant %3.20f\n", MinNeuronTimeConstant);
         fprintf(a_fstream, "MaxNeuronTimeConstant %3.20f\n", MaxNeuronTimeConstant);
         fprintf(a_fstream, "MinNeuronBias %3.20f\n", MinNeuronBias);

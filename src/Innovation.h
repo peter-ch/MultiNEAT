@@ -1,6 +1,3 @@
-#include <cmath>
-#include <Python.h>
-
 #ifndef _INNOVATION_H
 #define _INNOVATION_H
 
@@ -97,6 +94,8 @@ public:
     Innovation()
     {
         m_ID           = 0;
+        m_InnovType    = NEW_NEURON;
+        m_NeuronType   = NONE;
         m_FromNeuronID = 0;
         m_ToNeuronID = 0;
         m_NeuronID   = 0;
@@ -136,11 +135,9 @@ public:
         return m_NeuronType;
     }
 
-#ifdef USE_BOOST_PYTHON
         // Serialization
-        friend class boost::serialization::access;
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        void serialize(Archive & ar, const unsigned int /*version*/)
         {
             ar & m_ID;
             ar & m_InnovType;
@@ -149,7 +146,6 @@ public:
             ar & m_NeuronType;
             ar & m_NeuronID;
         }
-#endif
     };
 
 
@@ -239,17 +235,14 @@ public:
     // Saves the database to an already opened file
     void Save(FILE* a_file);
 
-#ifdef USE_BOOST_PYTHON
         // Serialization
-        friend class boost::serialization::access;
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        void serialize(Archive & ar, const unsigned int /*version*/)
         {
             ar & m_NextNeuronID;
             ar & m_NextInnovationNum;
             ar & m_Innovations;
         }
-#endif
 
     };
 

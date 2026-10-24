@@ -12,7 +12,7 @@
 //    (at your option) any later version.
 //
 //    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRbbbbbbbbbbANTY; without even the implied warranty of
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //    GNU General Public License for more details.
 //
@@ -30,22 +30,8 @@
 // Description: Definition for the Genome class.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_BOOST_PYTHON
-
-#include <boost/python.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/shared_ptr.hpp>
-
-#endif
-
-#include <boost/shared_ptr.hpp>
-
-#include <boost/graph/graph_traits.hpp>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/topological_sort.hpp>
-
+#include <map>
+#include <string>
 #include <vector>
 #include <queue>
 
@@ -53,9 +39,10 @@
 #include "Substrate.h"
 #include "Innovation.h"
 #include "Genes.h"
-#include "Assert.h"
+#include "NeatAssert.h"
 #include "PhenotypeBehavior.h"
 #include "Random.h"
+#include "Serialization.h"
 
 namespace NEAT
 {
@@ -72,11 +59,6 @@ namespace NEAT
     class PhenotypeBehavior;
 
     extern ActivationFunction GetRandomActivation(Parameters &a_Parameters, RNG &a_RNG);
-
-    namespace bs = boost;
-
-    typedef bs::adjacency_list <bs::vecS, bs::vecS, bs::directedS> Graph;
-    typedef bs::graph_traits<Graph>::vertex_descriptor Vertex;
 
 	enum GenomeSeedType
 	{
@@ -121,7 +103,7 @@ namespace NEAT
 
         // ID of genome
         int m_ID;
-        
+
         // How many inputs/outputs
         int m_NumInputs;
         int m_NumOutputs;
@@ -190,7 +172,7 @@ namespace NEAT
         // Used in novelty searches
         PhenotypeBehavior *m_PhenotypeBehavior;
         // A Python object behavior
-#ifdef USE_BOOST_PYTHON
+#ifdef PYTHON_BINDINGS
         py::object m_behavior;
 #endif
 
@@ -289,7 +271,7 @@ namespace NEAT
         void SetAdjFitness(double a_af);
 
         int GetID() const;
-        
+
         void SetID(int a_id);
 
         unsigned int GetDepth() const;
@@ -304,7 +286,6 @@ namespace NEAT
 
         bool FailsConstraints(const Parameters &a_Parameters)
         {
-            bool fails = false;
 
             if (HasDeadEnds() || (NumLinks() == 0))
             {
@@ -327,10 +308,10 @@ namespace NEAT
             }
 
             // for Python-based custom constraint callbacks
-#ifdef USE_BOOST_PYTHON
-            if (a_Parameters.pyCustomConstraints.ptr() != py::object().ptr()) // is it not None?
+#ifdef PYTHON_BINDINGS
+            if (a_Parameters.pyCustomConstraints && !a_Parameters.pyCustomConstraints.is_none())
             {
-                return py::extract<bool>(a_Parameters.pyCustomConstraints(*this));
+                return a_Parameters.pyCustomConstraints(*this).cast<bool>();
             }
 #endif
             // add more constraints here
@@ -353,7 +334,12 @@ namespace NEAT
         ////////////
         void BuildHyperNEATPhenotype(NeuralNetwork &net, Substrate &subst);
 
-#ifdef USE_BOOST_PYTHON
+        // Evolvable-Substrate HyperNEAT (2D). Hidden neurons are discovered with a
+        // quadtree search of the CPPN's output pattern. Only the input and output
+        // coordinates of the substrate are used.
+        void BuildESHyperNEATPhenotype(NeuralNetwork &net, Substrate &subst, Parameters &params);
+
+#ifdef PYTHON_BINDINGS
 
         py::dict TraitMap2Dict(std::map< std::string, Trait>& tmap)
         {
@@ -367,9 +353,9 @@ namespace NEAT
                     if (tmap.count(tit->second.dep_key) != 0)
                     {
                         // and it has the right value?
-                        for(int ix=0; ix < tit->second.dep_values.size(); ix++)
+                        for(size_t ix=0; ix < tit->second.dep_values.size(); ix++)
                         {
-                            if (tmap[tit->second.dep_key].value == tit->second.dep_values[ix])
+                            if (TraitValuesEqual(tmap[tit->second.dep_key].value, tit->second.dep_values[ix]))
                             {
                                 doit = true;
                                 break;
@@ -384,58 +370,77 @@ namespace NEAT
 
                 if (doit)
                 {
-                    TraitType t = tit->second.value;
-                    if (t.type() == typeid(int))
+                    const TraitType &t = tit->second.value;
+                    py::str key(tit->first);
+                    if (std::holds_alternative<int>(t))
                     {
-                        traits[tit->first] = bs::get<int>(t);
+                        traits[key] = std::get<int>(t);
                     }
-                    if (t.type() == typeid(double))
+                    if (std::holds_alternative<double>(t))
                     {
-                        traits[tit->first] = bs::get<double>(t);
+                        traits[key] = std::get<double>(t);
                     }
-                    if (t.type() == typeid(std::string))
+                    if (std::holds_alternative<std::string>(t))
                     {
-                        traits[tit->first] = bs::get<std::string>(t);
+                        traits[key] = std::get<std::string>(t);
                     }
-                    if (t.type() == typeid(intsetelement))
+                    if (std::holds_alternative<intsetelement>(t))
                     {
-                        traits[tit->first] = (bs::get<intsetelement>(t)).value;
+                        traits[key] = (std::get<intsetelement>(t)).value;
                     }
-                    if (t.type() == typeid(floatsetelement))
+                    if (std::holds_alternative<floatsetelement>(t))
                     {
-                        traits[tit->first] = (bs::get<floatsetelement>(t)).value;
+                        traits[key] = (std::get<floatsetelement>(t)).value;
                     }
-                    if (t.type() == typeid(py::object))
+                    if (std::holds_alternative<py::object>(t))
                     {
-                        traits[tit->first] = bs::get<py::object>(t);
+                        traits[key] = std::get<py::object>(t);
                     }
                 }
             }
 
             return traits;
         }
-        
+
         std::map< std::string, Trait> Dict2TraitMap(py::dict d)
         {
-            py::list ks = d.keys();
             std::map< std::string, Trait> ts;
-            
-            for(int i=0 ; i<py::len(ks); i++)
+
+            for(auto item : d)
             {
-                py::object key = ks[i];
-                py::object po = d[key];
-                
+                py::handle po = item.second;
                 Trait t;
-                t.value = po;
-                
-                ts[py::extract<std::string>(key)] = t;
+
+                // keep native types native, so they can be mutated, mated and saved
+                if (py::isinstance<py::bool_>(po))
+                {
+                    t.value = py::reinterpret_borrow<py::object>(po);
+                }
+                else if (py::isinstance<py::int_>(po))
+                {
+                    t.value = po.cast<int>();
+                }
+                else if (py::isinstance<py::float_>(po))
+                {
+                    t.value = po.cast<double>();
+                }
+                else if (py::isinstance<py::str>(po))
+                {
+                    t.value = po.cast<std::string>();
+                }
+                else
+                {
+                    t.value = py::reinterpret_borrow<py::object>(po);
+                }
+
+                ts[item.first.cast<std::string>()] = t;
             }
-            
+
             return ts;
         };
-        
 
-        py::object GetNeuronTraits()
+
+        py::list GetNeuronTraits()
         {
             py::list neurons;
             for(auto it=m_NeuronGenes.begin(); it != m_NeuronGenes.end(); it++)
@@ -469,7 +474,7 @@ namespace NEAT
             return neurons;
         }
 
-        py::object GetLinkTraits(bool with_weights=false)
+        py::list GetLinkTraits(bool with_weights=false)
         {
             py::list links;
             for(auto it=m_LinkGenes.begin(); it != m_LinkGenes.end(); it++)
@@ -494,7 +499,7 @@ namespace NEAT
         {
             return TraitMap2Dict(m_GenomeGene.m_Traits);
         }
-        
+
         void SetGenomeTraits(py::dict traits)
         {
             m_GenomeGene.m_Traits = Dict2TraitMap(traits);
@@ -619,222 +624,16 @@ namespace NEAT
 
         void ResetEvaluated();
 
-#if 0 // disabling because of errors I can't fix right now
 
-        /////////////////////////////////////////////
-        // Evolvable Substrate HyperNEAT
-        ////////////////////////////////////////////
-
-
-        // A connection between two points. Stores weight and the coordinates of the points
-        struct TempConnection
-        {
-            std::vector<double> source;
-            std::vector<double> target;
-            double weight;
-
-            TempConnection()
-            {
-                source.reserve(3);
-                target.reserve(3);
-                weight = 0;
-            }
-
-            TempConnection(std::vector<double> t_source, std::vector<double> t_target,
-                           double t_weight)
-            {
-                source = t_source;
-                target = t_target;
-                weight = t_weight;
-                source.reserve(3);
-                target.reserve(3);
-            }
-
-            TempConnection(std::vector<double> t_source, std::vector<double> t_target, double t_weight, unsigned int coord_size)
-            {
-                source = t_source;
-                target = t_target;
-                weight = t_weight;
-            }
-
-            ~TempConnection()
-            {};
-
-            bool operator==(const TempConnection &rhs) const
-            {
-                return (source == rhs.source && target == rhs.target);
-            }
-
-            bool operator!=(const TempConnection &rhs) const
-            {
-                return (source != rhs.source && target != rhs.target);
-            }
-        };
-
-        // A quadpoint in the HyperCube.
-        struct QuadPoint
-        {
-            double x;
-            double y;
-            double z;
-            double width;
-            double weight;
-            double height;
-            double variance;
-            int level;
-            // Do I use this?
-            double leo;
-
-
-            std::vector<boost::shared_ptr<QuadPoint> > children;
-
-            QuadPoint()
-            {
-                x = y = z = width = height = weight = variance = leo = 0;
-                level = 0;
-                children.reserve(4);
-            }
-
-            QuadPoint(double t_x, double t_y, double t_width, double t_height, int t_level)
-            {
-                x = t_x;
-                y = t_y;
-                z = 0.0;
-                width = t_width;
-                height = t_height;
-                level = t_level;
-                weight = 0.0;
-                leo = 0.0;
-                variance = 0.0;
-                children.reserve(4);
-                children.clear();
-            }
-
-            // Mind the Z
-            QuadPoint(double t_x, double t_y, double t_z, double t_width, double t_height,
-                      int t_level)
-            {
-                x = t_x;
-                y = t_y;
-                z = t_z;
-                width = t_width;
-                height = t_height;
-                level = t_level;
-                weight = 0.0;
-                variance = 0.0;
-                leo = 0.0;
-                children.reserve(4);
-                children.clear();
-            }
-
-            ~QuadPoint()
-            {
-            };
-        };
-
-
-        struct nTree
-        {
-            std::vector<double> coord;
-            double weight;
-            double varience;
-            int lvl;
-            double width;
-            double leo = 0.0;
-            std::vector<boost::shared_ptr<nTree> > children;
-
-            nTree(std::vector<double> coord_in, double wdth, double level)
-            {
-                width = wdth;
-                lvl = level;
-                coord = coord_in;
-            };
-
-        public:
-
-            void set_children()
-            {
-                for(unsigned int ix = 0; ix < 2**coord.size(); ix++){
-                    std::string sum_permute = toBinary(ix, coord.size());
-                    std::vector<double> child_coords;
-                    int child_param_len = sum_permute.length();
-                    child_coords.reserve(child_param_len);
-                    for(unsigned int sign_ix = 0; sign_ix < child_param_len; sign_ix++)
-                    {
-                        if(sum_permute[sign_ix] == "0")
-                        {
-                            child_coords.push_back(coord[sign_ix] + width/2.0);
-                        }
-                        else
-                        {
-                            child_coords.push_back(coord[sign_ix] - width/2.0);
-                        }
-                        children.push_back(new nTree(child_coords, width/2.0, sslvl+1));
-                    }
-                }
-            }
-
-            string toBinary(unsigned int n, int min_len)
-            {
-                std::string r;
-                while(n!=0)
-                {
-                    r=(n%2==0 ?"0":"1")+r; n/=2;
-
-                }
-                if(r.length() < min_len)
-                {
-                    int diff = min_len - r.length();
-                    for(unsigned int x = 0; x < diff; x++)
-                    {
-                        r = '0' +r;
-                    }
-                }
-                return r;
-            }
-        };
-        void BuildESHyperNEATPhenotypeND(NeuralNetwork &a_net, Substrate &subst, Parameters &params);
-        void BuildESHyperNEATPhenotype(NeuralNetwork &a_net, Substrate &subst, Parameters &params);
-
-        void DivideInitialize(const std::vector<double> &node,
-                              boost::shared_ptr<QuadPoint> &root,
-                              NeuralNetwork &cppn, Parameters &params,
-                              const bool &outgoing, const double &z_coord);
-
-        void PruneExpress(const std::vector<double> &node,
-                          boost::shared_ptr<QuadPoint> &root, NeuralNetwork &cppn,
-                          Parameters &params, std::vector<Genome::TempConnection> &connections,
-                          const bool &outgoing);
-        void DivideInitializeND(const std::vector<double> &node,
-                              boost::shared_ptr<nTree> &root,
-                              NeuralNetwork &cppn, Parameters &params,
-                              const bool &outgoing, const double &z_coord);
-
-        void PruneExpressND(const std::vector<double> &node,
-                          boost::shared_ptr<nTree> &root, NeuralNetwork &cppn,
-                          Parameters &params, std::vector<Genome::TempConnection> &connections,
-                          const bool &outgoing);
-
-
-        void CollectValues(std::vector<double> &vals, boost::shared_ptr<QuadPoint> &point);
-
-        double Variance(boost::shared_ptr<QuadPoint> &point);
-
-        void Clean_Net(std::vector<Connection> &connections, unsigned int input_count,
-                       unsigned int output_count, unsigned int hidden_count);
-#endif
-
-#ifdef USE_BOOST_PYTHON
 
         // Serialization
-        friend class boost::serialization::access;
         template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
+        void serialize(Archive & ar, const unsigned int /*version*/)
         {
             ar & m_ID;
             ar & m_NeuronGenes;
             ar & m_LinkGenes;
-            //ar & m_GenomeGene;
+            ar & m_GenomeGene;
             ar & m_NumInputs;
             ar & m_NumOutputs;
             ar & m_Fitness;
@@ -842,41 +641,13 @@ namespace NEAT
             ar & m_Depth;
             ar & m_OffspringAmount;
             ar & m_Evaluated;
-    
+
             ar & m_initial_num_neurons;
             ar & m_initial_num_links;
-            
-            //ar & m_PhenotypeBehavior; // todo: think about how we will handle the behaviors with pickle
-        }
 
-#endif
-    };
-
-
-#ifdef USE_BOOST_PYTHON
-
-    struct Genome_pickle_suite : py::pickle_suite
-    {
-        static py::object getstate(const Genome& a)
-        {
-            std::ostringstream os;
-            boost::archive::text_oarchive oa(os);
-            oa << a;
-            return py::str (os.str());
-        }
-
-        static void setstate(Genome& a, py::object entries)
-        {
-            py::str s = py::extract<py::str> (entries)();
-            std::string st = py::extract<std::string> (s)();
-            std::istringstream is (st);
-
-            boost::archive::text_iarchive ia (is);
-            ia >> a;
+            // m_PhenotypeBehavior is a non-owning pointer and is not serialized
         }
     };
-
-#endif
 
 #define DBG(x) { std::cerr << x << std::endl; }
 

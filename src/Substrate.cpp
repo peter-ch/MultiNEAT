@@ -28,6 +28,7 @@
 #include "NeuralNetwork.h"
 #include "Utils.h"
 #include "Substrate.h"
+#include <stdexcept>
 
 using namespace std;
 
@@ -86,10 +87,26 @@ Substrate::Substrate(std::vector<std::vector<double> >& a_inputs,
 }
 
 
-#ifdef USE_BOOST_PYTHON
+#ifdef PYTHON_BINDINGS
+
+// converts any iterable of iterables of numbers to a list of coordinates
+static std::vector< std::vector<double> > CoordsFromPython(const py::handle& a_points)
+{
+    std::vector< std::vector<double> > t_coords;
+    for (auto t_point : a_points)
+    {
+        std::vector<double> t_c;
+        for (auto t_x : t_point)
+        {
+            t_c.emplace_back(t_x.cast<double>());
+        }
+        t_coords.emplace_back(t_c);
+    }
+    return t_coords;
+}
 
 // 3 lists of iterables of floats
-Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
+Substrate::Substrate(py::object a_inputs, py::object a_hidden, py::object a_outputs)
 {
     m_leaky = false;
     m_with_distance = false;
@@ -110,98 +127,46 @@ Substrate::Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs)
     m_custom_conn_obeys_flags = false;
     m_query_weights_only = false;
 
-    // Make room for the data
-    int inp = py::len(a_inputs);
-    int hid = py::len(a_hidden);
-    int out = py::len(a_outputs);
-    m_input_coords.resize( inp );
-    m_hidden_coords.resize( hid );
-    m_output_coords.resize( out );
-
-    for(int i=0; i<inp; i++)
-    {
-        for(int j=0; j<py::len(a_inputs[i]); j++)
-            m_input_coords[i].emplace_back(py::extract<double>(a_inputs[i][j]));
-    }
-    for(int i=0; i<hid; i++)
-    {
-        for(int j=0; j<py::len(a_hidden[i]); j++)
-            m_hidden_coords[i].emplace_back(py::extract<double>(a_hidden[i][j]));
-    }
-    for(int i=0; i<out; i++)
-    {
-        for(int j=0; j<py::len(a_outputs[i]); j++)
-            m_output_coords[i].emplace_back(py::extract<double>(a_outputs[i][j]));
-    }
+    SetNeurons(a_inputs, a_hidden, a_outputs);
 }
 
 
-void Substrate::SetNeurons(py::list a_inputs, py::list a_hidden, py::list a_outputs)
+void Substrate::SetNeurons(py::object a_inputs, py::object a_hidden, py::object a_outputs)
 {
-    m_input_coords.clear();
-    m_hidden_coords.clear();
-    m_output_coords.clear();
-
-    // Make room for the data
-    int inp = py::len(a_inputs);
-    int hid = py::len(a_hidden);
-    int out = py::len(a_outputs);
-    m_input_coords.resize( inp );
-    m_hidden_coords.resize( hid );
-    m_output_coords.resize( out );
-
-    for(int i=0; i<inp; i++)
-    {
-        for(int j=0; j<py::len(a_inputs[i]); j++)
-        {
-            m_input_coords[i].emplace_back(py::extract<double>(a_inputs[i][j]));
-        }
-    }
-    for(int i=0; i<hid; i++)
-    {
-        for(int j=0; j<py::len(a_hidden[i]); j++)
-        {
-            m_hidden_coords[i].emplace_back(py::extract<double>(a_hidden[i][j]));
-        }
-    }
-    for(int i=0; i<out; i++)
-    {
-        for(int j=0; j<py::len(a_outputs[i]); j++)
-        {
-            m_output_coords[i].emplace_back(py::extract<double>(a_outputs[i][j]));
-        }
-    }
+    m_input_coords = CoordsFromPython(a_inputs);
+    m_hidden_coords = CoordsFromPython(a_hidden);
+    m_output_coords = CoordsFromPython(a_outputs);
 }
 
-
-void Substrate::SetCustomConnectivity(py::list a_conns)
+// a list of [src_type, src_idx, dst_type, dst_idx]
+// the types can be NeuronType values or plain integers
+void Substrate::SetCustomConnectivity(py::object a_conns)
 {
-    int num_conns = py::len(a_conns);
-    m_custom_connectivity.clear();
-
-    for(int i=0; i<num_conns; i++)
+    std::vector< std::vector<int> > t_conns;
+    for (auto t_conn : a_conns)
     {
-    	NeuronType src_type = py::extract<NeuronType>(a_conns[i][0]);
-    	int src_idx = py::extract<int>(a_conns[i][1]);
-    	NeuronType dst_type = py::extract<NeuronType>(a_conns[i][2]);
-    	int dst_idx = py::extract<int>(a_conns[i][3]);
-
-    	std::vector<int> c;
-    	c.emplace_back(src_type);
-    	c.emplace_back(src_idx);
-    	c.emplace_back(dst_type);
-    	c.emplace_back(dst_idx);
-
-    	m_custom_connectivity.emplace_back( c );
+        std::vector<int> c;
+        for (auto t_x : t_conn)
+        {
+            c.emplace_back(py::int_(py::reinterpret_borrow<py::object>(t_x)).cast<int>());
+        }
+        t_conns.emplace_back(c);
     }
+    SetCustomConnectivity(t_conns);
 }
 
 #endif
 
 void Substrate::SetCustomConnectivity(std::vector< std::vector<int> >& a_conns)
 {
+    m_custom_connectivity.clear();
     for(unsigned int i=0; i<a_conns.size(); i++)
     {
+        if (a_conns[i].size() != 4)
+        {
+            throw std::invalid_argument("Each custom connection must be [src_type, src_idx, dst_type, dst_idx]");
+        }
+
     	NeuronType src_type = (NeuronType) a_conns[i][0];
     	int src_idx = a_conns[i][1];
     	NeuronType dst_type = (NeuronType) a_conns[i][2];
@@ -264,21 +229,21 @@ int Substrate::GetMaxDims()
     {
         if (max_dims < m_input_coords[i].size())
         {
-            max_dims = m_input_coords[i].size();
+            max_dims = static_cast<unsigned int>(m_input_coords[i].size());
         }
     }
     for(unsigned int i=0; i<m_hidden_coords.size(); i++)
     {
         if (max_dims < m_hidden_coords[i].size())
         {
-            max_dims = m_hidden_coords[i].size();
+            max_dims = static_cast<unsigned int>(m_hidden_coords[i].size());
         }
     }
     for(unsigned int i=0; i<m_output_coords.size(); i++)
     {
         if (max_dims < m_output_coords[i].size())
         {
-            max_dims = m_output_coords[i].size();
+            max_dims = static_cast<unsigned int>(m_output_coords[i].size());
         }
     }
     return max_dims;

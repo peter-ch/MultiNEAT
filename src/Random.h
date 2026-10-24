@@ -30,12 +30,9 @@
 // Description: Declarations for a class dealing with random numbers.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_BOOST_RANDOM
-    #include <boost/random.hpp>
-#else
-    #include <stdlib.h>
-#endif
-
+#include <random>
+#include <sstream>
+#include <string>
 #include <vector>
 #include <limits>
 
@@ -44,16 +41,13 @@ namespace NEAT
 
 class RNG
 {
-    
-#ifdef USE_BOOST_RANDOM
-    boost::random::mt19937 gen;
-#endif
+    std::mt19937 gen;
 
 public:
     // Seeds the random number generator with this value
     void Seed(long seed);
 
-    // Seeds the random number generator with time
+    // Seeds the random number generator with a non-deterministic value
     void TimeSeed();
 
     // Returns randomly either 1 or -1
@@ -65,14 +59,35 @@ public:
     // Returns a random number from a uniform distribution in the range of [0 .. 1]
     double RandFloat();
 
-    // Returns a random number from a uniform distribution in the range of [-1 .. 1]
+    // Returns a random number in the range of [-1 .. 1]
+    // (the difference of two uniform numbers, so small values are more likely)
     double RandFloatSigned();
 
     // Returns a random number from a gaussian (normal) distribution in the range of [-1 .. 1]
     double RandGaussSigned();
 
-    // Returns an index given a vector of probabilities
+    // Returns an index given a vector of probabilities (weights, they don't need to sum to 1)
+    // Negative and non-finite weights count as 0. If all weights are 0 the pick is uniform.
     int Roulette(std::vector<double>& a_probs);
+
+    // Serialization (the full generator state is kept)
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int /*version*/)
+    {
+        std::string t_state;
+        if constexpr (!Archive::is_loading)
+        {
+            std::ostringstream t_os;
+            t_os << gen;
+            t_state = t_os.str();
+        }
+        ar & t_state;
+        if constexpr (Archive::is_loading)
+        {
+            std::istringstream t_is(t_state);
+            t_is >> gen;
+        }
+    }
 };
 
 

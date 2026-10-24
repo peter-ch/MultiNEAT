@@ -27,17 +27,7 @@
 
 #include <vector>
 #include "NeuralNetwork.h"
-
-#ifdef USE_BOOST_PYTHON
-
-#include <boost/python.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-
-namespace py = boost::python;
-
-#endif
+#include "Serialization.h"
 
 namespace NEAT
 {
@@ -97,17 +87,17 @@ public:
               std::vector< std::vector<double> >& a_hidden,
               std::vector< std::vector<double> >& a_outputs );
 
-#ifdef USE_BOOST_PYTHON
-              
-    // Construct from 3 Python lists of tuples
-    Substrate(py::list a_inputs, py::list a_hidden, py::list a_outputs);
-    
+#ifdef PYTHON_BINDINGS
+
+    // Construct from 3 Python sequences of coordinate tuples
+    Substrate(py::object a_inputs, py::object a_hidden, py::object a_outputs);
+
     // Same as the constructor, except it doesn't set any flags
-    void SetNeurons(py::list a_inputs, py::list a_hidden, py::list a_outputs);
-    
+    void SetNeurons(py::object a_inputs, py::object a_hidden, py::object a_outputs);
+
     // Sets a custom connectivity scheme
-    // The neurons must be set before calling this 
-    void SetCustomConnectivity(py::list a_conns);
+    // The neurons must be set before calling this
+    void SetCustomConnectivity(py::object a_conns);
 #endif
 
     // Sets a custom connectivity scheme
@@ -127,12 +117,11 @@ public:
     // Prints some info about itself
     void PrintInfo();
     
-#ifdef USE_BOOST_PYTHON
+
     
     // Serialization
-    friend class boost::serialization::access;
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    void serialize(Archive & ar, const unsigned int /*version*/)
     {
         ar & m_input_coords;
         ar & m_hidden_coords;
@@ -161,37 +150,11 @@ public:
         ar & m_custom_conn_obeys_flags;
         ar & m_query_weights_only;
     }
-    
-#endif
+
 
 };
 
-#ifdef USE_BOOST_PYTHON
 
-struct Substrate_pickle_suite : py::pickle_suite
-{
-    static py::object getstate(const Substrate& a)
-    {
-        std::ostringstream os;
-        boost::archive::text_oarchive oa(os);
-        oa << a;
-        return py::str(os.str());
-    }
-
-    static void setstate(Substrate& a, py::object entries)
-    {
-        py::str s = py::extract<py::str> (entries)();
-        std::string st = py::extract<std::string> (s)();
-        std::istringstream is(st);
-
-        boost::archive::text_iarchive ia (is);
-        ia >> a;
-    }
-    
-    //static bool getstate_manages_dict() { return true; }
-};
-
-#endif
 
 }
 

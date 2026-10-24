@@ -31,10 +31,11 @@
 #include <fstream>
 #include <string>
 
+#include <stdexcept>
 #include "Innovation.h"
 #include "Genes.h"
 #include "Genome.h"
-#include "assert.h"
+#include "NeatAssert.h"
 
 namespace NEAT
 {
@@ -93,11 +94,13 @@ void InnovationDatabase::Init(std::ifstream& a_DataFile)
     std::string t_str;
 
     // search for InnovationDatabaseStart
-    do
+    while ((a_DataFile >> t_str) && (t_str != "InnovationDatabaseStart"))
     {
-        a_DataFile >> t_str;
     }
-    while (t_str != "InnovationDatabaseStart");
+    if (!a_DataFile)
+    {
+        throw std::runtime_error("Innovation database not found in file");
+    }
 
     // Read the last innov numbers
     a_DataFile >> t_str;
@@ -107,9 +110,14 @@ void InnovationDatabase::Init(std::ifstream& a_DataFile)
 
 
     // Read the database until InnovationDatabaseEnd is encountered
-    do
+    bool t_end_found = false;
+    while (a_DataFile >> t_str)
     {
-        a_DataFile >> t_str;
+        if (t_str == "InnovationDatabaseEnd")
+        {
+            t_end_found = true;
+            break;
+        }
 
         if (t_str == "Innovation")
         {
@@ -123,11 +131,19 @@ void InnovationDatabase::Init(std::ifstream& a_DataFile)
             a_DataFile >> t_neurontype;
             a_DataFile >> t_nid;
 
+            if (!a_DataFile)
+            {
+                throw std::runtime_error("Innovation database: malformed innovation");
+            }
+
             m_Innovations.emplace_back( Innovation(t_id, static_cast<InnovationType>(t_innovtype), t_from, t_to, static_cast<NeuronType>(t_neurontype), t_nid) );
         }
-
     }
-    while( t_str != "InnovationDatabaseEnd");
+
+    if (!t_end_found)
+    {
+        throw std::runtime_error("Innovation database: InnovationDatabaseEnd not found");
+    }
 }
 
 

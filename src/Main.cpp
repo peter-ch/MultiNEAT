@@ -1,323 +1,144 @@
-/*
- * Main.cpp
- *
- *  Created on: Sep 20, 2012
- *      Author: peter
- */
+///////////////////////////////////////////////////////////////////////////////////////////
+//    MultiNEAT - Python/C++ NeuroEvolution of Augmenting Topologies Library
+//
+//    Copyright (C) 2012 Peter Chervenski
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU Lesser General Public License
+//    along with this program.  If not, see < http://www.gnu.org/licenses/ >.
+///////////////////////////////////////////////////////////////////////////////////////////
 
- /*
-  * Ignore this file. I use it to test stuff.
-  *
-  */
+///////////////////////////////////////////////////////////////////////////////
+// File:        Main.cpp
+// Description: A pure C++ example - evolves a network that solves XOR.
+//              Also used as a smoke test (returns 0 when XOR was solved).
+//
+//              usage: multineat_xor [max_generations] [seed]
+///////////////////////////////////////////////////////////////////////////////
+
 #include <cmath>
-#include <Python.h>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
 
 #include "Genome.h"
 #include "Population.h"
 #include "NeuralNetwork.h"
 #include "Parameters.h"
-#include "Substrate.h"
 
-#include <iostream>
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 using namespace NEAT;
 
-#define ENABLE_TESTING
-#ifdef ENABLE_TESTING
-
-/*
-double abs(double x)
+// Returns a fitness in [0 .. 16]. 16 means perfect.
+static double EvaluateXOR(Genome &a_Genome)
 {
-    if (x < 0) return -x;
-    return x;
-}*/
+    NeuralNetwork net;
+    a_Genome.BuildPhenotype(net);
 
-bool constraints(Genome& g)
-{
-    /*for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
+    static const double t_cases[4][3] = { {0, 0, 0}, {0, 1, 1}, {1, 0, 1}, {1, 1, 0} };
+
+    double t_error = 0;
+    for (int c = 0; c < 4; c++)
     {
-        
-        if (boost::get<intsetelement>(it->m_Traits["z"].value).value == 64) // don't allow 4 to appear anywhere
-            return true;
-    }*/
-    
-    return false;
+        // the third input is the bias
+        std::vector<double> t_inputs = { t_cases[c][0], t_cases[c][1], 1.0 };
+        net.Flush();
+        net.Input(t_inputs);
+        int t_depth = (a_Genome.GetDepth() > 0) ? (int)a_Genome.GetDepth() : 4;
+        for (int i = 0; i < t_depth; i++)
+        {
+            net.Activate();
+        }
+        t_error += std::fabs(net.Output()[0] - t_cases[c][2]);
+    }
+
+    return (4.0 - t_error) * (4.0 - t_error);
 }
 
-//std::vector<double>
-double xortest(Genome& g)
+int main(int argc, char **argv)
 {
+    int t_max_generations = (argc > 1) ? std::atoi(argv[1]) : 300;
+    int t_seed = (argc > 2) ? std::atoi(argv[2]) : 1;
 
-    double f = 0;
-
-    // also contribute small trait factor
-    /*for(auto it=g.m_NeuronGenes.begin(); it!=g.m_NeuronGenes.end(); it++)
-    {
-
-        //f += 0.01 * (double)(boost::get<double>(it->m_Traits["x"].value)) / g.m_NeuronGenes.size();
-        // if trait is enabled
-        if (boost::get<std::string>(it->m_Traits["y"].value) == "c")
-            f += 1 * (double)(boost::get<int>(it->m_Traits["v"].value)) / g.m_NeuronGenes.size();
-        else
-            f = 0.1;
-        //if (boost::get<std::string>(it->m_Traits["y"].value) == "c")
-        //    f += 0.00005;
-    }*/
-    
-    if (boost::get<std::string>(g.m_GenomeGene.m_Traits["y"].value) == "c")
-        f += 1 * (double)(boost::get<int>(g.m_GenomeGene.m_Traits["v"].value));
-    else
-        f += 1 * (double)(boost::get<double>(g.m_GenomeGene.m_Traits["x"].value));
-
-    return f+1000;
-}
-
-
-int main()
-{
     Parameters params;
-
-#if 1
-    params.PopulationSize = 32;
+    params.PopulationSize = 150;
     params.DynamicCompatibility = true;
-    params.WeightDiffCoeff = 0.0;
-    params.CompatTreshold = 3.0;
-    params.YoungAgeTreshold = 15;
-    params.SpeciesMaxStagnation = 15;
-    params.OldAgeTreshold = 35;
-    params.OldAgePenalty = 0.1;
-    params.MinSpecies = 2;
-    params.MaxSpecies = 3;
+    params.MinSpecies = 5;
+    params.MaxSpecies = 10;
     params.RouletteWheelSelection = false;
+    params.TournamentSelection = false;
     params.RecurrentProb = 0.0;
-    params.OverallMutationRate = 0.4;
-
-    params.MutateWeightsProb = 0.3;
-
+    params.OverallMutationRate = 0.8;
+    params.MutateWeightsProb = 0.90;
     params.WeightMutationMaxPower = 2.5;
     params.WeightReplacementMaxPower = 5.0;
     params.MutateWeightsSevereProb = 0.5;
     params.WeightMutationRate = 0.25;
-    
-    params.MinWeight = -4;
-    params.MaxWeight = 4;
-
-    params.MutateAddNeuronProb = 0.1;
-    params.MutateAddLinkProb = 0;//0.05;
-    params.MutateRemLinkProb = 0;//0.01;
-
-    params.MinActivationA  = 4.9;
-    params.MaxActivationA  = 4.9;
-
+    params.MaxWeight = 8;
+    params.MutateAddNeuronProb = 0.03;
+    params.MutateAddLinkProb = 0.05;
+    params.MutateRemLinkProb = 0.0;
+    params.MinActivationA = 4.9;
+    params.MaxActivationA = 4.9;
     params.ActivationFunction_SignedSigmoid_Prob = 0.0;
     params.ActivationFunction_UnsignedSigmoid_Prob = 1.0;
-    params.ActivationFunction_Tanh_Prob = 0.0;
-    params.ActivationFunction_SignedStep_Prob = 0.0;
-
     params.CrossoverRate = 0.75;
-    params.InterspeciesCrossoverRate = 0.01;
     params.MultipointCrossoverRate = 0.4;
     params.SurvivalRate = 0.2;
-    params.OverallMutationRate = 1.0;
-
     params.AllowClones = true;
     params.AllowLoops = false;
-    params.DontUseBiasNeuron = true;
 
-    params.MutateNeuronTraitsProb = 0;//0.2;
-    params.MutateLinkTraitsProb = 0;//0.2;
-    params.MutateGenomeTraitsProb = 0;
-    
-    params.ExcessCoeff = 1.2;
-    params.DisjointCoeff = 1.2;
-    params.WeightDiffCoeff = 0.0;
-    params.CompatTreshold = 0.0;
-    params.MinCompatTreshold = 0.0;
-    params.CompatTreshChangeInterval_Evaluations = 1;
-    params.NormalizeGenomeSize = false;
-
-    params.ArchiveEnforcement = false;
-    
-    params.CustomConstraints = constraints;
-    
-    params.MinWeight = -12.0;
-    params.MaxWeight = 12.0;
-    params.MutateWeightsProb = 0.0;
-    params.MutateWeightsSevereProb = 0.2;
-    params.WeightMutationRate = 0.333;
-    params.WeightMutationMaxPower = 3.0;
-    params.WeightReplacementRate = 0.25;
-    params.WeightReplacementMaxPower = 6.0;
-    
-    params.MutateRemSimpleNeuronProb = 1.001;
-
-    TraitParameters tp1;
-    tp1.m_ImportanceCoeff = 0.0;
-    tp1.m_MutationProb = 0.9;
-    tp1.type = "int";
-    tp1.dep_key = "y";
-    tp1.dep_values.push_back( std::string("c") );
-    IntTraitParameters itp1;
-    itp1.min = -5;
-    itp1.max = 5;
-    itp1.mut_power = 1;
-    itp1.mut_replace_prob = 0.1;
-    tp1.m_Details = itp1;
-
-    TraitParameters tp2;
-    tp2.m_ImportanceCoeff = 0.0;//2;
-    tp2.m_MutationProb = 0.9;
-    tp2.type = "float";
-    FloatTraitParameters itp2;
-    itp2.min = -1;
-    itp2.max = 1;
-    itp2.mut_power = 0.2;
-    itp2.mut_replace_prob = 0.1;
-    tp2.m_Details = itp2;
-
-    TraitParameters tp3;
-    tp3.m_ImportanceCoeff = 0.0;//2;
-    tp3.m_MutationProb = 0.9;
-    tp3.type = "intset";
-    IntSetTraitParameters itp3;
-    intsetelement kkk;
-    kkk.value=4;
-    itp3.set.push_back(kkk);
-    kkk.value=8;
-    itp3.set.push_back(kkk);
-    kkk.value=16;
-    itp3.set.push_back(kkk);
-    kkk.value=32;
-    itp3.set.push_back(kkk);
-    kkk.value=64;
-    itp3.set.push_back(kkk);
-    itp3.probs.push_back(1);
-    itp3.probs.push_back(1);
-    itp3.probs.push_back(1);
-    itp3.probs.push_back(1);
-    itp3.probs.push_back(1);
-    tp3.m_Details = itp3;
-
-    TraitParameters tps;
-    tps.m_ImportanceCoeff = 0.0;//2;
-    tps.m_MutationProb = 0.9;
-    tps.type = "str";
-    StringTraitParameters itps;
-    itps.set.push_back("a");
-    itps.set.push_back("b");
-    itps.set.push_back("c");
-    itps.set.push_back("d");
-    itps.set.push_back("e");
-    itps.probs.push_back(0.02);
-    itps.probs.push_back(0.9);
-    itps.probs.push_back(0.1);
-    itps.probs.push_back(0.1);
-    itps.probs.push_back(0.8);
-    tps.m_Details = itps;
-
-    /*TraitParameters tp3;
-    tp3.m_ImportanceCoeff = 0.0;
-    tp3.m_MutationProb = 0.9;
-    tp3.type = "str";
-    StringTraitParameters itp3;
-    itp3.set.push_back("true");
-    itp3.set.push_back("false");
-    itp3.probs.push_back(1);
-    itp3.probs.push_back(1);
-    tp3.m_Details = itp3;*/
-
-    params.GenomeTraits["v"] = tp1;
-    params.GenomeTraits["x"] = tp2;
-    params.GenomeTraits["y"] = tps;
-    params.NeuronTraits["z"] = tp3;
-#endif
-
-	GenomeInitStruct ints;
-	ints.NumInputs = 4;
-	ints.NumOutputs = 1;
-	ints.NumHidden = 0;
-	ints.SeedType = PERCEPTRON;
-	ints.FS_NEAT = false;
-	ints.FS_NEAT_links = 0;
-	ints.HiddenActType = UNSIGNED_SIGMOID;
-	ints.OutputActType = UNSIGNED_SIGMOID;
+    GenomeInitStruct ints;
+    ints.NumInputs = 3; // 2 inputs + bias
+    ints.NumHidden = 0;
+    ints.NumOutputs = 1;
+    ints.FS_NEAT = false;
+    ints.HiddenActType = UNSIGNED_SIGMOID;
+    ints.OutputActType = UNSIGNED_SIGMOID;
+    ints.SeedType = PERCEPTRON;
 
     Genome s(params, ints);
+    Population pop(s, params, true, 1.0, t_seed);
 
-    Population pop(s, params, true, 1.0, time(0));
-    
-    //pop.m_Parameters.AllowClones = false;
-    
-    for(unsigned int i=0; i < pop.m_Species.size(); i++)
+    for (int generation = 0; generation < t_max_generations; generation++)
     {
-        for (unsigned int j = 0; j < pop.m_Species[i].m_Individuals.size(); j++)
+        double t_best = 0;
+        for (unsigned int i = 0; i < pop.m_Species.size(); i++)
         {
-            double f = xortest(pop.m_Species[i].m_Individuals[j]);
-            pop.m_Species[i].m_Individuals[j].SetFitness(pop.m_RNG.RandFloat());
-            if ((pop.m_RNG.RandFloat() < 0.15) || (j==0))
+            for (unsigned int j = 0; j < pop.m_Species[i].m_Individuals.size(); j++)
             {
-                pop.m_Species[i].m_Individuals[j].SetEvaluated();
-            }
-        }
-    }
-
-    for(int k=0; k<2500; k++)
-    {
-        double bestf = -999999;
-        Genome gx;
-        
-        Genome* baby;
-        baby = pop.Tick(gx);
-    
-        double f = xortest(*baby);
-        baby->SetFitness(f);
-        if (pop.m_RNG.RandFloat() < 0.5)
-        {
-            baby->SetEvaluated();
-        }
-        if (f > bestf)
-        {
-            bestf = f;
-        }
-        
-        /*for(unsigned int i=0; i < pop.m_Species.size(); i++)
-        {
-            for(unsigned int j=0; j < pop.m_Species[i].m_Individuals.size(); j++)
-            {
-                double f = xortest(pop.m_Species[i].m_Individuals[j]);
-                pop.m_Species[i].m_Individuals[j].SetFitness(f);
-                pop.m_Species[i].m_Individuals[j].SetEvaluated();
-                
-                if (pop.m_Species[i].m_Individuals[j].HasLoops())
+                Genome &g = pop.m_Species[i].m_Individuals[j];
+                g.CalculateDepth();
+                double f = EvaluateXOR(g);
+                g.SetFitness(f);
+                g.SetEvaluated();
+                if (f > t_best)
                 {
-                    std::cout << "loops found in individual\n";
-                }
-
-                if (f > bestf)
-                {
-                    bestf = f;
+                    t_best = f;
                 }
             }
-        }*/
+        }
 
-        Genome g = pop.GetBestGenome();
-        //g.PrintAllTraits();
+        std::printf("Generation: %d, best fitness: %3.5f, species: %d\n",
+                    generation, t_best, static_cast<int>(pop.m_Species.size()));
 
-        printf("Tick: %d, best fitness: %3.5f\n", k, bestf);
-        printf("Species: %d CT: %3.3f\n", pop.m_Species.size(), pop.m_Parameters.CompatTreshold);
-        //pop.Epoch();
+        if (t_best > 15.0)
+        {
+            std::printf("XOR solved in generation %d\n", generation);
+            return 0;
+        }
+
+        pop.Epoch();
     }
-    
-/*for(int i=0; i<100; i++)
-    {
-        std::cout << pop.m_RNG.Roulette(itps.probs) << " ";
-    }*/
-    std::cout << "\n";
 
-    return 0;
+    std::printf("XOR not solved in %d generations\n", t_max_generations);
+    return 1;
 }
-
-#endif
