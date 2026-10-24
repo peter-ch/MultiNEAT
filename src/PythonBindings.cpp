@@ -141,6 +141,23 @@ Genome MakeGenomeLegacy(int a_ID, int a_NumInputs, int a_NumHidden, int a_NumOut
     return g;
 }
 
+// A read/write property for a py::object member that returns None while the member is empty
+template<class C>
+auto ObjectGetter(py::object C::*a_member)
+{
+    return [a_member](const C &c) -> py::object
+    {
+        const py::object &o = c.*a_member;
+        return o ? o : py::none();
+    };
+}
+
+template<class C>
+auto ObjectSetter(py::object C::*a_member)
+{
+    return [a_member](C &c, py::object a_value) { c.*a_member = a_value; };
+}
+
 template<class Vec>
 void BindVector(py::module_ &m, const char *a_name)
 {
@@ -186,11 +203,11 @@ void BindPhysics2D(py::module_ &m)
                  {
                      if (py::len(a_s) != 2) throw py::value_error("Vec2d needs 2 values");
                      return Vec2(a_s[0].cast<double>(), a_s[1].cast<double>());
-                 }))
+                 }), py::arg("xy"))
             .def_readwrite("x", &Vec2::x)
             .def_readwrite("y", &Vec2::y)
             .def("length", &Vec2::Length)
-            .def("dot", &Vec2::Dot)
+            .def("dot", &Vec2::Dot, py::arg("other"))
             .def(py::self + py::self)
             .def(py::self - py::self)
             .def(py::self * double())
@@ -221,7 +238,7 @@ void BindPhysics2D(py::module_ &m)
             .def_readwrite("velocity", &Body::velocity)
             .def_readwrite("force", &Body::force)
             .def_readwrite("velocity_limit", &Body::velocity_limit)
-            .def("apply_impulse", &Body::ApplyImpulse)
+            .def("apply_impulse", &Body::ApplyImpulse, py::arg("impulse"), "Changes the velocity by impulse / mass")
             ;
 
     py::class_<Shape, std::shared_ptr<Shape> >(m, "Shape", "A circle or a thick line segment attached to a body")
@@ -261,8 +278,8 @@ void BindPhysics2D(py::module_ &m)
                  py::arg("separate") = CollisionCallback(),
                  "Calls begin(shape_a, shape_b) / separate(shape_a, shape_b) when shapes with these "
                  "collision types start / stop touching")
-            .def("remove_collision_handler", &Space::RemoveCollisionHandler)
-            .def("touching", &Space::Touching)
+            .def("remove_collision_handler", &Space::RemoveCollisionHandler, py::arg("type_a"), py::arg("type_b"))
+            .def("touching", &Space::Touching, py::arg("shape_a"), py::arg("shape_b"), "True if the two shapes touched in the last step")
             .def_property_readonly("bodies", [](const Space &s)
                  {
                      py::list l;
@@ -304,6 +321,21 @@ PYBIND11_MODULE(_MultiNEAT, m)
     py::implicitly_convertible<py::list, std::vector<int> >();
     py::implicitly_convertible<py::tuple, std::vector<int> >();
     BindVector< std::vector< std::vector<int> > >(m, "IntsList2D");
+
+    // all classes are declared first, so the signatures in the docstrings use the Python names
+    py::class_<RNG> rng(m, "RNG", "A random number generator (Mersenne Twister)");
+    py::class_<Connection> connection(m, "Connection", "A connection of a NeuralNetwork");
+    py::class_<Neuron> neuron(m, "Neuron", "A neuron of a NeuralNetwork");
+    py::class_<NeuralNetwork> network(m, "NeuralNetwork", "A neural network - the phenotype built from a genome");
+    py::class_<LinkGene> linkgene(m, "LinkGene", "A link (connection) gene");
+    py::class_<NeuronGene> neurongene(m, "NeuronGene", "A neuron gene");
+    py::class_<GenomeInitStruct> initstruct(m, "GenomeInitStruct", "Describes the structure of a seed genome");
+    py::class_<Genome> genome(m, "Genome", "A genome - the genetic description of a neural network");
+    py::class_<Species> species(m, "Species", "A group of similar genomes");
+    py::class_<Substrate> substrate(m, "Substrate", "The geometry of a HyperNEAT network - the coordinates of its neurons");
+    py::class_<PhenotypeBehavior, PyPhenotypeBehavior> behavior(m, "PhenotypeBehavior", "Base class of behaviors for the C++ novelty search (can be subclassed in Python)");
+    py::class_<Population> population(m, "Population", "A population of genomes divided into species - the evolutionary algorithm");
+    py::class_<Parameters> parameters(m, "Parameters", "All the settings of the algorithm");
 
 ///////////////////////////////////////////////////////////////////
 // Enums
@@ -349,16 +381,16 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // RNG class
 ///////////////////////////////////////////////////////////////////
 
-    auto rng = py::class_<RNG>(m, "RNG")
+    rng
             .def(py::init<>())
-            .def("Seed", &RNG::Seed)
-            .def("TimeSeed", &RNG::TimeSeed)
-            .def("RandPosNeg", &RNG::RandPosNeg)
-            .def("RandInt", &RNG::RandInt)
-            .def("RandFloat", &RNG::RandFloat)
-            .def("RandFloatSigned", &RNG::RandFloatSigned)
-            .def("RandGaussSigned", &RNG::RandGaussSigned)
-            .def("Roulette", [](RNG &r, std::vector<double> a_probs) { return r.Roulette(a_probs); })
+            .def("Seed", &RNG::Seed, py::arg("seed"))
+            .def("TimeSeed", &RNG::TimeSeed, "Seeds from a hardware random source and the clock.")
+            .def("RandPosNeg", &RNG::RandPosNeg, "Randomly 1 or -1.")
+            .def("RandInt", &RNG::RandInt, py::arg("low"), py::arg("high"), "A random integer in [low, high].")
+            .def("RandFloat", &RNG::RandFloat, "A random number in [0, 1).")
+            .def("RandFloatSigned", &RNG::RandFloatSigned, "A random number in (-1, 1), small values are more likely.")
+            .def("RandGaussSigned", &RNG::RandGaussSigned, "A normally distributed number clamped to [-1, 1].")
+            .def("Roulette", [](RNG &r, std::vector<double> a_probs) { return r.Roulette(a_probs); }, py::arg("weights"), "A random index chosen with probabilities proportional to the weights.")
             ;
     AddPickling<RNG>(rng);
 
@@ -366,7 +398,7 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // Neural Network class
 ///////////////////////////////////////////////////////////////////
 
-    py::class_<Connection>(m, "Connection")
+    connection
             .def(py::init<>())
             .def_readwrite("source_neuron_idx", &Connection::m_source_neuron_idx)
             .def_readwrite("target_neuron_idx", &Connection::m_target_neuron_idx)
@@ -377,7 +409,7 @@ PYBIND11_MODULE(_MultiNEAT, m)
             .def(py::self == py::self)
             ;
 
-    py::class_<Neuron>(m, "Neuron")
+    neuron
             .def(py::init<>())
             .def_readwrite("a", &Neuron::m_a)
             .def_readwrite("b", &Neuron::m_b)
@@ -397,42 +429,42 @@ PYBIND11_MODULE(_MultiNEAT, m)
     py::bind_vector< std::vector<Neuron> >(m, "NeuronList");
     py::bind_vector< std::vector<Connection> >(m, "ConnectionList");
 
-    py::class_<NeuralNetwork>(m, "NeuralNetwork")
+    network
             .def(py::init<>())
-            .def(py::init<bool>())
+            .def(py::init<bool>(), py::arg("minimal"), "minimal=False creates a small XOR network for testing")
 
-            .def("InitRTRLMatrix", &NeuralNetwork::InitRTRLMatrix)
-            .def("RTRL_update_gradients", &NeuralNetwork::RTRL_update_gradients)
-            .def("RTRL_update_error", &NeuralNetwork::RTRL_update_error)
-            .def("RTRL_update_weights", &NeuralNetwork::RTRL_update_weights)
+            .def("InitRTRLMatrix", &NeuralNetwork::InitRTRLMatrix, "Allocates the data for RTRL learning.")
+            .def("RTRL_update_gradients", &NeuralNetwork::RTRL_update_gradients, "RTRL: updates the sensitivities after an activation.")
+            .def("RTRL_update_error", &NeuralNetwork::RTRL_update_error, py::arg("target"), "RTRL: accumulates the weight changes for the target value of the first output.")
+            .def("RTRL_update_weights", &NeuralNetwork::RTRL_update_weights, "RTRL: applies the accumulated weight changes.")
 
-            .def("ActivateFast", &NeuralNetwork::ActivateFast)
-            .def("Activate", &NeuralNetwork::Activate)
-            .def("ActivateUseInternalBias", &NeuralNetwork::ActivateUseInternalBias)
-            .def("ActivateLeaky", &NeuralNetwork::ActivateLeaky)
+            .def("ActivateFast", &NeuralNetwork::ActivateFast, "Activates once, assuming unsigned sigmoid neurons everywhere.")
+            .def("Activate", &NeuralNetwork::Activate, "Activates once - the signals move one connection further.")
+            .def("ActivateUseInternalBias", &NeuralNetwork::ActivateUseInternalBias, "Like Activate(), but adds each neuron's bias to its input.")
+            .def("ActivateLeaky", &NeuralNetwork::ActivateLeaky, py::arg("dt"), "Activates leaky integrator neurons for a time step dt.")
 
-            .def("Adapt", &NeuralNetwork::Adapt)
+            .def("Adapt", &NeuralNetwork::Adapt, py::arg("params"), "Hebbian learning step.")
 
-            .def("Flush", &NeuralNetwork::Flush)
-            .def("FlushCube", &NeuralNetwork::FlushCube)
+            .def("Flush", &NeuralNetwork::Flush, "Resets all activations.")
+            .def("FlushCube", &NeuralNetwork::FlushCube, "Resets the RTRL sensitivities.")
             .def("FlushCude", &NeuralNetwork::FlushCube) // old misspelled name
 
             .def("NumInputs", &NeuralNetwork::NumInputs)
             .def("NumOutputs", &NeuralNetwork::NumOutputs)
 
-            .def("Clear", &NeuralNetwork::Clear)
-            .def("Save", [](NeuralNetwork &n, const std::string &a_filename) { n.Save(a_filename.c_str()); })
-            .def("Load", [](NeuralNetwork &n, const std::string &a_filename) { return n.Load(a_filename.c_str()); })
+            .def("Clear", &NeuralNetwork::Clear, "Removes all neurons and connections.")
+            .def("Save", [](NeuralNetwork &n, const std::string &a_filename) { n.Save(a_filename.c_str()); }, py::arg("filename"), "Saves the network to a text file.")
+            .def("Load", [](NeuralNetwork &n, const std::string &a_filename) { return n.Load(a_filename.c_str()); }, py::arg("filename"), "Loads a network saved with Save(). Returns False if the file is missing or malformed.")
 
-            .def("Input", [](NeuralNetwork &n, py::object a_inputs) { n.Input_python(a_inputs); },
+            .def("Input", [](NeuralNetwork &n, py::object a_inputs) { n.Input_python(a_inputs); }, py::arg("inputs"),
                  "Sets the inputs. Accepts any sequence of numbers (list, tuple, numpy array).")
-            .def("Output", &NeuralNetwork::Output)
+            .def("Output", &NeuralNetwork::Output, "The activations of the output neurons.")
 
-            .def("AddNeuron", &NeuralNetwork::AddNeuron)
-            .def("AddConnection", &NeuralNetwork::AddConnection)
-            .def("SetInputOutputDimentions", &NeuralNetwork::SetInputOutputDimentions)
+            .def("AddNeuron", &NeuralNetwork::AddNeuron, py::arg("neuron"))
+            .def("AddConnection", &NeuralNetwork::AddConnection, py::arg("connection"))
+            .def("SetInputOutputDimentions", &NeuralNetwork::SetInputOutputDimentions, py::arg("inputs"), py::arg("outputs"))
 
-            .def("GetTotalConnectionLength", &NeuralNetwork::GetTotalConnectionLength)
+            .def("GetTotalConnectionLength", &NeuralNetwork::GetTotalConnectionLength, "The number of connections.")
 
             .def_readwrite("neurons", &NeuralNetwork::m_neurons)
             .def_readwrite("connections", &NeuralNetwork::m_connections)
@@ -442,7 +474,7 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // Genome class
 ///////////////////////////////////////////////////////////////////
 
-    py::class_<LinkGene>(m, "LinkGene")
+    linkgene
             .def(py::init<>())
             .def_readwrite("FromNeuronID", &LinkGene::m_FromNeuronID)
             .def_readwrite("ToNeuronID", &LinkGene::m_ToNeuronID)
@@ -452,7 +484,7 @@ PYBIND11_MODULE(_MultiNEAT, m)
             .def(py::self == py::self)
             ;
 
-    py::class_<NeuronGene>(m, "NeuronGene")
+    neurongene
             .def(py::init<>())
             .def_readwrite("ID", &NeuronGene::m_ID)
             .def_readwrite("A", &NeuronGene::m_A)
@@ -468,7 +500,7 @@ PYBIND11_MODULE(_MultiNEAT, m)
     py::bind_vector< std::vector<NeuronGene> >(m, "NeuronGeneList");
     py::bind_vector< std::vector<LinkGene> >(m, "LinkGeneList");
 
-    py::class_<GenomeInitStruct>(m, "GenomeInitStruct")
+    initstruct
             .def(py::init<>())
             .def_readwrite("NumInputs", &GenomeInitStruct::NumInputs)
             .def_readwrite("NumHidden", &GenomeInitStruct::NumHidden)
@@ -481,7 +513,7 @@ PYBIND11_MODULE(_MultiNEAT, m)
             .def_readwrite("FS_NEAT_links", &GenomeInitStruct::FS_NEAT_links)
             ;
 
-    auto genome = py::class_<Genome>(m, "Genome")
+    genome
             .def(py::init<>())
             .def(py::init([](const std::string &a_filename) { return Genome(a_filename.c_str()); }),
                  py::arg("filename"))
@@ -493,58 +525,58 @@ PYBIND11_MODULE(_MultiNEAT, m)
                  py::arg("SeedType"), py::arg("params"), py::arg("NumLayers") = 0,
                  py::arg("FS_NEAT_links") = 1)
 
-            .def("NumNeurons", &Genome::NumNeurons)
-            .def("NumLinks", &Genome::NumLinks)
-            .def("NumInputs", &Genome::NumInputs)
-            .def("NumOutputs", &Genome::NumOutputs)
+            .def("NumNeurons", &Genome::NumNeurons, "The number of neuron genes.")
+            .def("NumLinks", &Genome::NumLinks, "The number of link genes.")
+            .def("NumInputs", &Genome::NumInputs, "The number of inputs (including the bias).")
+            .def("NumOutputs", &Genome::NumOutputs, "The number of outputs.")
 
             .def_readwrite("NeuronGenes", &Genome::m_NeuronGenes)
             .def_readwrite("LinkGenes", &Genome::m_LinkGenes)
-            .def_readwrite("behavior", &Genome::m_behavior)
+            .def_property("behavior", ObjectGetter(&Genome::m_behavior), ObjectSetter(&Genome::m_behavior))
 
             .def("GetFitness", &Genome::GetFitness)
-            .def("SetFitness", &Genome::SetFitness)
-            .def("GetAdjFitness", &Genome::GetAdjFitness)
+            .def("SetFitness", &Genome::SetFitness, py::arg("fitness"), "Sets the fitness - the higher the better.")
+            .def("GetAdjFitness", &Genome::GetAdjFitness, "The fitness after fitness sharing.")
             .def("GetID", &Genome::GetID)
-            .def("SetID", &Genome::SetID)
-            .def("GetDepth", &Genome::GetDepth)
-            .def("CalculateDepth", &Genome::CalculateDepth)
-            .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges)
-            .def("HasLoops", &Genome::HasLoops)
-            .def("HasDeadEnds", &Genome::HasDeadEnds)
+            .def("SetID", &Genome::SetID, py::arg("id"))
+            .def("GetDepth", &Genome::GetDepth, "The depth computed by CalculateDepth().")
+            .def("CalculateDepth", &Genome::CalculateDepth, "Computes the longest feed-forward path from the inputs to the outputs.")
+            .def("DerivePhenotypicChanges", &Genome::DerivePhenotypicChanges, py::arg("net"), "Copies the weights of a network built from this genome back into the genome.")
+            .def("HasLoops", &Genome::HasLoops, "True if the network has cycles.")
+            .def("HasDeadEnds", &Genome::HasDeadEnds, "True if a hidden neuron has no inputs or no outputs.")
 
-            .def("PrintAllTraits", &Genome::PrintAllTraits)
-            .def("CompatibilityDistance", &Genome::CompatibilityDistance)
-            .def("IsCompatibleWith", &Genome::IsCompatibleWith)
+            .def("PrintAllTraits", &Genome::PrintAllTraits, "Prints the traits of the genome, its neurons and links.")
+            .def("CompatibilityDistance", &Genome::CompatibilityDistance, py::arg("other"), py::arg("params"), "The compatibility distance used for speciation.")
+            .def("IsCompatibleWith", &Genome::IsCompatibleWith, py::arg("other"), py::arg("params"), "True if the distance is below the compatibility threshold.")
 
-            .def("BuildPhenotype", &Genome::BuildPhenotype)
-            .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype)
-            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype)
+            .def("BuildPhenotype", &Genome::BuildPhenotype, py::arg("net"), "Builds the neural network this genome encodes into net.")
+            .def("BuildHyperNEATPhenotype", &Genome::BuildHyperNEATPhenotype, py::arg("net"), py::arg("substrate"), "Uses this genome as a CPPN to build a HyperNEAT network on the substrate.")
+            .def("BuildESHyperNEATPhenotype", &Genome::BuildESHyperNEATPhenotype, py::arg("net"), py::arg("substrate"), py::arg("params"), "Uses this genome as a CPPN to build an ES-HyperNEAT network (the hidden neurons are discovered).")
 
-            .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights)
-            .def("Randomize_Traits", &Genome::Randomize_Traits)
-            .def("Mutate_LinkWeights", &Genome::Mutate_LinkWeights)
-            .def("Mutate_NeuronActivations_A", &Genome::Mutate_NeuronActivations_A)
-            .def("Mutate_NeuronActivations_B", &Genome::Mutate_NeuronActivations_B)
-            .def("Mutate_NeuronActivation_Type", &Genome::Mutate_NeuronActivation_Type)
-            .def("Mutate_NeuronTimeConstants", &Genome::Mutate_NeuronTimeConstants)
-            .def("Mutate_NeuronBiases", &Genome::Mutate_NeuronBiases)
-            .def("Mutate_NeuronTraits", &Genome::Mutate_NeuronTraits)
-            .def("Mutate_LinkTraits", &Genome::Mutate_LinkTraits)
-            .def("Mutate_GenomeTraits", &Genome::Mutate_GenomeTraits)
-            .def("GetNeuronTraits", &Genome::GetNeuronTraits)
-            .def("GetLinkTraits", &Genome::GetLinkTraits, py::arg("with_weights") = false)
-            .def("GetGenomeTraits", &Genome::GetGenomeTraits)
+            .def("Randomize_LinkWeights", &Genome::Randomize_LinkWeights, py::arg("params"), py::arg("rng"), "Sets all weights to random values in [MinWeight, MaxWeight].")
+            .def("Randomize_Traits", &Genome::Randomize_Traits, py::arg("params"), py::arg("rng"), "Sets all traits to random values.")
+            .def("Mutate_LinkWeights", &Genome::Mutate_LinkWeights, py::arg("params"), py::arg("rng"))
+            .def("Mutate_NeuronActivations_A", &Genome::Mutate_NeuronActivations_A, py::arg("params"), py::arg("rng"))
+            .def("Mutate_NeuronActivations_B", &Genome::Mutate_NeuronActivations_B, py::arg("params"), py::arg("rng"))
+            .def("Mutate_NeuronActivation_Type", &Genome::Mutate_NeuronActivation_Type, py::arg("params"), py::arg("rng"))
+            .def("Mutate_NeuronTimeConstants", &Genome::Mutate_NeuronTimeConstants, py::arg("params"), py::arg("rng"))
+            .def("Mutate_NeuronBiases", &Genome::Mutate_NeuronBiases, py::arg("params"), py::arg("rng"))
+            .def("Mutate_NeuronTraits", &Genome::Mutate_NeuronTraits, py::arg("params"), py::arg("rng"))
+            .def("Mutate_LinkTraits", &Genome::Mutate_LinkTraits, py::arg("params"), py::arg("rng"))
+            .def("Mutate_GenomeTraits", &Genome::Mutate_GenomeTraits, py::arg("params"), py::arg("rng"))
+            .def("GetNeuronTraits", &Genome::GetNeuronTraits, "A list of (neuron ID, type, {trait: value}).")
+            .def("GetLinkTraits", &Genome::GetLinkTraits, py::arg("with_weights") = false, "A list of (from ID, to ID, {trait: value}[, weight]).")
+            .def("GetGenomeTraits", &Genome::GetGenomeTraits, "The genome traits as a dict.")
 
-            .def("SetGenomeTraits", &Genome::SetGenomeTraits) // experimental
+            .def("SetGenomeTraits", &Genome::SetGenomeTraits, py::arg("traits"), "Replaces the genome traits (experimental).") // experimental
 
-            .def("FailsConstraints", &Genome::FailsConstraints)
+            .def("FailsConstraints", &Genome::FailsConstraints, py::arg("params"), "True if the genome has dead ends, no links, forbidden loops or fails CustomConstraints.")
 
             .def("IsEvaluated", &Genome::IsEvaluated)
-            .def("SetEvaluated", &Genome::SetEvaluated)
+            .def("SetEvaluated", &Genome::SetEvaluated, "Marks the genome as evaluated (needed for steady-state evolution).")
             .def("ResetEvaluated", &Genome::ResetEvaluated)
 
-            .def("Save", [](Genome &g, const std::string &a_filename) { g.Save(a_filename.c_str()); })
+            .def("Save", [](Genome &g, const std::string &a_filename) { g.Save(a_filename.c_str()); }, py::arg("filename"), "Saves the genome to a text file (without traits).")
 
             .def(py::self == py::self)
             ;
@@ -556,20 +588,20 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // Species class
 ///////////////////////////////////////////////////////////////////
 
-    auto species = py::class_<Species>(m, "Species")
+    species
             .def(py::init<>())
-            .def(py::init<const Genome &, const Parameters &, int>())
-            .def("GetLeader", &Species::GetLeader, py::return_value_policy::reference_internal)
-            .def("GetRepresentative", &Species::GetRepresentative, py::return_value_policy::reference_internal)
-            .def("NumIndividuals", &Species::NumIndividuals)
-            .def("NumEvaluated", &Species::NumEvaluated)
-            .def("GensNoImprovement", &Species::GensNoImprovement)
-            .def("ID", &Species::ID)
-            .def("AgeGens", &Species::AgeGens)
-            .def("AgeEvals", &Species::AgeEvals)
-            .def("IsBestSpecies", &Species::IsBestSpecies)
-            .def("GetBestFitness", &Species::GetBestFitness)
-            .def("GetActualBestFitness", &Species::GetActualBestFitness)
+            .def(py::init<const Genome &, const Parameters &, int>(), py::arg("seed_genome"), py::arg("params"), py::arg("id"))
+            .def("GetLeader", &Species::GetLeader, py::return_value_policy::reference_internal, "A reference to the fittest member.")
+            .def("GetRepresentative", &Species::GetRepresentative, py::return_value_policy::reference_internal, "A reference to the member new genomes are compared with.")
+            .def("NumIndividuals", &Species::NumIndividuals, "The number of members.")
+            .def("NumEvaluated", &Species::NumEvaluated, "The number of evaluated members.")
+            .def("GensNoImprovement", &Species::GensNoImprovement, "Generations without improvement of the best fitness.")
+            .def("ID", &Species::ID, "The unique ID of the species.")
+            .def("AgeGens", &Species::AgeGens, "The age in generations.")
+            .def("AgeEvals", &Species::AgeEvals, "The age in evaluations (steady-state evolution).")
+            .def("IsBestSpecies", &Species::IsBestSpecies, "True for the species with the best genome (protected from dying out).")
+            .def("GetBestFitness", &Species::GetBestFitness, "The best fitness the species ever had.")
+            .def("GetActualBestFitness", &Species::GetActualBestFitness, "The best fitness of the current evaluated members.")
             .def_readwrite("Individuals", &Species::m_Individuals)
             .def_readonly("Red", &Species::m_R)
             .def_readonly("Green", &Species::m_G)
@@ -587,16 +619,16 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // Substrate class
 ///////////////////////////////////////////////////////////////////
 
-    auto substrate = py::class_<Substrate>(m, "Substrate")
+    substrate
             .def(py::init<>())
             .def(py::init<py::object, py::object, py::object>(),
                  py::arg("inputs"), py::arg("hidden"), py::arg("outputs"))
-            .def("SetNeurons", static_cast<void (Substrate::*)(py::object, py::object, py::object)>(&Substrate::SetNeurons))
-            .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs)
-            .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs)
-            .def("GetMaxDims", &Substrate::GetMaxDims)
+            .def("SetNeurons", static_cast<void (Substrate::*)(py::object, py::object, py::object)>(&Substrate::SetNeurons), py::arg("inputs"), py::arg("hidden"), py::arg("outputs"), "Replaces the coordinates of the neurons.")
+            .def("GetMinCPPNInputs", &Substrate::GetMinCPPNInputs, "The number of inputs a CPPN genome needs for this substrate.")
+            .def("GetMinCPPNOutputs", &Substrate::GetMinCPPNOutputs, "The number of outputs a CPPN genome needs for this substrate.")
+            .def("GetMaxDims", &Substrate::GetMaxDims, "The largest number of coordinates of any neuron.")
             .def("PrintInfo", &Substrate::PrintInfo)
-            .def("SetCustomConnectivity", static_cast<void (Substrate::*)(py::object)>(&Substrate::SetCustomConnectivity))
+            .def("SetCustomConnectivity", static_cast<void (Substrate::*)(py::object)>(&Substrate::SetCustomConnectivity), py::arg("connections"), "Query only these connections - a list of [src_type, src_index, dst_type, dst_index].")
             .def("ClearCustomConnectivity", &Substrate::ClearCustomConnectivity)
 
             .def_readwrite("m_leaky", &Substrate::m_leaky)
@@ -629,11 +661,11 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // PhenotypeBehavior class
 ///////////////////////////////////////////////////////////////////
 
-    py::class_<PhenotypeBehavior, PyPhenotypeBehavior>(m, "PhenotypeBehavior")
+    behavior
             .def(py::init<>())
-            .def("Acquire", &PhenotypeBehavior::Acquire)
-            .def("Distance_To", &PhenotypeBehavior::Distance_To)
-            .def("Successful", &PhenotypeBehavior::Successful)
+            .def("Acquire", &PhenotypeBehavior::Acquire, py::arg("genome"), "Override: evaluates the genome and records its behavior. Return True if it was successful.")
+            .def("Distance_To", &PhenotypeBehavior::Distance_To, py::arg("other"), "Override: the distance to another behavior.")
+            .def("Successful", &PhenotypeBehavior::Successful, "Override: True if this is the behavior we are looking for.")
             .def_readwrite("m_Data", &PhenotypeBehavior::m_Data)
             .def(py::self == py::self)
             ;
@@ -644,27 +676,27 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // Population class
 ///////////////////////////////////////////////////////////////////
 
-    auto population = py::class_<Population>(m, "Population")
+    population
             .def(py::init<const Genome &, const Parameters &, bool, double, int>(),
                  py::arg("seed_genome"), py::arg("params"), py::arg("randomize_weights"),
                  py::arg("randomization_range"), py::arg("rng_seed"))
             .def(py::init<const std::string>(), py::arg("filename"))
-            .def("Epoch", &Population::Epoch)
-            .def("Tick", &Population::Tick, py::return_value_policy::reference_internal)
-            .def("InitPhenotypeBehaviorData", &Population::InitPhenotypeBehaviorData)
-            .def("NoveltySearchTick", &Population::NoveltySearchTick)
-            .def("Save", [](Population &p, const std::string &a_filename) { p.Save(a_filename.c_str()); })
-            .def("GetBestFitnessEver", &Population::GetBestFitnessEver)
-            .def("GetBestGenome", &Population::GetBestGenome)
-            .def("GetSearchMode", &Population::GetSearchMode)
-            .def("GetCurrentMPC", &Population::GetCurrentMPC)
-            .def("GetBaseMPC", &Population::GetBaseMPC)
-            .def("GetStagnation", &Population::GetStagnation)
-            .def("GetMPCStagnation", &Population::GetMPCStagnation)
-            .def("GetGeneration", &Population::GetGeneration)
-            .def("AccessGenomeByIndex", &Population::AccessGenomeByIndex, py::return_value_policy::reference_internal)
-            .def("AccessGenomeByID", &Population::AccessGenomeByID, py::return_value_policy::reference_internal)
-            .def("NumGenomes", &Population::NumGenomes)
+            .def("Epoch", &Population::Epoch, "Creates the next generation. All genomes must have their fitness set.")
+            .def("Tick", &Population::Tick, py::return_value_policy::reference_internal, py::arg("removed_genome"), "Steady-state evolution: replaces the worst evaluated genome (copied into removed_genome) with one new baby and returns the baby. The returned genome is valid until the next Tick() or Epoch().")
+            .def("InitPhenotypeBehaviorData", &Population::InitPhenotypeBehaviorData, py::arg("behaviors"), py::arg("archive"), "C++ novelty search: assigns one PhenotypeBehavior to every genome and sets the archive.")
+            .def("NoveltySearchTick", &Population::NoveltySearchTick, py::arg("successful_genome"), "C++ novelty search: one Tick() with novelty as fitness. Returns True if a successful behavior was found.")
+            .def("Save", [](Population &p, const std::string &a_filename) { p.Save(a_filename.c_str()); }, py::arg("filename"), "Saves the parameters, the innovation database and all genomes to a text file.")
+            .def("GetBestFitnessEver", &Population::GetBestFitnessEver, "The best fitness seen during the whole run.")
+            .def("GetBestGenome", &Population::GetBestGenome, "A copy of the best genome of the current population.")
+            .def("GetSearchMode", &Population::GetSearchMode, "The phase of the phased search: COMPLEXIFYING, SIMPLIFYING or BLENDED.")
+            .def("GetCurrentMPC", &Population::GetCurrentMPC, "The mean population complexity (average number of links).")
+            .def("GetBaseMPC", &Population::GetBaseMPC, "The complexity at the start of the current complexifying phase.")
+            .def("GetStagnation", &Population::GetStagnation, "Generations since the best fitness last improved.")
+            .def("GetMPCStagnation", &Population::GetMPCStagnation, "Generations since the complexity last decreased (simplifying phase).")
+            .def("GetGeneration", &Population::GetGeneration, "The current generation number.")
+            .def("AccessGenomeByIndex", &Population::AccessGenomeByIndex, py::return_value_policy::reference_internal, py::arg("index"), "A reference to the genome with this index (counting through all species).")
+            .def("AccessGenomeByID", &Population::AccessGenomeByID, py::return_value_policy::reference_internal, py::arg("id"), "A reference to the genome with this ID.")
+            .def("NumGenomes", &Population::NumGenomes, "The number of genomes in the population.")
             .def_readwrite("Species", &Population::m_Species)
             .def_readwrite("Parameters", &Population::m_Parameters)
             .def_readwrite("RNG", &Population::m_RNG)
@@ -686,21 +718,21 @@ PYBIND11_MODULE(_MultiNEAT, m)
 // Parameters class
 ///////////////////////////////////////////////////////////////////
 
-    auto parameters = py::class_<Parameters>(m, "Parameters")
+    parameters
             .def(py::init<>())
-            .def("Reset", &Parameters::Reset)
-            .def("Load", [](Parameters &p, const std::string &a_filename) { return p.Load(a_filename.c_str()); },
+            .def("Reset", &Parameters::Reset, "Restores all defaults.")
+            .def("Load", [](Parameters &p, const std::string &a_filename) { return p.Load(a_filename.c_str()); }, py::arg("filename"),
                  "Loads the parameters from a file. Returns 0 on success.")
-            .def("Save", [](Parameters &p, const std::string &a_filename) { p.Save(a_filename.c_str()); })
-            .def("ListNeuronTraitParameters", &Parameters::ListNeuronTraitParameters)
-            .def("ListLinkTraitParameters", &Parameters::ListLinkTraitParameters)
-            .def("ListGenomeTraitParameters", &Parameters::ListGenomeTraitParameters)
-            .def("SetNeuronTraitParameters", &Parameters::SetNeuronTraitParameters)
-            .def("SetLinkTraitParameters", &Parameters::SetLinkTraitParameters)
-            .def("SetGenomeTraitParameters", &Parameters::SetGenomeTraitParameters)
-            .def("GetNeuronTraitParameters", &Parameters::GetNeuronTraitParameters)
-            .def("GetLinkTraitParameters", &Parameters::GetLinkTraitParameters)
-            .def("GetGenomeTraitParameters", &Parameters::GetGenomeTraitParameters)
+            .def("Save", [](Parameters &p, const std::string &a_filename) { p.Save(a_filename.c_str()); }, py::arg("filename"), "Saves the parameters to a text file.")
+            .def("ListNeuronTraitParameters", &Parameters::ListNeuronTraitParameters, "The names of the neuron traits.")
+            .def("ListLinkTraitParameters", &Parameters::ListLinkTraitParameters, "The names of the link traits.")
+            .def("ListGenomeTraitParameters", &Parameters::ListGenomeTraitParameters, "The names of the genome traits.")
+            .def("SetNeuronTraitParameters", &Parameters::SetNeuronTraitParameters, py::arg("name"), py::arg("trait_params"), "Defines a neuron trait (see the traits guide).")
+            .def("SetLinkTraitParameters", &Parameters::SetLinkTraitParameters, py::arg("name"), py::arg("trait_params"), "Defines a link trait.")
+            .def("SetGenomeTraitParameters", &Parameters::SetGenomeTraitParameters, py::arg("name"), py::arg("trait_params"), "Defines a genome trait.")
+            .def("GetNeuronTraitParameters", &Parameters::GetNeuronTraitParameters, py::arg("name"))
+            .def("GetLinkTraitParameters", &Parameters::GetLinkTraitParameters, py::arg("name"))
+            .def("GetGenomeTraitParameters", &Parameters::GetGenomeTraitParameters, py::arg("name"))
             .def("ClearNeuronTraitParameters", &Parameters::ClearNeuronTraitParameters)
             .def("ClearLinkTraitParameters", &Parameters::ClearLinkTraitParameters)
             .def("ClearGenomeTraitParameters", &Parameters::ClearGenomeTraitParameters)
@@ -714,8 +746,8 @@ PYBIND11_MODULE(_MultiNEAT, m)
             .def_readwrite("AllowClones", &Parameters::AllowClones)
             .def_readwrite("ArchiveEnforcement", &Parameters::ArchiveEnforcement)
             .def_readwrite("NormalizeGenomeSize", &Parameters::NormalizeGenomeSize)
-            .def_readwrite("CustomConstraints", &Parameters::pyCustomConstraints)
-            .def_readwrite("BehaviorGetter", &Parameters::pyBehaviorGetter)
+            .def_property("CustomConstraints", ObjectGetter(&Parameters::pyCustomConstraints), ObjectSetter(&Parameters::pyCustomConstraints))
+            .def_property("BehaviorGetter", ObjectGetter(&Parameters::pyBehaviorGetter), ObjectSetter(&Parameters::pyBehaviorGetter))
             .def_readwrite("ConstraintTrials", &Parameters::ConstraintTrials)
             .def_readwrite("YoungAgeTreshold", &Parameters::YoungAgeTreshold)
             .def_readwrite("YoungAgeFitnessBoost", &Parameters::YoungAgeFitnessBoost)

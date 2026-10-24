@@ -257,7 +257,7 @@ namespace NEAT
         LinkTries = 64;
 
         // Maximum number of tries to find a link to split
-        NeuronTries = 64;
+        NeuronTries = 256;
 
         // Maximum number of links in the genome (originals not counted). -1 is unlimited
         MaxLinks = -1;

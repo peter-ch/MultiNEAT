@@ -20,9 +20,10 @@ except ImportError:  # Python < 3.8
     __version__ = '0.6.0'
 
 
-# Get all genomes from the population
-# The genomes are references - changing their fitness changes the population.
 def GetGenomeList(pop):
+    """Returns all genomes of the population as a list.
+
+    The genomes are references - changing their fitness changes the population."""
     genome_list = []
     for s in pop.Species:
         for i in s.Individuals:
@@ -30,8 +31,8 @@ def GetGenomeList(pop):
     return genome_list
 
 
-# Just set the fitness values to the genomes
 def ZipFitness(genome_list, fitness_list):
+    """Sets the fitness of every genome and marks it as evaluated."""
     for genome, fitness in zip(genome_list, fitness_list):
         genome.SetFitness(fitness)
         genome.SetEvaluated()
@@ -41,6 +42,7 @@ try:
     import networkx as nx
 
     def Genome2NX(g, with_inputs=False, with_weights=False):
+        """Converts a genome to a networkx DiGraph with the traits as node and edge attributes."""
 
         nts = g.GetNeuronTraits()
         lts = g.GetLinkTraits(with_weights)
@@ -88,11 +90,10 @@ except ImportError:
     pbar_installed = False
 
 
-# Evaluates all genomes in sequential manner (using only 1 process) and
-# returns a list of corresponding fitness values.
-# evaluator is a callable that is supposed to take Genome as argument and
-# return a double
 def EvaluateGenomeList_Serial(genome_list, evaluator, display=True, show_elapsed=False):
+    """Evaluates the genomes one after another and returns the list of fitness values.
+
+    evaluator is a callable that takes a Genome and returns its fitness."""
     fitnesses = []
     count = 0
 
@@ -127,15 +128,14 @@ def EvaluateGenomeList_Serial(genome_list, evaluator, display=True, show_elapsed
     return fitnesses
 
 
-# Evaluates all genomes in parallel manner (many processes) and returns a
-# list of corresponding fitness values.
-# evaluator is a callable that is supposed to take Genome as argument and return a double.
-# It must be picklable (defined at the top level of a module). The genomes are pickled
-# together with their traits, so traits are available in the worker processes.
 def EvaluateGenomeList_Parallel(genome_list, evaluator,
                                 cores=None, display=True, ipython_client=None):
-    ''' If ipython_client is None, will use concurrent.futures.
-    Pass an instance of Client() in order to use an IPython cluster '''
+    """Evaluates the genomes in parallel processes and returns the list of fitness values.
+
+    evaluator is a callable that takes a Genome and returns its fitness. It must be
+    picklable (defined at the top level of a module). The genomes are pickled together
+    with their traits. Uses concurrent.futures with `cores` processes (all CPUs by
+    default), or an IPython cluster when an ipyparallel Client is given."""
     fitnesses = []
     curtime = time.time()
     if cores is None:

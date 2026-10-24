@@ -1087,6 +1087,18 @@ namespace NEAT
         // MUTATE_GENOME_TRAITS;
         t_mut_probs.emplace_back( a_Parameters.MutateGenomeTraitsProb );
 
+        // Respect the size limits of the networks
+        if ((a_Parameters.MaxNeurons > 0) &&
+            (static_cast<int>(t_baby.NumNeurons() - (t_baby.NumInputs() + t_baby.NumOutputs())) >= a_Parameters.MaxNeurons))
+        {
+            t_mut_probs[ADD_NODE] = 0;
+        }
+        if ((a_Parameters.MaxLinks > 0) && (static_cast<int>(t_baby.NumLinks()) >= a_Parameters.MaxLinks))
+        {
+            t_mut_probs[ADD_LINK] = 0;
+            t_mut_probs[ADD_NODE] = 0; // adding a neuron also adds a link
+        }
+
         // Special consideration for phased searching - do not allow certain mutations depending on the search mode
         // also don't use additive mutations if we just want to get rid of the clones
         if ((a_Pop.GetSearchMode() == SIMPLIFYING) || t_baby_is_clone)

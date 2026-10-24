@@ -131,13 +131,13 @@ public:
     double OldAgePenalty;
 
     // Detect competetive coevolution stagnation
-    // This kills the worst species of age >N (each X generations)
+    // This kills the worst species of age >N (each X generations) (currently unused)
     bool DetectCompetetiveCoevolutionStagnation;
 
-    // Each X generation..
+    // Kill the worst species each this many generations (currently unused)
     int KillWorstSpeciesEach;
 
-    // Of age above..
+    // Only species older than this are killed (currently unused)
     int KillWorstAge;
 
     // Percent of best individuals that are allowed to reproduce. 1.0 = 100%
@@ -315,12 +315,14 @@ public:
     // Maximum magnitude for biases perturbation
     double BiasMutationMaxPower;
 
-    // Activation parameter A min/max
+    // Activation parameter A minimum (A is the slope of the activation function)
     double MinActivationA;
+    // Activation parameter A maximum
     double MaxActivationA;
 
-    // Activation parameter B min/max
+    // Activation parameter B minimum (B is the shift of the activation function)
     double MinActivationB;
+    // Activation parameter B maximum
     double MaxActivationB;
 
     // Probability for a baby that an activation function type will be changed for a single neuron
@@ -328,19 +330,34 @@ public:
     double MutateNeuronActivationTypeProb;
 
     // Probabilities for a particular activation function appearance
+
+    // Relative probability of SIGNED_SIGMOID for new and mutated neurons
     double ActivationFunction_SignedSigmoid_Prob;
+    // Relative probability of UNSIGNED_SIGMOID for new and mutated neurons
     double ActivationFunction_UnsignedSigmoid_Prob;
+    // Relative probability of TANH for new and mutated neurons
     double ActivationFunction_Tanh_Prob;
+    // Relative probability of TANH_CUBIC for new and mutated neurons
     double ActivationFunction_TanhCubic_Prob;
+    // Relative probability of SIGNED_STEP for new and mutated neurons
     double ActivationFunction_SignedStep_Prob;
+    // Relative probability of UNSIGNED_STEP for new and mutated neurons
     double ActivationFunction_UnsignedStep_Prob;
+    // Relative probability of SIGNED_GAUSS for new and mutated neurons
     double ActivationFunction_SignedGauss_Prob;
+    // Relative probability of UNSIGNED_GAUSS for new and mutated neurons
     double ActivationFunction_UnsignedGauss_Prob;
+    // Relative probability of ABS for new and mutated neurons
     double ActivationFunction_Abs_Prob;
+    // Relative probability of SIGNED_SINE for new and mutated neurons
     double ActivationFunction_SignedSine_Prob;
+    // Relative probability of UNSIGNED_SINE for new and mutated neurons
     double ActivationFunction_UnsignedSine_Prob;
+    // Relative probability of LINEAR for new and mutated neurons
     double ActivationFunction_Linear_Prob;
+    // Relative probability of RELU for new and mutated neurons
     double ActivationFunction_Relu_Prob;
+    // Relative probability of SOFTPLUS for new and mutated neurons
     double ActivationFunction_Softplus_Prob;
 
     // Probability for a baby's neuron time constant values to be mutated
@@ -349,12 +366,14 @@ public:
     // Probability for a baby's neuron bias values to be mutated
     double MutateNeuronBiasesProb;
 
-    // Time constant range
+    // Minimum time constant of leaky integrator neurons
     double MinNeuronTimeConstant;
+    // Maximum time constant of leaky integrator neurons
     double MaxNeuronTimeConstant;
 
-    // Bias range
+    // Minimum neuron bias (used by leaky integrator neurons and ActivateUseInternalBias)
     double MinNeuronBias;
+    // Maximum neuron bias
     double MaxNeuronBias;
 
     /////////////////////////////////////
@@ -412,6 +431,8 @@ public:
 
     // When true, don't have a special bias neuron and treat all inputs equal
     bool DontUseBiasNeuron;
+
+    // When false, genomes with loops (recurrent cycles) fail the constraints and are rejected
     bool AllowLoops;
 
 
@@ -419,16 +440,19 @@ public:
     // ES HyperNEAT params
     /////////////////////////////
 
+    // A quadtree cell is divided further (up to MaxDepth) if the variance of its children's weights is above this
     double DivisionThreshold;
 
+    // A cell whose subtree variance is above this is searched further when extracting connections
     double VarianceThreshold;
 
     // Used for Band prunning.
     double BandThreshold;
 
-    // Max and Min Depths of the quadtree
+    // The quadtree is always divided to at least this depth
     unsigned int InitialDepth;
 
+    // The maximum depth (resolution) of the quadtree
     unsigned int MaxDepth;
 
     // How many hidden layers before connecting nodes to output. At 0 there is
@@ -439,13 +463,16 @@ public:
     double CPPN_Bias;
 
     // Quadtree Dimensions
-    // The range of the tree. Typically set to 2,
+
+    // Half the width of the searched area (along X and all dimensions above Y)
     double Width;
+    // Half the height of the searched area (along Y)
     double Height;
 
-    // The (x, y) coordinates of the tree
+    // The X coordinate of the center of the searched area
     double Qtree_X;
 
+    // The Y coordinate of the center of the searched area
     double Qtree_Y;
 
     // Use Link Expression output
@@ -454,8 +481,9 @@ public:
     // Threshold above which a connection is expressed
     double LeoThreshold;
 
-    // Use geometric seeding. Currently only along the X axis. 1
+    // Reserved for LEO seeding (currently unused)
     bool LeoSeed;
+    // Reserved for geometric seeding (currently unused)
     bool GeometrySeed;
 
     /////////////////////////////////////
@@ -464,8 +492,11 @@ public:
     std::map< std::string, TraitParameters > NeuronTraits;
     std::map< std::string, TraitParameters > LinkTraits;
     std::map< std::string, TraitParameters > GenomeTraits;
+    // Probability for a baby to have its neuron traits mutated
     double MutateNeuronTraitsProb;
+    // Probability for a baby to have its link traits mutated
     double MutateLinkTraitsProb;
+    // Probability for a baby to have its genome traits mutated
     double MutateGenomeTraitsProb;
 
     /////////////////////////////////////

@@ -1638,7 +1638,7 @@ namespace NEAT
         LinkGene t_chosenlink(0, 0, -1, 0, false); // to save it for later
 
         // number of tries to find a good link or give up
-        int t_tries = 256;
+        int t_tries = (a_Parameters.NeuronTries > 0) ? a_Parameters.NeuronTries : 1;
         while (!t_link_found)
         {
             if (NumLinks() == 1)

@@ -571,3 +571,14 @@ def test_parallel_evaluation_keeps_traits():
 def genome_trait_count(genome):
     return (len(genome.GetGenomeTraits()) + sum(len(t) for _, _, t in genome.GetNeuronTraits())
             + sum(len(t) for _, _, t in genome.GetLinkTraits()))
+
+
+def test_python_object_members_default_to_none():
+    p = NEAT.Parameters()
+    assert p.CustomConstraints is None and p.BehaviorGetter is None
+    g = NEAT.Genome()
+    assert g.behavior is None
+    g.behavior = [1, 2]
+    assert g.behavior == [1, 2]
+    p.CustomConstraints = None
+    assert p.CustomConstraints is None

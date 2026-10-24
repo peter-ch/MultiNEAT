@@ -96,6 +96,7 @@ if matplotlib_installed:
                   details=False,
                   invert_yaxis=True,
                   connection_alpha=1.0):
+        """Draws an already laid out NeuralNetwork into a Matplotlib axis."""
 
         if ax is None:
             ax = plt.gca()
@@ -164,6 +165,7 @@ if matplotlib_installed:
                 details=False,
                 invert_yaxis=True,
                 connection_alpha=1.0):
+        """Draws a NeuralNetwork or a Genome's phenotype with Matplotlib."""
 
         nn = _as_network(nn)
 
@@ -188,6 +190,9 @@ if not cvnumpy_installed:
 else:
     def DrawPhenotype(image, rect, nn, neuron_radius=15,
                       max_line_thickness=3, substrate=False):
+        """Draws a network into a NumPy image within rect = (x, y, width, height) using OpenCV.
+
+        With substrate=True the neurons are drawn at their substrate coordinates."""
         nn = _as_network(nn)
 
         rect_x, rect_y, rect_x_size, rect_y_size = rect
