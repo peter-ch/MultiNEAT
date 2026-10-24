@@ -1,0 +1,52 @@
+site_name: MultiNEAT
+site_description: NeuroEvolution library - NEAT, HyperNEAT, ES-HyperNEAT, novelty search
+site_url: https://peter-ch.github.io/MultiNEAT/
+repo_url: https://github.com/peter-ch/MultiNEAT
+edit_uri: edit/master/docs/
+exclude_docs: |
+  tools/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: installation.md
+      - Tutorial: tutorial.md
+  - Guides:
+      - How NEAT works: concepts.md
+      - Neural networks: networks.md
+      - HyperNEAT and ES-HyperNEAT: hyperneat.md
+      - Traits: traits.md
+      - Novelty search: novelty_search.md
+      - Saving and parallel evaluation: saving_and_parallel.md
+      - Visualization: visualization.md
+      - Physics engine: physics2d.md
+      - Using the C++ library: cpp.md
+  - Reference:
+      - Parameters: parameters.md
+      - Python API: api.md
+      - FAQ: faq.md

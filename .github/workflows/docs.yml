@@ -1,0 +1,27 @@
+name: Docs
+
+on:
+  push:
+    branches: [master]
+    paths: ["docs/**", "mkdocs.yml", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["docs/**", "mkdocs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "mkdocs==1.6.1" "mkdocs-material==9.8.0"
+      - name: Build
+        run: mkdocs build --strict
+      - name: Publish to GitHub Pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        run: mkdocs gh-deploy --force --no-history

@@ -17,6 +17,14 @@
 * Compiles without warnings with MSVC `/W4` and GCC `-Wall -Wextra -Wpedantic`.
 * `Assert.h` was renamed to `NeatAssert.h` - on case-insensitive file systems it shadowed `<assert.h>`.
 
+### Documentation
+
+* New documentation site (`docs/`, published with MkDocs to GitHub Pages) replacing the old website:
+  installation, a tutorial, guides for every feature, a complete parameters reference generated from
+  `src/Parameters.h`, a Python API reference generated from the module, C++ usage and a FAQ (#58, #68).
+* Docstrings and argument names for the Python API (`help(NEAT.Genome)` is useful now).
+* `CONTRIBUTING.md` with the development workflow.
+
 ### New features
 
 * ES-HyperNEAT was rewritten (the old implementation was disabled and didn't compile). It works with
@@ -68,3 +76,6 @@
   out-of-bounds access, softplus overflow, `Rounded()` for negative values, modulo by zero for zero
   intervals, uninitialized members in several classes.
 * `viz.py` works with current NumPy versions and doesn't print warnings on import.
+* `MaxNeurons` and `MaxLinks` were ignored; `NeuronTries` was ignored (a fixed 256 was used).
+* Reading `Parameters.CustomConstraints`, `Parameters.BehaviorGetter` or `Genome.behavior` before they
+  were set raised a `TypeError` - they are `None` now.
